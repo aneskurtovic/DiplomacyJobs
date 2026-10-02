@@ -614,7 +614,8 @@ def rmk_links(client, source, soup, evidence):
     return result
 
 
-TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
+# WHO writes "Oct 2, 2026", FAO "02/Oct/2026".
+TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}|\d{1,2}/[A-Z][a-z]{2}/\d{4}")
 
 
 def rai_links(source, soup):
@@ -749,10 +750,12 @@ def sfrss_links(client, source, evidence):
 
 
 def taleo_date(value):
-    try:
-        return datetime.strptime(value, "%b %d, %Y").date()
-    except ValueError:
-        return None
+    for fmt in ("%b %d, %Y", "%d/%b/%Y"):
+        try:
+            return datetime.strptime(value, fmt).date()
+        except ValueError:
+            pass
+    return None
 
 
 def taleo_links(client, source, evidence):

@@ -1152,6 +1152,10 @@ class TaleoAdapterTests(TestCase):
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 29), date(2026, 10, 13), "Sarajevo"))
         self.assertTrue(candidate.eligible and candidate.year_proven)
 
+    def test_both_taleo_date_styles(self):
+        from .ingest import TALEO_DATE, taleo_date
+        self.assertEqual([taleo_date(TALEO_DATE.match(value).group(0)) for value in ("Oct 23, 2026, 10:59:00 PM", "23/Oct/2026, 10:59:00 PM")], [date(2026, 10, 23)] * 2)
+
     def test_portal_required(self):
         organization = Organization.objects.create(name="WHO", kind="international")
         source = Source.objects.create(organization=organization, adapter="taleo", url="https://careers.who.int/careersection/ex/jobsearch.ftl")

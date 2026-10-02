@@ -843,6 +843,19 @@
     ]
   },
   {
+    "name": "Organizacija UN-a za hranu i poljoprivredu (FAO) – Projektni ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.fao.org/employment/home/en",
+    "evidence_url": "https://jobs.fao.org/careersection/fao_external/jobsearch.ftl",
+    "verified_at": "2026-10-02",
+    "notes": "FAO ima projektni ured u Sarajevu. Oglasi s globalnog karijernog portala FAO-a, samo lokacije u BiH.",
+    "sources": [
+      {"url": "https://jobs.fao.org/careersection/fao_external/jobsearch.ftl", "adapter": "taleo", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "portal": "8105120163"}, "notes": "FAO karijere (Oracle Taleo, isti REST kao WHO). Provjereno 2026-10-02: 17 oglasa u svijetu, nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Međunarodna organizacija rada (ILO) – projekti u BiH",
     "kind": "international",
     "country": "",
