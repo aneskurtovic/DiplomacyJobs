@@ -1,3 +1,25 @@
 {% load static %}<!doctype html>
-<html lang="bs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}DiplomacyJobs{% endblock %}</title><link rel="stylesheet" href="{% static 'board/site.css' %}"></head>
-<body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="/">Diplomacy<span>Jobs</span></a><nav aria-label="Glavna navigacija"><a href="/">Poslovi</a><a href="/sources/">Izvori</a></nav></div></header><main class="wrap">{% block content %}{% endblock %}</main><footer class="wrap footer">Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije.</footer></body></html>
+<html lang="bs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}DiplomacyJobs{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'board/site.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/" aria-label="DiplomacyJobs početna stranica"><span class="brand-mark" aria-hidden="true">◎</span><span>DiplomacyJobs</span></a>
+      <nav class="site-nav" aria-label="Glavna navigacija">
+        <a href="/"{% if request.path == '/' %} class="active" aria-current="page"{% endif %}>Oglasi</a>
+        <a href="/sources/"{% if request.path == '/sources/' %} class="active" aria-current="page"{% endif %}>Izvori</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">{% block content %}{% endblock %}</main>
+  <footer class="wrap footer">Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije.</footer>
+</body>
+</html>

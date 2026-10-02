@@ -1,6 +1,6 @@
 # DiplomacyJobs MVP backlog
 
-Priority follows the product requirement: the board must show trustworthy, current jobs from official sources. `DesignProposal.html` defines the public visual direction and will be integrated after ingestion is credible.
+Priority follows the product requirement: the board must show trustworthy, current jobs from official sources. `DesignProposal.html` defines the public visual direction; its source coverage layout now uses live data.
 
 ## P0 — Source coverage and trustworthy ingestion
 
@@ -22,8 +22,8 @@ Priority follows the product requirement: the board must show trustworthy, curre
 
 ## P2 — Public design
 
-- [ ] Apply `DesignProposal.html` typography, colors, header, coverage summary, legend, and source table to the real `/sources/` page. Replace all mock numbers and statuses with database values.
-- [ ] Carry the same visual language into the jobs page; retain responsive search, filters, and official application links.
+- [x] Apply `DesignProposal.html` typography, colors, header, coverage summary, legend, and source table to the real `/sources/` page. Replace all mock numbers and statuses with database values.
+- [x] Carry the same visual language into the jobs page; retain responsive search, filters, and official application links.
 
 ## Current constraints
 

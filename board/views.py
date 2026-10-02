@@ -1,6 +1,7 @@
 from datetime import timedelta
+from urllib.parse import urlsplit
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -26,9 +27,31 @@ def jobs(request):
 
 def sources(request):
     organizations = Organization.objects.prefetch_related("sources").order_by("name")
-    verified = Source.objects.filter(enabled=True, status="verified").only("adapter_config")
-    partial = sum(bool((source.adapter_config or {}).get("partial_listing")) for source in verified)
-    return render(request, "board/sources.html", {"organizations": organizations, "total": organizations.count(), "operational": len(verified) - partial, "partial": partial})
+    today = timezone.localdate()
+    cutoff = timezone.now() - timedelta(days=30)
+    published = Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
+    counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
+    review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
+    rows = []
+    totals = {"available": 0, "empty": 0, "review": 0, "partial": 0, "unavailable": 0, "pending": 0}
+    for organization in organizations:
+        for source in organization.sources.all() or [None]:
+            last_check_failed = bool(source and source.last_attempt_at and (not source.last_success_at or source.last_attempt_at > source.last_success_at))
+            if source and (source.status in ("blocked", "failing") or last_check_failed):
+                status = "unavailable"
+            elif source and source.enabled and source.status == "verified" and source.last_success_at:
+                status = "partial" if (source.adapter_config or {}).get("partial_listing") else "available" if counts.get(source.pk, 0) else "review" if review_counts.get(source.pk, 0) else "empty"
+            else:
+                status = "pending"
+            totals[status] += 1
+            url = source.url if source else organization.website
+            rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else ""})
+    selected = request.GET.get("status", "all")
+    if selected not in (*totals, "all"):
+        selected = "all"
+    visible_rows = rows if selected == "all" else [row for row in rows if row["status"] == selected]
+    latest = Source.objects.filter(last_success_at__isnull=False).order_by("-last_success_at").values_list("last_success_at", flat=True).first()
+    return render(request, "board/sources.html", {"rows": visible_rows, "total": len(rows), "organizations_total": organizations.count(), "shown": len(visible_rows), "totals": totals, "selected": selected, "open_jobs": published.count(), "latest": latest})
 
 
 def health(request):
