@@ -22,6 +22,8 @@ Priority follows the product requirement: the board must show trustworthy, curre
 - [x] Confirm AI imports and manual corrections survive subsequent source updates; handle changed source text through review. A source change after AI enrichment stays in review until a reviewer acts.
 - [ ] Add source-specific handling for PDFs, dynamically rendered portals, and paid internships only where an official source requires it.
 
+- [ ] Accent-insensitive search: SQLite folds case only for ASCII and neither database ignores diacritics, so "svicarska" does not find "Švicarska". On PostgreSQL, add `django.contrib.postgres` with the `unaccent` extension and test it against PostgreSQL (the drafted CI workflow in `.github/workflows/tests.yml` runs the suite on both databases once it can be pushed).
+
 ## P2 — Public design
 
 - [x] Apply `DesignProposal.html` typography, colors, header, coverage summary, legend, and source table to the real `/sources/` page. Replace all mock numbers and statuses with database values.
