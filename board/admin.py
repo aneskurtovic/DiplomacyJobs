@@ -19,12 +19,15 @@ class SourceAdmin(admin.ModelAdmin):
 
 @admin.action(description="Objavi odabrane oglase")
 def publish_jobs(modeladmin, request, queryset):
-    queryset.filter(source__enabled=True).update(status="published", last_reviewed_at=timezone.now())
+    expired = queryset.filter(deadline__lt=timezone.localdate()).count()
+    queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate()).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
+    if expired:
+        modeladmin.message_user(request, f"{expired} oglas(a) nije objavljeno jer je rok istekao.", level="warning")
 
 
 @admin.action(description="Zatvori odabrane oglase")
 def close_jobs(modeladmin, request, queryset):
-    queryset.update(status="closed")
+    queryset.update(status="closed", closed_reason="manual", last_reviewed_at=timezone.now())
 
 
 @admin.action(description="Obnovi provjeru oglasa bez roka")
@@ -35,7 +38,7 @@ def renew_jobs(modeladmin, request, queryset):
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     list_display = ("title", "organization", "city", "deadline", "status", "last_checked_at")
-    list_filter = ("status", "opportunity_type", "source__organization")
+    list_filter = ("status", "closed_reason", "opportunity_type", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
     actions = (publish_jobs, close_jobs, renew_jobs)
     readonly_fields = ("first_seen_at", "last_seen_at", "content_hash", "raw_text", "field_evidence", "missing_scans")

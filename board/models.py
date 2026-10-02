@@ -60,6 +60,7 @@ class SourceDocument(models.Model):
 
 class Job(models.Model):
     STATUS = [("review", "Na provjeri"), ("published", "Objavljeno"), ("closed", "Zatvoreno")]
+    CLOSED_REASON = [("deadline", "Istekao rok"), ("missing", "Nestao sa izvora"), ("stale", "Bez roka, zastario"), ("manual", "Zatvoren ručno")]
     TYPE = [("employment", "Zaposlenje"), ("paid_internship", "Plaćena praksa"), ("consultancy", "Individualni konsultantski angažman")]
     source = models.ForeignKey(Source, on_delete=models.PROTECT, related_name="jobs")
     external_id = models.CharField(max_length=250, blank=True)
@@ -79,6 +80,7 @@ class Job(models.Model):
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
     missing_scans = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS, default="review")
+    closed_reason = models.CharField(max_length=20, choices=CLOSED_REASON, blank=True)
     content_hash = models.CharField(max_length=64, blank=True)
     raw_text = models.TextField(blank=True)
     manually_edited_fields = models.JSONField(default=list, blank=True)

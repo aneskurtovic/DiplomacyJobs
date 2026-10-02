@@ -672,6 +672,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
 AI_CHANGED = "Izvor je promijenjen nakon AI obrade"
+REOPENABLE = ("deadline", "missing")
 
 
 def open_client(source):
@@ -742,19 +743,25 @@ def ingest_source(source_id):
                     job.last_seen_at = now
                     job.last_checked_at = now
                     job.missing_scans = 0
+                    expired = bool(job.deadline and job.deadline < timezone.localdate())
+                    # An extended deadline or a job back on the listing reopens it; human and stale closures stay.
+                    if job.status == "closed" and job.closed_reason in REOPENABLE and not expired:
+                        job.status, job.closed_reason = "review", ""
                     if candidate.eligible and candidate.year_proven and job.status == "review" and not job.manually_edited_fields and not ai_changed:
                         job.status = "published"
                     if not candidate.year_proven and job.status == "published" and not job.last_reviewed_at:
                         job.status = "review"
                     if not candidate.eligible and job.status == "published" and not job.last_reviewed_at:
                         job.status = "review"
+                    if expired and job.status != "closed":
+                        job.status, job.closed_reason = "closed", "deadline"
                     job.save()
             if not (source.adapter_config or {}).get("partial_listing"):
-                for job in Job.objects.filter(source=source, status="published").exclude(canonical_url__in=seen):
+                for job in Job.objects.filter(source=source, status__in=("published", "review")).exclude(canonical_url__in=seen):
                     job.missing_scans += 1
                     if job.missing_scans >= 2:
-                        job.status = "closed"
-                    job.save(update_fields=["missing_scans", "status"])
+                        job.status, job.closed_reason = "closed", "missing"
+                    job.save(update_fields=["missing_scans", "status", "closed_reason"])
             source.last_success_at = now
             source.consecutive_failures = 0
             source.status = "verified"
@@ -776,7 +783,9 @@ def ingest_source(source_id):
 def expire_jobs():
     now = timezone.now()
     today = timezone.localdate()
-    Job.objects.filter(status="published", deadline__lt=today).update(status="closed")
-    Job.objects.filter(status="published", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=30), last_reviewed_at__isnull=True).update(status="closed")
-    Job.objects.filter(status="published", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=30), last_reviewed_at__lt=now-timedelta(days=30)).update(status="closed")
+    Job.objects.filter(status__in=("published", "review"), deadline__lt=today).update(status="closed", closed_reason="deadline")
+    Job.objects.filter(status="published", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=30), last_reviewed_at__isnull=True).update(status="closed", closed_reason="stale")
+    Job.objects.filter(status="published", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=30), last_reviewed_at__lt=now-timedelta(days=30)).update(status="closed", closed_reason="stale")
+    # Undated leads nobody reviewed in two months are not worth keeping in the queue.
+    Job.objects.filter(status="review", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=60)).update(status="closed", closed_reason="stale")
     SourceDocument.objects.filter(fetched_at__lt=now-timedelta(days=90)).delete()

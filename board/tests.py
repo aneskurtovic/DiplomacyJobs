@@ -512,6 +512,39 @@ class IngestRulesTests(TestCase):
         job.refresh_from_db()
         self.assertEqual((job.title, job.deadline), ("Political Officer (edited)", date(2026, 10, 31)))
 
+    def run_on(self, day):
+        from .ingest import ingest_source
+        with patch("board.ingest.fetch", side_effect=self.fake_fetch), patch("board.ingest.timezone.localdate", return_value=day):
+            return ingest_source(self.source.pk)
+
+    def test_deadline_closes_and_extension_reopens(self):
+        self.run_ingest()
+        job = self.source.jobs.get()
+        self.run_on(date(2026, 10, 31))
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.closed_reason), ("closed", "deadline"))
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 15.11.2026."))
+        self.run_on(date(2026, 10, 31))
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.closed_reason, job.deadline), ("published", "", date(2026, 11, 15)))
+
+    def test_manual_close_is_final(self):
+        self.run_ingest()
+        Job.objects.update(status="closed", closed_reason="manual")
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 15.11.2026."))
+        self.run_ingest()
+        self.assertEqual(self.source.jobs.get().status, "closed")
+
+    def test_expire_jobs_clears_review_queue(self):
+        from .ingest import expire_jobs
+        from django.utils import timezone
+        from datetime import timedelta
+        Job.objects.create(source=self.source, canonical_url="https://emb.example/a", title="Expired lead", status="review", deadline=timezone.localdate() - timedelta(days=1))
+        Job.objects.create(source=self.source, canonical_url="https://emb.example/b", title="Old undated lead", status="review", first_seen_at=timezone.now() - timedelta(days=61))
+        Job.objects.create(source=self.source, canonical_url="https://emb.example/c", title="Fresh undated lead", status="review")
+        expire_jobs()
+        self.assertEqual(dict(Job.objects.values_list("title", "closed_reason")), {"Expired lead": "deadline", "Old undated lead": "stale", "Fresh undated lead": ""})
+
     def test_ai_fields_kept_and_changed_source_sent_to_review(self):
         self.run_ingest()
         job = self.source.jobs.get()
@@ -616,3 +649,23 @@ class ScrapeLockTests(TestCase):
         os.utime(lock, (old, old))
         call_command("scrape_jobs", stdout=io.StringIO(), stderr=io.StringIO())
         self.assertFalse(lock.exists())
+
+
+class AdminActionTests(TestCase):
+    def test_publish_skips_expired_and_close_is_manual(self):
+        from datetime import timedelta
+        from unittest.mock import Mock
+        from django.utils import timezone
+        from .admin import close_jobs, publish_jobs
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs", enabled=True)
+        Job.objects.create(source=source, canonical_url="https://a.example/1", title="Open", deadline=timezone.localdate() + timedelta(days=3))
+        Job.objects.create(source=source, canonical_url="https://a.example/2", title="Expired", deadline=timezone.localdate() - timedelta(days=3))
+        admin = Mock()
+        publish_jobs(admin, None, Job.objects.all())
+        self.assertEqual(dict(Job.objects.values_list("title", "status")), {"Open": "published", "Expired": "review"})
+        admin.message_user.assert_called_once()
+        close_jobs(admin, None, Job.objects.filter(title="Open"))
+        job = Job.objects.get(title="Open")
+        self.assertEqual((job.status, job.closed_reason), ("closed", "manual"))
+        self.assertIsNotNone(job.last_reviewed_at)
