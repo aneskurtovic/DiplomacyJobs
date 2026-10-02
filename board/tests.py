@@ -888,3 +888,43 @@ class SslRedirectTests(TestCase):
     def test_health_stays_plain_http_for_container_check(self):
         self.assertEqual(self.client.get("/health/").status_code, 200)
         self.assertEqual(self.client.get("/").status_code, 301)
+
+
+class ScrapeCommandTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        self.first = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
+        self.second = Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="generic", enabled=True)
+
+    def call(self, *args):
+        import io
+        from django.core.management import call_command
+        out, err = io.StringIO(), io.StringIO()
+        call_command("scrape_jobs", *args, stdout=out, stderr=err)
+        return out.getvalue(), err.getvalue()
+
+    def test_one_crash_does_not_stop_others_or_expiry(self):
+        from .ingest import ScrapeRun
+        calls = []
+        def ingest(pk):
+            calls.append(pk)
+            if pk == self.first.pk:
+                raise RuntimeError("database hiccup")
+            return ScrapeRun(source_id=pk, success=True)
+        with patch("board.management.commands.scrape_jobs.ingest_source", side_effect=ingest), patch("board.management.commands.scrape_jobs.expire_jobs") as expire:
+            out, err = self.call()
+        self.assertEqual(sorted(calls), sorted([self.first.pk, self.second.pk]))
+        self.assertIn("database hiccup", err)
+        expire.assert_called_once()
+
+    def test_unknown_source_is_an_error(self):
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            self.call("--source", "999")
+
+    def test_overlapping_run_is_skipped(self):
+        from .ingest import ingest_source
+        from .models import ScrapeRun
+        ScrapeRun.objects.create(source=self.first)
+        self.assertIsNone(ingest_source(self.first.pk))
+        self.assertEqual(self.first.runs.count(), 1)

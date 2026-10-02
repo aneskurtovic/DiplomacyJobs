@@ -795,6 +795,9 @@ def ingest_source(source_id):
     source = Source.objects.select_related("organization").get(pk=source_id)
     if not source.enabled or source.adapter == "none":
         return None
+    # The file lock is per container; an overlapping run elsewhere would count every job as missing twice.
+    if source.runs.filter(finished_at__isnull=True, started_at__gte=timezone.now() - timedelta(hours=1)).exists():
+        return None
     run = ScrapeRun.objects.create(source=source)
     now = timezone.now()
     source.last_attempt_at = now

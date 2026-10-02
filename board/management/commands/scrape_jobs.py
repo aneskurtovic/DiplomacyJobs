@@ -30,10 +30,21 @@ class Command(BaseCommand):
             sources = Source.objects.filter(enabled=True).exclude(adapter="none")
             if options["source"]:
                 sources = sources.filter(pk=options["source"])
-            for source in sources:
-                result = ingest_source(source.pk)
-                if result:
-                    self.stdout.write(f"{source.pk}: {'ok' if result.success else result.error}")
-            expire_jobs()
+                if not sources.exists():
+                    raise CommandError(f"No enabled source with id {options['source']}")
+            try:
+                for source in sources:
+                    # One source's unexpected error must not skip the rest or the expiry pass.
+                    try:
+                        result = ingest_source(source.pk)
+                    except Exception as exc:
+                        self.stderr.write(f"{source.pk}: unexpected error: {exc}")
+                        continue
+                    if result is None:
+                        self.stdout.write(f"{source.pk}: skipped, another run is in progress")
+                    else:
+                        self.stdout.write(f"{source.pk}: {'ok' if result.success else result.error}")
+            finally:
+                expire_jobs()
         finally:
             lock.unlink(missing_ok=True)
