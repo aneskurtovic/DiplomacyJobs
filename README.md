@@ -41,11 +41,13 @@ Set an existing HTTPS subdomain and inspect the server's reverse proxy. Copy `.e
 
 ```sh
 docker compose up -d --build
-docker compose exec web python manage.py migrate
 docker compose exec web python manage.py import_registry
+docker compose exec web python manage.py verify_sources
 docker compose exec web python manage.py createsuperuser
 ```
 
-Proxy the hostname to `127.0.0.1:8000`, forwarding `Host` and `X-Forwarded-Proto`. Use the actual HTTPS hostname in `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. Once HTTPS works end to end, set `DJANGO_SECURE_SSL_REDIRECT=1` (`/health/` stays reachable over plain HTTP for the container healthcheck) and, after the hostname is final, `DJANGO_HSTS_SECONDS` (start small, e.g. `3600`; HSTS cannot be withdrawn from browsers that cached it). The database has no public port. Run `docker compose exec -T db pg_dump -U diplomacyjobs diplomacyjobs > backup.sql` from the host for a backup. Verify restoring that backup to a separate PostgreSQL database before launch. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable.
+The web container runs migrations on start; static files are collected when the image is built. The scraper runs daily at 06:00 Sarajevo time, and once at start if no source has been scraped in the last 20 hours. The healthcheck sends the first `DJANGO_ALLOWED_HOSTS` entry as its `Host` header. Container logs rotate at 5 × 10 MB per service.
+
+Proxy the hostname to `127.0.0.1:8000`, forwarding `Host` and `X-Forwarded-Proto`. Use the actual HTTPS hostname in `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. Once HTTPS works end to end, set `DJANGO_SECURE_SSL_REDIRECT=1` (`/health/` stays reachable over plain HTTP for the container healthcheck) and, after the hostname is final, `DJANGO_HSTS_SECONDS` (start small, e.g. `3600`; HSTS cannot be withdrawn from browsers that cached it). The database has no public port. For backups, run `docker compose exec -T db pg_dump -Fc -U diplomacyjobs diplomacyjobs > backups/diplomacyjobs-$(date +%F).dump` daily from host cron and delete dumps older than 30 days (`find backups -name '*.dump' -mtime +30 -delete`). Verify a restore before launch with `createdb` on a scratch database and `pg_restore --no-owner -d <scratch> <dump>`. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable.
 
 This checkout does not contain the server hostname, access credentials, or a complete verified mission inventory. The app should not be publicly described as comprehensive until the inventory and 10-source gate are complete.

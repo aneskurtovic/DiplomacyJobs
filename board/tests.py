@@ -1043,3 +1043,36 @@ class VerifySourcesTests(TestCase):
         self.assertIn("FAIL", out.getvalue())
         self.assertIn("1 reachable, 1 failing", out.getvalue())
         self.assertFalse(ScrapeRun.objects.exists() or Job.objects.exists())
+
+
+@override_settings(ALLOWED_HOSTS=["jobs.example.com"])
+class ProductionHostTests(TestCase):
+    def test_healthcheck_needs_the_public_host_header(self):
+        self.assertEqual(self.client.get("/health/", HTTP_HOST="127.0.0.1").status_code, 400)
+        self.assertEqual(self.client.get("/health/", HTTP_HOST="jobs.example.com").status_code, 200)
+
+
+class SchedulerTests(TestCase):
+    def test_next_run_is_six_in_the_morning_local(self):
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        from .management.commands.run_scraper_schedule import seconds_until_next_run
+        sarajevo = ZoneInfo("Europe/Sarajevo")
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 5, 30, tzinfo=sarajevo)), 30 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 6, 0, tzinfo=sarajevo)), 24 * 60 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 18, 0, tzinfo=sarajevo)), 12 * 60 * 60)
+
+    def test_start_skips_run_when_scraped_recently_and_clears_lock(self):
+        from .management.commands.run_scraper_schedule import Command
+        from .management.commands.scrape_jobs import lock_path
+        from .models import ScrapeRun
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        ScrapeRun.objects.create(source=Source.objects.create(organization=organization, url="https://a.example/jobs"))
+        lock = lock_path()
+        self.addCleanup(lock.unlink, missing_ok=True)
+        lock.write_text("1")
+        with patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
+            with self.assertRaises(KeyboardInterrupt):
+                Command().handle()
+        scrape.assert_not_called()
+        self.assertFalse(lock.exists())

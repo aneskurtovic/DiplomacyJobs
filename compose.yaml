@@ -1,11 +1,19 @@
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_DB: diplomacyjobs
       POSTGRES_USER: diplomacyjobs
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      TZ: Europe/Sarajevo
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -16,21 +24,30 @@ services:
   web:
     build: .
     restart: unless-stopped
+    logging: *logging
     env_file: .env
+    environment:
+      TZ: Europe/Sarajevo
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=3)"]
+      # Django rejects Host: 127.0.0.1 in production, so the check presents the first public hostname.
+      test: ["CMD", "python", "-c", "import os, urllib.request as r; host = os.environ['DJANGO_ALLOWED_HOSTS'].split(',')[0].strip(); r.urlopen(r.Request('http://127.0.0.1:8000/health/', headers={'Host': host}), timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3
   scraper:
     build: .
     restart: unless-stopped
+    logging: *logging
+    # init forwards docker stop's SIGTERM so the scheduler exits cleanly instead of being killed after 10 s.
+    init: true
     env_file: .env
+    environment:
+      TZ: Europe/Sarajevo
     command: ["python", "manage.py", "run_scraper_schedule"]
     depends_on:
       web:

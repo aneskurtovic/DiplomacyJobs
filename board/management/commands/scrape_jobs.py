@@ -8,6 +8,10 @@ from board.models import Source
 STALE_LOCK_SECONDS = 6 * 60 * 60
 
 
+def lock_path():
+    return Path("/tmp/diplomacyjobs-scrape.lock") if os.name != "nt" else Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock"
+
+
 class Command(BaseCommand):
     help = "Fetch enabled official recruitment sources once"
 
@@ -15,7 +19,7 @@ class Command(BaseCommand):
         parser.add_argument("--source", type=int)
 
     def handle(self, *args, **options):
-        lock = Path("/tmp/diplomacyjobs-scrape.lock") if os.name != "nt" else Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock"
+        lock = lock_path()
         # A run takes minutes. An older lock was left by a killed process; /tmp survives container restarts.
         if lock.exists() and time.time() - lock.stat().st_mtime > STALE_LOCK_SECONDS:
             self.stderr.write(f"Removing stale scrape lock from {time.ctime(lock.stat().st_mtime)}")
