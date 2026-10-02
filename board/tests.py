@@ -833,6 +833,16 @@ class PublicViewTests(TestCase):
         self.assertIn("Legal Consultant", city)
         self.assertNotIn("<h3>Driver</h3>", city)
 
+    def test_search_ignores_case_and_diacritics(self):
+        Job.objects.filter(title="Driver").update(title="Vozač – Brčko", city="Brčko")
+        for query in ("vozac", "BRCKO", "Brčko"):
+            self.assertIn("Vozač – Brčko", self.client.get("/", {"q": query}).content.decode(), query)
+        self.assertNotIn("Vozač – Brčko", self.client.get("/", {"q": "Mostar"}).content.decode())
+
+    def test_fold(self):
+        from .text import fold
+        self.assertEqual([fold(word) for word in ("Švicarska", "ĐURĐEVDAN", "djurdjevdan", "Žepče")], ["svicarska", "durdevdan", "durdevdan", "zepce"])
+
     def test_feed_lists_visible_jobs_with_filters(self):
         feed = self.client.get("/feed/")
         self.assertEqual(feed["Content-Type"].split(";")[0], "application/atom+xml")

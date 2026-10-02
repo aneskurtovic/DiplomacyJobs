@@ -22,7 +22,7 @@ Priority follows the product requirement: the board must show trustworthy, curre
 - [x] Confirm AI imports and manual corrections survive subsequent source updates; handle changed source text through review. A source change after AI enrichment stays in review until a reviewer acts.
 - [ ] Add source-specific handling for PDFs, dynamically rendered portals, and paid internships only where an official source requires it.
 
-- [ ] Accent-insensitive search: SQLite folds case only for ASCII and neither database ignores diacritics, so "svicarska" does not find "Švicarska". On PostgreSQL, add `django.contrib.postgres` with the `unaccent` extension and test it against PostgreSQL (the drafted CI workflow in `.github/workflows/tests.yml` runs the suite on both databases once it can be pushed).
+- [x] Accent-insensitive search: the board and feed match on case- and diacritic-folded text ("svicarska" finds "Švicarska", "dj" matches "đ"), in Python over the visible jobs, so it behaves the same on SQLite and PostgreSQL without `unaccent`.
 
 ## P2 — Public design
 

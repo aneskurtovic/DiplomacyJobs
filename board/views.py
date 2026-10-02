@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from .models import Job, Organization, Source
+from .text import fold
 
 STALE_AFTER = timedelta(hours=48)
 
@@ -24,7 +25,10 @@ def filter_jobs(query, params):
     kind = params.get("type", "")
     scope = params.get("scope", "")
     if search:
-        query = query.filter(Q(title__icontains=search) | Q(source__organization__name__icontains=search) | Q(city__icontains=search))
+        # Neither database ignores diacritics in a portable way; visible jobs are few, so matching is done on folded text.
+        needle = fold(search)
+        rows = query.values_list("pk", "title", "city", "source__organization__name")
+        query = query.filter(pk__in=[pk for pk, *fields in rows if needle in fold(" ".join(fields))])
     if employer.isdecimal() and len(employer) <= 18:
         query = query.filter(source__organization_id=int(employer))
     if city:
