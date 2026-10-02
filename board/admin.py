@@ -112,7 +112,13 @@ class JobAdmin(admin.ModelAdmin):
 @admin.register(ScrapeRun)
 class ScrapeRunAdmin(admin.ModelAdmin):
     list_display = ("source", "started_at", "success", "candidates", "error")
+    list_filter = ("success", "source__adapter")
+    search_fields = ("source__url", "source__organization__name", "error")
+    date_hierarchy = "started_at"
     readonly_fields = ("source", "started_at", "finished_at", "success", "candidates", "error")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("source__organization")
 
     def has_add_permission(self, request):
         return False
@@ -121,7 +127,15 @@ class ScrapeRunAdmin(admin.ModelAdmin):
 @admin.register(SourceDocument)
 class SourceDocumentAdmin(admin.ModelAdmin):
     list_display = ("source", "url", "fetched_at", "content_hash")
+    list_filter = ("source__adapter",)
+    search_fields = ("url", "source__organization__name")
+    date_hierarchy = "fetched_at"
     readonly_fields = ("source", "url", "fetched_at", "content_hash", "text")
+
+    def get_queryset(self, request):
+        # Snapshot texts run to 100k characters; the list shows none of them.
+        queryset = super().get_queryset(request).select_related("source__organization")
+        return queryset if request.resolver_match and request.resolver_match.url_name.endswith("_change") else queryset.defer("text")
 
     def has_add_permission(self, request):
         return False

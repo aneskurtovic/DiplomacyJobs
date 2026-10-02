@@ -61,7 +61,8 @@ class SourceDocument(models.Model):
     text = models.TextField()
 
     class Meta:
-        indexes = [models.Index(fields=["fetched_at"])]
+        # The latest snapshot of a page is looked up per candidate in every run and in the job admin.
+        indexes = [models.Index(fields=["fetched_at"]), models.Index(fields=["source", "url", "-fetched_at"], name="sourcedoc_latest")]
 
 
 class Job(models.Model):

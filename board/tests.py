@@ -1111,6 +1111,21 @@ class AdminReviewQueueTests(TestCase):
         self.assertContains(response, "+Deadline 20.10.2026.")
         self.assertNotContains(response, "Location Sarajevo.</div>")
 
+    @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+    def test_run_and_snapshot_lists_filter_and_skip_text(self):
+        from django.contrib.auth.models import User
+        from .models import ScrapeRun, SourceDocument
+        self.client.force_login(User.objects.create_superuser("admin", "a@example.com", "x"))
+        source = Source.objects.create(organization=Organization.objects.create(name="Embassy", kind="embassy"), url="https://a.example/jobs", adapter="generic")
+        ScrapeRun.objects.create(source=source, success=True, error="")
+        ScrapeRun.objects.create(source=source, success=False, error="HTTP 503 from listing")
+        failures = self.client.get("/admin/board/scraperun/", {"success__exact": "0"})
+        self.assertContains(failures, "HTTP 503 from listing")
+        self.assertContains(failures, "1 scrape run")
+        document = SourceDocument.objects.create(source=source, url="https://a.example/1", content_hash="a", text="UNIQUE-SNAPSHOT-TEXT")
+        self.assertNotContains(self.client.get("/admin/board/sourcedocument/"), "UNIQUE-SNAPSHOT-TEXT")
+        self.assertContains(self.client.get(f"/admin/board/sourcedocument/{document.pk}/change/"), "UNIQUE-SNAPSHOT-TEXT")
+
     def test_changelist_shows_reason_and_deadline_filter(self):
         from datetime import timedelta
         from django.contrib.auth.models import User
