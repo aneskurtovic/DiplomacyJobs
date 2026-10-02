@@ -124,6 +124,18 @@ def fetch(client, url):
     return soup.get_text(" ", strip=True), soup
 
 
+def fetch_json(client, url):
+    response = client.get(url)
+    response.raise_for_status()
+    if response.status_code != 200 or "json" not in response.headers.get("content-type", "").lower():
+        raise ValueError(f"Unusable JSON response: HTTP {response.status_code}, {response.headers.get('content-type', '')}")
+    if len(response.content) > 5_000_000:
+        raise ValueError("Document larger than 5 MB")
+    if urlsplit(str(response.url)).hostname != urlsplit(url).hostname:
+        raise ValueError("Unexpected redirect host")
+    return response.json()
+
+
 def listing_links(source, soup):
     config = source.adapter_config or {}
     if source.adapter == "osce":
@@ -364,8 +376,48 @@ def era_links(source, soup):
     return result
 
 
-# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP.
-CARD_EVIDENCE = {"unct", "rcc"}
+def oracle_closing_date(value):
+    """Oracle stores the posting office's end of day as the next morning in UTC (UNDP: 23:59 New York is 03:59Z)."""
+    if not value:
+        return None
+    moment = datetime.fromisoformat(value)
+    return (moment - timedelta(days=1)).date() if moment.hour < 12 else moment.date()
+
+
+def oracle_links(client, source, evidence):
+    """Oracle Recruiting Cloud (UNDP, IOM) public requisition API. Keyword search also matches descriptions, so only BiH duty stations are kept."""
+    parts = urlsplit(source.url)
+    site = re.search(r"/sites/([A-Za-z0-9_]+)/", parts.path)
+    if parts.scheme != "https" or not site:
+        raise ValueError("Oracle site number missing from source URL")
+    api = f"https://{parts.hostname}/hcmRestApi/resources/latest"
+    keyword = re.sub(r"[^A-Za-z]", "", (source.adapter_config or {}).get("keyword", "Bosnia"))
+    items = fetch_json(client, f"{api}/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber={site.group(1)},keyword={keyword},limit={MAX_DETAIL_LINKS}").get("items") or []
+    if len(items) != 1 or "TotalJobsCount" not in items[0]:
+        raise ValueError("Oracle search response changed shape")
+    requisitions = items[0].get("requisitionList") or []
+    if items[0]["TotalJobsCount"] > len(requisitions):
+        raise ValueError(f"Oracle search shows {len(requisitions)} of {items[0]['TotalJobsCount']} requisitions; add pagination")
+    result = []
+    for requisition in requisitions:
+        if requisition.get("PrimaryLocationCountry") != "BA":
+            continue
+        number = re.sub(r"\D", "", str(requisition.get("Id", "")))
+        details = fetch_json(client, f'{api}/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id="{number}",siteNumber={site.group(1)}').get("items") or []
+        if not number or len(details) != 1:
+            raise ValueError(f"Oracle requisition {number} detail missing")
+        detail = details[0]
+        url = f"https://{parts.hostname}/hcmUI/CandidateExperience/en/sites/{site.group(1)}/job/{number}"
+        published = (detail.get("ExternalPostedStartDate") or "")[:10]
+        closing = oracle_closing_date(detail.get("ExternalPostedEndDate"))
+        description = BeautifulSoup(detail.get("ExternalDescriptionStr") or "", "html.parser").get_text(" ", strip=True)
+        evidence[url] = f"{detail.get('Title', '')}. Location: {detail.get('PrimaryLocation', '')}. " + (f"Published {published}. " if published else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        result.append((url, (detail.get("Title") or requisition.get("Title") or "")[:400]))
+    return result
+
+
+# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle is a JSON API.
+CARD_EVIDENCE = {"unct", "rcc", "oracle"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -388,6 +440,8 @@ def discover_links(client, source, soup, evidence=None):
         return rcc_links(source, soup, evidence)
     elif source.adapter == "era":
         return era_links(source, soup)
+    elif source.adapter == "oracle":
+        return oracle_links(client, source, evidence)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -471,7 +525,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era")
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

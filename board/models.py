@@ -19,7 +19,7 @@ class Organization(models.Model):
 
 class Source(models.Model):
     STATUS = [("discovered", "Otkriven"), ("verified", "Provjeren"), ("unsupported", "Čeka integraciju"), ("blocked", "Nedostupan"), ("none", "Izvor nije pronađen"), ("failing", "Greška")]
-    ADAPTERS = [("none", "Bez adaptera"), ("eeas", "EEAS"), ("govuk", "GOV.UK"), ("generic", "Strukturirana lista"), ("denmark", "Ambasada Danske"), ("italy", "Ambasada Italije"), ("swiss", "Ambasada Švicarske"), ("osce", "Misija OSCE-a"), ("unct", "UN u BiH"), ("ohr", "OHR"), ("eufor", "EUFOR"), ("unicef", "UNICEF"), ("ebrd", "EBRD"), ("rcc", "RCC"), ("era", "Ambasada SAD (ERA)"), ("japan", "Ambasada Japana")]
+    ADAPTERS = [("none", "Bez adaptera"), ("eeas", "EEAS"), ("govuk", "GOV.UK"), ("generic", "Strukturirana lista"), ("denmark", "Ambasada Danske"), ("italy", "Ambasada Italije"), ("swiss", "Ambasada Švicarske"), ("osce", "Misija OSCE-a"), ("unct", "UN u BiH"), ("ohr", "OHR"), ("eufor", "EUFOR"), ("unicef", "UNICEF"), ("ebrd", "EBRD"), ("rcc", "RCC"), ("era", "Ambasada SAD (ERA)"), ("japan", "Ambasada Japana"), ("oracle", "Oracle Recruiting (UNDP, IOM)")]
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="sources")
     url = models.URLField(max_length=1000)
     adapter = models.CharField(max_length=20, choices=ADAPTERS, default="none")

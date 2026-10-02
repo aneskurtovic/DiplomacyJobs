@@ -303,3 +303,34 @@ class DateParsingTests(TestCase):
     def test_deadline_formats(self):
         for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15))]:
             self.assertEqual(parse_deadline(text), expected, text)
+
+
+def oracle_api(request):
+    if "recruitingCEJobRequisitions" in str(request.url):
+        rows = [{"Id": "37232", "Title": "Joint Project Coordinator", "PrimaryLocationCountry": "BA"}, {"Id": "20334", "Title": "Diaspora Experts", "PrimaryLocationCountry": "AL"}]
+        return httpx.Response(200, json={"items": [{"TotalJobsCount": 2, "requisitionList": rows}]})
+    assert "37232" in str(request.url), request.url
+    detail = {"Title": "Joint Project Coordinator", "PrimaryLocation": "Sarajevo, Bosnia and Herzegovina", "ExternalPostedStartDate": "2026-09-30T14:26:07+00:00", "ExternalPostedEndDate": "2026-10-08T03:59:00+00:00", "ExternalDescriptionStr": "<p>Delivers work by deadline.</p>"}
+    return httpx.Response(200, json={"items": [detail]})
+
+
+class OracleAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="UN", kind="international")
+        self.source = Source.objects.create(organization=organization, adapter="oracle", url="https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions")
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_bih_requisition_kept_with_office_closing_day(self, _):
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(oracle_api)) as client:
+            links = discover_links(client, self.source, None, evidence)
+        url = "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/37232"
+        self.assertEqual(links, [(url, "Joint Project Coordinator")])
+        candidate = make_candidate(self.source, url, links[0][1], evidence[url], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 30), date(2026, 10, 7), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_truncated_search_fails(self):
+        truncated = lambda request: httpx.Response(200, json={"items": [{"TotalJobsCount": 150, "requisitionList": []}]})
+        with httpx.Client(transport=httpx.MockTransport(truncated)) as client, self.assertRaises(ValueError):
+            discover_links(client, self.source, None, {})
