@@ -597,3 +597,22 @@ class PublicViewTests(TestCase):
     def test_unknown_type_ignored_and_sources_page_renders(self):
         self.assertContains(self.client.get("/", {"type": "bogus"}), "Driver")
         self.assertContains(self.client.get("/sources/"), "Embassy A")
+
+
+class ScrapeLockTests(TestCase):
+    def test_stale_lock_removed_fresh_lock_respected(self):
+        import io
+        import os
+        import time
+        from pathlib import Path
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+        lock = Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock" if os.name == "nt" else Path("/tmp/diplomacyjobs-scrape.lock")
+        self.addCleanup(lock.unlink, missing_ok=True)
+        lock.write_text("1")
+        with self.assertRaises(CommandError):
+            call_command("scrape_jobs", stdout=io.StringIO(), stderr=io.StringIO())
+        old = time.time() - 7 * 60 * 60
+        os.utime(lock, (old, old))
+        call_command("scrape_jobs", stdout=io.StringIO(), stderr=io.StringIO())
+        self.assertFalse(lock.exists())

@@ -1,8 +1,11 @@
 import os
+import time
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from board.ingest import expire_jobs, ingest_source
 from board.models import Source
+
+STALE_LOCK_SECONDS = 6 * 60 * 60
 
 
 class Command(BaseCommand):
@@ -13,6 +16,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         lock = Path("/tmp/diplomacyjobs-scrape.lock") if os.name != "nt" else Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock"
+        # A run takes minutes. An older lock was left by a killed process; /tmp survives container restarts.
+        if lock.exists() and time.time() - lock.stat().st_mtime > STALE_LOCK_SECONDS:
+            self.stderr.write(f"Removing stale scrape lock from {time.ctime(lock.stat().st_mtime)}")
+            lock.unlink(missing_ok=True)
         try:
             fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         except FileExistsError as exc:
