@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from unittest.mock import patch
 
@@ -334,3 +335,36 @@ class OracleAdapterTests(TestCase):
         truncated = lambda request: httpx.Response(200, json={"items": [{"TotalJobsCount": 150, "requisitionList": []}]})
         with httpx.Client(transport=httpx.MockTransport(truncated)) as client, self.assertRaises(ValueError):
             discover_links(client, self.source, None, {})
+
+
+def workday_api(request):
+    if request.url.path.endswith("/jobs"):
+        body = json.loads(request.content)
+        countries = {"facetParameter": "locationMainGroup", "values": [{"facetParameter": "locationCountry", "values": [{"descriptor": "Bosnia and Herzegovina", "id": "ba1"}, {"descriptor": "Hungary", "id": "hu1"}]}]}
+        if not body["appliedFacets"]:
+            return httpx.Response(200, json={"total": 14, "jobPostings": [], "facets": [countries]})
+        assert body["appliedFacets"] == {"locationCountry": ["ba1"]}
+        return httpx.Response(200, json={"total": 1, "jobPostings": [{"title": "Protection Associate", "externalPath": "/job/Sarajevo/Protection-Associate_JR1"}], "facets": [countries]})
+    info = {"title": "Protection Associate", "location": "Sarajevo", "startDate": "2026-10-01", "endDate": "2026-10-16", "jobDescription": "<p>Deadline for Applications October 15, 2026</p>", "externalUrl": "https://unhcr.wd3.myworkdayjobs.com/External/job/Sarajevo/Protection-Associate_JR1", "jobRequisitionLocation": {"country": {"descriptor": "Bosnia and Herzegovina", "alpha2Code": "BA"}}}
+    return httpx.Response(200, json={"jobPostingInfo": info})
+
+
+class WorkdayAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="UN", kind="international")
+        self.source = Source.objects.create(organization=organization, adapter="workday", url="https://unhcr.wd3.myworkdayjobs.com/External")
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_country_facet_filters_and_stated_deadline_wins(self, _):
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(workday_api)) as client:
+            links = discover_links(client, self.source, None, evidence)
+        self.assertEqual(len(links), 1)
+        candidate = make_candidate(self.source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 10, 1), date(2026, 10, 15), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_no_bih_country_means_empty(self):
+        no_bih = lambda request: httpx.Response(200, json={"total": 1, "jobPostings": [], "facets": [{"facetParameter": "locationCountry", "values": [{"descriptor": "Hungary", "id": "hu1"}]}]})
+        with httpx.Client(transport=httpx.MockTransport(no_bih)) as client:
+            self.assertEqual(discover_links(client, self.source, None, {}), [])

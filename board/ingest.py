@@ -124,8 +124,8 @@ def fetch(client, url):
     return soup.get_text(" ", strip=True), soup
 
 
-def fetch_json(client, url):
-    response = client.get(url)
+def fetch_json(client, url, payload=None):
+    response = client.get(url) if payload is None else client.post(url, json=payload)
     response.raise_for_status()
     if response.status_code != 200 or "json" not in response.headers.get("content-type", "").lower():
         raise ValueError(f"Unusable JSON response: HTTP {response.status_code}, {response.headers.get('content-type', '')}")
@@ -416,8 +416,46 @@ def oracle_links(client, source, evidence):
     return result
 
 
-# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle is a JSON API.
-CARD_EVIDENCE = {"unct", "rcc", "oracle"}
+def workday_links(client, source, evidence):
+    """Workday career site JSON API (UNHCR). The country facet lists every country with an open posting, so no BiH entry means no BiH jobs."""
+    parts = urlsplit(source.url)
+    site = parts.path.strip("/").split("/")[-1]
+    if parts.scheme != "https" or not (parts.hostname or "").endswith(".myworkdayjobs.com") or not re.fullmatch(r"[A-Za-z0-9_-]+", site):
+        raise ValueError("Workday site missing from source URL")
+    api = f"https://{parts.hostname}/wday/cxs/{parts.hostname.split('.')[0]}/{site}"
+    search = {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": ""}
+    facets = {facet.get("facetParameter"): facet for group in fetch_json(client, f"{api}/jobs", search).get("facets", []) for facet in [group, *group.get("values", [])] if isinstance(facet, dict)}
+    if "locationCountry" not in facets:
+        raise ValueError("Workday country facet missing")
+    country = next((value["id"] for value in facets["locationCountry"].get("values", []) if value.get("descriptor") == "Bosnia and Herzegovina"), None)
+    if country is None:
+        return []
+    search["appliedFacets"] = {"locationCountry": [country]}
+    page = fetch_json(client, f"{api}/jobs", search)
+    postings = page.get("jobPostings", [])
+    if page.get("total", 0) > len(postings):
+        raise ValueError(f"Workday shows {len(postings)} of {page.get('total')} BiH postings; add pagination")
+    result = []
+    for posting in postings:
+        path = posting.get("externalPath", "")
+        if not path.startswith("/job/"):
+            raise ValueError("Workday posting without a job path")
+        detail = fetch_json(client, f"{api}{path}").get("jobPostingInfo") or {}
+        url = detail.get("externalUrl", "")
+        if (detail.get("jobRequisitionLocation") or {}).get("country", {}).get("alpha2Code") != "BA" or urlsplit(url).hostname != parts.hostname:
+            continue
+        description = BeautifulSoup(detail.get("jobDescription") or "", "html.parser").get_text(" ", strip=True)
+        opened, ends = parse_date(detail.get("startDate") or ""), parse_date(detail.get("endDate") or "")
+        # endDate is when the posting is taken down, often the day after the stated deadline.
+        stated = parse_deadline(description)
+        closing = stated if stated and opened and ends and opened <= stated <= ends else ends
+        evidence[canonicalize(url)] = f"{detail.get('title', '')}. Location: {detail.get('location', '')} ({detail['jobRequisitionLocation']['country'].get('descriptor', '')}). " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        result.append((canonicalize(url), (detail.get("title") or posting.get("title") or "")[:400]))
+    return result
+
+
+# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -442,6 +480,8 @@ def discover_links(client, source, soup, evidence=None):
         return era_links(source, soup)
     elif source.adapter == "oracle":
         return oracle_links(client, source, evidence)
+    elif source.adapter == "workday":
+        return workday_links(client, source, evidence)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -525,7 +565,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle")
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
