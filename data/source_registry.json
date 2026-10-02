@@ -843,6 +843,19 @@
     ]
   },
   {
+    "name": "Štab NATO-a u Sarajevu (NHQSa)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146",
+    "verified_at": "2026-10-02",
+    "notes": "NATO-ov štab u Sarajevu zapošljava civilno osoblje preko centralnog NATO karijernog portala (Taleo), gdje je NHQSa zasebna organizacija u filteru.",
+    "sources": [
+      {"url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146", "adapter": "taleoftl", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "NATO Taleo, filter organizacije NHQSa; lista oglasa iz kodiranog polja stranice, s brojem oglasa kao provjerom. Rok iz liste (vrijeme blizu ponoći pripada prethodnom danu). Provjereno 2026-10-02: 0 oglasa za NHQSa (54 u cijelom NATO-u)."}
+    ]
+  },
+  {
     "name": "Regionalna antikorupcijska inicijativa (RAI) – Sekretarijat",
     "kind": "international",
     "country": "",

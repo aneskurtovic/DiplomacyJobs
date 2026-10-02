@@ -638,6 +638,52 @@ def rai_links(source, soup):
     return [(url, title) for url, title in dict.fromkeys(result) if trusted_host(urlsplit(url).hostname or "", "rai-see.org")]
 
 
+def taleo_ftl_closing(value):
+    """"06-Sep-2027, 12:59:00 AM": a closing at 23:59 Central European time shown in an earlier time zone lands just after midnight, so an early-morning time belongs to the previous day."""
+    try:
+        moment = datetime.strptime(value.replace("\\", ""), "%d-%b-%Y, %I:%M:%S %p")
+    except ValueError:
+        return parse_date(value[:11])
+    return (moment - timedelta(days=1)).date() if moment.hour < 3 else moment.date()
+
+
+TALEO_FTL_SUBMISSION = re.compile(r"Submission for the position\\?: (.+) - \(Job Number\\?: ([A-Za-z0-9-]+)\)")
+
+
+def taleoftl_links(client, source, evidence):
+    """Older Taleo career section (NATO), filtered to one organization in the source URL. The page carries its job list in an encoded field list; each job ends with its "Submission for the position" label, after its location and closing date."""
+    parts = urlsplit(source.url)
+    section = re.search(r"/careersection/([A-Za-z0-9_]+)/jobsearch\.ftl$", parts.path)
+    if parts.scheme != "https" or not section or "organization=" not in parts.query:
+        raise ValueError("Taleo career section with an organization filter missing from source URL")
+    response = request(client, "get", source.url)
+    response.raise_for_status()
+    # The list sits in a hidden input, which fetch keeps, but its value must not pass through text extraction.
+    history = BeautifulSoup(response.text, "html.parser").find("input", id="initialHistory")
+    if not history:
+        raise ValueError("Taleo job list missing")
+    fields = [unquote(field) for field in history.get("value", "").split("!|!")]
+    if "listRequisition.nbElements" not in fields:
+        raise ValueError("Taleo job count missing")
+    total = int(fields[fields.index("listRequisition.nbElements") + 1])
+    result, start = [], 0
+    for index, field in enumerate(fields):
+        match = TALEO_FTL_SUBMISSION.fullmatch(field.replace("\\", "")) if "Submission for the position" in field else None
+        if not match:
+            continue
+        block, start = fields[start:index], index + 1
+        place = next((value for value in block if re.fullmatch(r"[A-Z][A-Za-z ]+-[A-Za-z .()'-]+", value) and not value.startswith(("Re-apply", "Apply"))), "")
+        closing = next((taleo_ftl_closing(value) for value in block if re.match(r"\d{1,2}-[A-Za-z]{3}-\d{4}", value)), None)
+        url = canonicalize(f"https://{parts.hostname}/careersection/{section.group(1)}/jobdetail.ftl?job={match.group(2)}")
+        title = match.group(1).strip()
+        labels = [value for value in dict.fromkeys(block) if re.search(r"[A-Za-z]{3}", value) and value not in (title, place, "false", "true") and "!$!" not in value and not re.match(r"(?:Apply|Re-apply|Add |listRequisition|ftlx|\d{1,2}-[A-Za-z]{3}-)", value)]
+        evidence[url] = f"{title}. Location: {place}. " + (f"Closing date {closing.isoformat()}. " if closing else "") + ". ".join(labels)[:1000]
+        result.append((url, title[:400]))
+    if len(result) != total:
+        raise ValueError(f"Taleo shows {len(result)} of {total} jobs; add pagination")
+    return [(url, title) for url, title in result if LOCATION.search(evidence[url])]
+
+
 def taleo_date(value):
     try:
         return datetime.strptime(value, "%b %d, %Y").date()
@@ -777,7 +823,7 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -810,6 +856,8 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "taleoftl":
+        return taleoftl_links(client, source, evidence)
     elif source.adapter == "rai":
         return rai_links(source, soup)
     elif source.adapter == "rmk":
@@ -943,7 +991,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

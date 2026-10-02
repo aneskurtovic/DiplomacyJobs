@@ -1208,6 +1208,24 @@ class RaiAdapterTests(TestCase):
             discover_links(None, source, BeautifulSoup("<p>Maintenance</p>", "html.parser"), {})
 
 
+TALEO_FTL_PAGE = '<html><body><input type="hidden" id="initialHistory" value="ftlx0!|!jobsearch_processSearchInitialHistory%21%24%21requisitionListInterface!|!listRequisition!|!171111!|!Civilian%20Advisor%20!|!264001!|!Bosnia%20and%20Herzegovina-Sarajevo!|!false!|!05-Nov-2026%2C%201%5C%3A59%5C%3A00%20AM!|!NATO%20Headquarter%20Sarajevo%20%28NHQSa%29!|!NATO%20Grade%20G15!|!Apply!|!Submission%20for%20the%20position%5C%3A%20Civilian%20Advisor%20%20-%20%28Job%20Number%5C%3A%20264001%29!|!false!|!listRequisition.nbElements!|!1"></body></html>'
+
+
+class TaleoFtlAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_encoded_list_read_and_closing_day_corrected(self, _):
+        organization = Organization.objects.create(name="NATO HQ Sarajevo", kind="international")
+        source = Source.objects.create(organization=organization, adapter="taleoftl", url="https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146")
+        evidence = {}
+        page = lambda request: httpx.Response(200, text=TALEO_FTL_PAGE, headers={"content-type": "text/html"})
+        with httpx.Client(transport=httpx.MockTransport(page)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://nato.taleo.net/careersection/2/jobdetail.ftl?job=264001", "Civilian Advisor")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.deadline, candidate.city), (date(2026, 11, 4), "Sarajevo"))
+        self.assertIn("NATO Grade G15", evidence[links[0][0]])
+
+
 class CsodAdapterTests(TestCase):
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_token_read_and_ba_postings_kept(self, _):
