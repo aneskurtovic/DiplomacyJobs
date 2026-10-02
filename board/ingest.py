@@ -4,6 +4,7 @@ import json
 import re
 import ssl
 from dataclasses import dataclass
+from email.utils import parsedate_to_datetime
 from datetime import date, datetime, timedelta
 from urllib.parse import unquote, urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 
@@ -164,6 +165,16 @@ def fetch(client, url):
     for tag in soup(["script", "style", "noscript", "nav", "footer"]):
         tag.decompose()
     return soup.get_text(" ", strip=True), soup
+
+
+def file_date(client, url):
+    """The Last-Modified date the server reports for a document, or None."""
+    try:
+        response = request(client, "head", url)
+        response.raise_for_status()
+        return parsedate_to_datetime(response.headers["last-modified"]).date()
+    except (KeyError, TypeError, ValueError, *FETCH_ERRORS):
+        return None
 
 
 def fetch_json(client, url, payload=None, headers=None):
@@ -1156,7 +1167,11 @@ def ingest_source(source_id):
                         candidate = make_candidate(source, url, title, evidence[url], None)
                     else:
                         text, detail_soup = fetch(client, url)
-                        candidate = make_candidate(source, url, title, text, detail_soup, evidence.get(url, ""))
+                        listed = evidence.get(url, "")
+                        # A source whose adverts are bare PDFs (EUFOR) may opt in to the server's file date as the publication date.
+                        if detail_soup is None and (source.adapter_config or {}).get("pdf_date_as_published") and (uploaded := file_date(client, url)):
+                            listed = f"{listed} Published {uploaded.isoformat()}.".strip()
+                        candidate = make_candidate(source, url, title, text, detail_soup, listed)
                     skip_if_new = candidate.excluded or candidate.withdrawn or bool(candidate.deadline and candidate.deadline < timezone.localdate())
                     # Expired, withdrawn and excluded leads are not worth a review entry; known jobs always refresh, even when their deadline moved into 2027.
                     if source.jobs.filter(canonical_url=candidate.url).exists() or (candidate.in_scope_year and not skip_if_new):

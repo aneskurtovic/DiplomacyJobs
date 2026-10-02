@@ -159,6 +159,22 @@ Closing for application: 29 October 2026<br/><a href="/images/stories/vacancy/pu
 """
 
 
+class PdfDateTests(TestCase):
+    def test_opted_in_pdf_source_takes_the_file_date_as_publication(self):
+        from .ingest import ingest_source
+        organization = Organization.objects.create(name="EUFOR", kind="international")
+        source = Source.objects.create(organization=organization, adapter="generic", url="https://eufor.example/jobs", status="verified", enabled=True, adapter_config={"allow_empty": True, "link_selector": "a", "pdf_date_as_published": True})
+        listing = BeautifulSoup('<a href="/vacancy/admin.pdf">Vacancy: Purchasing Administrator</a>', "html.parser")
+        def fake_fetch(client, url):
+            if url == source.url:
+                return listing.get_text(), listing
+            return "Vacancy: Purchasing Administrator. Duty location: Sarajevo. Closing for application: 29 October 2026.", None
+        with patch("board.ingest.fetch", side_effect=fake_fetch), patch("board.ingest.file_date", return_value=date(2026, 9, 29)), patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2)):
+            self.assertTrue(ingest_source(source.pk).success)
+        job = source.jobs.get()
+        self.assertEqual((job.status, job.source_published_at, job.deadline), ("published", date(2026, 9, 29), date(2026, 10, 29)))
+
+
 class EuforAdapterTests(TestCase):
     def setUp(self):
         organization = Organization.objects.create(name="EUFOR", kind="international")

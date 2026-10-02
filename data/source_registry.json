@@ -573,7 +573,7 @@
     "verified_at": "2026-10-02",
     "notes": "Lokalni civilni angažmani (LCH) u štabu EUFOR-a, Butmir.",
     "sources": [
-      {"url": "https://www.euforbih.org/index.php/vacancies-a", "adapter": "eufor", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Svaki oglas ima PDF opis posla i rok; datum objave nije naveden pa oglasi idu na administratorsku provjeru. Provjereno 2026-10-02: 2 otvorena oglasa."}
+      {"url": "https://www.euforbih.org/index.php/vacancies-a", "adapter": "eufor", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "pdf_date_as_published": true}, "notes": "Svaki oglas ima PDF opis posla i rok; datum objave nije naveden u tekstu, pa se kao datum objave uzima datum PDF datoteke koji server prijavljuje (Last-Modified), npr. 29.09.2026. za oglas Purchasing Administrator. Provjereno 2026-10-02: 2 otvorena oglasa."}
     ]
   },
   {
