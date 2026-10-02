@@ -843,6 +843,19 @@
     ]
   },
   {
+    "name": "Regionalna kancelarija za saradnju mladih (RYCO) – Lokalni ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.rycowb.org/",
+    "evidence_url": "https://www.rycowb.org/category/procurements-and-vacancies/",
+    "verified_at": "2026-10-02",
+    "notes": "Međuvladina organizacija šest zemalja Zapadnog Balkana sa sjedištem u Tirani i lokalnim uredom u Sarajevu. Oglasi i tenderi se objavljuju u istoj kategoriji vijesti.",
+    "sources": [
+      {"url": "https://www.rycowb.org/category/procurements-and-vacancies/", "adapter": "generic", "status": "verified", "enabled": true, "adapter_config": {"link_selector": "article h2.entry-title a", "any_title": true, "partial_listing": true, "allow_empty": true, "content_selector": "article", "published_selector": "meta[property='article:published_time']"}, "notes": "Prva stranica kategorije (10 najnovijih objava, tenderi se isključuju), pa je izvor djelimičan. Lokacija se čita iz članka i njegovih kategorija (npr. Local Branch Office Sarajevo). Provjereno 2026-10-02: aktivni oglas samo za sjedište; posljednji oglas za Sarajevo iz decembra 2025."}
+    ]
+  },
+  {
     "name": "Ured visokog predstavnika (OHR)",
     "kind": "international",
     "country": "",

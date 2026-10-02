@@ -864,7 +864,9 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         if content is not None:
             text = content.get_text(" ", strip=True)
         stamp = soup.select_one(config["published_selector"]) if config.get("published_selector") else None
-        structured_published = parse_date(stamp.get_text(" ", strip=True)) if stamp else None
+        # A <meta content> or <time datetime> stamp holds an ISO timestamp; only its date counts.
+        stamp_value = (stamp.get("content") or stamp.get("datetime") or stamp.get_text(" ", strip=True)) if stamp else ""
+        structured_published = parse_date(stamp_value[:10] if re.match(r"\d{4}-\d{2}-\d{2}T", stamp_value) else stamp_value) if stamp else None
     if source.adapter == "coe" and soup:
         fields = coe_fields(soup)
         if not fields.get("Duty station"):

@@ -750,6 +750,15 @@ class GenericListingOptionsTests(TestCase):
         self.assertNotIn("news", candidate.text)
         self.assertTrue(candidate.eligible and candidate.year_proven)
 
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_published_from_meta_timestamp(self, _):
+        self.source.adapter_config = {"content_selector": "article", "published_selector": "meta[property='article:published_time']"}
+        html = '<head><meta property="article:published_time" content="2026-09-30T10:51:47+02:00"></head><aside>Local Branch Office Sarajevo</aside><article><h1>Vacancy: Programme Officer</h1><p>Duty station Pristina. Application Deadline: October 28, 2026</p></article>'
+        soup = BeautifulSoup(html, "html.parser")
+        candidate = make_candidate(self.source, "https://www.ireland.ie/y", "Vacancy", soup.get_text(" ", strip=True), soup)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 30), date(2026, 10, 28), ""))
+        self.assertFalse(candidate.eligible)
+
     def test_long_closing_phrase_parses(self):
         self.assertEqual(parse_deadline("The closing date for completed applications is 12 May 2026."), date(2026, 5, 12))
 
