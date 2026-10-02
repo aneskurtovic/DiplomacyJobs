@@ -407,3 +407,20 @@ class CoeAdapterTests(TestCase):
     def test_short_result_set_fails(self):
         with patch("board.ingest.fetch", return_value=("", BeautifulSoup("9 results", "html.parser"))), self.assertRaises(ValueError):
             discover_links(None, self.source, BeautifulSoup("9 results" + coe_card(1, "Officer", "Strasbourg"), "html.parser"))
+
+
+class ImportRegistryTests(TestCase):
+    def test_source_moved_to_another_organization_is_not_duplicated(self):
+        import io
+        import tempfile
+        from pathlib import Path
+        from django.core.management import call_command
+        old = Organization.objects.create(name="UN", kind="international")
+        Source.objects.create(organization=old, url="https://example.org/jobs", adapter="oracle", status="verified", enabled=True)
+        registry = [{"name": "UNDP", "kind": "international", "sources": [{"url": "https://example.org/jobs", "adapter": "none", "enabled": False, "notes": "moved"}]}]
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "registry.json"
+            path.write_text(json.dumps(registry), encoding="utf-8")
+            call_command("import_registry", str(path), stdout=io.StringIO())
+        source = Source.objects.get(url="https://example.org/jobs")
+        self.assertEqual((source.organization.name, source.notes, source.adapter, source.enabled), ("UNDP", "moved", "oracle", True))
