@@ -826,5 +826,18 @@
     "sources": [
       {"url": "https://careers.un.org/jobopening?language=en", "adapter": "uncareers", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Javni JSON API; čitaju se sve objave (oko 450, 5 stranica) i zadržavaju one s mjestom rada u BiH. Rok se računa kao kraj dana u New Yorku. Provjereno 2026-10-02: nema objava u BiH."}
     ]
+  },
+  {
+    "name": "Grupa Svjetske banke (World Bank, IFC)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.worldbank.org/en/country/bosniaandherzegovina",
+    "evidence_url": "https://worldbankgroup.csod.com/ux/ats/careersite/1/home?c=worldbankgroup",
+    "verified_at": "2026-10-02",
+    "notes": "Ured Svjetske banke i IFC-a u Sarajevu; oglasi Grupe objavljuju se na Cornerstone portalu.",
+    "sources": [
+      {"url": "https://worldbankgroup.csod.com/ux/ats/careersite/1/home?c=worldbankgroup", "adapter": "csod", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Stranica daje anonimni token za vlastiti API pretrage; pretraga po ključnoj riječi ne gleda lokaciju, pa se čitaju svi oglasi (oko 60) i zadržavaju oni s državom BA. Provjereno 2026-10-02: nema oglasa u BiH."}
+    ]
   }
 ]

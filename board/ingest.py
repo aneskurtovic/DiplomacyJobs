@@ -476,6 +476,46 @@ def workday_links(client, source, evidence):
     return result
 
 
+def csod_links(client, source, evidence):
+    """Cornerstone career site (World Bank Group). The page hands every visitor an anonymous token for its own job search API; keyword search ignores locations, so all postings are read and kept by country BA."""
+    parts = urlsplit(source.url)
+    site = re.search(r"/careersite/(\d+)/", parts.path)
+    if parts.scheme != "https" or not (parts.hostname or "").endswith(".csod.com") or not site:
+        raise ValueError("Cornerstone career site missing from source URL")
+    response = client.get(source.url)
+    response.raise_for_status()
+    token, cloud = re.search(r'"token"\s*:\s*"([^"]+)"', response.text), re.search(r'"cloud"\s*:\s*"(https://[a-z0-9.-]+\.csod\.com)/?"', response.text)
+    if not token or not cloud:
+        raise ValueError("Cornerstone search token missing")
+    headers = {"Authorization": f"Bearer {token.group(1)}"}
+    postings, page, total = [], 1, None
+    while page <= 10:
+        body = {"careerSiteId": int(site.group(1)), "careerSitePageId": int(site.group(1)), "pageNumber": page, "pageSize": 100, "cultureId": 1, "searchText": "", "cultureName": "en-US", "states": [], "countryCodes": [], "cities": [], "placeID": "", "radius": None, "postingsWithinDays": None, "customFieldCheckboxKeys": [], "customFieldDropdowns": [], "customFieldRadios": []}
+        reply = client.post(f"{cloud.group(1)}/rec-job-search/external/jobs", json=body, headers=headers)
+        reply.raise_for_status()
+        data = reply.json().get("data") or {}
+        if "totalCount" not in data:
+            raise ValueError("Cornerstone search response changed shape")
+        total = data["totalCount"]
+        postings += data.get("requisitions") or []
+        if not data.get("requisitions") or len(postings) >= total:
+            break
+        page += 1
+    if len(postings) < (total or 0):
+        raise ValueError(f"Cornerstone search shows {len(postings)} of {total} postings")
+    result = []
+    for posting in postings:
+        places = [place for place in posting.get("locations") or [] if place.get("country") == "BA"]
+        if not places:
+            continue
+        url = f"https://{parts.hostname}/ux/ats/careersite/{site.group(1)}/home/requisition/{int(posting['requisitionId'])}?c={dict(parse_qsl(parts.query)).get('c', '')}"
+        opened, closing = us_date(posting.get("postingEffectiveDate") or ""), us_date(posting.get("postingExpirationDate") or "")
+        description = BeautifulSoup(posting.get("externalDescription") or "", "html.parser").get_text(" ", strip=True)
+        evidence[url] = f"{posting.get('displayJobTitle', '')}. Location: {', '.join(place.get('city', '') for place in places)}, Bosnia and Herzegovina. " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        result.append((url, (posting.get("displayJobTitle") or "")[:400]))
+    return result
+
+
 UN_BIH_STATIONS = {"SARAJEVO", "BANJA LUKA", "MOSTAR", "TUZLA", "BRCKO", "BRČKO", "BIHAC", "BIHAĆ", "ZENICA"}
 
 
@@ -558,7 +598,7 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -589,6 +629,8 @@ def discover_links(client, source, soup, evidence=None):
         return coe_links(client, source, soup)
     elif source.adapter == "uncareers":
         return uncareers_links(client, source, evidence)
+    elif source.adapter == "csod":
+        return csod_links(client, source, evidence)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -703,7 +745,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

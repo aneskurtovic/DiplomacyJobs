@@ -803,3 +803,25 @@ class UnCareersAdapterTests(TestCase):
         candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city, candidate.scope), (date(2026, 9, 30), date(2026, 10, 14), "Sarajevo", "national"))
         self.assertTrue(candidate.eligible and candidate.year_proven)
+
+
+def csod_site(request):
+    if request.url.host == "worldbankgroup.csod.com":
+        return httpx.Response(200, text='<script>csod.context={"token":"anon123","cloud":"https://us.api.csod.com/"}</script>', headers={"content-type": "text/html"})
+    assert request.headers["Authorization"] == "Bearer anon123"
+    rows = [{"requisitionId": 38336, "displayJobTitle": "Operations Analyst", "locations": [{"city": "Sarajevo", "country": "BA"}], "postingEffectiveDate": "9/18/2026", "postingExpirationDate": "10/9/2026", "externalDescription": "<p>Analyst role.</p>"}, {"requisitionId": 38502, "displayJobTitle": "Finance Analyst", "locations": [{"city": "Dakar", "country": "SN"}]}]
+    return httpx.Response(200, json={"data": {"totalCount": 2, "requisitions": rows}})
+
+
+class CsodAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_token_read_and_ba_postings_kept(self, _):
+        organization = Organization.objects.create(name="World Bank", kind="international")
+        source = Source.objects.create(organization=organization, adapter="csod", url="https://worldbankgroup.csod.com/ux/ats/careersite/1/home?c=worldbankgroup")
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(csod_site)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://worldbankgroup.csod.com/ux/ats/careersite/1/home/requisition/38336?c=worldbankgroup", "Operations Analyst")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 18), date(2026, 10, 9), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
