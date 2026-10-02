@@ -1,8 +1,8 @@
 from datetime import timedelta
 from urllib.parse import urlencode, urlsplit
-from django.core.paginator import Paginator
+from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Count, F, Q
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from .models import Job, Organization, Source
@@ -47,13 +47,19 @@ def jobs(request):
     query, filters = filter_jobs(visible, request.GET)
     sort = "deadline" if request.GET.get("sort") == "deadline" else ""
     order = (F("deadline").asc(nulls_last=True), "-first_seen_at", "-pk") if sort else ("-first_seen_at", "-pk")
-    page = Paginator(query.select_related("source__organization").order_by(*order), 20).get_page(request.GET.get("page"))
+    # A page past the end or a non-number is not found, rather than a silent copy of another page under a new URL.
+    try:
+        page = Paginator(query.select_related("source__organization").order_by(*order), 20).page(request.GET.get("page") or 1)
+    except InvalidPage:
+        raise Http404("Nema te stranice")
     for job in page:
         job.days_left = (job.deadline - today).days if job.deadline else None
         job.is_new = job.first_seen_at >= timezone.now() - timedelta(days=3)
     # The feed takes the same filters, so the current search can be followed.
     feed_query = urlencode({key: filters[name] for key, name in (("q", "search"), ("employer", "employer"), ("city", "city"), ("type", "kind"), ("scope", "scope")) if filters[name]})
-    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
+    # Page links keep only the active filters and sort.
+    page_query = "&".join(part for part in (feed_query, urlencode({"sort": sort}) if sort else "") if part)
+    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
 
 
 def sources(request):

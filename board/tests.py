@@ -977,6 +977,22 @@ class PublicViewTests(TestCase):
         from .text import fold
         self.assertEqual([fold(word) for word in ("Švicarska", "ĐURĐEVDAN", "djurdjevdan", "Žepče")], ["svicarska", "durdevdan", "durdevdan", "zepce"])
 
+    def test_pages_keep_active_filters_and_reject_missing_pages(self):
+        from datetime import timedelta
+        source = Source.objects.get(url="https://a.example/jobs")
+        for number in range(25):
+            Job.objects.create(source=source, canonical_url=f"https://a.example/bulk/{number}", title=f"Bulk Officer {number}", city="Sarajevo", status="published", deadline=self.today + timedelta(days=10))
+        first = self.client.get("/", {"city": "Sarajevo", "sort": "deadline"})
+        self.assertContains(first, 'href="?city=Sarajevo&amp;sort=deadline&amp;page=2"')
+        self.assertNotContains(first, "employer=&amp;")
+        second = self.client.get("/", {"city": "Sarajevo", "sort": "deadline", "page": "2"})
+        self.assertContains(second, 'href="?city=Sarajevo&amp;sort=deadline&amp;page=1"')
+        self.assertContains(second, "Stranica 2 od 2")
+        self.assertContains(self.client.get("/", {"page": "2"}), 'href="?page=1"')
+        for page in ("99", "0", "abc"):
+            self.assertEqual(self.client.get("/", {"page": page}).status_code, 404, page)
+        self.assertEqual(self.client.get("/", {"q": "nothing-matches-this"}).status_code, 200)
+
     def test_filtered_page_links_its_feed_and_a_reset(self):
         content = self.client.get("/", {"city": "Mostar", "page": "1"}).content.decode()
         self.assertIn('href="/feed/?city=Mostar"', content)
