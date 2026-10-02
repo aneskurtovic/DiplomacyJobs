@@ -549,3 +549,23 @@ class GenericListingOptionsTests(TestCase):
 
     def test_long_closing_phrase_parses(self):
         self.assertEqual(parse_deadline("The closing date for completed applications is 12 May 2026."), date(2026, 5, 12))
+
+
+class DenmarkItalyAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        self.denmark = Source.objects.create(organization=organization, adapter="denmark", url="https://um.dk/Bosnien-Hercegovina/en/about-us/vacancies/")
+        self.italy = Source.objects.create(organization=organization, adapter="italy", url="https://ambsarajevo.esteri.it/it/amministrazione-trasparente/bandi-di-concorso/")
+
+    def test_denmark_note_and_same_host_links(self):
+        self.assertEqual(discover_links(None, self.denmark, BeautifulSoup("<h1>Vacancies</h1><p>No current vacancies</p>", "html.parser")), [])
+        html = '<a href="/Bosnien-Hercegovina/en/about-us/vacancies/driver-position">Driver position</a><a href="https://jobs.example.com/x">Job portal</a>'
+        self.assertEqual(discover_links(None, self.denmark, BeautifulSoup(html, "html.parser")), [("https://um.dk/Bosnien-Hercegovina/en/about-us/vacancies/driver-position", "Driver position")])
+
+    def test_italy_open_selections_section(self):
+        html = '<p><strong>Bandi e selezioni aperti (pubblicità legale)</strong></p><ul><li><a href="/it/news/dall_ambasciata/2026/04/avviso/">Selezione impiegati (scad. presentazione domande 20.03.2026)</a></li></ul>'
+        links = discover_links(None, self.italy, BeautifulSoup(html, "html.parser"))
+        self.assertEqual(links, [("https://ambsarajevo.esteri.it/it/news/dall_ambasciata/2026/04/avviso", "Selezione impiegati (scad. presentazione domande 20.03.2026)")])
+        self.assertEqual(parse_deadline(links[0][1]), date(2026, 3, 20))
+        with self.assertRaises(ValueError):
+            discover_links(None, self.italy, BeautifulSoup("<p>Amministrazione trasparente</p>", "html.parser"))

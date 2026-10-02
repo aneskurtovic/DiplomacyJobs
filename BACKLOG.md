@@ -15,7 +15,7 @@ Priority follows the product requirement: the board must show trustworthy, curre
 ## P1 — Operations and data quality
 
 - [x] Django models, admin, public list, source coverage page, scheduler command, source run history, and optional AI batch interface are implemented.
-- [x] Unit tests run with `manage.py test` (EEAS, UN, OHR, EUFOR, EBRD, RCC, ERA, Japan, Oracle, Workday, CoE, OSCE adapters, date parsing, registry import, challenge-response handling, and the publish/close rules of a full ingest run). Extend to Denmark/Italy.
+- [x] Unit tests run with `manage.py test` (EEAS, UN, OHR, EUFOR, EBRD, RCC, ERA, Japan, Oracle, Workday, CoE, OSCE adapters, date parsing, registry import, challenge-response handling, Denmark, Italy, and the publish/close rules of a full ingest run).
 - [x] Query parameters remain in job URLs; fetch failures and excessive link counts prevent absence-based closure.
 - [ ] Validate a full deployment on the actual Hetzner host and HTTPS subdomain, including migrations, backup restore, static assets, source access, and scheduled runs.
 - [x] Confirm AI imports and manual corrections survive subsequent source updates; handle changed source text through review. A source change after AI enrichment stays in review until a reviewer acts.
