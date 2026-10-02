@@ -89,6 +89,13 @@ class UnctAdapterTests(TestCase):
         self.assertTrue(candidate.eligible)
         self.assertTrue(candidate.year_proven)
 
+    def test_card_of_an_agency_with_its_own_enabled_source_is_skipped(self):
+        agency = Source.objects.create(organization=self.source.organization, adapter="generic", url="https://jobs.unicef.org/en-us/search/", enabled=True)
+        self.assertEqual(unct_page_links(self.source, BeautifulSoup(UN_CARD, "html.parser"), {}), [])
+        agency.enabled = False
+        agency.save()
+        self.assertEqual(len(unct_page_links(self.source, BeautifulSoup(UN_CARD, "html.parser"), {})), 1)
+
     def test_pagination_stops_when_a_page_repeats(self):
         soup = BeautifulSoup(UN_CARD, "html.parser")
         with patch("board.ingest.fetch", return_value=("", BeautifulSoup(UN_CARD, "html.parser"))) as fetch:

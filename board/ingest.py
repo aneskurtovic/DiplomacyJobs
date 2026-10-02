@@ -276,13 +276,14 @@ def us_date(value):
 def unct_page_links(source, soup, evidence):
     """Job cards on one page of the UN country team listing. Cards link to agency sites, so the card itself is the evidence."""
     result = []
+    skip = set((source.adapter_config or {}).get("skip_hosts", [])) | {urlsplit(url).hostname for url in Source.objects.filter(enabled=True).exclude(pk=source.pk).values_list("url", flat=True)}
     for card in soup.select("article.node--type-job-vacancy"):
         link = card.select_one("a[href]")
         if not link:
             raise ValueError("UN job card without a link")
         url = urljoin(source.url, link["href"])
-        # Agencies with their own source (e.g. UNICEF) are skipped to avoid duplicate jobs.
-        if urlsplit(url).scheme != "https" or urlsplit(url).hostname in (source.adapter_config or {}).get("skip_hosts", []):
+        # Agencies with their own enabled source are skipped to avoid duplicate jobs; skip_hosts adds their other job hosts (jobs.undp.org).
+        if urlsplit(url).scheme != "https" or urlsplit(url).hostname in skip:
             continue
         fields = [div.get_text(" ", strip=True) for div in card.select(".node__content > div > div")]
         published = parse_date(fields[0]) if fields else None
