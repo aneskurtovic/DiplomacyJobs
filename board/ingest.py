@@ -725,6 +725,16 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         structured_published = us_date(period.group(1))
         closing = us_date(period.group(2))
         text = (f"Closing date {closing.isoformat()}. " if closing else "") + text
+    config = source.adapter_config or {}
+    if source.adapter == "generic" and soup:
+        # content_selector judges only the article, not site navigation; published_selector names the element holding the publication date.
+        content = soup.select_one(config["content_selector"]) if config.get("content_selector") else None
+        if config.get("content_selector") and content is None:
+            raise ValueError("Vacancy content element missing")
+        if content is not None:
+            text = content.get_text(" ", strip=True)
+        stamp = soup.select_one(config["published_selector"]) if config.get("published_selector") else None
+        structured_published = parse_date(stamp.get_text(" ", strip=True)) if stamp else None
     if source.adapter == "coe" and soup:
         fields = coe_fields(soup)
         if not fields.get("Duty station"):

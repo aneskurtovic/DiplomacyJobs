@@ -671,6 +671,16 @@ class GenericListingOptionsTests(TestCase):
         links = discover_links(None, self.source, page('<a href="/en/bosnia-herzegovina/sarajevo/about/job-opportunities/driver/">Driver</a>'))
         self.assertEqual([title for _, title in links], ["Driver"])
 
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_content_and_published_selectors(self, _):
+        self.source.adapter_config = {"content_selector": ".article-page", "published_selector": ".article__info__date"}
+        html = '<nav>Bosnia and Herzegovina news</nav><div class="article-page"><h1>Vacancy: National Programme Officer</h1><span class="article__info__date">25 Sep 2026</span><p>Duty station Sarajevo. Apply no later than 9 October 2026.</p></div>'
+        soup = BeautifulSoup(html, "html.parser")
+        candidate = make_candidate(self.source, "https://www.ireland.ie/x", "Vacancy", soup.get_text(" ", strip=True), soup)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.title), (date(2026, 9, 25), date(2026, 10, 9), "Vacancy: National Programme Officer"))
+        self.assertNotIn("news", candidate.text)
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
     def test_long_closing_phrase_parses(self):
         self.assertEqual(parse_deadline("The closing date for completed applications is 12 May 2026."), date(2026, 5, 12))
 

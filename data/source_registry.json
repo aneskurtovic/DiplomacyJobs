@@ -636,11 +636,13 @@
     "kind": "embassy",
     "country": "SWEDEN",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639235029954906911",
     "verified_at": "2026-10-02",
-    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "notes": "Adresa iz MFA direktorija. Ambasada objavljuje oglase (npr. National Programme Officer) kao vijesti na Sweden Abroad.",
+    "sources": [
+      {"url": "https://www.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/current/news2/", "adapter": "generic", "status": "verified", "enabled": true, "adapter_config": {"path_contains": "/bosnia-and-herzegovina-sarajevo/current/news2/", "content_selector": ".article-page", "published_selector": ".article__info__date", "allow_empty": true, "partial_listing": true}, "notes": "Lista prikazuje samo posljednjih 5 vijesti, pa je izvor djelimičan: oglas može nestati s liste dok je još otvoren. Datum objave je ispod naslova. Provjereno 2026-10-02: nema oglasa (format potvrđen na ambasadi u Jerevanu)."}
+    ]
   },
   {
     "name": "Misija OSCE-a u Bosni i Hercegovini",
