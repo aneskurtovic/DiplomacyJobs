@@ -1,8 +1,10 @@
 import json
+import re
 from datetime import date
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from board.ingest import DATE_TEXT, parse_date
 from board.models import Job
 
 
@@ -43,6 +45,11 @@ class Command(BaseCommand):
                         raise ValueError(f"invalid {field}")
                     if field == "application_url" and value and not value.startswith("https://"):
                         raise ValueError("application URL must be HTTPS")
+                    # The quote must back the value itself, not merely exist in the source. Titles may be translated, so only facts are checked.
+                    if field == "deadline" and value and value not in {parse_date(match.group(0)) for match in re.finditer(DATE_TEXT, quote, re.I)}:
+                        raise ValueError("deadline not in its evidence")
+                    if field in ("city", "application_url") and value and value.casefold() not in quote.casefold():
+                        raise ValueError(f"{field} not in its evidence")
                     old = getattr(job, field)
                     if old and old != value:
                         raise ValueError(f"conflicting {field}")

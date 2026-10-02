@@ -973,3 +973,51 @@ class ScrapeCommandTests(TestCase):
         ScrapeRun.objects.create(source=self.first)
         self.assertIsNone(ingest_source(self.first.pk))
         self.assertEqual(self.first.runs.count(), 1)
+
+
+class EnrichmentTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs")
+        self.job = Job.objects.create(source=source, canonical_url="https://a.example/1", title="Driver", content_hash="h1", raw_text="Driver wanted. Duty station: Sarajevo. Applications by 30 November 2026 via https://apply.example/driver")
+
+    def run_import(self, *items):
+        import io
+        import tempfile
+        from pathlib import Path
+        from django.core.management import call_command
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "suggestions.jsonl"
+            path.write_text("\n".join(json.dumps(item) for item in items), encoding="utf-8")
+            err = io.StringIO()
+            call_command("import_enrichment", str(path), stdout=io.StringIO(), stderr=err)
+        self.job.refresh_from_db()
+        return err.getvalue()
+
+    def suggestion(self, proposed, evidence, content_hash="h1"):
+        return {"id": self.job.pk, "content_hash": content_hash, "proposed": proposed, "evidence": evidence}
+
+    def test_export_lists_review_jobs(self):
+        import io
+        from django.core.management import call_command
+        out = io.StringIO()
+        call_command("export_enrichment", stdout=out)
+        row = json.loads(out.getvalue().splitlines()[0])
+        self.assertEqual((row["id"], row["content_hash"], row["employer"]), (self.job.pk, "h1", "Embassy"))
+
+    def test_supported_suggestion_applied_and_marked_ai(self):
+        self.run_import(self.suggestion({"city": "Sarajevo", "deadline": "2026-11-30", "application_url": "https://apply.example/driver"}, {"city": "Duty station: Sarajevo", "deadline": "Applications by 30 November 2026", "application_url": "via https://apply.example/driver"}))
+        self.assertEqual((self.job.city, self.job.deadline, self.job.application_url), ("Sarajevo", date(2026, 11, 30), "https://apply.example/driver"))
+        self.assertEqual(self.job.field_evidence["ai_fields"], ["application_url", "city", "deadline"])
+
+    def test_unsupported_suggestions_rejected(self):
+        cases = [
+            (self.suggestion({"city": "Mostar"}, {"city": "Duty station: Sarajevo"}), "city not in its evidence"),
+            (self.suggestion({"deadline": "2026-12-31"}, {"deadline": "Applications by 30 November 2026"}), "deadline not in its evidence"),
+            (self.suggestion({"city": "Sarajevo"}, {"city": "Duty station: Banja Luka"}), "unsupported city"),
+            (self.suggestion({"city": "Sarajevo"}, {"city": "Duty station: Sarajevo"}, content_hash="old"), "stale source content"),
+            (self.suggestion({"title": "Vozač"}, {"title": "Driver wanted"}), "conflicting title"),
+        ]
+        for item, message in cases:
+            self.assertIn(message, self.run_import(item))
+        self.assertEqual((self.job.city, self.job.deadline, self.job.title), ("", None, "Driver"))
