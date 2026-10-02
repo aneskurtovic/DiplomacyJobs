@@ -30,8 +30,12 @@ class Command(BaseCommand):
                 else:
                     source.organization = organization
                     source.notes = entry.get("notes", source.notes)
-                    source.adapter_config = entry.get("adapter_config", source.adapter_config)
-                    if not source.enabled:
-                        source.adapter = entry.get("adapter", source.adapter)
+                    new_adapter = entry.get("adapter", source.adapter)
+                    if source.enabled and new_adapter != source.adapter:
+                        # Settings for the new parser would misconfigure the running one; both change once it is disabled.
+                        self.stderr.write(f"Source {source.pk} keeps adapter {source.adapter} and its settings while enabled; disable it to switch to {new_adapter}")
+                    else:
+                        source.adapter = new_adapter
+                        source.adapter_config = entry.get("adapter_config", source.adapter_config)
                     source.save(update_fields=["organization", "notes", "adapter_config", "adapter"])
         self.stdout.write(self.style.SUCCESS(f"Imported {len(data)} organizations"))

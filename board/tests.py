@@ -444,12 +444,17 @@ class ImportRegistryTests(TestCase):
     def test_nulls_rename_and_config_updates(self):
         live = Source.objects.create(organization=Organization.objects.create(name="Old name", kind="embassy"), url="https://x.example/jobs", adapter="generic", enabled=True, adapter_config={"link_selector": "a"})
         Source.objects.create(organization=live.organization, url="https://x.example/other", adapter="none", enabled=False)
+        same = Source.objects.create(organization=live.organization, url="https://x.example/same", adapter="generic", enabled=True)
         self.run_registry([{"name": "New name", "previous_name": "Old name", "kind": "embassy", "city": None, "sources": [
             {"url": "https://x.example/jobs", "adapter": "osce", "adapter_config": {"link_selector": "main a", "empty_text": "No vacancies"}},
-            {"url": "https://x.example/other", "adapter": "generic", "adapter_config": {"allow_empty": True}}]}])
+            {"url": "https://x.example/other", "adapter": "generic", "adapter_config": {"allow_empty": True}},
+            {"url": "https://x.example/same", "adapter": "generic", "adapter_config": {"allow_empty": True}}]}])
         self.assertEqual(list(Organization.objects.values_list("name", "city")), [("New name", "")])
         live.refresh_from_db()
-        self.assertEqual((live.adapter, live.adapter_config, live.enabled), ("generic", {"link_selector": "main a", "empty_text": "No vacancies"}, True))
+        # An enabled source keeps its parser and that parser's settings; a disabled or same-parser source takes both.
+        self.assertEqual((live.adapter, live.adapter_config, live.enabled), ("generic", {"link_selector": "a"}, True))
+        same.refresh_from_db()
+        self.assertEqual(same.adapter_config, {"allow_empty": True})
         self.assertEqual(Source.objects.get(url="https://x.example/other").adapter, "generic")
 
     def test_source_moved_to_another_organization_is_not_duplicated(self):
