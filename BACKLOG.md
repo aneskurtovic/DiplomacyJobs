@@ -4,11 +4,12 @@ Priority follows the product requirement: the board must show trustworthy, curre
 
 ## P0 — Source coverage and trustworthy ingestion
 
-- [ ] Complete resident embassy, career consulate, honorary consulate, and international organization inventory against current BiH MFA records. Record official website, recruitment endpoint, evidence, and last verification date for each.
+- [ ] Complete resident embassy, career consulate, honorary consulate, and international organization inventory against current BiH MFA records. The ministry pass produced 96 candidates and 53 local missions; international bodies, honorary-list reconciliation, and live website checks remain.
 - [ ] Validate official recruitment endpoints from the server network. Keep homepage, recruitment portal, and application URL separate. Record no source found, blocked, and parser failure separately.
-- [ ] Integrate and verify at least 10 operational sources before public launch. Prioritize source families that cover many organizations, then individual embassy sites. A working source with zero open jobs counts; an inaccessible source does not.
-- [ ] Handle active-list pagination and changed page structure without falsely closing existing jobs.
-- [ ] Publish only proven current, paid, BiH-based individual roles. Keep uncertain or archived entries in admin review. Prove deadline and location extraction on representative real vacancies.
+- [ ] Integrate and verify at least 10 complete operational sources before public launch. Denmark and Italy are live-verified complete sources; OSCE's recent-jobs feed works but has partial coverage. An inaccessible source does not count.
+- [ ] Handle active-list pagination and changed page structure without falsely closing existing jobs. Partial feeds now refresh known published jobs directly but still need a complete listing endpoint.
+- [x] Limit collection to 2026: skip links in clearly dated older URL archives before detail fetch, cap detail fetches at 100 per source, and persist only candidates supported by a 2026 publication date, URL year, or deadline. Deadline-only leads remain in admin review. No historical archive import.
+- [ ] Publish only proven current, paid, BiH-based individual roles posted in 2026 (or with a 2026 deadline where publication date is absent). Keep uncertain entries in admin review. OSCE's current 2026 Sarajevo vacancy is live-verified and published locally.
 - [ ] Run the daily fetch from Hetzner, verify successful empty listings versus failures, and inspect resulting public jobs.
 
 ## P1 — Operations and data quality
@@ -26,4 +27,4 @@ Priority follows the product requirement: the board must show trustworthy, curre
 
 ## Current constraints
 
-The verified seed registry contains six organizations and no enabled sources yet. The full MFA inventory, ten-source launch gate, and Hetzner deployment are outstanding. Public counts must reflect this reality rather than the mock figures in the design proposal.
+The registry contains 56 organizations. Two complete sources and one partial source are enabled after live checks. The full international and honorary inventory, ten-source launch gate, and Hetzner deployment are outstanding. Public counts must reflect this reality rather than the mock figures in the design proposal.

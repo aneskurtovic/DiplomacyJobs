@@ -26,7 +26,9 @@ def jobs(request):
 
 def sources(request):
     organizations = Organization.objects.prefetch_related("sources").order_by("name")
-    return render(request, "board/sources.html", {"organizations": organizations, "total": organizations.count(), "operational": Source.objects.filter(enabled=True, status="verified").count()})
+    verified = Source.objects.filter(enabled=True, status="verified").only("adapter_config")
+    partial = sum(bool((source.adapter_config or {}).get("partial_listing")) for source in verified)
+    return render(request, "board/sources.html", {"organizations": organizations, "total": organizations.count(), "operational": len(verified) - partial, "partial": partial})
 
 
 def health(request):

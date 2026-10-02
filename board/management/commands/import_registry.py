@@ -21,7 +21,7 @@ class Command(BaseCommand):
             organization, _ = Organization.objects.update_or_create(name=item["name"], defaults={key: item.get(key) or None if key == "verified_at" else item.get(key, "") for key in ("kind", "country", "city", "website", "evidence_url", "verified_at", "notes")})
             for entry in item.get("sources", []):
                 # Registry updates metadata but never silently enable new parsers.
-                source, created = Source.objects.get_or_create(organization=organization, url=entry["url"], defaults={"adapter": entry.get("adapter", "none"), "status": entry.get("status", "discovered"), "adapter_config": entry.get("adapter_config", {}), "notes": entry.get("notes", "")})
+                source, created = Source.objects.get_or_create(organization=organization, url=entry["url"], defaults={"adapter": entry.get("adapter", "none"), "status": entry.get("status", "discovered"), "enabled": entry.get("enabled", False), "adapter_config": entry.get("adapter_config", {}), "notes": entry.get("notes", "")})
                 if not created:
                     source.notes = entry.get("notes", source.notes)
                     source.save(update_fields=["notes"])

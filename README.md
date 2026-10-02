@@ -2,6 +2,8 @@
 
 Bosnian-language job board for roles in diplomatic missions and international governmental organizations based in Bosnia and Herzegovina. Listings link to official employers. Source coverage is explicit; an unavailable source is never presented as having zero vacancies.
 
+The current collection window is **2026 only**. The scraper skips clearly older dated archives before fetching job details, bounds each source to 100 possible 2026 details per run, and stores only qualifying 2026 candidates. Deadline-only leads require admin review. See [the MVP plan](PLAN.md) and [backlog](BACKLOG.md).
+
 ## Local start
 
 With Python 3.12 and a network connection to install dependencies:
@@ -16,11 +18,11 @@ python -m venv .venv
 .venv\Scripts\python manage.py runserver
 ```
 
-Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, and admin at `/admin/`. Development defaults to SQLite. No initial source is automatically enabled because each adapter must be validated against its live recruitment site. The board can therefore initially be empty without fabricated jobs.
+Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, and admin at `/admin/`. Development defaults to SQLite. The imported registry enables the two complete sources and the partial OSCE feed that passed live checks; the board may still be empty when none has an open 2026 vacancy.
 
 ## Operations
 
-The [source registry](data/source_registry.json) is an evidence-backed starting set. Complete it against the latest Ministry of Foreign Affairs diplomatic directory before launch. For each source, verify listing parsing, item-level BiH location, deadlines, and empty-list detection before changing `enabled` in admin. A source in `unsupported` or `blocked` state is not operational. The planned launch threshold is at least 10 working sources.
+The [source registry](data/source_registry.json) is an evidence-backed starting set. The [MFA candidate inventory](data/mfa_inventory.json) distinguishes local and nonresident missions. Complete international and honorary-consulate reconciliation before launch. Two complete sources (Denmark and Italy) and one partial OSCE feed have passed live checks. All other sources require validation before enabling. The launch threshold is at least 10 complete working sources.
 
 Run one fetch with `python manage.py scrape_jobs --source ID` or all enabled sources with `python manage.py scrape_jobs`. The dedicated Compose scheduler runs this daily. Errors are recorded per run; a failed run does not remove jobs. Scrape details are visible in admin. The scraper lock file is `/tmp/diplomacyjobs-scrape.lock` in the container.
 
