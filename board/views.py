@@ -22,6 +22,7 @@ def filter_jobs(query, params):
     employer = params.get("employer", "")
     city = params.get("city", "")
     kind = params.get("type", "")
+    scope = params.get("scope", "")
     if search:
         query = query.filter(Q(title__icontains=search) | Q(source__organization__name__icontains=search) | Q(city__icontains=search))
     if employer.isdecimal() and len(employer) <= 18:
@@ -30,7 +31,9 @@ def filter_jobs(query, params):
         query = query.filter(city=city[:100])
     if kind in dict(Job.TYPE):
         query = query.filter(opportunity_type=kind)
-    return query, {"search": search, "employer": employer, "city": city, "kind": kind}
+    if scope in ("national", "international"):
+        query = query.filter(scope=scope)
+    return query, {"search": search, "employer": employer, "city": city, "kind": kind, "scope": scope}
 
 
 def jobs(request):

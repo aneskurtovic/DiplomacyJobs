@@ -664,6 +664,13 @@ class PublicViewTests(TestCase):
         self.assertNotIn("Driver", self.client.get("/feed/", {"type": "consultancy"}).content.decode())
         self.assertContains(self.client.get("/"), 'href="/feed/"')
 
+    def test_scope_filter(self):
+        Job.objects.filter(title="Driver").update(scope="national")
+        content = self.client.get("/", {"scope": "national"}).content.decode()
+        self.assertIn("<h3>Driver</h3>", content)
+        self.assertNotIn("Legal Consultant", content)
+        self.assertIn("Nacionalna pozicija", content)
+
     def test_unknown_type_ignored_and_sources_page_renders(self):
         self.assertContains(self.client.get("/", {"type": "bogus"}), "Driver")
         self.assertContains(self.client.get("/sources/"), "Embassy A")

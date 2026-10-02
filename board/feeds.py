@@ -6,7 +6,7 @@ from .views import filter_jobs, visible_jobs
 
 
 class JobsFeed(Feed):
-    """Newest published jobs; accepts the same filters as the board (q, employer, city, type)."""
+    """Newest published jobs; accepts the same filters as the board (q, employer, city, type, scope)."""
     feed_type = Atom1Feed
     title = "DiplomacyJobs – novi oglasi"
     link = "/"
