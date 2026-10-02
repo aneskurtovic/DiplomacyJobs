@@ -27,7 +27,7 @@ EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|t
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
 DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\.?\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2}(?:,\s*|\s+)\d{4}"
-DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,35}(" + DATE_TEXT + r")", re.I)
+DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
@@ -185,7 +185,8 @@ def listing_links(source, soup):
     for link in soup.select(selector):
         href = link.get("href", "")
         title = link.get_text(" ", strip=True)
-        if not href or not title or not JOB_WORDS.search(title):
+        # any_title: the path filter alone identifies vacancy pages, so titles like "Driver" still count.
+        if not href or not title or not (config.get("any_title") or JOB_WORDS.search(title)):
             continue
         url = urljoin(source.url, href)
         if source.adapter == "govuk":
@@ -200,6 +201,9 @@ def listing_links(source, soup):
                 continue
         links.append((canonicalize(url), title[:400]))
     links = list(dict.fromkeys(links))
+    # empty_text: the page's own no-vacancies note; without it, an empty page means the layout changed.
+    if not links and config.get("empty_text") and config["empty_text"].lower() not in soup.get_text(" ", strip=True).lower():
+        raise ValueError("Listing has neither vacancy links nor its no-vacancies note")
     return links
 
 
@@ -640,7 +644,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

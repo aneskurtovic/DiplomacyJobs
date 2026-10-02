@@ -532,3 +532,20 @@ class IngestRulesTests(TestCase):
         self.run_ingest()
         job.refresh_from_db()
         self.assertEqual(job.status, "published")
+
+
+class GenericListingOptionsTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Ireland", kind="embassy")
+        self.source = Source.objects.create(organization=organization, adapter="generic", url="https://www.ireland.ie/en/bosnia-herzegovina/sarajevo/about/job-opportunities/", adapter_config={"link_selector": "main a[href]", "path_contains": "/sarajevo/about/job-opportunities/", "any_title": True, "empty_text": "There are currently no vacancies"})
+
+    def test_empty_note_required_and_any_title_kept(self):
+        page = lambda body: BeautifulSoup(f"<main>{body}</main>", "html.parser")
+        self.assertEqual(discover_links(None, self.source, page("There are currently no vacancies.")), [])
+        with self.assertRaises(ValueError):
+            discover_links(None, self.source, page("Page moved"))
+        links = discover_links(None, self.source, page('<a href="/en/bosnia-herzegovina/sarajevo/about/job-opportunities/driver/">Driver</a>'))
+        self.assertEqual([title for _, title in links], ["Driver"])
+
+    def test_long_closing_phrase_parses(self):
+        self.assertEqual(parse_deadline("The closing date for completed applications is 12 May 2026."), date(2026, 5, 12))
