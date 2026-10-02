@@ -737,6 +737,7 @@ class PublicViewTests(TestCase):
         self.assertEqual(feed["Content-Type"].split(";")[0], "application/atom+xml")
         content = feed.content.decode()
         self.assertIn("Driver – Embassy A", content)
+        self.assertIn("<id>tag:testserver,2026:job-", content)
         self.assertNotIn("Old Clerk", content)
         self.assertNotIn("Driver", self.client.get("/feed/", {"type": "consultancy"}).content.decode())
         self.assertContains(self.client.get("/"), 'href="/feed/"')

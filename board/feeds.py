@@ -13,6 +13,8 @@ class JobsFeed(Feed):
     subtitle = "Provjereni oglasi diplomatskih misija i međunarodnih organizacija u Bosni i Hercegovini."
 
     def get_object(self, request):
+        # Atom ids must be IRIs; a tag URI on the serving host stays stable across URL changes.
+        self.host = request.get_host().split(":")[0]
         return request.GET
 
     def items(self, params):
@@ -30,7 +32,7 @@ class JobsFeed(Feed):
         return job.application_url or job.canonical_url
 
     def item_guid(self, job):
-        return f"diplomacyjobs-job-{job.pk}"
+        return f"tag:{self.host},2026:job-{job.pk}"
 
     item_guid_is_permalink = False
 
