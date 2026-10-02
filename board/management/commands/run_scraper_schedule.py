@@ -1,3 +1,4 @@
+import logging
 import signal
 import sys
 import time
@@ -5,6 +6,7 @@ from datetime import UTC, timedelta
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
+from django.db import close_old_connections
 from django.utils import timezone
 
 from board.management.commands.scrape_jobs import lock_path
@@ -12,6 +14,7 @@ from board.models import ScrapeRun, Source
 
 RUN_AT_HOUR = 6
 INTERRUPTED = "Interrupted: the scheduler restarted during this run"
+logger = logging.getLogger(__name__)
 
 
 def seconds_until_next_run(now):
@@ -28,9 +31,11 @@ class Command(BaseCommand):
 
     def run_once(self, **options):
         try:
+            # A day-long sleep outlives database restarts; discard the previous run's connection.
+            close_old_connections()
             call_command("scrape_jobs", **options)
-        except Exception as exc:
-            self.stderr.write(str(exc))
+        except Exception:
+            logger.exception("Scheduled scrape failed (source=%s)", options.get("source", "all"))
 
     def handle(self, *args, **options):
         # docker stop sends SIGTERM; exiting through SystemExit lets scrape_jobs remove its lock.

@@ -1,10 +1,12 @@
 import json
 from datetime import date
+from unittest import skipUnless
 from unittest.mock import patch
 
 import httpx
 from bs4 import BeautifulSoup
-from django.test import TestCase, override_settings
+from django.db import connection
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from .ingest import discover_links, eeas_page_links, fetch, make_candidate, open_client, parse_deadline, unct_page_links
 from .models import Job, Organization, Source
@@ -25,6 +27,38 @@ DETAIL = """
   Location: Sarajevo, Bosnia and Herzegovina. Deadline 28.10.2026.
 </article>
 """
+
+
+class SourceBoundaryTests(TestCase):
+    def test_trusted_host_requires_a_domain_boundary(self):
+        from .ingest import trusted_host
+        for host in ("ohr.int", "www.ohr.int", "jobs.www.ohr.int"):
+            with self.subTest(host=host):
+                self.assertTrue(trusted_host(host, "ohr.int"))
+        for host in ("evilohr.int", "ohr.int.evil.example", "", "ohr.int@evil.example"):
+            with self.subTest(host=host):
+                self.assertFalse(trusted_host(host, "ohr.int"))
+
+    def test_fetch_rejects_a_redirect_to_a_lookalike_host(self):
+        from unittest.mock import Mock
+        response = httpx.Response(200, text="<h1>Vacancy</h1>", headers={"content-type": "text/html"}, request=httpx.Request("GET", "https://evilohr.int/jobs"))
+        with self.assertRaisesMessage(ValueError, "Unexpected redirect host"):
+            fetch(Mock(get=Mock(return_value=response)), "https://ohr.int/jobs")
+
+    def test_only_clearly_dated_archives_are_skipped(self):
+        from .ingest import listing_link_in_scope
+        cases = {
+            "https://emb.example/2025/09/driver": False,
+            "https://emb.example/2027/1/driver": False,
+            "https://emb.example/2026/10/driver": True,
+            "https://emb.example/jobs/driver?year=2025": True,
+            "https://emb.example/jobs/2025-2026-driver": True,
+            "https://emb.example/2025/13/driver": True,
+            "https://emb.example/jobs/driver": True,
+        }
+        for url, allowed in cases.items():
+            with self.subTest(url=url):
+                self.assertEqual(listing_link_in_scope(url, "Vacancy 2026"), allowed)
 
 
 class EeasAdapterTests(TestCase):
@@ -621,6 +655,33 @@ class IngestRulesTests(TestCase):
         self.assertIn("Vacancy detail failed", run.error)
         self.assertFalse(self.source.jobs.exists())
 
+    def test_excessive_detail_links_fail_before_fetching_and_keep_published_jobs(self):
+        from .ingest import ingest_source, MAX_DETAIL_LINKS
+        from .models import SourceDocument
+        self.assertTrue(self.run_ingest().success)
+        job = self.source.jobs.get()
+        self.source.refresh_from_db()
+        last_success = self.source.last_success_at
+        documents = SourceDocument.objects.count()
+        self.listing(*[(f"driver-{n}", "Vacancy: Driver", "Published 01.09.2026. Deadline 30.10.2026.") for n in range(MAX_DETAIL_LINKS + 1)])
+        with patch("board.ingest.fetch", side_effect=self.fake_fetch) as fetched:
+            run = ingest_source(self.source.pk)
+        self.assertFalse(run.success)
+        self.assertIn(f"More than {MAX_DETAIL_LINKS}", run.error)
+        self.assertIsNotNone(run.finished_at)
+        fetched.assert_called_once()
+        job.refresh_from_db()
+        self.source.refresh_from_db()
+        self.assertEqual((job.status, job.missing_scans), ("published", 0))
+        self.assertEqual(self.source.last_success_at, last_success)
+        self.assertEqual(SourceDocument.objects.count(), documents)
+        self.assertEqual(self.source.jobs.count(), 1)
+
+    def test_old_archives_are_skipped_before_detail_fetch(self):
+        self.pages[self.source.url] += '<a href="/2025/09/driver">Vacancy: Driver 2026</a>'
+        self.assertTrue(self.run_ingest().success)
+        self.assertEqual(self.source.jobs.count(), 1)
+
     def test_expired_excluded_and_undated_leads(self):
         self.listing(("old", "Vacancy: Assistant", "Published 01.08.2026. Deadline 15.09.2026."), ("grant", "Scholarship vacancy", "Published 01.09.2026. Deadline 30.10.2026."), ("nodate", "Vacancy: Adviser", "Deadline 30.10.2026."))
         self.assertTrue(self.run_ingest().success)
@@ -950,6 +1011,27 @@ class ScrapeLockTests(TestCase):
 
 
 class AdminActionTests(TestCase):
+    def test_renewal_restores_visibility_only_for_selected_undated_jobs(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from .admin import renew_jobs
+        from .views import visible_jobs
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs", enabled=True)
+        old = timezone.now() - timedelta(days=40)
+        selected = Job.objects.create(source=source, canonical_url="https://a.example/1", title="Renew", status="published", first_seen_at=old)
+        unselected = Job.objects.create(source=source, canonical_url="https://a.example/2", title="Leave", status="published", first_seen_at=old)
+        dated = Job.objects.create(source=source, canonical_url="https://a.example/3", title="Expired", status="published", first_seen_at=old, deadline=timezone.localdate() - timedelta(days=1))
+        self.assertFalse(visible_jobs().exists())
+        renew_jobs(None, None, Job.objects.filter(pk__in=[selected.pk, dated.pk]))
+        self.assertEqual(list(visible_jobs().values_list("pk", flat=True)), [selected.pk])
+        for job in (selected, unselected, dated):
+            job.refresh_from_db()
+        self.assertIsNotNone(selected.last_reviewed_at)
+        self.assertIsNone(unselected.last_reviewed_at)
+        self.assertIsNone(dated.last_reviewed_at)
+        self.assertEqual(selected.status, "published")
+
     def test_publish_skips_expired_and_close_is_manual(self):
         from datetime import timedelta
         from unittest.mock import Mock
@@ -1366,17 +1448,24 @@ class ScrapeCommandTests(TestCase):
         return out.getvalue(), err.getvalue()
 
     def test_one_crash_does_not_stop_others_or_expiry(self):
+        import io
+        import logging
         from .ingest import ScrapeRun
+        console = next(handler for handler in logging.getLogger("board").handlers if handler.name == "console")
+        logged = io.StringIO()
         calls = []
         def ingest(pk):
             calls.append(pk)
             if pk == self.first.pk:
                 raise RuntimeError("database hiccup")
             return ScrapeRun(source_id=pk, success=True)
-        with patch("board.management.commands.scrape_jobs.ingest_source", side_effect=ingest), patch("board.management.commands.scrape_jobs.expire_jobs") as expire:
+        with patch.object(console, "stream", logged), patch("board.management.commands.scrape_jobs.ingest_source", side_effect=ingest), patch("board.management.commands.scrape_jobs.expire_jobs") as expire:
             out, err = self.call()
         self.assertEqual(sorted(calls), sorted([self.first.pk, self.second.pk]))
         self.assertIn("database hiccup", err)
+        self.assertIn(f"Source {self.first.pk}: unexpected scrape error", logged.getvalue())
+        self.assertIn("Traceback (most recent call last)", logged.getvalue())
+        self.assertIn("RuntimeError: database hiccup", logged.getvalue())
         expire.assert_called_once()
 
     def test_unknown_source_is_an_error(self):
@@ -1481,7 +1570,61 @@ class ProductionHostTests(TestCase):
         self.assertEqual(self.client.get("/health/", HTTP_HOST="jobs.example.com").status_code, 200)
 
 
+@override_settings(DEBUG=False, STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class ProductionLoggingTests(TestCase):
+    def test_request_error_reaches_configured_console_with_traceback(self):
+        import io
+        import logging
+        console = next(handler for handler in logging.getLogger("django").handlers if handler.name == "console")
+        output = io.StringIO()
+        self.client.raise_request_exception = False
+        with patch.object(console, "stream", output), patch("board.views.visible_jobs", side_effect=RuntimeError("request logging regression")):
+            response = self.client.get("/")
+        self.assertEqual(response.status_code, 500)
+        logged = output.getvalue()
+        self.assertIn("ERROR django.request", logged)
+        self.assertIn("Traceback (most recent call last)", logged)
+        self.assertIn("RuntimeError: request logging regression", logged)
+        self.assertEqual(logged.count("Internal Server Error"), 1)
+        self.assertNotIn(b"request logging regression", response.content)
+
+
 class SchedulerTests(TestCase):
+    def test_each_run_cleans_connections_before_scraping(self):
+        from .management.commands.run_scraper_schedule import Command
+        events = []
+        with patch("board.management.commands.run_scraper_schedule.close_old_connections", side_effect=lambda: events.append("cleanup")), patch("board.management.commands.run_scraper_schedule.call_command", side_effect=lambda *args, **kwargs: events.append("scrape")) as scrape:
+            command = Command()
+            command.run_once(source=7)
+            command.run_once()
+        self.assertEqual(events, ["cleanup", "scrape", "cleanup", "scrape"])
+        self.assertEqual(scrape.call_args_list[0].args, ("scrape_jobs",))
+        self.assertEqual(scrape.call_args_list[0].kwargs, {"source": 7})
+
+    def test_failed_run_logs_traceback_and_allows_next_run(self):
+        import io
+        import logging
+        from .management.commands.run_scraper_schedule import Command
+        console = next(handler for handler in logging.getLogger("board").handlers if handler.name == "console")
+        output = io.StringIO()
+        with patch.object(console, "stream", output), patch("board.management.commands.run_scraper_schedule.close_old_connections"), patch("board.management.commands.run_scraper_schedule.call_command", side_effect=[RuntimeError("database unavailable"), None]) as scrape:
+            command = Command()
+            command.run_once(source=7)
+            command.run_once()
+        self.assertEqual(scrape.call_count, 2)
+        self.assertIn("Scheduled scrape failed (source=7)", output.getvalue())
+        self.assertIn("Traceback (most recent call last)", output.getvalue())
+        self.assertIn("RuntimeError: database unavailable", output.getvalue())
+
+    def test_cleanup_failure_does_not_stop_future_runs(self):
+        from .management.commands.run_scraper_schedule import Command
+        with patch("board.management.commands.run_scraper_schedule.close_old_connections", side_effect=[RuntimeError("cleanup failed"), None]), patch("board.management.commands.run_scraper_schedule.call_command") as scrape:
+            command = Command()
+            with self.assertLogs("board.management.commands.run_scraper_schedule", level="ERROR"):
+                command.run_once()
+            command.run_once()
+        scrape.assert_called_once_with("scrape_jobs")
+
     def test_next_run_is_six_in_the_morning_local(self):
         from datetime import datetime
         from zoneinfo import ZoneInfo
@@ -1503,7 +1646,7 @@ class SchedulerTests(TestCase):
         lock = lock_path()
         self.addCleanup(lock.unlink, missing_ok=True)
         lock.write_text("1")
-        with patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
+        with patch("board.management.commands.run_scraper_schedule.close_old_connections"), patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
             with self.assertRaises(KeyboardInterrupt):
                 Command().handle()
         scrape.assert_not_called()
@@ -1519,11 +1662,38 @@ class SchedulerTests(TestCase):
         ScrapeRun.objects.create(source=done, finished_at=timezone.now())
         killed = Source.objects.create(organization=organization, url="https://c.example/jobs", adapter="generic", enabled=True)
         ScrapeRun.objects.create(source=killed)
-        with patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
+        with patch("board.management.commands.run_scraper_schedule.close_old_connections"), patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
             with self.assertRaises(KeyboardInterrupt):
                 Command().handle()
         self.assertEqual([call.kwargs for call in scrape.call_args_list], [{"source": left.pk}, {"source": killed.pk}])
         self.assertFalse(ScrapeRun.objects.filter(finished_at__isnull=True).exists())
+
+
+@skipUnless(connection.vendor == "postgresql", "Requires the disposable PostgreSQL test database")
+class SchedulerPostgresTests(TransactionTestCase):
+    def test_next_run_recovers_after_database_connection_is_terminated(self):
+        import psycopg
+        from django.db import OperationalError
+        from .management.commands.run_scraper_schedule import Command
+        # TestCase's transaction would prevent connection recycling; this test runs in autocommit.
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT pg_backend_pid()")
+            backend_pid = cursor.fetchone()[0]
+        # Connect only to the test runner's database and kill only this test's Django connection.
+        with psycopg.connect(**connection.get_connection_params(), autocommit=True) as other:
+            with other.cursor() as cursor:
+                cursor.execute("SELECT pg_terminate_backend(%s, 5000)", (backend_pid,))
+                self.assertTrue(cursor.fetchone()[0])
+        with self.assertRaises(OperationalError):
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+        counts = []
+        with patch("board.management.commands.run_scraper_schedule.call_command", side_effect=lambda *args, **kwargs: counts.append(Source.objects.count())) as scrape:
+            command = Command()
+            command.run_once()
+            command.run_once()
+        self.assertEqual(counts, [0, 0])
+        self.assertEqual(scrape.call_count, 2)
 
 
 class BosnianPluralTests(TestCase):

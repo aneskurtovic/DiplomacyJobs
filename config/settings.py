@@ -30,7 +30,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
     db = urlparse(database_url)
-    DATABASES = {"default": {"ENGINE": "django.db.backends.postgresql", "NAME": db.path.lstrip("/"), "USER": unquote(db.username or ""), "PASSWORD": unquote(db.password or ""), "HOST": db.hostname, "PORT": db.port or 5432}}
+    DATABASES = {"default": {"ENGINE": "django.db.backends.postgresql", "NAME": db.path.lstrip("/"), "USER": unquote(db.username or ""), "PASSWORD": unquote(db.password or ""), "HOST": db.hostname, "PORT": db.port or 5432, "CONN_HEALTH_CHECKS": True}}
 else:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"}, {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"}, {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}, {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}]
@@ -52,3 +52,15 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "0") == "1"
 SECURE_REDIRECT_EXEMPT = [r"^health/"]
 SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_HSTS_SECONDS", "0"))
+# Compose collects stdout and stderr; errors must reach its logs even with DEBUG off.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"console": {"format": "{asctime} {levelname} {name}: {message}", "style": "{"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "console"}},
+    "root": {"handlers": ["console"], "level": "WARNING"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": os.environ.get("DJANGO_LOG_LEVEL", "WARNING"), "propagate": False},
+        "board": {"handlers": ["console"], "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
+    },
+}

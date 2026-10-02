@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from pathlib import Path
@@ -6,6 +7,7 @@ from board.ingest import expire_jobs, ingest_source
 from board.models import Source
 
 STALE_LOCK_SECONDS = 6 * 60 * 60
+logger = logging.getLogger(__name__)
 
 
 def lock_path():
@@ -42,6 +44,7 @@ class Command(BaseCommand):
                     try:
                         result = ingest_source(source.pk)
                     except Exception as exc:
+                        logger.exception("Source %s: unexpected scrape error", source.pk)
                         self.stderr.write(f"{source.pk}: unexpected error: {exc}")
                         continue
                     if result is None:

@@ -19,4 +19,6 @@ Build a Bosnian-language board for current paid jobs at diplomatic missions and 
 
 ## Public site and launch
 
-Implement `DesignProposal.html` using real database counts and statuses. Carry its visual language into the job list, with search, filters, official application links, and mobile layout. Launch only after the inventory is reconciled, at least ten complete sources pass live checks, a host deployment and backup restore are verified, and content review is complete. `BACKLOG.md` tracks the current work and evidence gaps.
+Implement `DesignProposal.html` using real database counts and statuses. Carry its visual language into the job list, with search, filters, official application links, and mobile layout. Launch only after the inventory is reconciled, at least ten complete sources pass live checks from the deployment network, both SQLite and PostgreSQL CI jobs pass, a host deployment and backup restore are verified, and content review is complete. `BACKLOG.md` tracks the current work and evidence gaps; `HANDOFF.md` records the latest verified continuation state.
+
+Production failures must be visible in console logs with DEBUG off. Each scheduled scrape must refresh database connections after the daily sleep, and a failed run must allow the next scheduled run to proceed. Verify connection recovery against a disposable PostgreSQL database as well as the SQLite regression suite.

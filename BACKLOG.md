@@ -17,10 +17,16 @@ Priority follows the product requirement: the board must show trustworthy, curre
 
 - [x] Django models, admin, public list, source coverage page, scheduler command, source run history, and optional AI batch interface are implemented.
 - [x] Unit tests run with `manage.py test` (EEAS, UN, OHR, EUFOR, EBRD, RCC, ERA, Japan, Oracle, Workday, CoE, OSCE adapters, date parsing, registry import, challenge-response handling, Denmark, Italy, and the publish/close rules of a full ingest run).
+- [x] Finish production reliability changes: console tracebacks with DEBUG off, scheduler connection cleanup before each run, and logging of unexpected source exceptions without stopping the remaining sources.
+- [x] Add regression tests for configured console output, scheduler recovery after exceptions, trusted host boundaries, old archive exclusion before detail fetch, excessive detail counts preserving published jobs, and admin renewal of undated jobs. On 2026-10-02 the SQLite suite discovered 125 tests: 124 passed and the PostgreSQL-only test was skipped; Django checks and migration drift checks passed using the locked `.venv311` environment.
+- [x] Define Linux/Python 3.12 CI jobs for SQLite and PostgreSQL 16, including a disposable PostgreSQL connection-termination/recovery test.
+- [ ] Execute both CI jobs and the PostgreSQL recovery test before launch. Docker/PostgreSQL are absent locally and authenticated GitHub access was unavailable during continuation; workflow execution is unverified.
 - [x] Query parameters remain in job URLs; fetch failures and excessive link counts prevent absence-based closure.
 - [ ] Validate a full deployment on the actual Hetzner host and HTTPS subdomain, including migrations, backup restore, static assets, source access, and scheduled runs.
 - [x] Confirm AI imports and manual corrections survive subsequent source updates; handle changed source text through review. A source change after AI enrichment stays in review until a reviewer acts.
 - [ ] Add source-specific handling for PDFs, dynamically rendered portals, and paid internships only where an official source requires it.
+- [ ] Follow up on Claude's remaining review ideas: pagination URL/canonical behavior, snapshot lookup performance, unused `PUBLIC_BASE_URL`, and admin run/snapshot filtering. Establish a retention policy before any additional job-text trimming.
+- [ ] Recheck prior-session review items: local admin credential rotation and the manually published RYCO Tirana listing. Do not assume they are resolved from historical session notes.
 
 - [x] Accent-insensitive search: the board and feed match on case- and diacritic-folded text ("svicarska" finds "Švicarska", "dj" matches "đ"), in Python over the visible jobs, so it behaves the same on SQLite and PostgreSQL without `unaccent`.
 
@@ -31,4 +37,4 @@ Priority follows the product requirement: the board must show trustworthy, curre
 
 ## Current constraints
 
-The registry contains 79 organizations. Thirty complete sources are enabled after live checks, which clears the ten-source launch gate. The full international and honorary inventory and the Hetzner deployment are outstanding. Public counts must reflect this reality rather than the mock figures in the design proposal.
+The registry snapshot checked on 2026-10-02 contains 79 organizations and 32 enabled sources (30 complete, two partial). Prior live checks recorded in that snapshot clear the ten-source coverage threshold, but source access from the deployment network still needs verification. The full international and honorary inventory, Linux/PostgreSQL validation, content review, and the Hetzner deployment are outstanding. Public counts must reflect this reality rather than the mock figures in the design proposal. See [HANDOFF.md](HANDOFF.md) for the continuation state and ordered next steps.
