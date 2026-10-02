@@ -28,7 +28,7 @@ EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|t
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
 DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
-DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
+DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:(?<=UTC[−+-])\d{1,2}(?::\d{2})?|\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)\D{0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
@@ -554,6 +554,37 @@ def bamboohr_links(client, source, evidence):
     return result
 
 
+def rmk_links(client, source, soup, evidence):
+    """SuccessFactors career site (UNESCO). The all-jobs category is paged by a start row in the path until the stated total is read; rows are kept by a BiH location and their posting date is listing evidence."""
+    total = re.search(r"\bof\s+(\d+)", soup.select_one(".paginationLabel").get_text(" ", strip=True)) if soup.select_one(".paginationLabel") else None
+    if not total and soup.select("tr.data-row"):
+        raise ValueError("SuccessFactors result count missing")
+    total = int(total.group(1)) if total else 0
+    parts = urlsplit(source.url)
+    rows, page = {}, soup
+    while page is not None:
+        page_rows = page.select("tr.data-row")
+        for row in page_rows:
+            link = row.select_one("a.jobTitle-link[href^='/job/']")
+            if not link:
+                raise ValueError("SuccessFactors row changed shape")
+            rows.setdefault(urljoin(source.url, link["href"]), row)
+        if not page_rows or len(rows) >= total or len(rows) > 10 * MAX_DETAIL_LINKS:
+            break
+        _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", "", "")))
+    if len(rows) != total:
+        raise ValueError(f"SuccessFactors shows {len(rows)} of {total} jobs")
+    result = []
+    for url, row in rows.items():
+        location = (row.select_one(".jobLocation") or row).get_text(" ", strip=True)
+        if not LOCATION.search(location) or urlsplit(url).hostname != parts.hostname:
+            continue
+        posted = row.select_one(".jobDate")
+        evidence[canonicalize(url)] = f"Location: {location}." + (f" Published {posted.get_text(' ', strip=True)}." if posted else "")
+        result.append((canonicalize(url), row.select_one("a.jobTitle-link").get_text(" ", strip=True)[:400]))
+    return result
+
+
 TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
 
 
@@ -731,6 +762,8 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "rmk":
+        return rmk_links(client, source, soup, evidence)
     elif source.adapter == "bamboohr":
         return bamboohr_links(client, source, evidence)
     elif source.adapter == "taleo":

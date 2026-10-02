@@ -830,6 +830,19 @@
     ]
   },
   {
+    "name": "UNESCO – Antena ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.unesco.org/en/fieldoffice/sarajevo",
+    "evidence_url": "https://careers.unesco.org/go/All-jobs-openings/784002/",
+    "verified_at": "2026-10-02",
+    "notes": "Ured UNESCO-a u Sarajevu. Oglasi s globalnog karijernog portala UNESCO-a, samo lokacije u BiH.",
+    "sources": [
+      {"url": "https://careers.unesco.org/go/All-jobs-openings/784002/", "adapter": "rmk", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNESCO karijere (SuccessFactors). Kategorija svih oglasa, sve stranice uz provjeru ukupnog broja; rok s detalja oglasa. Provjereno 2026-10-02: 62 oglasa u svijetu, nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Ured visokog predstavnika (OHR)",
     "kind": "international",
     "country": "",

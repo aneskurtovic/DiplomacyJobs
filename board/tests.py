@@ -1057,6 +1057,33 @@ class BambooHrAdapterTests(TestCase):
         self.assertTrue(candidate.eligible and candidate.year_proven)
 
 
+def rmk_row(path, title, location, posted):
+    return f'<tr class="data-row"><td><a class="jobTitle-link" href="/job/{path}/">{title}</a></td><td><span class="jobLocation">{location}</span></td><td><span class="jobDate">{posted}</span></td></tr>'
+
+
+class RmkAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="UNESCO", kind="international")
+        self.source = Source.objects.create(organization=organization, adapter="rmk", url="https://careers.unesco.org/go/All-jobs-openings/784002/")
+
+    def test_pages_followed_and_bih_row_kept(self):
+        first = BeautifulSoup('<span class="paginationLabel">Results 1 – 1 of 2</span>' + rmk_row("Paris-Officer/1", "Officer", "Paris, France", "1 Oct 2026"), "html.parser")
+        second = BeautifulSoup('<span class="paginationLabel">Results 2 – 2 of 2</span>' + rmk_row("Sarajevo-Project-Assistant/2", "Project Assistant", "Sarajevo, Bosnia and Herzegovina", "29 Sept 2026"), "html.parser")
+        evidence = {}
+        with patch("board.ingest.fetch", return_value=("", second)) as fetch_page:
+            links = discover_links(None, self.source, first, evidence)
+        self.assertEqual(fetch_page.call_args.args[1], "https://careers.unesco.org/go/All-jobs-openings/784002/1/")
+        self.assertEqual(links, [("https://careers.unesco.org/job/Sarajevo-Project-Assistant/2", "Project Assistant")])
+        with patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2)):
+            candidate = make_candidate(self.source, links[0][0], links[0][1], "Project Assistant Duty Station : Sarajevo Application deadline (Midnight UTC−5 Time) : 30/10/2026", None, evidence[links[0][0]])
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 29), date(2026, 10, 30), "Sarajevo"))
+
+    def test_short_listing_fails(self):
+        first = BeautifulSoup('<span class="paginationLabel">Results 1 – 1 of 3</span>' + rmk_row("Paris-Officer/1", "Officer", "Paris, France", "1 Oct 2026"), "html.parser")
+        with patch("board.ingest.fetch", return_value=("", BeautifulSoup("", "html.parser"))), self.assertRaisesRegex(ValueError, "1 of 3"):
+            discover_links(None, self.source, first, {})
+
+
 class CsodAdapterTests(TestCase):
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_token_read_and_ba_postings_kept(self, _):
