@@ -643,6 +643,18 @@ class PublicViewTests(TestCase):
         self.assertContains(response, 'value="consultancy" selected')
         self.assertNotContains(response, 'value="paid_internship"')
 
+    def test_deadline_sort_badges_and_city_search(self):
+        from datetime import timedelta
+        Job.objects.filter(title="Driver").update(deadline=self.today + timedelta(days=12))
+        Job.objects.filter(title="Legal Consultant").update(deadline=self.today)
+        content = self.client.get("/", {"sort": "deadline"}).content.decode()
+        self.assertLess(content.index("Legal Consultant"), content.index("<h3>Driver</h3>"))
+        self.assertIn("Ističe danas", content)
+        self.assertIn("Novo", content)
+        city = self.client.get("/", {"q": "Mostar"}).content.decode()
+        self.assertIn("Legal Consultant", city)
+        self.assertNotIn("<h3>Driver</h3>", city)
+
     def test_unknown_type_ignored_and_sources_page_renders(self):
         self.assertContains(self.client.get("/", {"type": "bogus"}), "Driver")
         self.assertContains(self.client.get("/sources/"), "Embassy A")

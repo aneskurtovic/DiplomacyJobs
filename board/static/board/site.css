@@ -83,3 +83,10 @@ h1,h2,h3,p{overflow-wrap:anywhere}
 .table-footnote{font-size:13px;color:#52606d;margin:14px 0 0}
 @media(max-width:1050px){.coverage-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.table-heading{display:block}.status-filters{justify-content:flex-start;margin-top:18px}}
 @media(max-width:760px){.wrap{padding-left:18px;padding-right:18px}.site-nav{gap:18px}.brand{font-size:17px}.hero{padding-top:44px}.filters{grid-template-columns:1fr}.job-card{display:block}.apply{display:inline-block;margin-top:20px}.coverage-intro{padding-top:36px}.coverage-stats,.legend-grid{grid-template-columns:1fr}.coverage-stats{margin:28px 0}.coverage-stat{min-height:0}.status-legend{padding:20px}.coverage-intro h1{font-size:30px}}
+
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.badges{display:flex;gap:8px;margin:2px 0 8px}
+.badge{border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600}
+.badge.new{color:#0f4c81;background:#e8f1f8}
+.badge.soon{color:#6b3a00;background:#fbf3e8}
+.badge.urgent{color:#fff;background:#a23b2a}

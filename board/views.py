@@ -1,7 +1,7 @@
 from datetime import timedelta
 from urllib.parse import urlsplit
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -19,16 +19,21 @@ def jobs(request):
     employer = request.GET.get("employer", "")
     city = request.GET.get("city", "")
     kind = request.GET.get("type", "")
+    sort = "deadline" if request.GET.get("sort") == "deadline" else ""
     if search:
-        query = query.filter(Q(title__icontains=search) | Q(source__organization__name__icontains=search))
+        query = query.filter(Q(title__icontains=search) | Q(source__organization__name__icontains=search) | Q(city__icontains=search))
     if employer.isdecimal() and len(employer) <= 18:
         query = query.filter(source__organization_id=int(employer))
     if city:
         query = query.filter(city=city[:100])
     if kind in dict(Job.TYPE):
         query = query.filter(opportunity_type=kind)
-    page = Paginator(query.select_related("source__organization").order_by("-first_seen_at", "-pk"), 20).get_page(request.GET.get("page"))
-    return render(request, "board/jobs.html", {"page": page, "search": search, "employer": employer, "city": city, "kind": kind, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
+    order = (F("deadline").asc(nulls_last=True), "-first_seen_at", "-pk") if sort else ("-first_seen_at", "-pk")
+    page = Paginator(query.select_related("source__organization").order_by(*order), 20).get_page(request.GET.get("page"))
+    for job in page:
+        job.days_left = (job.deadline - today).days if job.deadline else None
+        job.is_new = job.first_seen_at >= timezone.now() - timedelta(days=3)
+    return render(request, "board/jobs.html", {"page": page, "search": search, "employer": employer, "city": city, "kind": kind, "sort": sort, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
 
 
 def sources(request):
