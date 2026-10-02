@@ -538,6 +538,22 @@ class IngestRulesTests(TestCase):
         with patch("board.ingest.fetch", side_effect=self.fake_fetch), patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2)):
             return ingest_source(self.source.pk)
 
+    def test_partial_listing_closes_deleted_known_page_without_failing(self):
+        self.source.adapter_config = {"allow_empty": True, "partial_listing": True}
+        self.source.save()
+        self.assertTrue(self.run_ingest().success)
+        self.listing(("other", "Vacancy: Driver", "Published 01.09.2026. Deadline 30.10.2026."))
+        deleted = "https://emb.example/jobs/officer"
+        def fetch_or_404(client, url):
+            if url == deleted:
+                request = httpx.Request("GET", url)
+                raise httpx.HTTPStatusError("Not Found", request=request, response=httpx.Response(404, request=request))
+            return self.fake_fetch(client, url)
+        from .ingest import ingest_source
+        with patch("board.ingest.fetch", side_effect=fetch_or_404), patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2)):
+            self.assertTrue(ingest_source(self.source.pk).success)
+        self.assertEqual(dict(self.source.jobs.values_list("title", "closed_reason")), {"Vacancy: Political Officer": "missing", "Vacancy: Driver": ""})
+
     def test_proven_job_published_and_closed_after_two_missing_scans(self):
         self.assertTrue(self.run_ingest().success)
         job = self.source.jobs.get()

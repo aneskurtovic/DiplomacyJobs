@@ -984,8 +984,10 @@ def ingest_source(source_id):
                 raise ValueError("Listing is suddenly empty while jobs are published; verify the page before treating it as empty")
             # URL columns hold 1000 characters; on PostgreSQL a longer one would roll back the whole source.
             links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title) and len(url) <= 1000]
+            known_only, gone = set(), []
             if (source.adapter_config or {}).get("partial_listing"):
                 known = source.jobs.filter(status="published").values_list("canonical_url", "title")
+                known_only = {url for url, _ in known} - {url for url, _ in links}
                 links = list(dict.fromkeys([*links, *known]))
             if len(links) > MAX_DETAIL_LINKS:
                 raise ValueError(f"More than {MAX_DETAIL_LINKS} possible {TARGET_YEAR} vacancy links; narrow the source adapter")
@@ -1002,8 +1004,13 @@ def ingest_source(source_id):
                     if source.jobs.filter(canonical_url=candidate.url).exists() or (candidate.in_scope_year and not skip_if_new):
                         candidates.append(candidate)
                 except FETCH_ERRORS as exc:
+                    # A job that has left a partial listing and whose page is deleted has ended; it must not fail the whole source.
+                    if url in known_only and getattr(getattr(exc, "response", None), "status_code", None) in (404, 410):
+                        gone.append(url)
+                        continue
                     raise ValueError(f"Vacancy detail failed: {url}: {exc}") from exc
         with transaction.atomic():
+            source.jobs.filter(canonical_url__in=gone, status="published").update(status="closed", closed_reason="missing")
             seen = {url for url, _ in discovered_links}
             for candidate in candidates:
                 # A snapshot is kept per change, not per scan; unchanged pages would store the same text every day.
