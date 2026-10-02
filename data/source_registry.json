@@ -12,11 +12,11 @@
       {
         "url": "https://www.bosnia.emb-japan.go.jp/index_l.html",
         "adapter": "generic",
-        "status": "unsupported",
+        "status": "blocked",
         "adapter_config": {
           "path_contains": "/itpr"
         },
-        "notes": "Provjeriti selektor službenih linkova i lokalne formate datuma prije uključivanja."
+        "notes": "2026-10-02: 403 Forbidden iz lokalne mreže, i sa browser User-Agentom. Ponovo provjeriti sa Hetzner servera; zatim provjeriti selektor službenih linkova i lokalne formate datuma prije uključivanja."
       }
     ]
   },
@@ -62,8 +62,8 @@
       {
         "url": "https://www.gov.uk/world/organisations/british-embassy-sarajevo/about/recruitment",
         "adapter": "govuk",
-        "status": "unsupported",
-        "notes": "Pratiti konačni FCDO portal; GOV.UK stranica sama ne sadrži pojedinačne oglase."
+        "status": "blocked",
+        "notes": "GOV.UK stranica vodi na FCDO portal (fco.tal.net), koji 2026-10-02 vraća anti-bot provjeru (\"Quick Check\") za svaki URL. Ne zaobilaziti; tražiti zvanični feed ili ponovo provjeriti sa servera."
       }
     ]
   },
@@ -144,10 +144,11 @@
     "notes": "Središnja EEAS lista uključuje i druge države; svaki oglas zahtijeva zasebnu provjeru lokacije.",
     "sources": [
       {
-        "url": "https://www.eeas.europa.eu/eeas/vacancies_en?s=69",
+        "url": "https://www.eeas.europa.eu/eeas/vacancies_en?f%5B0%5D=vacancy_site%3ABosnia%20and%20Herzegovina",
         "adapter": "eeas",
-        "status": "unsupported",
-        "notes": "Globalna lista; adapter i aktivne oglase treba provjeriti iz okruženja servera prije uključivanja."
+        "status": "verified",
+        "enabled": true,
+        "notes": "EEAS lista filtrirana na BiH; adapter prolazi kroz sve stranice. Provjereno uživo 2026-10-02: 3 otvorena oglasa."
       }
     ]
   },

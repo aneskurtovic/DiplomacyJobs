@@ -18,6 +18,7 @@ from .models import Job, ScrapeRun, Source, SourceDocument
 USER_AGENT = "DiplomacyJobs/0.1 (+official vacancy monitor; contact via site administrator)"
 TARGET_YEAR = 2026
 MAX_DETAIL_LINKS = 100
+MAX_LISTING_PAGES = 10
 LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|sarajevo|banja luka|mostar|brčko|tuzla|zenica|bijeljina|trebinje)\b", re.I)
 OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north macedonia|belgrade|zagreb|tirana|pristina)\b", re.I)
 JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
@@ -148,8 +149,8 @@ def listing_links(source, soup):
             if heading and pdf and JOB_WORDS.search(heading.get_text(" ", strip=True)):
                 result.append((canonicalize(urljoin(source.url, pdf["href"])), heading.get_text(" ", strip=True)[:400]))
         return result
-    if source.adapter == "eeas" and soup.select('a[href*="page="]'):
-        raise ValueError("EEAS listing is paginated; adapter must cover every page")
+    if source.adapter == "eeas":
+        return eeas_page_links(source, soup)
     selector = config.get("link_selector", "a[href]")
     if not isinstance(selector, str) or len(selector) > 150:
         raise ValueError("Invalid link selector")
@@ -160,10 +161,7 @@ def listing_links(source, soup):
         if not href or not title or not JOB_WORDS.search(title):
             continue
         url = urljoin(source.url, href)
-        if source.adapter == "eeas":
-            if not trusted_host(urlsplit(url).hostname or "", "eeas.europa.eu") or "/delegations/bosnia-and-herzegovina/" not in urlsplit(url).path:
-                continue
-        elif source.adapter == "govuk":
+        if source.adapter == "govuk":
             if not trusted_host(urlsplit(url).hostname or "", "tal.net"):
                 continue
         else:
@@ -178,8 +176,51 @@ def listing_links(source, soup):
     return links
 
 
+def eeas_page_links(source, soup):
+    """Vacancy cards on one page of the EEAS listing filtered to BiH. Cards with a pre-2026 deadline are archive entries."""
+    result = []
+    for card in soup.select(".node--type-vacancy"):
+        link = card.select_one(".card-title a[href]")
+        if not link:
+            raise ValueError("EEAS vacancy card without a title link")
+        url = urljoin(source.url, link["href"])
+        if not trusted_host(urlsplit(url).hostname or "", "eeas.europa.eu"):
+            continue
+        deadline = parse_date(next(iter(re.findall(r"\d{2}\.\d{2}\.\d{4}", card.get_text(" ", strip=True))), ""))
+        if deadline and deadline.year < TARGET_YEAR:
+            continue
+        result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
+    return result
+
+
+def discover_links(client, source, soup):
+    links = listing_links(source, soup)
+    if source.adapter == "eeas":
+        if not soup.select(".node--type-vacancy"):
+            raise ValueError("EEAS vacancy cards missing")
+        for page in range(1, MAX_LISTING_PAGES + 1):
+            parts = urlsplit(source.url)
+            query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "page"] + [("page", str(page))]
+            _, page_soup = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), "")))
+            if page_soup is None or not page_soup.select(".node--type-vacancy"):
+                return list(dict.fromkeys(links))
+            links += eeas_page_links(source, page_soup)
+        raise ValueError(f"EEAS listing exceeds {MAX_LISTING_PAGES} pages; check the BiH filter")
+    return links
+
+
 def make_candidate(source, url, listing_title, text, soup):
     title = listing_title
+    eeas_published = None
+    if source.adapter == "eeas" and soup:
+        # Judge only the vacancy itself; site navigation mentions BiH and unrelated jobs.
+        article = soup.select_one("article.node--type-vacancy")
+        if article is None:
+            raise ValueError("EEAS vacancy article missing")
+        meta = soup.select_one(".content-header .node__meta")
+        published_match = re.search(r"\d{2}\.\d{2}\.\d{4}", meta.get_text(" ", strip=True)) if meta else None
+        eeas_published = parse_date(published_match.group(0)) if published_match else None
+        text = article.get_text(" ", strip=True)
     if soup:
         heading = soup.find("h1")
         if heading:
@@ -191,9 +232,9 @@ def make_candidate(source, url, listing_title, text, soup):
         city = city_match.group(1).title() if city_match else ""
     location_evidence = text[max(0, excerpt.start()-75):excerpt.end()+75] if excerpt else ""
     deadline = parse_deadline(text) or parse_deadline(listing_title)
-    published = parse_published(text)
+    published = eeas_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text)
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter == "eeas"
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
@@ -232,7 +273,7 @@ def ingest_source(source_id):
             listing_text, soup = fetch(client, source.url)
             if soup is None:
                 raise ValueError("Source listing must be HTML")
-            discovered_links = listing_links(source, soup)
+            discovered_links = discover_links(client, source, soup)
             if not discovered_links and not (source.adapter_config or {}).get("allow_empty", False):
                 raise ValueError("No vacancy links matched; verify selector before treating as empty")
             links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title)]
@@ -246,7 +287,9 @@ def ingest_source(source_id):
                 try:
                     text, detail_soup = fetch(client, url)
                     candidate = make_candidate(source, url, title, text, detail_soup)
-                    if candidate.in_scope_year:
+                    expired = bool(candidate.deadline and candidate.deadline < timezone.localdate())
+                    # Already-expired vacancies are not worth a review entry; known jobs still refresh.
+                    if candidate.in_scope_year and (not expired or source.jobs.filter(canonical_url=candidate.url).exists()):
                         candidates.append(candidate)
                 except (httpx.HTTPError, ValueError) as exc:
                     raise ValueError(f"Vacancy detail failed: {url}: {exc}") from exc
