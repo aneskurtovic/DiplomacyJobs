@@ -11,6 +11,7 @@ from board.management.commands.scrape_jobs import lock_path
 from board.models import ScrapeRun, Source
 
 RUN_AT_HOUR = 6
+INTERRUPTED = "Interrupted: the scheduler restarted during this run"
 
 
 def seconds_until_next_run(now):
@@ -36,9 +37,12 @@ class Command(BaseCommand):
         signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
         # This is the only scraper in its container, so a lock present at startup was left by a killed run.
         lock_path().unlink(missing_ok=True)
+        # Likewise an unfinished run was killed with it; closing it lets the overlap guard in ingest_source pass.
+        ScrapeRun.objects.filter(finished_at__isnull=True).update(finished_at=timezone.now(), error=INTERRUPTED)
         # A restart or redeploy does not add an extra run when today's has happened, but finishes one it interrupted.
-        recent = ScrapeRun.objects.filter(started_at__gte=timezone.now() - timedelta(hours=20)).values("source_id")
-        missing = list(Source.objects.filter(enabled=True).exclude(adapter="none").exclude(pk__in=recent).values_list("pk", flat=True))
+        # The source a killed run was working on is redone.
+        recent = ScrapeRun.objects.filter(started_at__gte=timezone.now() - timedelta(hours=20)).exclude(error=INTERRUPTED).values("source_id")
+        missing = list(Source.objects.filter(enabled=True).exclude(adapter="none").exclude(pk__in=recent).order_by("pk").values_list("pk", flat=True))
         if missing and not recent.exists():
             self.run_once()
         else:

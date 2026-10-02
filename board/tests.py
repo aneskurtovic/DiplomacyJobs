@@ -656,6 +656,14 @@ class IngestRulesTests(TestCase):
             ("The deadline for applications has been extended to 20 October 2026.", date(2026, 10, 20)),
             ("Rok za prijavu je produžen do 25.10.2026.", date(2026, 10, 25)),
             ("Extended deadline: 5 November 2026", date(2026, 11, 5)),
+            ("Deadline: 15 October 2026. Only shortlisted applications will be contacted. Contract may be extended until 31.12.2027", date(2026, 10, 15)),
+            ("Vacancy: Driver. Fixed-term, may be extended until 31 December 2027. Deadline 15 October 2026", date(2026, 10, 15)),
+            ("Oglas za posao. Ugovor može biti produžen do 31.12.2027. Rok 15.10.2026.", date(2026, 10, 15)),
+            ("The position remains open until filled. Expected start: 1 January 2027", None),
+            ("Applications received by email only. Published 1.10.2026", None),
+            ("Applications will be accepted until 20 October 2026.", date(2026, 10, 20)),
+            ("Deadline: 16:00 UTC+1 15/10/2026", date(2026, 10, 15)),
+            ("Closing date: 12:00 PM (UTC+1), 15 October 2026", date(2026, 10, 15)),
         ]
         for text, expected in cases:
             self.assertEqual(parse_deadline(text), expected, text)
@@ -1110,6 +1118,12 @@ class RmkAdapterTests(TestCase):
             candidate = make_candidate(self.source, links[0][0], links[0][1], "Project Assistant Duty Station : Sarajevo Application deadline (Midnight UTC−5 Time) : 30/10/2026", None, evidence[links[0][0]])
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 29), date(2026, 10, 30), "Sarajevo"))
 
+    def test_ignored_offset_fails_instead_of_looping(self):
+        first = BeautifulSoup('<span class="paginationLabel">Results 1 – 1 of 2</span>' + rmk_row("Paris-Officer/1", "Officer", "Paris, France", "1 Oct 2026"), "html.parser")
+        with patch("board.ingest.fetch", return_value=("", first)) as fetch_page, self.assertRaisesRegex(ValueError, "1 of 2"):
+            discover_links(None, self.source, first, {})
+        self.assertEqual(fetch_page.call_count, 1)
+
     def test_short_listing_fails(self):
         first = BeautifulSoup('<span class="paginationLabel">Results 1 – 1 of 3</span>' + rmk_row("Paris-Officer/1", "Officer", "Paris, France", "1 Oct 2026"), "html.parser")
         with patch("board.ingest.fetch", return_value=("", BeautifulSoup("", "html.parser"))), self.assertRaisesRegex(ValueError, "1 of 3"):
@@ -1295,16 +1309,20 @@ class SchedulerTests(TestCase):
         self.assertFalse(lock.exists())
 
     def test_start_finishes_an_interrupted_run(self):
+        from django.utils import timezone
         from .management.commands.run_scraper_schedule import Command
         from .models import ScrapeRun
         organization = Organization.objects.create(name="Embassy", kind="embassy")
         done = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
         left = Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="generic", enabled=True)
-        ScrapeRun.objects.create(source=done)
+        ScrapeRun.objects.create(source=done, finished_at=timezone.now())
+        killed = Source.objects.create(organization=organization, url="https://c.example/jobs", adapter="generic", enabled=True)
+        ScrapeRun.objects.create(source=killed)
         with patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
             with self.assertRaises(KeyboardInterrupt):
                 Command().handle()
-        scrape.assert_called_once_with("scrape_jobs", source=left.pk)
+        self.assertEqual([call.kwargs for call in scrape.call_args_list], [{"source": left.pk}, {"source": killed.pk}])
+        self.assertFalse(ScrapeRun.objects.filter(finished_at__isnull=True).exists())
 
 
 class BosnianPluralTests(TestCase):

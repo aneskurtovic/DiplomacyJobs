@@ -28,10 +28,12 @@ EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|t
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
 DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
-DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:(?<=UTC[−+-])\d{1,2}(?::\d{2})?|\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
+DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:(?<=UTC[−+-])\d{1,2}(?::\d{2})?|\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?:\s*\(?\s*(?:UTC|GMT|CET|CEST)\s*(?:[−+-]\s?\d{1,2}(?::\d{2})?)?\)?)?(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
+# "Open until", "received by": only a date right after counts, since "open until filled. Start date …" names another date.
+DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do)\s*(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
-EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)\D{0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
+EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)(?:(?!contract|ugovor|appointment|angažman)[^\d.;]){0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"\b(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
@@ -108,7 +110,11 @@ def first_date(pattern, text):
 
 
 def parse_deadline(text):
-    return first_date(EXTENDED, text) or first_date(DEADLINE, text)
+    if extended := first_date(EXTENDED, text):
+        return extended
+    # The earliest stated deadline wins, whichever phrasing it uses.
+    found = [(match.start(), parsed) for pattern in (DEADLINE, DEADLINE_DIRECT) for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))]
+    return min(found, key=lambda item: item[0])[1] if found else None
 
 
 def parse_published(text):
@@ -574,13 +580,14 @@ def rmk_links(client, source, soup, evidence):
     parts = urlsplit(source.url)
     rows, page = {}, soup
     while page is not None:
-        page_rows = page.select("tr.data-row")
+        page_rows, before = page.select("tr.data-row"), len(rows)
         for row in page_rows:
             link = row.select_one("a.jobTitle-link[href^='/job/']")
             if not link:
                 raise ValueError("SuccessFactors row changed shape")
             rows.setdefault(urljoin(source.url, link["href"]), row)
-        if not page_rows or len(rows) >= total or len(rows) > 10 * MAX_DETAIL_LINKS:
+        # An ignored offset returns rows already read; the count check below then fails instead of looping.
+        if not page_rows or len(rows) >= total or len(rows) == before or len(rows) > 10 * MAX_DETAIL_LINKS:
             break
         _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", "", "")))
     if len(rows) != total:
@@ -646,7 +653,8 @@ def taleo_links(client, source, evidence):
             raise ValueError("Taleo job detail changed shape")
         fields = [unquote(field).replace("!*!", "").replace("\\", "") for field in history.get("value", "").split("!|!")]
         # Fields come in pairs (posting date, closing date, ...); the first two distinct dates are publication and closing.
-        dates = list(dict.fromkeys(match.group(0) for field in fields for match in [TALEO_DATE.match(field)] if match))
+        dates = [match.group(0) for field in fields for match in [TALEO_DATE.match(field)] if match]
+        dates = dates[::2] if len(dates) % 2 == 0 and dates[::2] == dates[1::2] else list(dict.fromkeys(dates))
         opened = taleo_date(dates[0]) if dates else taleo_date((TALEO_DATE.match(posted) or [""])[0])
         closing = taleo_date(dates[1]) if len(dates) > 1 else None
         description = BeautifulSoup(max(fields, key=len), "html.parser").get_text(" ", strip=True)
@@ -877,7 +885,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         stamp = soup.select_one(config["published_selector"]) if config.get("published_selector") else None
         # A <meta content> or <time datetime> stamp holds an ISO timestamp; only its date counts.
         stamp_value = (stamp.get("content") or stamp.get("datetime") or stamp.get_text(" ", strip=True)) if stamp else ""
-        structured_published = parse_date(stamp_value[:10] if re.match(r"\d{4}-\d{2}-\d{2}T", stamp_value) else stamp_value) if stamp else None
+        structured_published = parse_date(stamp_value[:10] if re.match(r"\d{4}-\d{2}-\d{2}[T ]\d", stamp_value) else stamp_value) if stamp else None
     if source.adapter == "coe" and soup:
         fields = coe_fields(soup)
         if not fields.get("Duty station"):
