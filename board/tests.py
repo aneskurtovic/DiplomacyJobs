@@ -426,6 +426,27 @@ class CoeAdapterTests(TestCase):
 
 
 class ImportRegistryTests(TestCase):
+    def run_registry(self, registry):
+        import io
+        import tempfile
+        from pathlib import Path
+        from django.core.management import call_command
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "registry.json"
+            path.write_text(json.dumps(registry), encoding="utf-8")
+            call_command("import_registry", str(path), stdout=io.StringIO())
+
+    def test_nulls_rename_and_config_updates(self):
+        live = Source.objects.create(organization=Organization.objects.create(name="Old name", kind="embassy"), url="https://x.example/jobs", adapter="generic", enabled=True, adapter_config={"link_selector": "a"})
+        Source.objects.create(organization=live.organization, url="https://x.example/other", adapter="none", enabled=False)
+        self.run_registry([{"name": "New name", "previous_name": "Old name", "kind": "embassy", "city": None, "sources": [
+            {"url": "https://x.example/jobs", "adapter": "osce", "adapter_config": {"link_selector": "main a", "empty_text": "No vacancies"}},
+            {"url": "https://x.example/other", "adapter": "generic", "adapter_config": {"allow_empty": True}}]}])
+        self.assertEqual(list(Organization.objects.values_list("name", "city")), [("New name", "")])
+        live.refresh_from_db()
+        self.assertEqual((live.adapter, live.adapter_config, live.enabled), ("generic", {"link_selector": "main a", "empty_text": "No vacancies"}, True))
+        self.assertEqual(Source.objects.get(url="https://x.example/other").adapter, "generic")
+
     def test_source_moved_to_another_organization_is_not_duplicated(self):
         import io
         import tempfile
