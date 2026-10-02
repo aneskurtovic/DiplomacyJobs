@@ -843,6 +843,32 @@
     ]
   },
   {
+    "name": "Međunarodna organizacija rada (ILO) – projekti u BiH",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.ilo.org/",
+    "evidence_url": "https://jobs.ilo.org/services/rss/job/?locale=en_GB&keywords=",
+    "verified_at": "2026-10-02",
+    "notes": "ILO zapošljava nacionalno osoblje za projekte u BiH (npr. EU4People, Sarajevo) preko globalnog karijernog portala.",
+    "sources": [
+      {"url": "https://jobs.ilo.org/services/rss/job/?locale=en_GB&keywords=", "adapter": "sfrss", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ILO karijere (SuccessFactors), zvanični RSS feed svih oglasa s punim tekstom; lista na stranici se iscrtava u pregledniku. Zadržavaju se oglasi s lokacijom u BiH. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH (posljednji iz Sarajeva u julu 2026)."}
+    ]
+  },
+  {
+    "name": "Međunarodni centar za razvoj migracionih politika (ICMPD) – Ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.icmpd.org/",
+    "evidence_url": "https://careers.icmpd.org/",
+    "verified_at": "2026-10-02",
+    "notes": "Međuvladina organizacija sa sjedištem u Beču i terenskim uredom u Sarajevu (regija Zapadnog Balkana).",
+    "sources": [
+      {"url": "https://careers.icmpd.org/", "adapter": "lanteria", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ICMPD karijere (Lanteria); lista otvorenih oglasa ugrađena u stranicu, rok sa stranice oglasa. Zadržavaju se samo lokacije u BiH (dio oglasa za Zapadni Balkan je u Beogradu). Provjereno 2026-10-02: 11 oglasa, nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Štab NATO-a u Sarajevu (NHQSa)",
     "kind": "international",
     "country": "",

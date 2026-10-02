@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from board.ingest import TARGET_YEAR, discover_links, fetch, listing_link_in_scope, open_client
+from bs4 import BeautifulSoup
+
+from board.ingest import FEED_ADAPTERS, TARGET_YEAR, discover_links, fetch, listing_link_in_scope, open_client
 from board.models import Source
 
 
@@ -22,7 +24,7 @@ class Command(BaseCommand):
             label = f"{source.pk:>4} {source.adapter:<10} {source.organization.name[:50]}"
             try:
                 with open_client(source) as client:
-                    _, soup = fetch(client, source.url)
+                    _, soup = (None, BeautifulSoup("", "html.parser")) if source.adapter in FEED_ADAPTERS else fetch(client, source.url)
                     if soup is None:
                         raise ValueError("Source listing must be HTML")
                     links = discover_links(client, source, soup, {})

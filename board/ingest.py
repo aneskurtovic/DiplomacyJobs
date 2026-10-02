@@ -14,6 +14,7 @@ from django.db import transaction
 from django.utils import timezone
 from pypdf import PdfReader
 from io import BytesIO
+from xml.etree import ElementTree
 
 from .models import Job, ScrapeRun, Source, SourceDocument
 
@@ -684,6 +685,69 @@ def taleoftl_links(client, source, evidence):
     return [(url, title) for url, title in result if LOCATION.search(evidence[url])]
 
 
+def lanteria_links(client, source, evidence):
+    """Lanteria HR careers portal (ICMPD). The home page embeds every open job as JSON (id, title, locations, start date) in a script; BiH locations are kept, and the job page supplies the closing date."""
+    parts = urlsplit(source.url)
+    if parts.scheme != "https":
+        raise ValueError("Lanteria careers site must use HTTPS")
+    response = request(client, "get", source.url)
+    response.raise_for_status()
+    start = response.text.find("jobOpenings:")
+    if start < 0:
+        raise ValueError("Lanteria job list missing")
+    try:
+        openings, _ = json.JSONDecoder().raw_decode(response.text[start + len("jobOpenings:"):].lstrip())
+    except ValueError as exc:
+        raise ValueError("Lanteria job list changed shape") from exc
+    result = []
+    for opening in openings:
+        places = opening.get("locations") or []
+        if not str(opening.get("id", "")).isdigit() or not isinstance(places, list):
+            raise ValueError("Lanteria job without id or locations")
+        if not any(LOCATION.search(str(place)) for place in places):
+            continue
+        url = canonicalize(f"https://{parts.hostname}/Home/JobOpeningDetails?jobOpeningId={opening['id']}")
+        opened = parse_date((opening.get("startDate") or "")[:10])
+        evidence[url] = f"Location: {', '.join(map(str, places))}." + (f" Published {opened.isoformat()}." if opened else "")
+        result.append((url, (opening.get("title") or "")[:400]))
+    return result
+
+
+def sfrss_links(client, source, evidence):
+    """SuccessFactors job RSS feed (ILO), for career sites whose listing renders in the browser. Each item carries the full advert; it is kept when its title or "Location:" field names a BiH place."""
+    parts = urlsplit(source.url)
+    if parts.scheme != "https" or not parts.path.startswith("/services/rss/job"):
+        raise ValueError("SuccessFactors RSS feed missing from source URL")
+    response = request(client, "get", source.url)
+    response.raise_for_status()
+    if "xml" not in response.headers.get("content-type", "").lower():
+        raise ValueError("SuccessFactors feed is not XML")
+    channel = ElementTree.fromstring(response.content).find("channel")
+    if channel is None:
+        raise ValueError("SuccessFactors feed changed shape")
+    items = channel.findall("item")
+    # The feed has no total; a round number of items may be a cap rather than every job.
+    if len(items) >= 100:
+        raise ValueError(f"SuccessFactors feed has {len(items)} items; it may be truncated")
+    result = []
+    for item in items:
+        if (item.findtext("guid") or "").strip() == "0":
+            continue  # "No jobs currently available" placeholder
+        title, link = (item.findtext("title") or "").strip(), (item.findtext("link") or "").strip()
+        url = urlunsplit(urlsplit(link)._replace(query="", fragment=""))
+        if urlsplit(url).hostname != parts.hostname or not urlsplit(url).path.startswith("/job/"):
+            continue
+        description = BeautifulSoup(item.findtext("description") or "", "html.parser").get_text(" ", strip=True)
+        place = re.search(r"\bLocation:\s*([^:]{0,60}?)\s+(?:[A-Z][a-z]+(?: [a-z]+)*:|$)", description)
+        if not LOCATION.search(title) and not (place and LOCATION.search(place.group(1))):
+            continue
+        posted = item.findtext("pubDate") or ""
+        opened = parse_date(" ".join(posted.split()[1:4])) if posted else None
+        evidence[canonicalize(url)] = f"{title}. " + (f"Published {opened.isoformat()}. " if opened else "") + description
+        result.append((canonicalize(url), title[:400]))
+    return result
+
+
 def taleo_date(value):
     try:
         return datetime.strptime(value, "%b %d, %Y").date()
@@ -825,7 +889,8 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl"}
+FEED_ADAPTERS = {"sfrss"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -858,6 +923,10 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "lanteria":
+        return lanteria_links(client, source, evidence)
+    elif source.adapter == "sfrss":
+        return sfrss_links(client, source, evidence)
     elif source.adapter == "taleoftl":
         return taleoftl_links(client, source, evidence)
     elif source.adapter == "rai":
@@ -897,8 +966,8 @@ def opportunity_type(title):
     return "employment"
 
 
-NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|sb-?[1-5]|sc-?\d{1,2}|service contract|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
-INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
+NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|sb-?[1-5]|sc-?\d{1,2}|service contract|lp-?[1-5]|ls-?[1-5]|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
+INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|ip-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
 
 
 def recruitment_scope(title, text):
@@ -982,8 +1051,8 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         text = f"{listing_evidence} {text}"
     if soup:
         heading = soup.find("h1")
-        # UNICEF's h1 is the generic "Current vacancies"; ERA's is the State Department banner.
-        if heading and source.adapter not in ("unicef", "era"):
+        # UNICEF's h1 is the generic "Current vacancies", ERA's the State Department banner, Lanteria's "Job Opening Details".
+        if heading and source.adapter not in ("unicef", "era", "lanteria"):
             title = heading.get_text(" ", strip=True)[:400] or title
     excerpt = LOCATION.search(text)
     city = ""
@@ -993,7 +1062,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
@@ -1056,7 +1125,8 @@ def ingest_source(source_id):
     source.save(update_fields=["last_attempt_at"])
     try:
         with open_client(source) as client:
-            listing_text, soup = fetch(client, source.url)
+            # A feed source is no HTML page; its adapter reads the URL itself.
+            soup = BeautifulSoup("", "html.parser") if source.adapter in FEED_ADAPTERS else fetch(client, source.url)[1]
             if soup is None:
                 raise ValueError("Source listing must be HTML")
             evidence = {}

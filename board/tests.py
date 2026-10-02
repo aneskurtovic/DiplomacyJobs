@@ -1074,6 +1074,8 @@ class RecruitmentScopeTests(TestCase):
             ("Programme Associate", "Applicant(s) must be citizens of Bosnia and Herzegovina.", ""),
             ("Finance Assistant, GS-5", "National(s) of Bosnia and Herzegovina only.", "national"),
             ("Project Assistant, SB-3", "", "national"),
+            ("VA26P127V01 - Project Management Assistant - LS2", "", "national"),
+            ("VA26P172V01 Senior Project Manager (IP4)", "", "international"),
             ("Programme Associate", "Contract type: Service Contract, SC-7.", "national"),
         ]
         for title, text, expected in cases:
@@ -1248,6 +1250,45 @@ class TaleoFtlAdapterTests(TestCase):
         candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
         self.assertEqual((candidate.deadline, candidate.city), (date(2026, 11, 4), "Sarajevo"))
         self.assertIn("NATO Grade G15", evidence[links[0][0]])
+
+
+ILO_FEED = """<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>ILO</title>
+<item><title>Project Manager - P4 (Nairobi, KE)</title><link>https://jobs.ilo.org/job/Nairobi-Project-Manager-P4/1442801033/?feedId=null&amp;utm_source=J2WRSS</link><guid>1</guid><pubDate>Wed, 30 Sep 2026 0:00:00 GMT</pubDate><description>&lt;p&gt;Location: Nairobi Contract type: Fixed Term&lt;/p&gt;</description></item>
+<item><title>National Project Officer - Grant Officer - NOA</title><link>https://jobs.ilo.org/job/Sarajevo-National-Project-Officer/1442900033/?utm_source=J2WRSS</link><guid>2</guid><pubDate>Mon, 28 Sep 2026 0:00:00 GMT</pubDate><description>&lt;p&gt;Grade: NOA Application deadline (Midnight, Geneva time): 12 October 2026 Job ID: 13900 Location: Sarajevo Contract type: Fixed Term&lt;/p&gt;</description></item>
+</channel></rss>"""
+
+
+class SuccessFactorsRssTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_feed_items_kept_by_bih_location(self, _):
+        organization = Organization.objects.create(name="ILO", kind="international")
+        source = Source.objects.create(organization=organization, adapter="sfrss", url="https://jobs.ilo.org/services/rss/job/?locale=en_GB&keywords=")
+        evidence = {}
+        feed = lambda request: httpx.Response(200, content=ILO_FEED.encode(), headers={"content-type": "application/rss+xml"})
+        with httpx.Client(transport=httpx.MockTransport(feed)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://jobs.ilo.org/job/Sarajevo-National-Project-Officer/1442900033", "National Project Officer - Grant Officer - NOA")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city, candidate.scope), (date(2026, 9, 28), date(2026, 10, 12), "Sarajevo", "national"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+
+class LanteriaAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_embedded_list_filtered_and_listing_title_kept(self, _):
+        organization = Organization.objects.create(name="ICMPD", kind="international")
+        source = Source.objects.create(organization=organization, adapter="lanteria", url="https://careers.icmpd.org/")
+        jobs = [{"id": 1222, "title": "VA26P172V01 Senior Project Manager (IP4)", "locations": ["Lviv"], "startDate": "2026-10-02T00:00:00Z"}, {"id": 1230, "title": "VA26P180V01 Project Management Assistant - LS2", "locations": ["Sarajevo"], "startDate": "2026-09-29T00:00:00Z"}]
+        page = lambda request: httpx.Response(200, text=f"<script>var jobOpeningsData = {{ itemsPerPage: 20, jobOpenings: {json.dumps(jobs)} }};</script>", headers={"content-type": "text/html"})
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(page)) as client:
+            links = discover_links(client, source, None, evidence)
+        url = "https://careers.icmpd.org/Home/JobOpeningDetails?jobOpeningId=1230"
+        self.assertEqual(links, [(url, "VA26P180V01 Project Management Assistant - LS2")])
+        detail = BeautifulSoup("<h1>Job Opening Details</h1><p>Closing Date 24/10/2026 Back to Listings VA26P180V01 Project Management Assistant - LS2 Sarajevo</p>", "html.parser")
+        candidate = make_candidate(source, url, links[0][1], detail.get_text(" ", strip=True), detail, evidence[url])
+        self.assertEqual((candidate.title, candidate.source_published_at, candidate.deadline, candidate.city, candidate.scope), ("VA26P180V01 Project Management Assistant - LS2", date(2026, 9, 29), date(2026, 10, 24), "Sarajevo", "national"))
+        self.assertTrue(candidate.eligible)
 
 
 class CsodAdapterTests(TestCase):
