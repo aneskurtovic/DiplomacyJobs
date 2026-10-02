@@ -1021,3 +1021,25 @@ class EnrichmentTests(TestCase):
         for item, message in cases:
             self.assertIn(message, self.run_import(item))
         self.assertEqual((self.job.city, self.job.deadline, self.job.title), ("", None, "Driver"))
+
+
+class VerifySourcesTests(TestCase):
+    def test_reports_leads_and_failures_without_writing(self):
+        import io
+        from django.core.management import call_command
+        from .models import ScrapeRun
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        good = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
+        Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="generic", enabled=True)
+        def fake_fetch(client, url):
+            if url != good.url:
+                raise ValueError("Unusable response: HTTP 403")
+            soup = BeautifulSoup('<a href="/jobs/driver">Vacancy: Driver</a>', "html.parser")
+            return soup.get_text(), soup
+        out = io.StringIO()
+        with patch("board.management.commands.verify_sources.fetch", side_effect=fake_fetch):
+            call_command("verify_sources", stdout=out)
+        self.assertIn("1 leads, 1 in 2026 scope", out.getvalue())
+        self.assertIn("FAIL", out.getvalue())
+        self.assertIn("1 reachable, 1 failing", out.getvalue())
+        self.assertFalse(ScrapeRun.objects.exists() or Job.objects.exists())
