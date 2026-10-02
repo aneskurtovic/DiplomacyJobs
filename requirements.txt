@@ -2,6 +2,7 @@ Django>=5.2,<5.3
 gunicorn>=23,<24
 psycopg[binary]>=3.2,<4
 httpx>=0.28,<1
+curl_cffi>=0.16,<0.17
 beautifulsoup4>=4.13,<5
 pypdf>=5,<7
 whitenoise>=6.8,<7

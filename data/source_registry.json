@@ -10,13 +10,16 @@
     "notes": "Oglasi su HTML članci; stariji oglasi ostaju dostupni nakon roka. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
       {
-        "url": "https://www.bosnia.emb-japan.go.jp/index_l.html",
-        "adapter": "generic",
-        "status": "blocked",
+        "url": "https://www.bosnia.emb-japan.go.jp/itprtop_bs/index.html",
+        "adapter": "japan",
+        "status": "verified",
+        "enabled": true,
         "adapter_config": {
-          "path_contains": "/itpr"
+          "path_contains": "/itpr",
+          "allow_empty": true,
+          "impersonate": true
         },
-        "notes": "2026-10-02: 403 Forbidden iz lokalne mreže, i sa browser User-Agentom. Ponovo provjeriti sa Hetzner servera; zatim provjeriti selektor službenih linkova i lokalne formate datuma prije uključivanja."
+        "notes": "2026-10-02: stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Lista vijesti; datum objave je ispod naslova (GGGG/M/D)."
       }
     ]
   },
@@ -531,7 +534,7 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
-      {"url": "https://www.eda.admin.ch/content/countries/bosnia-and-herzegovina/en/home/news/stellen.html", "adapter": "swiss", "status": "blocked", "notes": "HTML sadrži članke i PDF priloge, ali živi scraper dobija HTTP 403. Ne uključivati dok server pristup nije potvrđen."}
+      {"url": "https://www.eda.admin.ch/content/countries/bosnia-and-herzegovina/en/home/news/stellen.html", "adapter": "swiss", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "HTML sadrži članke i PDF priloge. Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: jedini oglas je iz 2025."}
     ]
   },
   {
@@ -702,7 +705,7 @@
     "verified_at": "2026-10-02",
     "notes": "Službena stranica UN tima u BiH agregira oglase agencija (UNICEF, UNDP, UNHCR...).",
     "sources": [
-      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali nakon nekoliko zahtjeva portal vraća HTTP 202 bez sadržaja (bot zaštita). Ne zaobilaziti; ponovo provjeriti s Hetzner servera. Do tada UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."},
+      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."},
       {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
     ]
   },

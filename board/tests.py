@@ -5,7 +5,7 @@ import httpx
 from bs4 import BeautifulSoup
 from django.test import TestCase
 
-from .ingest import discover_links, eeas_page_links, fetch, make_candidate, unct_page_links
+from .ingest import discover_links, eeas_page_links, fetch, make_candidate, open_client, parse_deadline, unct_page_links
 from .models import Organization, Source
 
 LISTING = """
@@ -271,3 +271,35 @@ class EraAdapterTests(TestCase):
         with self.assertRaises(ValueError):
             discover_links(None, self.source, BeautifulSoup("12 records found, showing 1 - 10 of 12" + ERA_ROW.format(jnum=1, title="Driver"), "html.parser"))
         self.assertEqual(discover_links(None, self.source, BeautifulSoup("0 records found", "html.parser")), [])
+
+
+class JapanAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Japan Embassy", kind="embassy")
+        self.source = Source.objects.create(organization=organization, adapter="japan", url="https://www.bosnia.emb-japan.go.jp/itprtop_bs/index.html", adapter_config={"path_contains": "/itpr", "impersonate": True})
+
+    def candidate(self, title, body):
+        soup = BeautifulSoup(f"<h1>{title}</h1><p>2026/8/4</p>{body}", "html.parser")
+        return make_candidate(self.source, "https://www.bosnia.emb-japan.go.jp/itpr_ja/11_000001_01094.html", title, soup.get_text(" ", strip=True), soup)
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 8, 10))
+    def test_slash_date_is_publication_and_comma_deadline_parses(self, _):
+        candidate = self.candidate("Embassy of Japan in BiH Job Recruitment", "Assistant. Working location: Sarajevo. THE DEADLINE FOR APPLICATIONS IS AUGUST 25,2026.")
+        self.assertEqual((candidate.source_published_at, candidate.deadline), (date(2026, 8, 4), date(2026, 8, 25)))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_scholarship_is_excluded(self):
+        self.assertTrue(self.candidate("Konkurs za stipendije Vlade Japana (MEXT)", "Sarajevo").excluded)
+
+    def test_impersonation_is_opt_in(self):
+        with open_client(self.source) as client:
+            self.assertNotIsInstance(client, httpx.Client)
+        self.source.adapter_config = {}
+        with open_client(self.source) as client:
+            self.assertIsInstance(client, httpx.Client)
+
+
+class DateParsingTests(TestCase):
+    def test_deadline_formats(self):
+        for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15))]:
+            self.assertEqual(parse_deadline(text), expected, text)

@@ -8,6 +8,7 @@ from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 
 import httpx
 from bs4 import BeautifulSoup
+from curl_cffi import requests as curl_requests
 from django.db import transaction
 from django.utils import timezone
 from pypdf import PdfReader
@@ -22,8 +23,8 @@ MAX_LISTING_PAGES = 10
 LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|sarajevo|banja luka|mostar|brčko|tuzla|zenica|bijeljina|trebinje)\b", re.I)
 OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north macedonia|belgrade|zagreb|tirana|pristina)\b", re.I)
 JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
-EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont|scholarship|stipendij|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
-DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2},?\s+\d{4}"
+EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
+DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\.?\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2}(?:,\s*|\s+)\d{4}"
 DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,35}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
@@ -45,6 +46,7 @@ class Candidate:
     in_scope_year: bool
     year_proven: bool
     reason: str = ""
+    excluded: bool = False
 
 
 def canonicalize(url):
@@ -75,7 +77,7 @@ def parse_date(value):
             return datetime.strptime(value, fmt).date()
         except ValueError:
             pass
-    words = value.lower().split()
+    words = value.lower().replace(",", ", ").split()
     if len(words) == 3 and words[0].rstrip(".") in MONTHS:
         try:
             return date(int(words[2]), MONTHS[words[0].rstrip(".")], int(words[1].rstrip(",")))
@@ -83,7 +85,7 @@ def parse_date(value):
             pass
     if len(words) == 3 and words[1].rstrip(".") in MONTHS:
         try:
-            return date(int(words[2]), MONTHS[words[1].rstrip(".")], int(words[0]))
+            return date(int(words[2].rstrip(".")), MONTHS[words[1].rstrip(".")], int(words[0].rstrip(".")))
         except ValueError:
             pass
     return None
@@ -449,6 +451,10 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         structured_published = us_date(period.group(1))
         closing = us_date(period.group(2))
         text = (f"Closing date {closing.isoformat()}. " if closing else "") + text
+    if source.adapter == "japan" and soup:
+        # The publication date sits right under the h1 as YYYY/M/D; it is the page's only date in that form.
+        stamp = re.search(r"\b(20\d{2})/(\d{1,2})/(\d{1,2})\b", text)
+        structured_published = date(*map(int, stamp.groups())) if stamp else None
     if listing_evidence:
         text = f"{listing_evidence} {text}"
     if soup:
@@ -488,7 +494,17 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason)
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded)
+
+
+FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
+
+
+def open_client(source):
+    """Sites that refuse non-browser TLS fingerprints opt in with adapter_config.impersonate."""
+    if (source.adapter_config or {}).get("impersonate"):
+        return curl_requests.Session(impersonate="chrome", timeout=20, allow_redirects=True)
+    return httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True, verify=ssl.create_default_context())
 
 
 def ingest_source(source_id):
@@ -500,7 +516,7 @@ def ingest_source(source_id):
     source.last_attempt_at = now
     source.save(update_fields=["last_attempt_at"])
     try:
-        with httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True, verify=ssl.create_default_context()) as client:
+        with open_client(source) as client:
             listing_text, soup = fetch(client, source.url)
             if soup is None:
                 raise ValueError("Source listing must be HTML")
@@ -522,11 +538,11 @@ def ingest_source(source_id):
                     else:
                         text, detail_soup = fetch(client, url)
                         candidate = make_candidate(source, url, title, text, detail_soup, evidence.get(url, ""))
-                    expired = bool(candidate.deadline and candidate.deadline < timezone.localdate())
-                    # Already-expired vacancies are not worth a review entry; known jobs still refresh.
-                    if candidate.in_scope_year and (not expired or source.jobs.filter(canonical_url=candidate.url).exists()):
+                    skip_if_new = candidate.excluded or bool(candidate.deadline and candidate.deadline < timezone.localdate())
+                    # Expired vacancies and excluded kinds (scholarships, tenders) are not worth a review entry; known jobs still refresh.
+                    if candidate.in_scope_year and (not skip_if_new or source.jobs.filter(canonical_url=candidate.url).exists()):
                         candidates.append(candidate)
-                except (httpx.HTTPError, ValueError) as exc:
+                except FETCH_ERRORS as exc:
                     raise ValueError(f"Vacancy detail failed: {url}: {exc}") from exc
         with transaction.atomic():
             seen = {url for url, _ in discovered_links}
