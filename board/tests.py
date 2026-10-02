@@ -424,6 +424,11 @@ class CoeAdapterTests(TestCase):
         with patch("board.ingest.fetch", return_value=("", BeautifulSoup("9 results", "html.parser"))), self.assertRaises(ValueError):
             discover_links(None, self.source, BeautifulSoup("9 results" + coe_card(1, "Officer", "Strasbourg"), "html.parser"))
 
+    def test_ignored_offset_fails(self):
+        first = BeautifulSoup("2 results" + coe_card(1565, "Head of Department", "Strasbourg"), "html.parser")
+        with patch("board.ingest.fetch", return_value=("", first)), self.assertRaisesRegex(ValueError, "repeat"):
+            discover_links(None, self.source, first)
+
 
 class ImportRegistryTests(TestCase):
     def run_registry(self, registry):
@@ -1144,6 +1149,18 @@ class SchedulerTests(TestCase):
                 Command().handle()
         scrape.assert_not_called()
         self.assertFalse(lock.exists())
+
+    def test_start_finishes_an_interrupted_run(self):
+        from .management.commands.run_scraper_schedule import Command
+        from .models import ScrapeRun
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        done = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
+        left = Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="generic", enabled=True)
+        ScrapeRun.objects.create(source=done)
+        with patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
+            with self.assertRaises(KeyboardInterrupt):
+                Command().handle()
+        scrape.assert_called_once_with("scrape_jobs", source=left.pk)
 
 
 class BosnianPluralTests(TestCase):

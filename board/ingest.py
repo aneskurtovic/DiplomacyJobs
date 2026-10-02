@@ -457,7 +457,7 @@ def workday_links(client, source, evidence):
     facets = {facet.get("facetParameter"): facet for group in fetch_json(client, f"{api}/jobs", search).get("facets", []) for facet in [group, *group.get("values", [])] if isinstance(facet, dict)}
     if "locationCountry" not in facets:
         raise ValueError("Workday country facet missing")
-    country = next((value["id"] for value in facets["locationCountry"].get("values", []) if value.get("descriptor") == "Bosnia and Herzegovina"), None)
+    country = next((value["id"] for value in facets["locationCountry"].get("values", []) if LOCATION.fullmatch(value.get("descriptor", "").strip())), None)
     if country is None:
         return []
     search["appliedFacets"] = {"locationCountry": [country]}
@@ -577,6 +577,9 @@ def coe_links(client, source, soup):
             break
     if len(cards) != int(total.group(1)):
         raise ValueError(f"CoE shows {len(cards)} of {total.group(1)} vacancies")
+    # If the offset were ignored, repeats of the first page would reach the count while other vacancies stay unread.
+    if len({str(card.select_one("h3 a[href*='/JobDetail/']")) for card in cards}) != len(cards):
+        raise ValueError("CoE pages repeat vacancies; pagination changed")
     result = []
     for card in cards:
         link = card.select_one("h3 a[href*='/JobDetail/']")
