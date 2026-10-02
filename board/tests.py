@@ -439,3 +439,96 @@ class OsceAdapterTests(TestCase):
         self.assertEqual(discover_links(None, self.source, BeautifulSoup("0 results", "html.parser")), [])
         with self.assertRaises(ValueError):
             discover_links(None, self.source, BeautifulSoup("11 results" + OSCE_ROW, "html.parser"))
+
+
+class IngestRulesTests(TestCase):
+    """Publish/close rules of ingest_source against a generic listing, with fetch patched."""
+
+    def setUp(self):
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        self.source = Source.objects.create(organization=organization, adapter="generic", url="https://emb.example/jobs", status="verified", enabled=True, adapter_config={"allow_empty": True})
+        self.pages = {}
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026."))
+
+    def listing(self, *jobs):
+        self.pages = {self.source.url: "".join(f'<a href="/jobs/{slug}">{title}</a>' for slug, title, _ in jobs)}
+        for slug, title, body in jobs:
+            self.pages[f"https://emb.example/jobs/{slug}"] = f"<h1>{title}</h1><p>Location: Sarajevo. {body}</p>"
+
+    def fake_fetch(self, client, url):
+        if url not in self.pages:
+            raise ValueError(f"Unusable response: {url}")
+        soup = BeautifulSoup(self.pages[url], "html.parser")
+        return soup.get_text(" ", strip=True), soup
+
+    def run_ingest(self):
+        from .ingest import ingest_source
+        with patch("board.ingest.fetch", side_effect=self.fake_fetch), patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2)):
+            return ingest_source(self.source.pk)
+
+    def test_proven_job_published_and_closed_after_two_missing_scans(self):
+        self.assertTrue(self.run_ingest().success)
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.deadline, job.source_published_at), ("published", date(2026, 10, 30), date(2026, 9, 1)))
+        self.listing()
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.missing_scans), ("published", 1))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual(job.status, "closed")
+
+    def test_failed_scan_never_closes(self):
+        self.run_ingest()
+        self.pages.pop(self.source.url)
+        for _ in range(3):
+            self.assertFalse(self.run_ingest().success)
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.missing_scans), ("published", 0))
+        self.source.refresh_from_db()
+        self.assertEqual(self.source.status, "failing")
+
+    def test_failed_detail_fails_whole_run(self):
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026."), ("driver", "Vacancy: Driver", ""))
+        self.pages.pop("https://emb.example/jobs/driver")
+        run = self.run_ingest()
+        self.assertFalse(run.success)
+        self.assertIn("Vacancy detail failed", run.error)
+        self.assertFalse(self.source.jobs.exists())
+
+    def test_expired_excluded_and_undated_leads(self):
+        self.listing(("old", "Vacancy: Assistant", "Published 01.08.2026. Deadline 15.09.2026."), ("grant", "Scholarship vacancy", "Published 01.09.2026. Deadline 30.10.2026."), ("nodate", "Vacancy: Adviser", "Deadline 30.10.2026."))
+        self.assertTrue(self.run_ingest().success)
+        job = self.source.jobs.get()
+        self.assertEqual((job.title, job.status, job.field_evidence["review_reason"]), ("Vacancy: Adviser", "review", "Godina objave nije potvrđena"))
+
+    def test_manual_edit_survives_refresh(self):
+        self.run_ingest()
+        job = self.source.jobs.get()
+        job.title, job.manually_edited_fields = "Political Officer (edited)", ["title"]
+        job.save()
+        self.listing(("officer", "Vacancy: Political Officer II", "Published 01.09.2026. Deadline 31.10.2026."))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.title, job.deadline), ("Political Officer (edited)", date(2026, 10, 31)))
+
+    def test_ai_fields_kept_and_changed_source_sent_to_review(self):
+        self.run_ingest()
+        job = self.source.jobs.get()
+        job.city, job.field_evidence = "Banja Luka", {**job.field_evidence, "ai_fields": ["city"]}
+        job.save()
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.city), ("published", "Banja Luka"))
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026. Updated terms."))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.city, job.field_evidence["review_reason"]), ("review", "Banja Luka", "Izvor je promijenjen nakon AI obrade"))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual(job.status, "review", "an unchanged later scan must not skip the human check")
+        job.status, job.last_reviewed_at = "published", job.last_checked_at
+        job.save()
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual(job.status, "published")

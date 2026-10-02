@@ -667,6 +667,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
+AI_CHANGED = "Izvor je promijenjen nakon AI obrade"
 
 
 def open_client(source):
@@ -724,9 +725,11 @@ def ingest_source(source_id):
                         if field not in protected:
                             setattr(job, field, value)
                     review_reason = candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")
-                    if job.content_hash != candidate.content_hash and job.field_evidence.get("ai_fields"):
+                    # A source change after AI enrichment waits for a human, also on later unchanged scans.
+                    ai_changed = bool(job.field_evidence.get("ai_fields")) and (job.content_hash != candidate.content_hash or (job.status == "review" and job.field_evidence.get("review_reason") == AI_CHANGED))
+                    if ai_changed:
                         job.status = "review"
-                        review_reason = "Izvor je promijenjen nakon AI obrade"
+                        review_reason = AI_CHANGED
                     job.content_hash = candidate.content_hash
                     if "source_published_at" not in protected:
                         job.source_published_at = candidate.source_published_at
@@ -735,7 +738,7 @@ def ingest_source(source_id):
                     job.last_seen_at = now
                     job.last_checked_at = now
                     job.missing_scans = 0
-                    if candidate.eligible and candidate.year_proven and job.status == "review" and not job.manually_edited_fields:
+                    if candidate.eligible and candidate.year_proven and job.status == "review" and not job.manually_edited_fields and not ai_changed:
                         job.status = "published"
                     if not candidate.year_proven and job.status == "published" and not job.last_reviewed_at:
                         job.status = "review"
