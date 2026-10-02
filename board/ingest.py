@@ -476,6 +476,40 @@ def workday_links(client, source, evidence):
     return result
 
 
+UN_BIH_STATIONS = {"SARAJEVO", "BANJA LUKA", "MOSTAR", "TUZLA", "BRCKO", "BRČKO", "BIHAC", "BIHAĆ", "ZENICA"}
+
+
+def uncareers_links(client, source, evidence):
+    """UN Secretariat careers (careers.un.org) public API. Keyword search also hits descriptions, so every opening is paged through and kept by its BiH duty station."""
+    api = "https://careers.un.org/api/public/opening/jo/list/filteredV2/en"
+    openings, page, count = {}, 0, None
+    while page < 20:
+        data = fetch_json(client, api, {"filterConfig": {}, "pagination": {"page": page, "itemPerPage": 100, "sortBy": "startDate", "sortDirection": -1}}).get("data") or {}
+        if "count" not in data or not isinstance(data.get("list"), list):
+            raise ValueError("UN careers response changed shape")
+        count = data["count"]
+        for opening in data["list"]:
+            openings[int(opening["jobId"])] = opening
+        if not data["list"] or (page + 1) * 100 >= count:
+            break
+        page += 1
+    if count and (page + 1) * 100 < count:
+        raise ValueError(f"UN careers lists {count} openings; more than the pages read")
+    result = []
+    for job_id, opening in openings.items():
+        stations = [station.get("description", "") for station in opening.get("dutyStation") or []]
+        if not any(station.upper() in UN_BIH_STATIONS for station in stations):
+            continue
+        url = f"https://careers.un.org/jobSearchDescription/{job_id}?language=en"
+        opened = (opening.get("startDate") or "")[:10]
+        closing = oracle_closing_date((opening.get("endDate") or "").replace("Z", "+00:00"))
+        description = BeautifulSoup(opening.get("jobDescription") or "", "html.parser").get_text(" ", strip=True)
+        department = (opening.get("dept") or {}).get("name", "")
+        evidence[url] = f"{opening.get('postingTitle', '')}. Location: {', '.join(stations).title()}, Bosnia and Herzegovina. Department: {department}. Grade: {opening.get('jobLevel', '')}. " + (f"Published {opened}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        result.append((url, (opening.get("postingTitle") or opening.get("jobTitle") or "")[:400]))
+    return result
+
+
 def coe_links(client, source, soup):
     """Council of Europe talent marketplace (Avature). Six cards per page; the stated result count must be reached, and only BiH duty stations are kept."""
     total = re.search(r"(\d+)\s+results?\b", soup.get_text(" ", strip=True))
@@ -524,7 +558,7 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -553,6 +587,8 @@ def discover_links(client, source, soup, evidence=None):
         return workday_links(client, source, evidence)
     elif source.adapter == "coe":
         return coe_links(client, source, soup)
+    elif source.adapter == "uncareers":
+        return uncareers_links(client, source, evidence)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -667,7 +703,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

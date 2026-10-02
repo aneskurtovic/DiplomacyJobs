@@ -707,7 +707,7 @@
     "verified_at": "2026-10-02",
     "notes": "Službena stranica UN tima u BiH agregira oglase agencija. Agencije s vlastitim izvorom (UNICEF, UNDP, UNFPA, UN Women, IOM, UNHCR) vode se kao zasebne organizacije.",
     "sources": [
-      {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "skip_hosts": ["estm.fa.em2.oraclecloud.com", "jobs.undp.org", "fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com", "unhcr.wd3.myworkdayjobs.com"]}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
+      {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "skip_hosts": ["estm.fa.em2.oraclecloud.com", "jobs.undp.org", "fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com", "unhcr.wd3.myworkdayjobs.com", "careers.un.org", "inspira.un.org"]}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
     ]
   },
   {
@@ -812,6 +812,19 @@
     "notes": "Lokalni i međunarodni oglasi Vijeća Evrope objavljuju se na portalu talents.coe.int; stranica ureda preusmjerava na portal.",
     "sources": [
       {"url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs", "adapter": "coe", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartice (6 po stranici) imaju mjesto rada; zadržavaju se samo oglasi s mjestom rada u BiH, a datum objave i rok čitaju se iz polja oglasa. Provjereno 2026-10-02: 14 oglasa, nijedan u BiH."}
+    ]
+  },
+  {
+    "name": "UN Sekretarijat (uredi u Bosni i Hercegovini)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://careers.un.org/",
+    "evidence_url": "https://careers.un.org/jobopening?language=en",
+    "verified_at": "2026-10-02",
+    "notes": "Oglasi Sekretarijata UN-a i povezanih ureda (npr. Ured rezidentnog koordinatora) objavljuju se na careers.un.org.",
+    "sources": [
+      {"url": "https://careers.un.org/jobopening?language=en", "adapter": "uncareers", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Javni JSON API; čitaju se sve objave (oko 450, 5 stranica) i zadržavaju one s mjestom rada u BiH. Rok se računa kao kraj dana u New Yorku. Provjereno 2026-10-02: nema objava u BiH."}
     ]
   }
 ]

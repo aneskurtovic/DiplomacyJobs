@@ -781,3 +781,25 @@ class RecruitmentScopeTests(TestCase):
         ]
         for title, text, expected in cases:
             self.assertEqual(recruitment_scope(title, text), expected, title)
+
+
+def uncareers_api(request):
+    body = json.loads(request.content)
+    page = body["pagination"]["page"]
+    sarajevo = {"jobId": 300001, "postingTitle": "Coordination Officer, NOB", "jobLevel": "NO-B", "dutyStation": [{"description": "SARAJEVO"}], "startDate": "2026-09-30T04:00:00.000Z", "endDate": "2026-10-15T03:59:59.000Z", "dept": {"name": "Resident Coordinator Office"}, "jobDescription": "<p>Coordination.</p>"}
+    vienna = {"jobId": 300002, "postingTitle": "Accounting Assistant, G4", "dutyStation": [{"description": "VIENNA"}], "startDate": "2026-10-01T04:00:00.000Z", "endDate": "2026-10-09T03:59:59.000Z"}
+    return httpx.Response(200, json={"data": {"count": 101, "list": [vienna] * 100 if page == 0 else [sarajevo]}})
+
+
+class UnCareersAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_pages_read_and_bih_station_kept(self, _):
+        organization = Organization.objects.create(name="UN", kind="international")
+        source = Source.objects.create(organization=organization, adapter="uncareers", url="https://careers.un.org/jobopening?language=en")
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(uncareers_api)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://careers.un.org/jobSearchDescription/300001?language=en", "Coordination Officer, NOB")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city, candidate.scope), (date(2026, 9, 30), date(2026, 10, 14), "Sarajevo", "national"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
