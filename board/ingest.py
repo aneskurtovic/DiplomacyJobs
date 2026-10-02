@@ -24,11 +24,15 @@ LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|sa
 OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north macedonia|belgrade|zagreb|tirana|pristina)\b", re.I)
 JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
 EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
+CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
+INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
 DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\.?\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2}(?:,\s*|\s+)\d{4}"
 DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,35}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
+# Bosnian nominative and Italian (Italian embassy pages) month names.
+MONTHS.update({name: number for number, names in enumerate([("januar", "gennaio"), ("februar", "febbraio"), ("mart", "marzo"), ("april", "aprile"), ("maj", "maggio"), ("juni", "giugno"), ("juli", "luglio"), ("august", "agosto"), ("septembar", "settembre"), ("oktobar", "ottobre"), ("novembar", "novembre"), ("decembar", "dicembre")], 1) for name in names})
 
 
 @dataclass
@@ -47,6 +51,7 @@ class Candidate:
     year_proven: bool
     reason: str = ""
     excluded: bool = False
+    opportunity_type: str = "employment"
 
 
 def canonicalize(url):
@@ -502,6 +507,15 @@ def discover_links(client, source, soup, evidence=None):
     return links
 
 
+def opportunity_type(title):
+    """Judged from the title only; descriptions mention consultants and interns in passing."""
+    if CONSULTANCY.search(title):
+        return "consultancy"
+    if INTERNSHIP.search(title):
+        return "paid_internship"
+    return "employment"
+
+
 def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     title = listing_title
     structured_published = None
@@ -588,7 +602,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded)
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title))
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
@@ -642,10 +656,10 @@ def ingest_source(source_id):
             seen = {url for url, _ in discovered_links}
             for candidate in candidates:
                 SourceDocument.objects.create(source=source, url=candidate.url, content_hash=candidate.content_hash, text=candidate.text)
-                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
+                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
                 if not created:
                     protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
-                    for field, value in {"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility}.items():
+                    for field, value in {"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "opportunity_type": candidate.opportunity_type, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility}.items():
                         if field not in protected:
                             setattr(job, field, value)
                     review_reason = candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")

@@ -305,6 +305,11 @@ class DateParsingTests(TestCase):
         for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15))]:
             self.assertEqual(parse_deadline(text), expected, text)
 
+    def test_italian_and_nominative_months(self):
+        from .ingest import parse_published
+        self.assertEqual(parse_published("Data pubblicazione: 28 Aprile 2026"), date(2026, 4, 28))
+        self.assertEqual(parse_deadline("Rok za prijavu: 5. oktobar 2026."), date(2026, 10, 5))
+
 
 def oracle_api(request):
     if "recruitingCEJobRequisitions" in str(request.url):
@@ -368,3 +373,10 @@ class WorkdayAdapterTests(TestCase):
         no_bih = lambda request: httpx.Response(200, json={"total": 1, "jobPostings": [], "facets": [{"facetParameter": "locationCountry", "values": [{"descriptor": "Hungary", "id": "hu1"}]}]})
         with httpx.Client(transport=httpx.MockTransport(no_bih)) as client:
             self.assertEqual(discover_links(client, self.source, None, {}), [])
+
+
+class OpportunityTypeTests(TestCase):
+    def test_title_decides_type(self):
+        from .ingest import opportunity_type
+        for title, expected in [("Family Law and Legal Reform Expert, National Consultant,NOC, Sarajevo, BIH", "consultancy"), ("Project Associate [Open to internal and external applicants]", "employment"), ("PSP Fundraising Intern", "paid_internship"), ("Plaćena praksa u Ambasadi", "paid_internship"), ("Senior Guard", "employment")]:
+            self.assertEqual(opportunity_type(title), expected, title)
