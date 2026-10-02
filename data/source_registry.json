@@ -817,6 +817,19 @@
     ]
   },
   {
+    "name": "Međunarodna komisija za nestale osobe (ICMP)",
+    "kind": "international",
+    "country": "",
+    "city": "",
+    "website": "https://icmp.int/",
+    "evidence_url": "https://icmp.int/about-icmp/working-for-icmp/",
+    "verified_at": "2026-10-02",
+    "notes": "Međuvladina organizacija sa sjedištem u Hagu, osnovana za rad na nestalim osobama u bivšoj Jugoslaviji. Oglasi sa stranice Working at ICMP (BambooHR), samo lokacije u BiH.",
+    "sources": [
+      {"url": "https://icmp.bamboohr.com/careers", "adapter": "bamboohr", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ICMP karijere (BambooHR JSON API); lokacija i datum objave s detalja oglasa. Provjereno 2026-10-02: 5 oglasa (Hag, Kijev, Damask, remote), nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Ured visokog predstavnika (OHR)",
     "kind": "international",
     "country": "",

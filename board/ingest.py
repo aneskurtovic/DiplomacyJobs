@@ -28,7 +28,7 @@ EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|t
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
 DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
-DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
+DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)\D{0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
@@ -526,6 +526,34 @@ def csod_links(client, source, evidence):
     return result
 
 
+def bamboohr_links(client, source, evidence):
+    """BambooHR careers site (ICMP). The list API often leaves locations empty, so each opening's detail is read and kept by a BiH address."""
+    parts = urlsplit(source.url)
+    if parts.scheme != "https" or not (parts.hostname or "").endswith(".bamboohr.com"):
+        raise ValueError("BambooHR careers site missing from source URL")
+    listed = fetch_json(client, f"https://{parts.hostname}/careers/list").get("result")
+    if not isinstance(listed, list):
+        raise ValueError("BambooHR response changed shape")
+    if len(listed) > MAX_DETAIL_LINKS:
+        raise ValueError(f"BambooHR lists {len(listed)} openings; narrow the source")
+    result = []
+    for opening in listed:
+        number = str(opening["id"])
+        if not number.isdigit():
+            raise ValueError("BambooHR opening without a numeric id")
+        detail = (fetch_json(client, f"https://{parts.hostname}/careers/{number}/detail").get("result") or {}).get("jobOpening") or {}
+        places = [value for place in (opening.get("location"), opening.get("atsLocation"), detail.get("location"), detail.get("atsLocation")) if isinstance(place, dict) for value in place.values() if isinstance(value, str) and value]
+        if not any(LOCATION.search(place) for place in places) or detail.get("jobOpeningStatus", "Open") != "Open":
+            continue
+        url = f"https://{parts.hostname}/careers/{number}"
+        title = detail.get("jobOpeningName") or opening.get("jobOpeningName") or ""
+        opened = parse_date(detail.get("datePosted") or "")
+        description = BeautifulSoup(detail.get("description") or "", "html.parser").get_text(" ", strip=True)
+        evidence[canonicalize(url)] = f"{title}. Location: {', '.join(dict.fromkeys(places))}. " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Employment: {detail['employmentStatusLabel']}. " if detail.get("employmentStatusLabel") else "") + description
+        result.append((canonicalize(url), title[:400]))
+    return result
+
+
 TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
 
 
@@ -670,7 +698,7 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -703,6 +731,8 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "bamboohr":
+        return bamboohr_links(client, source, evidence)
     elif source.adapter == "taleo":
         return taleo_links(client, source, evidence)
     else:

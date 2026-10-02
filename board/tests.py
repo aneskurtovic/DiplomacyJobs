@@ -1033,6 +1033,30 @@ class TaleoAdapterTests(TestCase):
             discover_links(None, source, None, {})
 
 
+def bamboohr_site(request):
+    if request.url.path == "/careers/list":
+        return httpx.Response(200, json={"result": [{"id": "350", "jobOpeningName": "Forensic Data Officer", "location": {"city": None, "state": None}}, {"id": "341", "jobOpeningName": "Finance Assistant", "location": {"city": None}}]})
+    details = {
+        "350": {"jobOpeningName": "Forensic Data Officer", "jobOpeningStatus": "Open", "location": {"city": "Sarajevo", "state": "Federation of Bosnia and Herzegovina"}, "datePosted": "2026-09-25", "employmentStatusLabel": "Full-time, fixed", "description": "<p>Applications are accepted until 20 October 2026.</p>"},
+        "341": {"jobOpeningName": "Finance Assistant", "jobOpeningStatus": "Open", "location": {"city": "Turhenivska Street 15", "state": "Kyiv"}, "datePosted": "2026-09-02"},
+    }
+    return httpx.Response(200, json={"result": {"jobOpening": details[request.url.path.split("/")[2]]}})
+
+
+class BambooHrAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_detail_address_decides_and_dates_read(self, _):
+        organization = Organization.objects.create(name="ICMP", kind="international")
+        source = Source.objects.create(organization=organization, adapter="bamboohr", url="https://icmp.bamboohr.com/careers")
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(bamboohr_site)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://icmp.bamboohr.com/careers/350", "Forensic Data Officer")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 25), date(2026, 10, 20), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+
 class CsodAdapterTests(TestCase):
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_token_read_and_ba_postings_kept(self, _):
