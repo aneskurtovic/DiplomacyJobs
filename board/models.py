@@ -4,6 +4,7 @@ from django.utils import timezone
 
 class Organization(models.Model):
     TYPE_CHOICES = [("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija")]
+    RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)
     country = models.CharField(max_length=100, blank=True)
@@ -12,6 +13,11 @@ class Organization(models.Model):
     evidence_url = models.URLField(max_length=1000, blank=True)
     verified_at = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True)
+    # Separate recruitment discovery from verified_at (diplomatic presence) and Source.last_success_at (a successful scrape).
+    recruitment_status = models.CharField(max_length=20, choices=RECRUITMENT_STATUS, blank=True)
+    recruitment_checked_at = models.DateField(null=True, blank=True)
+    recruitment_evidence_url = models.URLField(max_length=1000, blank=True)
+    recruitment_notes = models.TextField(blank=True)
 
     def __str__(self):
         return self.name

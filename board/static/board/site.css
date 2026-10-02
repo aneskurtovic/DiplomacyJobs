@@ -80,6 +80,10 @@ h1{font-size:2em;margin-block:.67em}
 .status-pill.review{color:#6b3a00;background:#fbf3e8}
 .status-pill.unavailable{color:#8a4b00;background:#fbf3e8}
 .status-pill.pending{color:#52606d;background:#f4f6f8}
+.status-pill.integration{color:#245a83;background:#edf5fc}
+.source-audit{margin-top:10px;font-size:12px;line-height:1.6;color:#52606d}
+.source-audit summary{cursor:pointer;color:#0f4c81}
+.source-audit p{margin:8px 0;max-width:520px}
 .no-rows{text-align:center;padding:36px!important}
 .table-footnote{font-size:13px;color:#52606d;margin:14px 0 0}
 @media(max-width:1050px){.coverage-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.table-heading{display:block}.status-filters{justify-content:flex-start;margin-top:18px}}

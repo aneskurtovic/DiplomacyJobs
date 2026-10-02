@@ -21,7 +21,12 @@ class Command(BaseCommand):
             # previous_name renames an organization instead of leaving the old one behind.
             if item.get("previous_name") and not Organization.objects.filter(name=item["name"]).exists():
                 Organization.objects.filter(name=item["previous_name"]).update(name=item["name"])
-            organization, _ = Organization.objects.update_or_create(name=item["name"], defaults={key: (item.get(key) or None) if key == "verified_at" else (item.get(key) or "") for key in ("kind", "country", "city", "website", "evidence_url", "verified_at", "notes")})
+            defaults = {key: (item.get(key) or None) if key == "verified_at" else (item.get(key) or "") for key in ("kind", "country", "city", "website", "evidence_url", "verified_at", "notes")}
+            audit_fields = ("recruitment_status", "recruitment_checked_at", "recruitment_evidence_url", "recruitment_notes")
+            defaults.update({key: (item[key] or None) if key == "recruitment_checked_at" else (item[key] or "") for key in audit_fields if key in item})
+            if defaults.get("recruitment_status") and (defaults["recruitment_status"] not in dict(Organization.RECRUITMENT_STATUS) or not defaults.get("recruitment_checked_at") or not defaults.get("recruitment_evidence_url") or not defaults.get("recruitment_notes")):
+                raise CommandError(f"Incomplete or invalid recruitment audit: {item['name']}")
+            organization, _ = Organization.objects.update_or_create(name=item["name"], defaults=defaults)
             for entry in item.get("sources", []):
                 # Registry updates metadata and parser settings but never silently enables a source or swaps a running parser. A URL is one source even if the registry moves it to another organization.
                 source = Source.objects.filter(url=entry["url"]).first()

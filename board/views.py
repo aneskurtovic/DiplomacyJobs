@@ -9,6 +9,7 @@ from .models import Job, Organization, Source
 from .text import fold
 
 STALE_AFTER = timedelta(hours=48)
+DISCOVERY_RECHECK_AFTER = timedelta(days=90)
 
 
 def visible_jobs():
@@ -64,9 +65,15 @@ def sources(request):
     counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
     review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
     rows = []
-    totals = {"available": 0, "empty": 0, "review": 0, "partial": 0, "unavailable": 0, "pending": 0}
+    totals = {"available": 0, "empty": 0, "review": 0, "partial": 0, "unavailable": 0, "pending": 0, "not_found": 0, "integration": 0}
     for organization in organizations:
-        for source in organization.sources.all() or [None]:
+        organization_sources = list(organization.sources.all())
+        active_urls = {source.url for source in organization_sources if source.enabled and source.adapter != "none"}
+        audit_current = bool(organization.recruitment_checked_at and today - DISCOVERY_RECHECK_AFTER <= organization.recruitment_checked_at <= today and organization.recruitment_evidence_url and organization.recruitment_notes)
+        for source in organization_sources or [None]:
+            # Keep history, but do not count an explicitly replaced disabled endpoint twice.
+            if source and not source.enabled and (source.adapter_config or {}).get("superseded_by") in active_urls:
+                continue
             last_check_failed = bool(source and source.last_attempt_at and (not source.last_success_at or source.last_attempt_at > source.last_success_at))
             # If the daily run stops, old counts must not keep reading as a healthy source.
             stale = bool(source and source.enabled and source.last_success_at and source.last_success_at < timezone.now() - STALE_AFTER)
@@ -74,11 +81,13 @@ def sources(request):
                 status = "unavailable"
             elif source and source.enabled and source.status == "verified" and source.last_success_at:
                 status = "partial" if (source.adapter_config or {}).get("partial_listing") else "available" if counts.get(source.pk, 0) else "review" if review_counts.get(source.pk, 0) else "empty"
+            elif audit_current and organization.recruitment_status in ("not_found", "integration", "blocked"):
+                status = "unavailable" if organization.recruitment_status == "blocked" else organization.recruitment_status
             else:
                 status = "pending"
             totals[status] += 1
-            url = source.url if source else organization.website
-            rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else ""})
+            url = source.url if source else organization.website or organization.recruitment_evidence_url
+            rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else "", "audit_current": audit_current})
     selected = request.GET.get("status", "all")
     if selected not in (*totals, "all"):
         selected = "all"

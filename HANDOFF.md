@@ -2,6 +2,36 @@
 
 Updated: 2026-10-03 (Europe/Sarajevo). This records local verification, not deployment readiness.
 
+## Latest completed work: all 46 unchecked entries
+
+See [findings for every entry](docs/source-audit-2026-10-03.md), [findings and HTTP checks in JSON](data/recruitment_audit_2026-10-03.json), and [registry](data/source_registry.json).
+
+- **23 no local recruitment list found**, **7 recruitment leads awaiting integration**, **15 unresolved access/rendering cases**, **1 obsolete OSCE duplicate**. Every original row is accounted for. A failed/incomplete check remains unavailable with unknown vacancy counts.
+- Seven disabled leads: UAE MoFA Careers, Türkiye Mostar announcements, Brazil's 2026 selection folder, Spain's Spanish employment page, Slovenia's central MZEZ list, Türkiye Sarajevo announcements and Canada's Locally Engaged Staff portal. Malaysia, Greece, Pakistan and Ukraine also have disabled recruitment endpoints, but access remains unresolved. No new source was enabled.
+- Corrected stale/wrong websites including Malaysia's kin.gov.my typo, Qatar's Italy address, Hungary/Poland/Netherlands old URLs and France's migration to ba.diplomatie.gouv.fr.
+- Spain's Spanish page has a completed 2026 Auxiliar process (deadline 13 July, final results 13 August); its Bosnian page still holds 2025. Brazil's live page says closed while the search index says open. Neither was published as a current job.
+- Migration **0023** adds Organization recruitment status, date, evidence URL and notes. `verified_at` remains diplomatic-presence verification; `Source.last_success_at` remains a successful scrape timestamp. `/sources/` shows evidence disclosures and the new integration/no-list states. Discovery findings expire after 90 days; missing/future evidence remains unchecked.
+- Explicit `adapter_config.superseded_by` hides a disabled historical endpoint only while an enabled adapter for the same organization has that exact replacement URL. The OSCE root/history remain stored. Its active BiH adapter was rechecked read-only (`verify_sources --source 10`): **one 2026 lead**, no failure.
+- `import_registry` applies complete recruitment metadata atomically and repeatably while preserving existing source status/enablement, timestamps and jobs. Presence-only homepages/directories were not created as vacancy sources.
+- Local database backed up before migration/import at ignored `backups/before-recruitment-audit-2026-10-03.sqlite3`. Migration and import applied. Coverage: **79 rows, 0 unchecked, 23 no-list, 7 integration, 17 unavailable (15 audit + UK/UNICEF), 30 complete and 2 partial**. Still **32 enabled sources, 15 stored jobs, 13 publicly visible jobs**. No audit job publication/closure/deletion.
+- Certificate verification stayed enabled; no JavaScript challenge was solved. Raw responses are ignored under `data/raw/source_audit_2026-10-03/`; committed evidence includes requested/final URLs, HTTP status/error, size, title and timestamps. Search-index evidence is labelled and is weaker than live page verification.
+- Audit local suite: **132 discovered, 131 passed, one PostgreSQL-only skip**; system and migration drift checks passed. Seven new tests cover imports, unknown counts, evidence expiry, source failure precedence and safe replacement. Audit push/CI result will be recorded after verification.
+- Restarted the local server and stopped the identified obsolete repository launcher/child. The updated `/sources/` returns HTTP 200 with 79 rows, 0 unchecked, 23 no-list, 7 integration and 17 unavailable; each status filter was checked over HTTP. Current server launcher PID 1092, serving child PID 36476. Future restarts must stop both the validated launcher and child; Windows Python venv launchers can leave the serving child alive. URL: **http://127.0.0.1:8000/sources/**.
+
+### Reliability push and Linux CI completed
+
+- Reliability commit **`fea33108b6a5fca3226620a07dabf6a11ca137a8`** is pushed to `main`.
+- Both Linux/Python 3.12 jobs passed in [run 37071234992](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37071234992): PostgreSQL 16 passed all 125 tests (no skips), SQLite passed 124 with one PostgreSQL-only skip; checks and migration drift passed.
+- Authentication works outside the network sandbox. The gh token lacks workflow scope, so the workflow push used existing Git Credential Manager with per-command helper overrides. Persistent auth/config was not changed. Earlier sandbox authentication failures were environmental.
+
+### Current next steps
+
+1. Implement/live-validate the seven leads. Spain/Brazil need process and PDF parsing; Türkiye needs local mission filtering and Turkish recruitment dates/terms. Global Canada/Slovenia/UAE portals need per-item employer, BiH duty-station, pagination, currentness and eligibility proof. Activate only after complete validated scans.
+2. Resolve the 15 access/rendering cases from the deployment network; revisit no-list discoveries within 90 days. Full international/honorary reconciliation beyond these 46 remains outstanding.
+3. Recheck prior admin credential rotation and the manually published RYCO Tirana role, then verify Hetzner deployment, HTTPS, backup restore and daily scraping. These remain unverified; push/CI are not deployment proof.
+
+The sections below retain the recovery history. The completed push/CI and audit above supersede their earlier pending-access notes.
+
 ## Goal and boundaries
 
 Build a Bosnian-language board of trustworthy, current, paid individual opportunities at diplomatic missions and international governmental organizations with duty stations in BiH. Public listings link to official employers; uncertain facts stay in admin review. Collection is limited to 2026. GIZ and other national agencies remain outside the agreed scope. Preserve the approved design and distinguish unavailable sources from successful empty listings.
@@ -56,7 +86,7 @@ Results on 2026-10-02:
 - Local development runs on `http://127.0.0.1:8000/` using `.venv311`, `DJANGO_DEBUG=1`, and the existing SQLite database. Jobs, `/sources/`, `/feed/`, `/admin/login/`, `/health/`, and `/static/board/site.css` returned HTTP 200. Logs are ignored under `data/raw/devserver.out.log` and `data/raw/devserver.err.log`.
 - The server was started as a hidden background process with `--noreload`. Restart it after Python changes; use `.venv311\Scripts\python.exe manage.py runserver 127.0.0.1:8000` with `DJANGO_DEBUG=1` for interactive development with automatic reload.
 
-## Ordered next steps
+## Earlier next steps (superseded by current steps above)
 
 1. Restore authenticated GitHub access when available, include the workflow in the next commit, and run both Linux database jobs. Record their commit/run IDs and results here. Fix any PostgreSQL failures before declaring the reliability gate complete. Alternatively, run the documented checks against a dedicated development PostgreSQL 16 database with test-database creation privileges and permission to terminate its own connections. Do not use production credentials.
 2. Recheck prior-session content/security review items: local admin credential rotation and the manually published RYCO Tirana role. Their status was not verified during this continuation; use admin review rather than assuming the listing's publication was intended. No credential values belong in this file.
@@ -64,4 +94,4 @@ Results on 2026-10-02:
 4. Verify the actual Hetzner host, hostname, proxy/HTTPS, migrations, static assets, backup restore, source access, and daily scheduling. Check `/health/`, `/health/scrape/`, logs, public listings, and the source coverage page. Deployment access and hostname are not present in the checkout.
 5. Evaluate deferred improvements from Claude's final review: pagination links and canonical behavior; snapshot lookup performance; unused `PUBLIC_BASE_URL`; admin run/snapshot filters and avoiding loading full text in changelists. Decide the retention policy before adding destructive trimming. Source expansion, email alerts, structured job data, and widening employer scope require separate product decisions.
 
-The next executable task is the Linux/PostgreSQL verification gate when a test database or CI access is available. Inventory and deployment preparation can continue while access is unavailable; neither historical source checks nor a green SQLite suite prove production readiness.
+The Linux/PostgreSQL reliability gate has now passed. Recruitment integrations, unresolved source access, inventory reconciliation and deployment validation remain the next work.

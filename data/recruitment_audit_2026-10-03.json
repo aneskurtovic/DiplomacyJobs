@@ -1,0 +1,1061 @@
+{
+  "checked_on": "2026-10-03",
+  "scope": "All 46 rows returned by /sources/?status=pending before this audit. Discovery checks do not establish zero vacancies or operational ingestion.",
+  "method": "Official mission/directory pages, targeted recruitment searches and direct HTTPS requests with certificate verification enabled. HTTP errors and JavaScript shells remain unresolved; search-index evidence is labelled in each finding.",
+  "outcomes": {
+    "blocked": 15,
+    "not_found": 23,
+    "integration": 7,
+    "superseded": 1
+  },
+  "entries": [
+    {
+      "organization": "Apostolic Nunciature (Embassy of the Holy See/Vatican) in Bosnia and Herzegovina",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
+      "notes": "Nije pronađena zasebna službena stranica za zapošljavanje nuncijature. Dohvat MFA dokaza nije uspio zbog TLS certifikata; provjera ostaje ograničena.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
+          "checked_at": "2026-10-02T22:21:12.343388+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
+          "checked_at": "2026-10-02T22:23:32.236122+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate General of the Republic of Croatia in Banja Luka",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "notes": "Službeni hrvatski direktorij potvrđuje konzulat u Banjoj Luci. Ciljana pretraga zapošljavanja u misijama BiH nije pronašla zasebnu lokalnu listu oglasa. Centralni natječaji nisu dokaz posla u BiH.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "checked_at": "2026-10-02T22:21:12.344379+00:00",
+          "http_status": 200,
+          "final_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "bytes": 29728,
+          "title": "Ministry of Foreign Affairs of the Republic of Croatia -  Embassies of the Republic of Croatia in the world"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate General of the Republic of Croatia in Mostar",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "notes": "Službeni hrvatski direktorij potvrđuje konzulat u Mostaru. U ciljanoj pretrazi nije pronađena lokalna stranica za zapošljavanje.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "checked_at": "2026-10-02T22:21:12.344379+00:00",
+          "http_status": 200,
+          "final_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "bytes": 29728,
+          "title": "Ministry of Foreign Affairs of the Republic of Croatia -  Embassies of the Republic of Croatia in the world"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate General of the Republic of Croatia in Tuzla",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "notes": "Službeni hrvatski direktorij potvrđuje konzulat u Tuzli. U ciljanoj pretrazi nije pronađena lokalna stranica za zapošljavanje.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "checked_at": "2026-10-02T22:21:12.344379+00:00",
+          "http_status": 200,
+          "final_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "bytes": 29728,
+          "title": "Ministry of Foreign Affairs of the Republic of Croatia -  Embassies of the Republic of Croatia in the world"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate General of the United Arab Emirates in Sarajevo",
+      "original_source_url": "http://www.mofa.gov.ae",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://www.mofa.gov.ae/en/missions/sarajevo",
+      "evidence_url": "https://www.mofa.gov.ae/en/Careers",
+      "notes": "Stranica konzulata vodi na centralni MoFA Careers. Potrebno provjeriti odredišni portal, mogućnost filtriranja Sarajeva i lokalne uslove; nije potvrđena operativna lista oglasa za BiH.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.mofa.gov.ae/en/missions/sarajevo",
+          "checked_at": "2026-10-02T22:21:12.345378+00:00",
+          "http_status": 200,
+          "final_url": "https://www.mofa.gov.ae/en/missions/sarajevo",
+          "bytes": 128031,
+          "title": "Ministry of Foreign Affairs"
+        },
+        {
+          "requested_url": "https://www.mofa.gov.ae/en/Careers",
+          "checked_at": "2026-10-02T22:23:32.237124+00:00",
+          "http_status": 200,
+          "final_url": "https://www.mofa.gov.ae/en/Careers",
+          "bytes": 193137,
+          "title": "UAE Ministry of Foreign Affairs careers - Emirates careers"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate of Republic of Türkiye in Banja Luka",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://banjaluka-bk.mfa.gov.tr/Mission/Index",
+      "evidence_url": "https://banjaluka-bk.mfa.gov.tr/Mission/Announcements",
+      "notes": "Pregledana lista objava konzulata i ciljana pretraga: nije potvrđen lokalni oglas za posao. Lista uključuje saopćenja centralnog ministarstva i ispite jezika; oni nisu lokalne pozicije.",
+      "http_checks": [
+        {
+          "requested_url": "https://banjaluka-bk.mfa.gov.tr/Mission/Announcements",
+          "checked_at": "2026-10-02T22:21:12.346362+00:00",
+          "http_status": 200,
+          "final_url": "https://banjaluka-bk.mfa.gov.tr/Mission/Announcements",
+          "bytes": 4598923,
+          "title": "T.C. Dışişleri Bakanlığı - Banja Luka  Başkonsolosluğu - Duyurular"
+        }
+      ]
+    },
+    {
+      "organization": "Consulate of Republic of Türkiye in Mostar",
+      "original_source_url": "",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://mostar-bk.mfa.gov.tr/Mission/Index",
+      "evidence_url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+      "notes": "Dostupna mješovita lista objava konzulata i ministarstva. Za praćenje lokalnog zapošljavanja treba zaseban turski filter, datumi i zaštita od nacionalnih saopćenja; broj aktuelnih oglasa nije potvrđen.",
+      "http_checks": [
+        {
+          "requested_url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+          "checked_at": "2026-10-02T22:21:12.346362+00:00",
+          "http_status": 200,
+          "final_url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+          "bytes": 4612051,
+          "title": "T.C. Dışişleri Bakanlığı - Mostar Başkonsolosluğu  - Duyurular"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of Hungary",
+      "original_source_url": "http://www.mfa.gov.hu/kulkepviselet/BH/HU",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://szarajevo.mfa.gov.hu/en",
+      "evidence_url": "https://szarajevo.mfa.gov.hu/en",
+      "notes": "Ispravljena stara MFA adresa. Pregledana službena stranica i pretraga: vijesti i stipendije, bez pronađene lokalne liste oglasa za zapošljavanje.",
+      "http_checks": [
+        {
+          "requested_url": "https://szarajevo.mfa.gov.hu/en",
+          "checked_at": "2026-10-02T22:21:12.348366+00:00",
+          "http_status": 200,
+          "final_url": "https://szarajevo.mfa.gov.hu/en",
+          "bytes": 2617137,
+          "title": "Embassy of Hungary Sarajevo"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of Malaysia",
+      "original_source_url": "http://www.kin.gov.my/web/bih",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://www.kln.gov.my/web/bih_sarajevo",
+      "evidence_url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
+      "notes": "Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
+          "checked_at": "2026-10-02T22:21:12.600123+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://www.kln.gov.my/web/bih_sarajevo/job_vacancy",
+          "checked_at": "2026-10-02T22:21:12.732962+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://www.kln.gov.my/web/bih_sarajevo/archives?page=3",
+          "checked_at": "2026-10-02T22:23:32.238143+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of Romania",
+      "original_source_url": "http://www.sarajevo.mae.ro",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajevo.mae.ro/",
+      "evidence_url": "https://sarajevo.mae.ro/",
+      "notes": "Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajevo.mae.ro/",
+          "checked_at": "2026-10-02T22:21:13.229293+00:00",
+          "http_status": 503,
+          "final_url": "https://sarajevo.mae.ro/",
+          "bytes": 8904,
+          "title": "Verifying your browser..."
+        },
+        {
+          "requested_url": "https://cariera.mae.ro/",
+          "checked_at": "2026-10-02T22:21:13.241052+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of Ukraine",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://mfa.gov.ua/en/embassies/bosniya-i-gercogovina",
+      "evidence_url": "https://mfa.gov.ua/vacancies",
+      "notes": "Pronađen centralni MFA portal za zapošljavanje, ali direktni dohvat vraća Cloudflare HTTP 403. Potrebno filtrirati BiH i provjeriti uslove; nisu potvrđeni aktuelni poslovi u Sarajevu.",
+      "http_checks": [
+        {
+          "requested_url": "https://mfa.gov.ua/vacancies",
+          "checked_at": "2026-10-02T22:21:13.365116+00:00",
+          "http_status": 403,
+          "final_url": "https://mfa.gov.ua/vacancies",
+          "bytes": 5482,
+          "title": "Attention Required! | Cloudflare"
+        },
+        {
+          "requested_url": "https://mfa.gov.ua/en/embassies/bosniya-i-gercogovina",
+          "checked_at": "2026-10-02T22:21:13.400592+00:00",
+          "http_status": 403,
+          "final_url": "https://mfa.gov.ua/en/embassies/bosniya-i-gercogovina",
+          "bytes": 5482,
+          "title": "Attention Required! | Cloudflare"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Federal Republic of Germany",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajewo.diplo.de/ba-sh",
+      "evidence_url": "https://sarajewo.diplo.de/ba-sh",
+      "notes": "Pregledana službena početna stranica i ciljana pretraga. Pronađeni pojedinačni oglasi iz 2019/2020. i 2022, bez potvrđene aktuelne liste za 2026. Pozivi za projekte nisu individualni poslovi.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajewo.diplo.de/ba-sh",
+          "checked_at": "2026-10-02T22:21:13.520300+00:00",
+          "http_status": 200,
+          "final_url": "https://sarajewo.diplo.de/ba-sh",
+          "bytes": 66662,
+          "title": "Njemačka ambasada Sarajevo - Ministarstvo vanjskih poslova SR Njemačke"
+        },
+        {
+          "requested_url": "https://sarajewo.diplo.de/ba-sh/sitemap",
+          "checked_at": "2026-10-02T22:23:32.239122+00:00",
+          "http_status": 404,
+          "final_url": "https://sarajewo.diplo.de/ba-sh/sitemap",
+          "bytes": 66670,
+          "title": "Njemačka ambasada Sarajevo - Ministarstvo vanjskih poslova SR Njemačke"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Federative Republic of Brazil",
+      "original_source_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://www.gov.br/mre/pt-br/embaixada-sarajevo",
+      "evidence_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+      "notes": "Službeni folder za 2026 radi. Proces je trenutno označen ENCERRADO / ZATVORENO, iako indeks pretraživača još prikazuje ABERTO. Dokumenti BHS/portugalski su iza podstranica; potreban parser foldera i PDF-ova koji prepoznaje završene procese.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+          "checked_at": "2026-10-02T22:21:13.525393+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+          "bytes": 137447,
+          "title": "PROCESSO SELETIVO 2026 / OGLAS ZA POSAO 2026 — Ministério das Relações Exteriores"
+        },
+        {
+          "requested_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026/processo-seletivo-oglas-za-posao",
+          "checked_at": "2026-10-02T22:21:14.065398+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026/processo-seletivo-oglas-za-posao",
+          "bytes": 146375,
+          "title": "Processo seletivo - Oglas za posao — Ministério das Relações Exteriores"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the French Republic",
+      "original_source_url": "http://www.ambafrance-ba.org/",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://ba.diplomatie.gouv.fr/fr",
+      "evidence_url": "https://ba.diplomatie.gouv.fr/fr",
+      "notes": "Stara ambafrance adresa preusmjerava na novi službeni diplomatie.gouv.fr portal. Na pregledanoj stranici i u ciljanoj pretrazi nije pronađena lokalna lista za zapošljavanje.",
+      "http_checks": [
+        {
+          "requested_url": "https://ba.ambafrance.org/",
+          "checked_at": "2026-10-02T22:21:15.141177+00:00",
+          "http_status": 200,
+          "final_url": "https://ba.diplomatie.gouv.fr/fr",
+          "bytes": 36761,
+          "title": "Accueil | La France en Bosnie-Herzégovine"
+        },
+        {
+          "requested_url": "https://ba.ambafrance.org/bs",
+          "checked_at": "2026-10-02T22:23:32.239122+00:00",
+          "http_status": 200,
+          "final_url": "https://ba.diplomatie.gouv.fr/fr",
+          "bytes": 36761,
+          "title": "Accueil | La France en Bosnie-Herzégovine"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Hellenic Republic",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/",
+      "evidence_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+      "notes": "Službena indeksirana lista sadrži Sarajevo oglas iz novembra 2024, rok 07.12.2024, izvan 2026. Lista i detalj odbijaju direktni dohvat (HTTP 403). Potrebna provjera pristupa i paginacije.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+          "checked_at": "2026-10-02T22:21:15.211723+00:00",
+          "http_status": 403,
+          "final_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+          "bytes": 433,
+          "title": "Access Denied"
+        },
+        {
+          "requested_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/oglas-za-slobodno-radno-mjesto.html",
+          "checked_at": "2026-10-02T22:23:32.240144+00:00",
+          "http_status": 403,
+          "final_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/oglas-za-slobodno-radno-mjesto.html",
+          "bytes": 488,
+          "title": "Access Denied"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Islamic Republic of Iran",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajevo.mfa.ir/",
+      "evidence_url": "https://sarajevo.mfa.ir/",
+      "notes": "Dostupna službena stranica ambasade sa vijestima, konzularnim informacijama i obavještenjima. Nije pronađena zasebna lokalna lista za zapošljavanje; datumi koriste iranski kalendar.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajevo.mfa.ir/",
+          "checked_at": "2026-10-02T22:21:15.325129+00:00",
+          "http_status": 200,
+          "final_url": "https://sarajevo.mfa.ir/",
+          "bytes": 57420,
+          "title": "سفارت جمهوری اسلامی ایران -سارایوو"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Islamic Republic of Pakistan",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://mofa.gov.pk/sarajevo",
+      "evidence_url": "https://mofa.gov.pk/vacancies",
+      "notes": "Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa.",
+      "http_checks": [
+        {
+          "requested_url": "https://mofa.gov.pk/sarajevo",
+          "checked_at": "2026-10-02T22:21:15.498229+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://mofa.gov.pk/vacancies",
+          "checked_at": "2026-10-02T22:21:15.785956+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Kingdom of Norway",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://www.norway.no/en/bosnia-herzegovina/",
+      "evidence_url": "https://www.norway.no/en/bosnia-herzegovina/",
+      "notes": "Pregledana službena stranica i ciljana pretraga: nije pronađena lokalna lista oglasa. Working in Norway opisuje rad u Norveškoj i nije izvor poslova ambasade u BiH.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.norway.no/en/bosnia-herzegovina/",
+          "checked_at": "2026-10-02T22:21:16.240447+00:00",
+          "http_status": 200,
+          "final_url": "https://www.norway.no/en/bosnia-herzegovina/",
+          "bytes": 20998,
+          "title": "Norway in Bosnia and Herzegovina"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Kingdom of Saudi Arabia",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
+      "evidence_url": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
+      "notes": "Službeni Sarajevo portal dostupan; prikazuje vijesti i konzularne usluge. Nije pronađen lokalni odjeljak zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
+          "checked_at": "2026-10-02T22:21:16.502803+00:00",
+          "http_status": 200,
+          "final_url": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
+          "bytes": 279088,
+          "title": "The Royal Embassy of The Kingdom of Saudi Arabia in Bosnia and Herzegovina"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Kingdom of Spain",
+      "original_source_url": "",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/index.aspx",
+      "evidence_url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+      "notes": "Španska lista sadrži proces Auxiliar iz 2026: obnovljeni rok 13.07.2026, konačni rezultati 13.08.2026. Bosanska verzija je ostala na 2025. Potreban parser procesa i PDF dokumenata; rezultati konkursa nisu otvoreni poslovi.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+          "checked_at": "2026-10-02T22:21:16.601881+00:00",
+          "http_status": 200,
+          "final_url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+          "bytes": 47688,
+          "title": "Ofertas de empleo"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Kingdom of the Netherlands",
+      "original_source_url": "http://www.mfa.nl/sar",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina",
+      "evidence_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us",
+      "notes": "Ispravljena zastarjela mfa.nl/sar adresa. Službeni About us radi; pretpostavljeni vacancies-and-internships vraća 404. U ciljanoj pretrazi nije pronađena posebna Sarajevo lista.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us",
+          "checked_at": "2026-10-02T22:21:16.735402+00:00",
+          "http_status": 200,
+          "final_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us",
+          "bytes": 112170,
+          "title": "About us - Bosnia and Herzegovina | The Netherlands and Bosnia and Herzegovina"
+        },
+        {
+          "requested_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us/vacancies-and-internships",
+          "checked_at": "2026-10-02T22:21:17.079992+00:00",
+          "http_status": 404,
+          "final_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us/vacancies-and-internships",
+          "bytes": 1618,
+          "title": "Page not found"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the People's Democratic Republic of Algeria",
+      "original_source_url": "http://www.embsarajevo.mfa.gov.dz",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://embsarajevo.mfa.gov.dz/en",
+      "evidence_url": "https://embsarajevo.mfa.gov.dz/en",
+      "notes": "Službeni Sarajevo portal dostupan. Objave su diplomatske aktivnosti, praznici i konzularne usluge; nije pronađena lokalna lista zapošljavanja. Nacionalni konkursi u Alžiru nisu BiH pozicije.",
+      "http_checks": [
+        {
+          "requested_url": "https://embsarajevo.mfa.gov.dz/en",
+          "checked_at": "2026-10-02T22:21:17.276377+00:00",
+          "http_status": 200,
+          "final_url": "https://embsarajevo.mfa.gov.dz/en",
+          "bytes": 100020,
+          "title": "Home | Embassy of Algeria in Sarajevo"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the People's Republic of China",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://ba.china-embassy.gov.cn/eng/",
+      "evidence_url": "https://ba.china-embassy.gov.cn/eng/",
+      "notes": "Pregledane kineska i engleska verzija službene stranice te ciljana pretraga. Nije pronađena lokalna lista zapošljavanja; stipendije i grantovi se isključuju.",
+      "http_checks": [
+        {
+          "requested_url": "https://ba.china-embassy.gov.cn/eng/",
+          "checked_at": "2026-10-02T22:21:17.396242+00:00",
+          "http_status": 200,
+          "final_url": "https://ba.china-embassy.gov.cn/eng/",
+          "bytes": 20982,
+          "title": "Embassy of the People's Republic of China in Bosnia and Herzegovina"
+        },
+        {
+          "requested_url": "https://ba.china-embassy.gov.cn/",
+          "checked_at": "2026-10-02T22:21:18.208452+00:00",
+          "http_status": 200,
+          "final_url": "https://ba.china-embassy.gov.cn/",
+          "bytes": 22239,
+          "title": "中华人民共和国驻波斯尼亚和黑塞哥维那大使馆"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Albania",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://ambasadat.gov.al/bosnia-herzegovina/",
+      "evidence_url": "https://ambasadat.gov.al/bosnia-herzegovina/",
+      "notes": "Novi službeni portal potvrđuje kontakt ambasade u Sarajevu, ali sadrži i probne WordPress objave. Nije pronađena lokalna lista zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://ambasadat.gov.al/bosnia-herzegovina/",
+          "checked_at": "2026-10-02T22:21:19.241059+00:00",
+          "http_status": 200,
+          "final_url": "https://ambasadat.gov.al/bosnia-herzegovina/",
+          "bytes": 81546,
+          "title": "Bosnia and Herzegovina"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Croatia",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+      "notes": "Službeni direktorij potvrđuje ambasadu u Sarajevu. Stari /ba/ vraća 404, druga stara putanja preusmjerava na centralni portal. U ciljanoj pretrazi nije pronađena lokalna lista zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvep.gov.hr/ba/",
+          "checked_at": "2026-10-02T22:21:19.336511+00:00",
+          "http_status": 404,
+          "final_url": "https://mvep.gov.hr/ba/",
+          "bytes": 2954,
+          "title": "Ministarstvo vanjskih i europskih poslova"
+        },
+        {
+          "requested_url": "https://mvep.gov.hr/veleposlanstva-i-konzulati/veleposlanstva-republike-hrvatske-u-svijetu/bosna-i-hercegovina-113827/113827",
+          "checked_at": "2026-10-02T22:23:32.441115+00:00",
+          "http_status": 200,
+          "final_url": "https://mvep.gov.hr/",
+          "bytes": 167604,
+          "title": "Ministarstvo vanjskih i europskih poslova RH - Naslovna"
+        },
+        {
+          "requested_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "checked_at": "2026-10-02T22:23:32.559411+00:00",
+          "http_status": 200,
+          "final_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+          "bytes": 29728,
+          "title": "Ministry of Foreign Affairs of the Republic of Croatia -  Embassies of the Republic of Croatia in the world"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Indonesia",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://kemlu.go.id/sarajevo/en",
+      "evidence_url": "https://kemlu.go.id/sarajevo/en",
+      "notes": "Službeni indeksirani portal potvrđuje ambasadu. Direktni HTTP 200 sadrži samo Portal Kemlu JavaScript ljusku, bez oglasa; to nije uspješna provjera prazne liste. Potrebno istražiti javni API ili prikaz u pregledniku.",
+      "http_checks": [
+        {
+          "requested_url": "https://kemlu.go.id/sarajevo/en",
+          "checked_at": "2026-10-02T22:21:19.441445+00:00",
+          "http_status": 200,
+          "final_url": "https://kemlu.go.id/sarajevo/en",
+          "bytes": 1916,
+          "title": "Portal Kemlu"
+        },
+        {
+          "requested_url": "https://kemlu.go.id/en/perwakilan/9778d5d219c5080b9a6a17bef029331c?type=perwakilan-detail",
+          "checked_at": "2026-10-02T22:23:32.641606+00:00",
+          "http_status": 200,
+          "final_url": "https://kemlu.go.id/en/perwakilan/9778d5d219c5080b9a6a17bef029331c?type=perwakilan-detail",
+          "bytes": 1916,
+          "title": "Portal Kemlu"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of North Macedonia",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://mfa.gov.mk/en-GB/ambasadi?region=europe",
+      "evidence_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/javni-oglasi",
+      "notes": "Službeni direktorij i centralni Public announcements/Competitions pregledani. Obje liste trenutno izričito navode da nema aktivnih objava; nije pronađena zasebna Sarajevo lista. Ovo ne dokazuje da ambasada nema posla.",
+      "http_checks": [
+        {
+          "requested_url": "https://mfa.gov.mk/en-GB/ambasadi?region=europe",
+          "checked_at": "2026-10-02T22:21:19.650754+00:00",
+          "http_status": 200,
+          "final_url": "https://mfa.gov.mk/en-GB/ambasadi?region=europe",
+          "bytes": 192102,
+          "title": "Embassies - Ministry of foreign affairs and foreign trade - Republic of North Macedonia"
+        },
+        {
+          "requested_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/javni-oglasi",
+          "checked_at": "2026-10-02T22:23:32.737182+00:00",
+          "http_status": 200,
+          "final_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/javni-oglasi",
+          "bytes": 166352,
+          "title": "Public announcements - Public informations - Ministry of foreign affairs and foreign trade - Republic of North Macedonia"
+        },
+        {
+          "requested_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/konkursi",
+          "checked_at": "2026-10-02T22:23:32.852757+00:00",
+          "http_status": 200,
+          "final_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/konkursi",
+          "bytes": 166203,
+          "title": "Competitions - Public informations - Ministry of foreign affairs and foreign trade - Republic of North Macedonia"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Poland",
+      "original_source_url": "http://www.sarajewo.msz.gov.pl/",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://www.gov.pl/web/bosniaihercegowina",
+      "evidence_url": "https://www.gov.pl/web/bosniaihercegowina",
+      "notes": "Ispravljena stara msz.gov.pl adresa. Aktuelni konkurs na stranici ambasade odnosi se na direktora PISM, ne lokalni posao ambasade u BiH. Nije pronađena zasebna Sarajevo lista.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.gov.pl/web/bosniaihercegowina",
+          "checked_at": "2026-10-02T22:21:19.744361+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.pl/web/bosniaihercegowina",
+          "bytes": 22795,
+          "title": "Polska w Bośni i Hercegowinie - Polska w Bośni i Hercegowinie - Portal Gov.pl"
+        },
+        {
+          "requested_url": "https://www.gov.pl/web/bosniaihercegowina/konkurs-na-stanowisko-dyrektora-pism",
+          "checked_at": "2026-10-02T22:23:32.855763+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.pl/web/bosniaihercegowina/konkurs-na-stanowisko-dyrektora-pism",
+          "bytes": 42175,
+          "title": "Konkurs na stanowisko dyrektora PISM - Polska w Bośni i Hercegowinie - Portal Gov.pl"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Serbia",
+      "original_source_url": "http://www.sarajevo.mfa.gov.rs",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajevo.mfa.gov.rs/en",
+      "evidence_url": "https://sarajevo.mfa.gov.rs/en",
+      "notes": "Službena stranica ambasade dostupna, pregledane vijesti, aktivnosti i navigacija. Nije pronađena lokalna lista zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajevo.mfa.gov.rs/en",
+          "checked_at": "2026-10-02T22:21:20.254185+00:00",
+          "http_status": 200,
+          "final_url": "https://sarajevo.mfa.gov.rs/en",
+          "bytes": 62471,
+          "title": "Embassy of the Republic of Serbia in Bosnia and Herzegovina"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Slovenia",
+      "original_source_url": "",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://www.gov.si/en/representations/embassy-sarajevo/",
+      "evidence_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+      "notes": "Službeni portal ambasade i centralna lista MZEZ poslova dostupni. Lista uključuje domaće poslove, druge ambasade i upućivanja u međunarodne organizacije; treba paginacija i dokaz poslodavca/mjesta rada za svaki BiH oglas.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.gov.si/en/representations/embassy-sarajevo/",
+          "checked_at": "2026-10-02T22:21:20.544750+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.si/en/representations/embassy-sarajevo/",
+          "bytes": 41639,
+          "title": "Embassy Sarajevo | GOV.SI"
+        },
+        {
+          "requested_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+          "checked_at": "2026-10-02T22:21:20.564282+00:00",
+          "http_status": 200,
+          "final_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+          "bytes": 71686,
+          "title": "Delovna mesta | GOV.SI"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
+      "original_source_url": "",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://saraybosna-be.mfa.gov.tr/Mission/Index",
+      "evidence_url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+      "notes": "Službena lista radi; primjer lokalnog zapošljavanja Mahalli Kâtip/Sözleşmeli Sekreter objavljen 31.07.2023, izvan 2026. Treba razdvojiti objave ambasade od ministarstva, filtrirati turske naslove i provjeriti datume/rokove.",
+      "http_checks": [
+        {
+          "requested_url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+          "checked_at": "2026-10-02T22:21:20.960845+00:00",
+          "http_status": 200,
+          "final_url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+          "bytes": 4701121,
+          "title": "T.C. Dışişleri Bakanlığı - Saraybosna Büyükelçiliği - Duyurular"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Russian Federation",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajevo.mid.ru/",
+      "evidence_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
+      "notes": "Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajevo.mid.ru/",
+          "checked_at": "2026-10-02T22:21:21.047299+00:00",
+          "error": "Server disconnected without sending a response."
+        },
+        {
+          "requested_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
+          "checked_at": "2026-10-02T22:21:22.337376+00:00",
+          "http_status": 200,
+          "final_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
+          "bytes": 189277,
+          "title": "Консульские учреждения России"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Slovak Republic",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://www.mzv.sk/sarajevo",
+      "evidence_url": "https://www.mzv.sk/sarajevo",
+      "notes": "Službena stranica ambasade vraća Cloudflare HTTP 403. Indeksirani SlovakAid poziv za grantove nije individualni posao. Broj poslova nije potvrđen.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.mzv.sk/sarajevo",
+          "checked_at": "2026-10-02T22:21:22.618088+00:00",
+          "http_status": 403,
+          "final_url": "https://www.mzv.sk/sarajevo",
+          "bytes": 5510,
+          "title": "Just a moment..."
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the Sovereign Military Order of Malta",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
+      "evidence_url": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
+      "notes": "Pronađena službena lokalna stranica ambasade; direktni dohvat zaustavlja Cloudflare HTTP 403. Nije potvrđena lista zapošljavanja; humanitarne/volonterske aktivnosti nisu plaćeni individualni poslovi ambasade.",
+      "http_checks": [
+        {
+          "requested_url": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
+          "checked_at": "2026-10-02T22:21:23.143977+00:00",
+          "http_status": 403,
+          "final_url": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
+          "bytes": 5611,
+          "title": "Just a moment..."
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the State of Kuwait in Bosnia and Herzegovina",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
+      "evidence_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
+      "notes": "Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
+          "checked_at": "2026-10-02T22:21:23.317076+00:00",
+          "http_status": 403,
+          "final_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
+          "bytes": 5610,
+          "title": "Just a moment..."
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the State of Libya",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://foreign.gov.ly/MOFA/",
+      "notes": "MFA BiH inventar nema web-adresu ambasade. Pregledan službeni centralni libijski portal i ciljana pretraga; nije pronađena službena lokalna lista zapošljavanja u Sarajevu.",
+      "http_checks": [
+        {
+          "requested_url": "https://foreign.gov.ly/MOFA/",
+          "checked_at": "2026-10-02T22:21:23.687490+00:00",
+          "http_status": 200,
+          "final_url": "https://foreign.gov.ly/MOFA/",
+          "bytes": 99011,
+          "title": "وزارة الخارجية والتعاون الدولي | ليبيا"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the State of Palestine to Bosnia and Herzegovina",
+      "original_source_url": "http://www.palestinianembassy.ba/",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://www.palestinianembassy.ba/",
+      "evidence_url": "https://www.palestinianembassy.ba/",
+      "notes": "Službena lokalna stranica dostupna; prikazuje misiju i kontakt, bez pronađene liste zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://www.palestinianembassy.ba/",
+          "checked_at": "2026-10-02T22:21:23.925277+00:00",
+          "http_status": 200,
+          "final_url": "https://www.palestinianembassy.ba/",
+          "bytes": 7516,
+          "title": "Embassy of the State of Palestine - BiH"
+        }
+      ]
+    },
+    {
+      "organization": "Embassy of the State of Qatar",
+      "original_source_url": "http://www.qatarembassy.it/",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "https://sarajevo.embassy.qa/en/home",
+      "evidence_url": "https://sarajevo.embassy.qa/en/home",
+      "notes": "Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena.",
+      "http_checks": [
+        {
+          "requested_url": "https://sarajevo.embassy.qa/en/home",
+          "checked_at": "2026-10-02T22:21:23.933271+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "General Honorary Consulate of Republic of Albania in Sarajevo",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://punetejashtme.gov.al/en/bosnje-dhe-hercegovina/",
+      "notes": "Službeni albanski MFA opisuje otvaranje počasnog konzulata u Sarajevu 2016. Nije pronađena njegova zasebna službena stranica za zapošljavanje; ne poistovjećivati ga sa ambasadom.",
+      "http_checks": [
+        {
+          "requested_url": "https://punetejashtme.gov.al/en/bosnje-dhe-hercegovina/",
+          "checked_at": "2026-10-02T22:21:24.228516+00:00",
+          "http_status": 200,
+          "final_url": "https://punetejashtme.gov.al/en/bosnje-dhe-hercegovina/",
+          "bytes": 212,
+          "title": ""
+        }
+      ]
+    },
+    {
+      "organization": "Honorary Consulate of Canada in Sarajevo",
+      "original_source_url": "",
+      "outcome": "integration",
+      "checked_on": "2026-10-03",
+      "website": "https://travel.gc.ca/assistance/embassies-consulates/bosnia-and-herzegovina",
+      "evidence_url": "https://staffing-les.international.gc.ca/en/",
+      "notes": "Kanadski direktorij potvrđuje Sarajevo konzulat. Pronađen službeni globalni portal Locally Engaged Staff; lista poslova se učitava dinamički. Treba javni endpoint, filtriranje BiH i dokaz da poslodavac zaista predstavlja ovu lokalnu misiju.",
+      "http_checks": [
+        {
+          "requested_url": "https://travel.gc.ca/assistance/embassies-consulates/bosnia-and-herzegovina",
+          "checked_at": "2026-10-02T22:21:24.305936+00:00",
+          "http_status": 200,
+          "final_url": "https://travel.gc.ca/assistance/embassies-consulates/bosnia-and-herzegovina",
+          "bytes": 22902,
+          "title": "Bosnia and Herzegovina: Embassies, consulates and offices"
+        },
+        {
+          "requested_url": "https://staffing-les.international.gc.ca/en/",
+          "checked_at": "2026-10-02T22:21:24.425332+00:00",
+          "http_status": 200,
+          "final_url": "https://staffing-les.international.gc.ca/en/",
+          "bytes": 181783,
+          "title": "Careers at our Canadian offices abroad | Global Affairs Canada"
+        }
+      ]
+    },
+    {
+      "organization": "Honorary Consulate of Republic of Cyprus in Sarajevo",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://www.gov.cy/mfa/en/bosnia-and-herzegovina/",
+      "notes": "Službeni ciparski indeks potvrđuje počasnog konzula u Sarajevu; navedeni bblegal.ba pripada pravnoj firmi i nije potvrđena stranica konzulata za zapošljavanje. Direktni dohvat gov.cy vraća Azure WAF HTTP 403.",
+      "http_checks": [
+        {
+          "requested_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237645817973203",
+          "checked_at": "2026-10-02T22:21:24.570059+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://www.gov.cy/mfa/en/bosnia-and-herzegovina/",
+          "checked_at": "2026-10-02T22:23:32.944127+00:00",
+          "http_status": 403,
+          "final_url": "https://www.gov.cy/mfa/en/bosnia-and-herzegovina/",
+          "bytes": 7916,
+          "title": "Azure WAF"
+        }
+      ]
+    },
+    {
+      "organization": "Honorary Consulate of the Democratic Republic of the Congo",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://drcongo-emb.rs/en/category/news-en/embassy-news/",
+      "notes": "Stariji službeni MFA BiH dokument navodi pocasnikoznulat-drkongo-bih.com, ali domena se ne razrješava (DNS). Službena ambasada u Beogradu spominje počasnog konzula BiH; nije pronađena dostupna lokalna lista.",
+      "http_checks": [
+        {
+          "requested_url": "http://www.pocasnikoznulat-drkongo-bih.com/",
+          "checked_at": "2026-10-02T22:21:24.617275+00:00",
+          "error": "[Errno 11001] getaddrinfo failed"
+        },
+        {
+          "requested_url": "https://drcongo-emb.rs/en/category/news-en/embassy-news/",
+          "checked_at": "2026-10-02T22:21:24.712010+00:00",
+          "http_status": 200,
+          "final_url": "https://drcongo-emb.rs/en/category/news-en/embassy-news/",
+          "bytes": 114892,
+          "title": "EMBASSY NEWS"
+        }
+      ]
+    },
+    {
+      "organization": "Honorary Consulate of the People's Republic of Bangladesh in Banja Luka",
+      "original_source_url": "",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://bdconsulatebl.com/",
+      "evidence_url": "https://bdconsulatebl.com/",
+      "notes": "Službeni bangladeški MFA indeks potvrđuje bdconsulatebl.com. Pregledana lokalna početna i stranica Konzulat; prikazuju usluge, investicije i kontakt, bez pronađene liste zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://hague.mofa.gov.bd/pages/static-pages/6952667335ce18e1c05a92e3",
+          "checked_at": "2026-10-02T22:21:24.772846+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        },
+        {
+          "requested_url": "https://www.bdconsulatebl.com/",
+          "checked_at": "2026-10-02T22:21:25.272059+00:00",
+          "http_status": 200,
+          "final_url": "https://bdconsulatebl.com/",
+          "bytes": 49586,
+          "title": "POČETNA - Počasni konzulat Narodne Republike Bangladeš u Banjoj Luci"
+        },
+        {
+          "requested_url": "https://bdconsulatebl.com/konzulat/",
+          "checked_at": "2026-10-02T22:23:33.173696+00:00",
+          "http_status": 200,
+          "final_url": "https://bdconsulatebl.com/konzulat/",
+          "bytes": 67402,
+          "title": "KONZULAT - Počasni konzulat Narodne Republike Bangladeš u Banjoj Luci"
+        }
+      ]
+    },
+    {
+      "organization": "Misija OSCE-a u Bosni i Hercegovini",
+      "original_source_url": "https://vacancies.osce.org/",
+      "outcome": "superseded",
+      "checked_on": "2026-10-03",
+      "website": "https://bih.osce.org/",
+      "evidence_url": "https://vacancies.osce.org/jobs/search/?location_ids=19",
+      "notes": "Stari nefiltrirani portal je duplikat aktivnog OSCE adaptera za BiH (location_ids=19). Globalna početna nije BiH lista. Stari red ostaje u bazi, ali se u pokrivenosti zamjenjuje aktivnim izvorom iste organizacije.",
+      "http_checks": [
+        {
+          "requested_url": "https://vacancies.osce.org/",
+          "checked_at": "2026-10-02T22:21:25.483594+00:00",
+          "http_status": 200,
+          "final_url": "https://vacancies.osce.org/",
+          "bytes": 91775,
+          "title": "OSCE Careers - Jobs"
+        },
+        {
+          "requested_url": "https://vacancies.osce.org/jobs/search/?location_ids=19",
+          "checked_at": "2026-10-02T22:23:33.268909+00:00",
+          "http_status": 403,
+          "final_url": "https://vacancies.osce.org/jobs/search/?location_ids=19",
+          "bytes": 27488,
+          "title": "Access Forbidden"
+        }
+      ]
+    },
+    {
+      "organization": "People's Republic of Bangladesh Honorary General Consulate in Sarajevo",
+      "original_source_url": "",
+      "outcome": "blocked",
+      "checked_on": "2026-10-03",
+      "website": "",
+      "evidence_url": "https://hague.mofa.gov.bd/pages/static-pages/6952667335ce18e1c05a92e3",
+      "notes": "Službeni indeks bangladeške ambasade u Haagu potvrđuje počasnog konzula u Sarajevu, bez zasebne web-adrese. Direktni dohvat ima TLS grešku; lokalna lista zapošljavanja nije potvrđena.",
+      "http_checks": [
+        {
+          "requested_url": "https://hague.mofa.gov.bd/pages/static-pages/6952667335ce18e1c05a92e3",
+          "checked_at": "2026-10-02T22:21:24.772846+00:00",
+          "error": "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1002)"
+        }
+      ]
+    },
+    {
+      "organization": "SERBIA - Consulate General in Banja Luka",
+      "original_source_url": "http://www.banjaluka.mfa.gov.rs",
+      "outcome": "not_found",
+      "checked_on": "2026-10-03",
+      "website": "https://banjaluka.mfa.gov.rs/en",
+      "evidence_url": "https://banjaluka.mfa.gov.rs/en",
+      "notes": "Službena stranica konzulata dostupna; pregledane aktivnosti i navigacija, bez pronađene lokalne liste zapošljavanja.",
+      "http_checks": [
+        {
+          "requested_url": "https://banjaluka.mfa.gov.rs/en",
+          "checked_at": "2026-10-02T22:21:25.523024+00:00",
+          "http_status": 200,
+          "final_url": "https://banjaluka.mfa.gov.rs/en",
+          "bytes": 51997,
+          "title": "Consulate General of the Republic of Serbia in Banjaluka"
+        }
+      ]
+    }
+  ]
+}

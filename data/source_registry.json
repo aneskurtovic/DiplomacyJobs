@@ -38,7 +38,9 @@
         "adapter": "era",
         "status": "verified",
         "enabled": true,
-        "adapter_config": {"allow_empty": true},
+        "adapter_config": {
+          "allow_empty": true
+        },
         "notes": "2026-10-02: ba.usembassy.gov/jobs upućuje na ERA (State Department sistem za lokalne oglase). ERA pretraga za BiH misiju radi sa službenim botom; detalj daje period objave i rok (MM/DD/YYYY)."
       }
     ]
@@ -52,7 +54,11 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
+    "recruitment_notes": "Nije pronađena zasebna službena stranica za zapošljavanje nuncijature. Dohvat MFA dokaza nije uspio zbog TLS certifikata; provjera ostaje ograničena."
   },
   {
     "name": "Britanska ambasada u Sarajevu",
@@ -77,66 +83,106 @@
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Banja Luka",
-    "website": "",
+    "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231690322413015",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+    "recruitment_notes": "Službeni hrvatski direktorij potvrđuje konzulat u Banjoj Luci. Ciljana pretraga zapošljavanja u misijama BiH nije pronašla zasebnu lokalnu listu oglasa. Centralni natječaji nisu dokaz posla u BiH."
   },
   {
     "name": "Consulate General of the Republic of Croatia in Mostar",
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Mostar",
-    "website": "",
+    "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231691901696797",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+    "recruitment_notes": "Službeni hrvatski direktorij potvrđuje konzulat u Mostaru. U ciljanoj pretrazi nije pronađena lokalna stranica za zapošljavanje."
   },
   {
     "name": "Consulate General of the Republic of Croatia in Tuzla",
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Tuzla",
-    "website": "",
+    "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231706311360368",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+    "recruitment_notes": "Službeni hrvatski direktorij potvrđuje konzulat u Tuzli. U ciljanoj pretrazi nije pronađena lokalna stranica za zapošljavanje."
   },
   {
     "name": "Consulate General of the United Arab Emirates in Sarajevo",
     "kind": "consulate",
     "country": "UAE",
     "city": "Sarajevo",
-    "website": "http://www.mofa.gov.ae",
+    "website": "https://www.mofa.gov.ae/en/missions/sarajevo",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237725083570881",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.mofa.gov.ae/en/Careers",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Stranica konzulata vodi na centralni MoFA Careers. Potrebno provjeriti odredišni portal, mogućnost filtriranja Sarajeva i lokalne uslove; nije potvrđena operativna lista oglasa za BiH."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.mofa.gov.ae/en/Careers",
+    "recruitment_notes": "Stranica konzulata vodi na centralni MoFA Careers. Potrebno provjeriti odredišni portal, mogućnost filtriranja Sarajeva i lokalne uslove; nije potvrđena operativna lista oglasa za BiH."
   },
   {
     "name": "Consulate of Republic of Türkiye in Banja Luka",
     "kind": "consulate",
     "country": "TÜRKIYE- Consulate in Banja Luka",
     "city": "Banja Luka",
-    "website": "",
+    "website": "https://banjaluka-bk.mfa.gov.tr/Mission/Index",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227028868267",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://banjaluka-bk.mfa.gov.tr/Mission/Announcements",
+    "recruitment_notes": "Pregledana lista objava konzulata i ciljana pretraga: nije potvrđen lokalni oglas za posao. Lista uključuje saopćenja centralnog ministarstva i ispite jezika; oni nisu lokalne pozicije."
   },
   {
     "name": "Consulate of Republic of Türkiye in Mostar",
     "kind": "consulate",
     "country": "TÜRKIYE- Consulate in Mostar",
     "city": "Mostar",
-    "website": "",
+    "website": "https://mostar-bk.mfa.gov.tr/Mission/Index",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227286140685",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Dostupna mješovita lista objava konzulata i ministarstva. Za praćenje lokalnog zapošljavanja treba zaseban turski filter, datumi i zaštita od nacionalnih saopćenja; broj aktuelnih oglasa nije potvrđen."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+    "recruitment_notes": "Dostupna mješovita lista objava konzulata i ministarstva. Za praćenje lokalnog zapošljavanja treba zaseban turski filter, datumi i zaštita od nacionalnih saopćenja; broj aktuelnih oglasa nije potvrđen."
   },
   {
     "name": "Delegacija Evropske unije i Ured specijalnog predstavnika EU u BiH",
@@ -162,44 +208,68 @@
     "kind": "embassy",
     "country": "HUNGARY",
     "city": "Sarajevo",
-    "website": "http://www.mfa.gov.hu/kulkepviselet/BH/HU",
+    "website": "https://szarajevo.mfa.gov.hu/en",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237657493898497",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://szarajevo.mfa.gov.hu/en",
+    "recruitment_notes": "Ispravljena stara MFA adresa. Pregledana službena stranica i pretraga: vijesti i stipendije, bez pronađene lokalne liste oglasa za zapošljavanje."
   },
   {
     "name": "Embassy of Malaysia",
     "kind": "embassy",
     "country": "MALAYSIA",
     "city": "Sarajevo",
-    "website": "http://www.kin.gov.my/web/bih",
+    "website": "https://www.kln.gov.my/web/bih_sarajevo",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237657717587014",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
+        "adapter": "none",
+        "status": "blocked",
+        "enabled": false,
+        "notes": "2026-10-03: Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
+      }
+    ],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
+    "recruitment_notes": "Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
   },
   {
     "name": "Embassy of Romania",
     "kind": "embassy",
     "country": "ROMANIA",
     "city": "Sarajevo",
-    "website": "http://www.sarajevo.mae.ro",
+    "website": "https://sarajevo.mae.ro/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237704681153901",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://sarajevo.mae.ro/",
+    "recruitment_notes": "Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo."
   },
   {
     "name": "Embassy of the Federal Republic of Germany",
     "kind": "embassy",
     "country": "GERMANY",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://sarajewo.diplo.de/ba-sh",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234985440596074",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://sarajewo.diplo.de/ba-sh",
+    "recruitment_notes": "Pregledana službena početna stranica i ciljana pretraga. Pronađeni pojedinačni oglasi iz 2019/2020. i 2022, bez potvrđene aktuelne liste za 2026. Pozivi za projekte nisu individualni poslovi."
   },
   {
     "name": "Embassy of the Federative Republic of Brazil",
@@ -210,51 +280,95 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234274891985621",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Službeni folder za 2026 radi. Proces je trenutno označen ENCERRADO / ZATVORENO, iako indeks pretraživača još prikazuje ABERTO. Dokumenti BHS/portugalski su iza podstranica; potreban parser foldera i PDF-ova koji prepoznaje završene procese."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+    "recruitment_notes": "Službeni folder za 2026 radi. Proces je trenutno označen ENCERRADO / ZATVORENO, iako indeks pretraživača još prikazuje ABERTO. Dokumenti BHS/portugalski su iza podstranica; potreban parser foldera i PDF-ova koji prepoznaje završene procese."
   },
   {
     "name": "Embassy of the French Republic",
     "kind": "embassy",
     "country": "FRANCE",
     "city": "Sarajevo",
-    "website": "http://www.ambafrance-ba.org/",
+    "website": "https://ba.diplomatie.gouv.fr/fr",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251396700875687",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://ba.diplomatie.gouv.fr/fr",
+    "recruitment_notes": "Stara ambafrance adresa preusmjerava na novi službeni diplomatie.gouv.fr portal. Na pregledanoj stranici i u ciljanoj pretrazi nije pronađena lokalna lista za zapošljavanje."
   },
   {
     "name": "Embassy of the Hellenic Republic",
     "kind": "embassy",
     "country": "GREECE",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234963454151503",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+        "adapter": "none",
+        "status": "blocked",
+        "enabled": false,
+        "notes": "2026-10-03: Službena indeksirana lista sadrži Sarajevo oglas iz novembra 2024, rok 07.12.2024, izvan 2026. Lista i detalj odbijaju direktni dohvat (HTTP 403). Potrebna provjera pristupa i paginacije."
+      }
+    ],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+    "recruitment_notes": "Službena indeksirana lista sadrži Sarajevo oglas iz novembra 2024, rok 07.12.2024, izvan 2026. Lista i detalj odbijaju direktni dohvat (HTTP 403). Potrebna provjera pristupa i paginacije."
   },
   {
     "name": "Embassy of the Islamic Republic of Iran",
     "kind": "embassy",
     "country": "IRAN",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://sarajevo.mfa.ir/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641634470415",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://sarajevo.mfa.ir/",
+    "recruitment_notes": "Dostupna službena stranica ambasade sa vijestima, konzularnim informacijama i obavještenjima. Nije pronađena zasebna lokalna lista za zapošljavanje; datumi koriste iranski kalendar."
   },
   {
     "name": "Embassy of the Islamic Republic of Pakistan",
     "kind": "embassy",
     "country": "PAKISTAN",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://mofa.gov.pk/sarajevo",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251599358797730",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://mofa.gov.pk/vacancies",
+        "adapter": "none",
+        "status": "blocked",
+        "enabled": false,
+        "notes": "2026-10-03: Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
+      }
+    ],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mofa.gov.pk/vacancies",
+    "recruitment_notes": "Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
   },
   {
     "name": "Embassy of the Kingdom of Denmark",
@@ -266,7 +380,16 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
-      {"url": "https://um.dk/Bosnien-Hercegovina/en/about-us/vacancies/", "adapter": "denmark", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Službena stranica jasno navodi No current vacancies; živi scraper uspješan 2.10.2026."}
+      {
+        "url": "https://um.dk/Bosnien-Hercegovina/en/about-us/vacancies/",
+        "adapter": "denmark",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Službena stranica jasno navodi No current vacancies; živi scraper uspješan 2.10.2026."
+      }
     ]
   },
   {
@@ -274,99 +397,143 @@
     "kind": "embassy",
     "country": "NORWAY",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.norway.no/en/bosnia-herzegovina/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237696922682793",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.norway.no/en/bosnia-herzegovina/",
+    "recruitment_notes": "Pregledana službena stranica i ciljana pretraga: nije pronađena lokalna lista oglasa. Working in Norway opisuje rad u Norveškoj i nije izvor poslova ambasade u BiH."
   },
   {
     "name": "Embassy of the Kingdom of Saudi Arabia",
     "kind": "embassy",
     "country": "SAUDI ARABIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237708256174849",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://ba.saudiembassy.sa/en/Pages/default.aspx",
+    "recruitment_notes": "Službeni Sarajevo portal dostupan; prikazuje vijesti i konzularne usluge. Nije pronađen lokalni odjeljak zapošljavanja."
   },
   {
     "name": "Embassy of the Kingdom of Spain",
     "kind": "embassy",
     "country": "SPAIN",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/index.aspx",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237721907513526",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Španska lista sadrži proces Auxiliar iz 2026: obnovljeni rok 13.07.2026, konačni rezultati 13.08.2026. Bosanska verzija je ostala na 2025. Potreban parser procesa i PDF dokumenata; rezultati konkursa nisu otvoreni poslovi."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+    "recruitment_notes": "Španska lista sadrži proces Auxiliar iz 2026: obnovljeni rok 13.07.2026, konačni rezultati 13.08.2026. Bosanska verzija je ostala na 2025. Potreban parser procesa i PDF dokumenata; rezultati konkursa nisu otvoreni poslovi."
   },
   {
     "name": "Embassy of the Kingdom of the Netherlands",
     "kind": "embassy",
     "country": "NETHERLANDS",
     "city": "Sarajevo",
-    "website": "http://www.mfa.nl/sar",
+    "website": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237696521707168",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.netherlandsandyou.nl/web/bosnia-and-herzegovina/about-us",
+    "recruitment_notes": "Ispravljena zastarjela mfa.nl/sar adresa. Službeni About us radi; pretpostavljeni vacancies-and-internships vraća 404. U ciljanoj pretrazi nije pronađena posebna Sarajevo lista."
   },
   {
     "name": "Embassy of the People's Democratic Republic of Algeria",
     "kind": "embassy",
     "country": "ALGERIA",
     "city": "Sarajevo",
-    "website": "http://www.embsarajevo.mfa.gov.dz",
+    "website": "https://embsarajevo.mfa.gov.dz/en",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234956404652907",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://embsarajevo.mfa.gov.dz/en",
+    "recruitment_notes": "Službeni Sarajevo portal dostupan. Objave su diplomatske aktivnosti, praznici i konzularne usluge; nije pronađena lokalna lista zapošljavanja. Nacionalni konkursi u Alžiru nisu BiH pozicije."
   },
   {
     "name": "Embassy of the People's Republic of China",
     "kind": "embassy",
     "country": "People's Republic of CHINA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://ba.china-embassy.gov.cn/eng/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237645355352792",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://ba.china-embassy.gov.cn/eng/",
+    "recruitment_notes": "Pregledane kineska i engleska verzija službene stranice te ciljana pretraga. Nije pronađena lokalna lista zapošljavanja; stipendije i grantovi se isključuju."
   },
   {
     "name": "Embassy of the Republic of Albania",
     "kind": "embassy",
     "country": "ALBANIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://ambasadat.gov.al/bosnia-herzegovina/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251392933332317",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://ambasadat.gov.al/bosnia-herzegovina/",
+    "recruitment_notes": "Novi službeni portal potvrđuje kontakt ambasade u Sarajevu, ali sadrži i probne WordPress objave. Nije pronađena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the Republic of Croatia",
     "kind": "embassy",
     "country": "CROATIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231677011748930",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mvep.gov.hr/embassies-and-consulates/embassies-of-the-republic-of-croatia-in-the-world/244601?country=17",
+    "recruitment_notes": "Službeni direktorij potvrđuje ambasadu u Sarajevu. Stari /ba/ vraća 404, druga stara putanja preusmjerava na centralni portal. U ciljanoj pretrazi nije pronađena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the Republic of Indonesia",
     "kind": "embassy",
     "country": "INDONESIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://kemlu.go.id/sarajevo/en",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641411171532",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://kemlu.go.id/sarajevo/en",
+    "recruitment_notes": "Službeni indeksirani portal potvrđuje ambasadu. Direktni HTTP 200 sadrži samo Portal Kemlu JavaScript ljusku, bez oglasa; to nije uspješna provjera prazne liste. Potrebno istražiti javni API ili prikaz u pregledniku."
   },
   {
     "name": "Embassy of the Republic of Ireland to Bosnia and Herzegovina",
@@ -378,7 +545,21 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. Ambasada objavljuje oglase na stranici Job opportunities.",
     "sources": [
-      {"url": "https://www.ireland.ie/en/bosnia-herzegovina/sarajevo/about/job-opportunities/", "adapter": "generic", "status": "verified", "enabled": true, "adapter_config": {"link_selector": "main a[href]", "path_contains": "/bosnia-herzegovina/sarajevo/about/job-opportunities/", "any_title": true, "empty_text": "There are currently no vacancies", "allow_empty": true, "impersonate": true}, "notes": "Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Oglasi su linkovi ispod job-opportunities; rok je u tekstu, datum objave nije naveden pa oglasi idu na provjeru. Provjereno 2026-10-02: nema oglasa (format potvrđen na stranici ambasade u Atini)."}
+      {
+        "url": "https://www.ireland.ie/en/bosnia-herzegovina/sarajevo/about/job-opportunities/",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "link_selector": "main a[href]",
+          "path_contains": "/bosnia-herzegovina/sarajevo/about/job-opportunities/",
+          "any_title": true,
+          "empty_text": "There are currently no vacancies",
+          "allow_empty": true,
+          "impersonate": true
+        },
+        "notes": "Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Oglasi su linkovi ispod job-opportunities; rok je u tekstu, datum objave nije naveden pa oglasi idu na provjeru. Provjereno 2026-10-02: nema oglasa (format potvrđen na stranici ambasade u Atini)."
+      }
     ]
   },
   {
@@ -391,7 +572,13 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
-      {"url": "https://ambsarajevo.esteri.it/it/amministrazione-trasparente/bandi-di-concorso/", "adapter": "italy", "status": "verified", "enabled": true, "notes": "Živi scraper uspješan 2.10.2026. Objavljeni rok može biti istekao i kada stranica ostane u sekciji otvorenih."}
+      {
+        "url": "https://ambsarajevo.esteri.it/it/amministrazione-trasparente/bandi-di-concorso/",
+        "adapter": "italy",
+        "status": "verified",
+        "enabled": true,
+        "notes": "Živi scraper uspješan 2.10.2026. Objavljeni rok može biti istekao i kada stranica ostane u sekciji otvorenih."
+      }
     ]
   },
   {
@@ -399,99 +586,151 @@
     "kind": "embassy",
     "country": "SJEVERNA MAKEDONIJA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://mfa.gov.mk/en-GB/ambasadi?region=europe",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713628799673",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mfa.gov.mk/en-GB/informacii-od-javen-karakter/javni-oglasi",
+    "recruitment_notes": "Službeni direktorij i centralni Public announcements/Competitions pregledani. Obje liste trenutno izričito navode da nema aktivnih objava; nije pronađena zasebna Sarajevo lista. Ovo ne dokazuje da ambasada nema posla."
   },
   {
     "name": "Embassy of the Republic of Poland",
     "kind": "embassy",
     "country": "POLAND",
     "city": "Sarajevo",
-    "website": "http://www.sarajewo.msz.gov.pl/",
+    "website": "https://www.gov.pl/web/bosniaihercegowina",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237704279864184",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.gov.pl/web/bosniaihercegowina",
+    "recruitment_notes": "Ispravljena stara msz.gov.pl adresa. Aktuelni konkurs na stranici ambasade odnosi se na direktora PISM, ne lokalni posao ambasade u BiH. Nije pronađena zasebna Sarajevo lista."
   },
   {
     "name": "Embassy of the Republic of Serbia",
     "kind": "embassy",
     "country": "SERBIА",
     "city": "Sarajevo",
-    "website": "http://www.sarajevo.mfa.gov.rs",
+    "website": "https://sarajevo.mfa.gov.rs/en",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719377703225",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://sarajevo.mfa.gov.rs/en",
+    "recruitment_notes": "Službena stranica ambasade dostupna, pregledane vijesti, aktivnosti i navigacija. Nije pronađena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the Republic of Slovenia",
     "kind": "embassy",
     "country": "SLOVENIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.gov.si/en/representations/embassy-sarajevo/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719167356670",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Službeni portal ambasade i centralna lista MZEZ poslova dostupni. Lista uključuje domaće poslove, druge ambasade i upućivanja u međunarodne organizacije; treba paginacija i dokaz poslodavca/mjesta rada za svaki BiH oglas."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+    "recruitment_notes": "Službeni portal ambasade i centralna lista MZEZ poslova dostupni. Lista uključuje domaće poslove, druge ambasade i upućivanja u međunarodne organizacije; treba paginacija i dokaz poslodavca/mjesta rada za svaki BiH oglas."
   },
   {
     "name": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
     "kind": "embassy",
     "country": "TÜRKIYE",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://saraybosna-be.mfa.gov.tr/Mission/Index",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227821015349",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Službena lista radi; primjer lokalnog zapošljavanja Mahalli Kâtip/Sözleşmeli Sekreter objavljen 31.07.2023, izvan 2026. Treba razdvojiti objave ambasade od ministarstva, filtrirati turske naslove i provjeriti datume/rokove."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+    "recruitment_notes": "Službena lista radi; primjer lokalnog zapošljavanja Mahalli Kâtip/Sözleşmeli Sekreter objavljen 31.07.2023, izvan 2026. Treba razdvojiti objave ambasade od ministarstva, filtrirati turske naslove i provjeriti datume/rokove."
   },
   {
     "name": "Embassy of the Russian Federation",
     "kind": "embassy",
     "country": "RUSSIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://sarajevo.mid.ru/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639235031973324416",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
+    "recruitment_notes": "Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno."
   },
   {
     "name": "Embassy of the Slovak Republic",
     "kind": "embassy",
     "country": "SLOVAKIA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.mzv.sk/sarajevo",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713833267424",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.mzv.sk/sarajevo",
+    "recruitment_notes": "Službena stranica ambasade vraća Cloudflare HTTP 403. Indeksirani SlovakAid poziv za grantove nije individualni posao. Broj poslova nije potvrđen."
   },
   {
     "name": "Embassy of the Sovereign Military Order of Malta",
     "kind": "embassy",
     "country": "Sovereign Order of Malta",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237720949551663",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
+    "recruitment_notes": "Pronađena službena lokalna stranica ambasade; direktni dohvat zaustavlja Cloudflare HTTP 403. Nije potvrđena lista zapošljavanja; humanitarne/volonterske aktivnosti nisu plaćeni individualni poslovi ambasade."
   },
   {
     "name": "Embassy of the State of Kuwait in Bosnia and Herzegovina",
     "kind": "embassy",
     "country": "KUWAIT",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639255693465656624",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
+    "recruitment_notes": "Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the State of Libya",
@@ -502,29 +741,41 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639232523885849194",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://foreign.gov.ly/MOFA/",
+    "recruitment_notes": "MFA BiH inventar nema web-adresu ambasade. Pregledan službeni centralni libijski portal i ciljana pretraga; nije pronađena službena lokalna lista zapošljavanja u Sarajevu."
   },
   {
     "name": "Embassy of the State of Palestine to Bosnia and Herzegovina",
     "kind": "embassy",
     "country": "PALESTINE",
     "city": "Sarajevo",
-    "website": "http://www.palestinianembassy.ba/",
+    "website": "https://www.palestinianembassy.ba/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222035798722191",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.palestinianembassy.ba/",
+    "recruitment_notes": "Službena lokalna stranica dostupna; prikazuje misiju i kontakt, bez pronađene liste zapošljavanja."
   },
   {
     "name": "Embassy of the State of Qatar",
     "kind": "embassy",
     "country": "QATAR",
     "city": "Sarajevo",
-    "website": "http://www.qatarembassy.it/",
+    "website": "https://sarajevo.embassy.qa/en/home",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237644979956654",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://sarajevo.embassy.qa/en/home",
+    "recruitment_notes": "Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena."
   },
   {
     "name": "Embassy of the Swiss Confederation",
@@ -536,7 +787,17 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
-      {"url": "https://www.eda.admin.ch/content/countries/bosnia-and-herzegovina/en/home/news/stellen.html", "adapter": "swiss", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "HTML sadrži članke i PDF priloge. Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: jedini oglas je iz 2025."}
+      {
+        "url": "https://www.eda.admin.ch/content/countries/bosnia-and-herzegovina/en/home/news/stellen.html",
+        "adapter": "swiss",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true
+        },
+        "notes": "HTML sadrži članke i PDF priloge. Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: jedini oglas je iz 2025."
+      }
     ]
   },
   {
@@ -544,11 +805,23 @@
     "kind": "embassy",
     "country": "UKRAINE",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://mfa.gov.ua/en/embassies/bosniya-i-gercogovina",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234300278318806",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://mfa.gov.ua/vacancies",
+        "adapter": "none",
+        "status": "blocked",
+        "enabled": false,
+        "notes": "2026-10-03: Pronađen centralni MFA portal za zapošljavanje, ali direktni dohvat vraća Cloudflare HTTP 403. Potrebno filtrirati BiH i provjeriti uslove; nisu potvrđeni aktuelni poslovi u Sarajevu."
+      }
+    ],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://mfa.gov.ua/vacancies",
+    "recruitment_notes": "Pronađen centralni MFA portal za zapošljavanje, ali direktni dohvat vraća Cloudflare HTTP 403. Potrebno filtrirati BiH i provjeriti uslove; nisu potvrđeni aktuelni poslovi u Sarajevu."
   },
   {
     "name": "Evropska banka za obnovu i razvoj (EBRD)",
@@ -560,7 +833,16 @@
     "verified_at": "2026-10-02",
     "notes": "Rezidentni ured u Sarajevu; oglasi na globalnom EBRD portalu.",
     "sources": [
-      {"url": "https://jobs.ebrd.com/search/?q=&locationsearch=Sarajevo", "adapter": "ebrd", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Pretraga bez pogotka vraća najnovije svjetske oglase, pa adapter zadržava samo redove s lokacijom ', BA'. Provjereno 2026-10-02: nema BiH oglasa."}
+      {
+        "url": "https://jobs.ebrd.com/search/?q=&locationsearch=Sarajevo",
+        "adapter": "ebrd",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Pretraga bez pogotka vraća najnovije svjetske oglase, pa adapter zadržava samo redove s lokacijom ', BA'. Provjereno 2026-10-02: nema BiH oglasa."
+      }
     ]
   },
   {
@@ -573,7 +855,17 @@
     "verified_at": "2026-10-02",
     "notes": "Lokalni civilni angažmani (LCH) u štabu EUFOR-a, Butmir.",
     "sources": [
-      {"url": "https://www.euforbih.org/index.php/vacancies-a", "adapter": "eufor", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "pdf_date_as_published": true}, "notes": "Svaki oglas ima PDF opis posla i rok; datum objave nije naveden u tekstu, pa se kao datum objave uzima datum PDF datoteke koji server prijavljuje (Last-Modified), npr. 29.09.2026. za oglas Purchasing Administrator. Provjereno 2026-10-02: 2 otvorena oglasa."}
+      {
+        "url": "https://www.euforbih.org/index.php/vacancies-a",
+        "adapter": "eufor",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "pdf_date_as_published": true
+        },
+        "notes": "Svaki oglas ima PDF opis posla i rok; datum objave nije naveden u tekstu, pa se kao datum objave uzima datum PDF datoteke koji server prijavljuje (Last-Modified), npr. 29.09.2026. za oglas Purchasing Administrator. Provjereno 2026-10-02: 2 otvorena oglasa."
+      }
     ]
   },
   {
@@ -585,18 +877,34 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234955203445129",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://punetejashtme.gov.al/en/bosnje-dhe-hercegovina/",
+    "recruitment_notes": "Službeni albanski MFA opisuje otvaranje počasnog konzulata u Sarajevu 2016. Nije pronađena njegova zasebna službena stranica za zapošljavanje; ne poistovjećivati ga sa ambasadom."
   },
   {
     "name": "Honorary Consulate of Canada in Sarajevo",
     "kind": "honorary",
     "country": "CANADA",
     "city": "Sarajevo",
-    "website": "",
+    "website": "https://travel.gc.ca/assistance/embassies-consulates/bosnia-and-herzegovina",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237644710280855",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [
+      {
+        "url": "https://staffing-les.international.gc.ca/en/",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "notes": "2026-10-03: Kanadski direktorij potvrđuje Sarajevo konzulat. Pronađen službeni globalni portal Locally Engaged Staff; lista poslova se učitava dinamički. Treba javni endpoint, filtriranje BiH i dokaz da poslodavac zaista predstavlja ovu lokalnu misiju."
+      }
+    ],
+    "recruitment_status": "integration",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://staffing-les.international.gc.ca/en/",
+    "recruitment_notes": "Kanadski direktorij potvrđuje Sarajevo konzulat. Pronađen službeni globalni portal Locally Engaged Staff; lista poslova se učitava dinamički. Treba javni endpoint, filtriranje BiH i dokaz da poslodavac zaista predstavlja ovu lokalnu misiju."
   },
   {
     "name": "Honorary Consulate of Republic of Cyprus in Sarajevo",
@@ -607,7 +915,11 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237645817973203",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.gov.cy/mfa/en/bosnia-and-herzegovina/",
+    "recruitment_notes": "Službeni ciparski indeks potvrđuje počasnog konzula u Sarajevu; navedeni bblegal.ba pripada pravnoj firmi i nije potvrđena stranica konzulata za zapošljavanje. Direktni dohvat gov.cy vraća Azure WAF HTTP 403."
   },
   {
     "name": "Honorary Consulate of the Democratic Republic of the Congo",
@@ -618,18 +930,26 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237646003066938",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://drcongo-emb.rs/en/category/news-en/embassy-news/",
+    "recruitment_notes": "Stariji službeni MFA BiH dokument navodi pocasnikoznulat-drkongo-bih.com, ali domena se ne razrješava (DNS). Službena ambasada u Beogradu spominje počasnog konzula BiH; nije pronađena dostupna lokalna lista."
   },
   {
     "name": "Honorary Consulate of the People's Republic of Bangladesh in Banja Luka",
     "kind": "honorary",
     "country": "BANGLADESH",
     "city": "Banja Luka",
-    "website": "",
+    "website": "https://bdconsulatebl.com/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234973303347314",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://bdconsulatebl.com/",
+    "recruitment_notes": "Službeni bangladeški MFA indeks potvrđuje bdconsulatebl.com. Pregledana lokalna početna i stranica Konzulat; prikazuju usluge, investicije i kontakt, bez pronađene liste zapošljavanja."
   },
   {
     "name": "Kingdom of Sweden",
@@ -641,7 +961,20 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. Ambasada objavljuje oglase (npr. National Programme Officer) kao vijesti na Sweden Abroad.",
     "sources": [
-      {"url": "https://www.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/current/news2/", "adapter": "generic", "status": "verified", "enabled": true, "adapter_config": {"path_contains": "/bosnia-and-herzegovina-sarajevo/current/news2/", "content_selector": ".article-page", "published_selector": ".article__info__date", "allow_empty": true, "partial_listing": true}, "notes": "Lista prikazuje samo posljednjih 5 vijesti, pa je izvor djelimičan: oglas može nestati s liste dok je još otvoren. Datum objave je ispod naslova. Provjereno 2026-10-02: nema oglasa (format potvrđen na ambasadi u Jerevanu)."}
+      {
+        "url": "https://www.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/current/news2/",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "path_contains": "/bosnia-and-herzegovina-sarajevo/current/news2/",
+          "content_selector": ".article-page",
+          "published_selector": ".article__info__date",
+          "allow_empty": true,
+          "partial_listing": true
+        },
+        "notes": "Lista prikazuje samo posljednjih 5 vijesti, pa je izvor djelimičan: oglas može nestati s liste dok je još otvoren. Datum objave je ispod naslova. Provjereno 2026-10-02: nema oglasa (format potvrđen na ambasadi u Jerevanu)."
+      }
     ]
   },
   {
@@ -659,8 +992,21 @@
         "adapter": "osce",
         "status": "verified",
         "enabled": true,
-        "adapter_config": {"allow_empty": true, "impersonate": true},
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true
+        },
         "notes": "Pretraga globalnog portala filtrirana na BAH (location_ids=19) daje sve oglase Misije sa brojem rezultata; pretraga odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: 1 oglas (Chief, General Services)."
+      },
+      {
+        "url": "https://vacancies.osce.org/",
+        "adapter": "none",
+        "status": "unsupported",
+        "enabled": false,
+        "adapter_config": {
+          "superseded_by": "https://vacancies.osce.org/jobs/search/?location_ids=19"
+        },
+        "notes": "2026-10-03: Stari nefiltrirani portal je duplikat aktivnog OSCE adaptera za BiH (location_ids=19). Globalna početna nije BiH lista. Stari red ostaje u bazi, ali se u pokrivenosti zamjenjuje aktivnim izvorom iste organizacije."
       }
     ]
   },
@@ -673,7 +1019,11 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234973038706117",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "blocked",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://hague.mofa.gov.bd/pages/static-pages/6952667335ce18e1c05a92e3",
+    "recruitment_notes": "Službeni indeks bangladeške ambasade u Haagu potvrđuje počasnog konzula u Sarajevu, bez zasebne web-adrese. Direktni dohvat ima TLS grešku; lokalna lista zapošljavanja nije potvrđena."
   },
   {
     "name": "Regionalno vijeće za saradnju (RCC)",
@@ -685,7 +1035,16 @@
     "verified_at": "2026-10-02",
     "notes": "Sekretarijat RCC-a je u Sarajevu; ured za vezu je u Briselu.",
     "sources": [
-      {"url": "https://www.rcc.int/vacancies", "adapter": "rcc", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartica poziva (datum objave, rok) je dokaz jer je dokumentacija ZIP. Pozivi za briselski ured idu na provjeru. Provjereno 2026-10-02: nema otvorenih poziva; struktura potvrđena arhivom od 2025-02-15."}
+      {
+        "url": "https://www.rcc.int/vacancies",
+        "adapter": "rcc",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Kartica poziva (datum objave, rok) je dokaz jer je dokumentacija ZIP. Pozivi za briselski ured idu na provjeru. Provjereno 2026-10-02: nema otvorenih poziva; struktura potvrđena arhivom od 2025-02-15."
+      }
     ]
   },
   {
@@ -693,11 +1052,15 @@
     "kind": "consulate",
     "country": "SERBIA",
     "city": "Banja Luka",
-    "website": "http://www.banjaluka.mfa.gov.rs",
+    "website": "https://banjaluka.mfa.gov.rs/en",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719799122491",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": []
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://banjaluka.mfa.gov.rs/en",
+    "recruitment_notes": "Službena stranica konzulata dostupna; pregledane aktivnosti i navigacija, bez pronađene lokalne liste zapošljavanja."
   },
   {
     "name": "Ujedinjene nacije u Bosni i Hercegovini",
@@ -709,7 +1072,24 @@
     "verified_at": "2026-10-02",
     "notes": "Službena stranica UN tima u BiH agregira oglase agencija. Agencije s vlastitim izvorom (UNICEF, UNDP, UNFPA, UN Women, IOM, UNHCR) vode se kao zasebne organizacije.",
     "sources": [
-      {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "skip_hosts": ["estm.fa.em2.oraclecloud.com", "jobs.undp.org", "fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com", "unhcr.wd3.myworkdayjobs.com", "careers.un.org", "inspira.un.org"]}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
+      {
+        "url": "https://bosniaherzegovina.un.org/en/jobs",
+        "adapter": "unct",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "skip_hosts": [
+            "estm.fa.em2.oraclecloud.com",
+            "jobs.undp.org",
+            "fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com",
+            "unhcr.wd3.myworkdayjobs.com",
+            "careers.un.org",
+            "inspira.un.org"
+          ]
+        },
+        "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."
+      }
     ]
   },
   {
@@ -722,7 +1102,17 @@
     "verified_at": "2026-10-02",
     "notes": "Fond UN-a za djecu. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."}
+      {
+        "url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia",
+        "adapter": "unicef",
+        "status": "blocked",
+        "enabled": false,
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true
+        },
+        "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."
+      }
     ]
   },
   {
@@ -735,7 +1125,16 @@
     "verified_at": "2026-10-02",
     "notes": "Razvojni program UN-a. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions?location=Bosnia+and+Herzegovina&locationId=300000000440419&locationLevel=country", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNDP karijere (Oracle Recruiting Cloud). Javni JSON API daje datum objave i rok; zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-02: 3 oglasa u Sarajevu."}
+      {
+        "url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions?location=Bosnia+and+Herzegovina&locationId=300000000440419&locationLevel=country",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "UNDP karijere (Oracle Recruiting Cloud). Javni JSON API daje datum objave i rok; zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-02: 3 oglasa u Sarajevu."
+      }
     ]
   },
   {
@@ -748,7 +1147,16 @@
     "verified_at": "2026-10-02",
     "notes": "Međunarodna organizacija za migracije. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "IOM karijere (Oracle Recruiting Cloud), isti API kao UNDP. Provjereno 2026-10-02: nema oglasa s lokacijom u BiH (pretraga 'Bosnia' daje jedan oglas u Tirani)."}
+      {
+        "url": "https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "IOM karijere (Oracle Recruiting Cloud), isti API kao UNDP. Provjereno 2026-10-02: nema oglasa s lokacijom u BiH (pretraga 'Bosnia' daje jedan oglas u Tirani)."
+      }
     ]
   },
   {
@@ -761,7 +1169,16 @@
     "verified_at": "2026-10-02",
     "notes": "Populacijski fond UN-a. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2003/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNFPA karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalna pozicija u Sarajevu."}
+      {
+        "url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2003/requisitions",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "UNFPA karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalna pozicija u Sarajevu."
+      }
     ]
   },
   {
@@ -774,7 +1191,16 @@
     "verified_at": "2026-10-02",
     "notes": "Entitet UN-a za rodnu ravnopravnost i osnaživanje žena. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UN Women karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalni konsultant u Sarajevu."}
+      {
+        "url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "UN Women karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalni konsultant u Sarajevu."
+      }
     ]
   },
   {
@@ -787,7 +1213,16 @@
     "verified_at": "2026-10-02",
     "notes": "Visoki komesarijat UN-a za izbjeglice. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://unhcr.wd3.myworkdayjobs.com/External", "adapter": "workday", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNHCR karijere (Workday). Javni JSON API; filtrira se po državi BiH, a rok i datum objave dolaze iz API-ja. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH."}
+      {
+        "url": "https://unhcr.wd3.myworkdayjobs.com/External",
+        "adapter": "workday",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "UNHCR karijere (Workday). Javni JSON API; filtrira se po državi BiH, a rok i datum objave dolaze iz API-ja. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH."
+      }
     ]
   },
   {
@@ -800,7 +1235,16 @@
     "verified_at": "2026-10-02",
     "notes": "MMF ima ured stalnog predstavnika u Sarajevu. Oglasi s globalnog karijernog portala MMF-a, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://imf.wd5.myworkdayjobs.com/IMF", "adapter": "workday", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "MMF karijere (Workday). Javni JSON API bez fasete države; filtrira se po faseti lokacija. Provjereno 2026-10-02: 15 oglasa u svijetu, nijedan u BiH."}
+      {
+        "url": "https://imf.wd5.myworkdayjobs.com/IMF",
+        "adapter": "workday",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "MMF karijere (Workday). Javni JSON API bez fasete države; filtrira se po faseti lokacija. Provjereno 2026-10-02: 15 oglasa u svijetu, nijedan u BiH."
+      }
     ]
   },
   {
@@ -813,7 +1257,17 @@
     "verified_at": "2026-10-02",
     "notes": "Državni ured WHO-a u Sarajevu. Oglasi s globalnog karijernog portala WHO-a, samo mjesta rada u BiH.",
     "sources": [
-      {"url": "https://careers.who.int/careersection/ex/jobsearch.ftl", "adapter": "taleo", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "portal": "101430233"}, "notes": "WHO karijere (Oracle Taleo). REST pretraga oglasne ploče, sve stranice; rok s detalja oglasa. Provjereno 2026-10-02: 56 oglasa u svijetu, nijedan u BiH."}
+      {
+        "url": "https://careers.who.int/careersection/ex/jobsearch.ftl",
+        "adapter": "taleo",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "portal": "101430233"
+        },
+        "notes": "WHO karijere (Oracle Taleo). REST pretraga oglasne ploče, sve stranice; rok s detalja oglasa. Provjereno 2026-10-02: 56 oglasa u svijetu, nijedan u BiH."
+      }
     ]
   },
   {
@@ -826,7 +1280,16 @@
     "verified_at": "2026-10-02",
     "notes": "Međuvladina organizacija sa sjedištem u Hagu, osnovana za rad na nestalim osobama u bivšoj Jugoslaviji. Oglasi sa stranice Working at ICMP (BambooHR), samo lokacije u BiH.",
     "sources": [
-      {"url": "https://icmp.bamboohr.com/careers", "adapter": "bamboohr", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ICMP karijere (BambooHR JSON API); lokacija i datum objave s detalja oglasa. Provjereno 2026-10-02: 5 oglasa (Hag, Kijev, Damask, remote), nijedan u BiH."}
+      {
+        "url": "https://icmp.bamboohr.com/careers",
+        "adapter": "bamboohr",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "ICMP karijere (BambooHR JSON API); lokacija i datum objave s detalja oglasa. Provjereno 2026-10-02: 5 oglasa (Hag, Kijev, Damask, remote), nijedan u BiH."
+      }
     ]
   },
   {
@@ -839,7 +1302,16 @@
     "verified_at": "2026-10-02",
     "notes": "Ured UNESCO-a u Sarajevu. Oglasi s globalnog karijernog portala UNESCO-a, samo lokacije u BiH.",
     "sources": [
-      {"url": "https://careers.unesco.org/go/All-jobs-openings/784002/", "adapter": "rmk", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNESCO karijere (SuccessFactors). Kategorija svih oglasa, sve stranice uz provjeru ukupnog broja; rok s detalja oglasa. Provjereno 2026-10-02: 62 oglasa u svijetu, nijedan u BiH."}
+      {
+        "url": "https://careers.unesco.org/go/All-jobs-openings/784002/",
+        "adapter": "rmk",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "UNESCO karijere (SuccessFactors). Kategorija svih oglasa, sve stranice uz provjeru ukupnog broja; rok s detalja oglasa. Provjereno 2026-10-02: 62 oglasa u svijetu, nijedan u BiH."
+      }
     ]
   },
   {
@@ -852,7 +1324,17 @@
     "verified_at": "2026-10-02",
     "notes": "FAO ima projektni ured u Sarajevu. Oglasi s globalnog karijernog portala FAO-a, samo lokacije u BiH.",
     "sources": [
-      {"url": "https://jobs.fao.org/careersection/fao_external/jobsearch.ftl", "adapter": "taleo", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "portal": "8105120163"}, "notes": "FAO karijere (Oracle Taleo, isti REST kao WHO). Provjereno 2026-10-02: 17 oglasa u svijetu, nijedan u BiH."}
+      {
+        "url": "https://jobs.fao.org/careersection/fao_external/jobsearch.ftl",
+        "adapter": "taleo",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "portal": "8105120163"
+        },
+        "notes": "FAO karijere (Oracle Taleo, isti REST kao WHO). Provjereno 2026-10-02: 17 oglasa u svijetu, nijedan u BiH."
+      }
     ]
   },
   {
@@ -865,7 +1347,16 @@
     "verified_at": "2026-10-02",
     "notes": "ILO zapošljava nacionalno osoblje za projekte u BiH (npr. EU4People, Sarajevo) preko globalnog karijernog portala.",
     "sources": [
-      {"url": "https://jobs.ilo.org/services/rss/job/?locale=en_GB&keywords=", "adapter": "sfrss", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ILO karijere (SuccessFactors), zvanični RSS feed svih oglasa s punim tekstom; lista na stranici se iscrtava u pregledniku. Zadržavaju se oglasi s lokacijom u BiH. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH (posljednji iz Sarajeva u julu 2026)."}
+      {
+        "url": "https://jobs.ilo.org/services/rss/job/?locale=en_GB&keywords=",
+        "adapter": "sfrss",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "ILO karijere (SuccessFactors), zvanični RSS feed svih oglasa s punim tekstom; lista na stranici se iscrtava u pregledniku. Zadržavaju se oglasi s lokacijom u BiH. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH (posljednji iz Sarajeva u julu 2026)."
+      }
     ]
   },
   {
@@ -878,7 +1369,16 @@
     "verified_at": "2026-10-02",
     "notes": "Međuvladina organizacija sa sjedištem u Beču i terenskim uredom u Sarajevu (regija Zapadnog Balkana).",
     "sources": [
-      {"url": "https://careers.icmpd.org/", "adapter": "lanteria", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "ICMPD karijere (Lanteria); lista otvorenih oglasa ugrađena u stranicu, rok sa stranice oglasa. Zadržavaju se samo lokacije u BiH (dio oglasa za Zapadni Balkan je u Beogradu). Provjereno 2026-10-02: 11 oglasa, nijedan u BiH."}
+      {
+        "url": "https://careers.icmpd.org/",
+        "adapter": "lanteria",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "ICMPD karijere (Lanteria); lista otvorenih oglasa ugrađena u stranicu, rok sa stranice oglasa. Zadržavaju se samo lokacije u BiH (dio oglasa za Zapadni Balkan je u Beogradu). Provjereno 2026-10-02: 11 oglasa, nijedan u BiH."
+      }
     ]
   },
   {
@@ -891,7 +1391,16 @@
     "verified_at": "2026-10-02",
     "notes": "NATO-ov štab u Sarajevu zapošljava civilno osoblje preko centralnog NATO karijernog portala (Taleo), gdje je NHQSa zasebna organizacija u filteru.",
     "sources": [
-      {"url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146", "adapter": "taleoftl", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "NATO Taleo, filter organizacije NHQSa; lista oglasa iz kodiranog polja stranice, s brojem oglasa kao provjerom. Rok iz liste (vrijeme blizu ponoći pripada prethodnom danu). Provjereno 2026-10-02: 0 oglasa za NHQSa (54 u cijelom NATO-u)."}
+      {
+        "url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146",
+        "adapter": "taleoftl",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "NATO Taleo, filter organizacije NHQSa; lista oglasa iz kodiranog polja stranice, s brojem oglasa kao provjerom. Rok iz liste (vrijeme blizu ponoći pripada prethodnom danu). Provjereno 2026-10-02: 0 oglasa za NHQSa (54 u cijelom NATO-u)."
+      }
     ]
   },
   {
@@ -904,7 +1413,16 @@
     "verified_at": "2026-10-02",
     "notes": "Međuvladina organizacija jugoistočne Evrope sa sekretarijatom u Sarajevu.",
     "sources": [
-      {"url": "https://rai-see.org/tenders-and-vacancies/", "adapter": "rai", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Stranica Tenders and Vacancies: aktuelni pozivi u okvirima iznad tabele, te otvoreni redovi tabele (vrsta Vacancy/Consultancy/Open Call). Oglasi su PDF dokumenti. Provjereno 2026-10-02: nema aktuelnih oglasa."}
+      {
+        "url": "https://rai-see.org/tenders-and-vacancies/",
+        "adapter": "rai",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Stranica Tenders and Vacancies: aktuelni pozivi u okvirima iznad tabele, te otvoreni redovi tabele (vrsta Vacancy/Consultancy/Open Call). Oglasi su PDF dokumenti. Provjereno 2026-10-02: nema aktuelnih oglasa."
+      }
     ]
   },
   {
@@ -917,7 +1435,21 @@
     "verified_at": "2026-10-02",
     "notes": "Međuvladina organizacija šest zemalja Zapadnog Balkana sa sjedištem u Tirani i lokalnim uredom u Sarajevu. Oglasi i tenderi se objavljuju u istoj kategoriji vijesti.",
     "sources": [
-      {"url": "https://www.rycowb.org/category/procurements-and-vacancies/", "adapter": "generic", "status": "verified", "enabled": true, "adapter_config": {"link_selector": "article h2.entry-title a", "any_title": true, "partial_listing": true, "allow_empty": true, "content_selector": "article", "published_selector": "meta[property='article:published_time']"}, "notes": "Prva stranica kategorije (10 najnovijih objava, tenderi se isključuju), pa je izvor djelimičan. Lokacija se čita iz članka i njegovih kategorija (npr. Local Branch Office Sarajevo). Provjereno 2026-10-02: aktivni oglas samo za sjedište; posljednji oglas za Sarajevo iz decembra 2025."}
+      {
+        "url": "https://www.rycowb.org/category/procurements-and-vacancies/",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "link_selector": "article h2.entry-title a",
+          "any_title": true,
+          "partial_listing": true,
+          "allow_empty": true,
+          "content_selector": "article",
+          "published_selector": "meta[property='article:published_time']"
+        },
+        "notes": "Prva stranica kategorije (10 najnovijih objava, tenderi se isključuju), pa je izvor djelimičan. Lokacija se čita iz članka i njegovih kategorija (npr. Local Branch Office Sarajevo). Provjereno 2026-10-02: aktivni oglas samo za sjedište; posljednji oglas za Sarajevo iz decembra 2025."
+      }
     ]
   },
   {
@@ -930,7 +1462,16 @@
     "verified_at": "2026-10-02",
     "notes": "Oglasi su podijeljeni na nacionalne, međunarodne, fellowship, praksu i konsultantske pozicije.",
     "sources": [
-      {"url": "https://www.ohr.int/vacancies/", "adapter": "ohr", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Svaka sekcija mora imati tabelu ili izričitu napomenu da nema oglasa. Provjereno 2026-10-02: nema aktivnih oglasa."}
+      {
+        "url": "https://www.ohr.int/vacancies/",
+        "adapter": "ohr",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Svaka sekcija mora imati tabelu ili izričitu napomenu da nema oglasa. Provjereno 2026-10-02: nema aktivnih oglasa."
+      }
     ]
   },
   {
@@ -943,7 +1484,16 @@
     "verified_at": "2026-10-02",
     "notes": "Lokalni i međunarodni oglasi Vijeća Evrope objavljuju se na portalu talents.coe.int; stranica ureda preusmjerava na portal.",
     "sources": [
-      {"url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs", "adapter": "coe", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartice (6 po stranici) imaju mjesto rada; zadržavaju se samo oglasi s mjestom rada u BiH, a datum objave i rok čitaju se iz polja oglasa. Provjereno 2026-10-02: 14 oglasa, nijedan u BiH."}
+      {
+        "url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs",
+        "adapter": "coe",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Kartice (6 po stranici) imaju mjesto rada; zadržavaju se samo oglasi s mjestom rada u BiH, a datum objave i rok čitaju se iz polja oglasa. Provjereno 2026-10-02: 14 oglasa, nijedan u BiH."
+      }
     ]
   },
   {
@@ -956,7 +1506,16 @@
     "verified_at": "2026-10-02",
     "notes": "Oglasi Sekretarijata UN-a i povezanih ureda (npr. Ured rezidentnog koordinatora) objavljuju se na careers.un.org.",
     "sources": [
-      {"url": "https://careers.un.org/jobopening?language=en", "adapter": "uncareers", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Javni JSON API; čitaju se sve objave (oko 450, 5 stranica) i zadržavaju one s mjestom rada u BiH. Rok se računa kao kraj dana u New Yorku. Provjereno 2026-10-02: nema objava u BiH."}
+      {
+        "url": "https://careers.un.org/jobopening?language=en",
+        "adapter": "uncareers",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Javni JSON API; čitaju se sve objave (oko 450, 5 stranica) i zadržavaju one s mjestom rada u BiH. Rok se računa kao kraj dana u New Yorku. Provjereno 2026-10-02: nema objava u BiH."
+      }
     ]
   },
   {
@@ -969,7 +1528,16 @@
     "verified_at": "2026-10-02",
     "notes": "Ured Svjetske banke i IFC-a u Sarajevu; oglasi Grupe objavljuju se na Cornerstone portalu.",
     "sources": [
-      {"url": "https://worldbankgroup.csod.com/ux/ats/careersite/1/home?c=worldbankgroup", "adapter": "csod", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Stranica daje anonimni token za vlastiti API pretrage; pretraga po ključnoj riječi ne gleda lokaciju, pa se čitaju svi oglasi (oko 60) i zadržavaju oni s državom BA. Provjereno 2026-10-02: nema oglasa u BiH."}
+      {
+        "url": "https://worldbankgroup.csod.com/ux/ats/careersite/1/home?c=worldbankgroup",
+        "adapter": "csod",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Stranica daje anonimni token za vlastiti API pretrage; pretraga po ključnoj riječi ne gleda lokaciju, pa se čitaju svi oglasi (oko 60) i zadržavaju oni s državom BA. Provjereno 2026-10-02: nema oglasa u BiH."
+      }
     ]
   }
 ]

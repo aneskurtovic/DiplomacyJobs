@@ -20,9 +20,11 @@ python -m venv .venv
 
 Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, an Atom feed of new jobs at `/feed/` (accepts the board's `q`, `employer`, `city`, `type` and `scope` filters), and admin at `/admin/`. Development defaults to SQLite. As recorded on 2026-10-02, the imported registry enables thirty complete sources and two partial ones (Sweden, RYCO); the board may still be empty when none has an open 2026 vacancy. Source reachability must be checked from each deployment network.
 
+The [2026-10-03 audit](docs/source-audit-2026-10-03.md) examined all 46 previously unchecked entries: 23 have no local recruitment list found, 7 have leads awaiting integration, 15 remain unresolved because of access/rendering problems, and one was an obsolete OSCE duplicate. Each discovery finding has a date, evidence link and explanation on `/sources/`. Unknown vacancy counts remain unknown; new leads are disabled. Run migrations and `import_registry` to apply the findings. Recruitment discovery is separate from diplomatic-presence verification and successful scraping; discovery findings require renewal after 90 days.
+
 ## Verification
 
-CI and the production image target Python 3.12. This Windows checkout also has an existing `.venv311` (Python 3.11.3) with dependencies matching `requirements.lock`. The following commands passed on 2026-10-02:
+CI and the production image target Python 3.12. This Windows checkout also has an existing `.venv311` (Python 3.11.3) with dependencies matching `requirements.lock`. The following commands passed on 2026-10-03:
 
 ```powershell
 $env:DJANGO_DEBUG = '1'
@@ -31,9 +33,9 @@ $env:DJANGO_DEBUG = '1'
 .venv311\Scripts\python.exe manage.py test board --noinput
 ```
 
-The suite discovered 125 tests: 124 passed and the PostgreSQL connection-recovery test was skipped on SQLite. `.venv` currently uses Python 3.14.7; its earlier test run hit four temporary-directory permission errors in this environment. Use the verified `.venv311` here or create a Python 3.12 environment with the locked dependencies.
+The current suite discovered 132 tests: 131 passed and the PostgreSQL connection-recovery test was skipped on local SQLite. `.venv` currently uses Python 3.14.7; its earlier test run hit four temporary-directory permission errors in this environment. Use the verified `.venv311` here or create a Python 3.12 environment with the locked dependencies.
 
-[GitHub Actions](.github/workflows/tests.yml) defines independent SQLite and PostgreSQL 16 jobs on Linux/Python 3.12. Both run Django checks, migration drift checks, and the full suite. The PostgreSQL job also terminates only the test's own connection to the disposable test database and verifies that the next scheduler run reconnects. Linux CI and PostgreSQL execution remain pending; neither Docker nor PostgreSQL is installed locally, and authenticated GitHub access was unavailable during this continuation. To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
+[GitHub Actions](.github/workflows/tests.yml) defines independent SQLite and PostgreSQL 16 jobs on Linux/Python 3.12. Both run Django checks, migration drift checks, and the full suite. The PostgreSQL job also terminates only the test's own connection to the disposable test database and verifies that the next scheduler run reconnects. Both jobs passed for reliability commit `fea3310` in [run 37071234992](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37071234992): PostgreSQL passed all 125 tests; SQLite passed 124 with one skip. The audit adds seven tests; its latest CI result is recorded in HANDOFF. Neither Docker nor PostgreSQL is installed locally. To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
 
 ## Operations
 

@@ -539,6 +539,25 @@ class ImportRegistryTests(TestCase):
         self.assertEqual(same.adapter_config, {"allow_empty": True})
         self.assertEqual(Source.objects.get(url="https://x.example/other").adapter, "generic")
 
+    def test_recruitment_audit_import_is_repeatable_and_preserves_presence_date(self):
+        item = {"name": "Audited", "kind": "embassy", "verified_at": "2026-09-01", "recruitment_status": "integration", "recruitment_checked_at": "2026-10-03", "recruitment_evidence_url": "https://a.example/jobs", "recruitment_notes": "Needs a country filter", "sources": [{"url": "https://a.example/jobs", "adapter": "none", "status": "unsupported", "enabled": False}]}
+        self.run_registry([item])
+        self.run_registry([item])
+        org = Organization.objects.get(name="Audited")
+        self.assertEqual((org.verified_at, org.recruitment_checked_at), (date(2026, 9, 1), date(2026, 10, 3)))
+        self.assertEqual((Source.objects.count(), Job.objects.count()), (1, 0))
+        self.assertFalse(org.sources.get().enabled)
+        self.assertIsNone(org.sources.get().last_success_at)
+        self.run_registry([{"name": "Audited", "kind": "embassy"}])
+        org.refresh_from_db()
+        self.assertEqual(org.recruitment_status, "integration")
+
+    def test_incomplete_recruitment_audit_rolls_back_import(self):
+        from django.core.management.base import CommandError
+        with self.assertRaisesRegex(CommandError, "recruitment audit"):
+            self.run_registry([{"name": "First", "kind": "embassy"}, {"name": "Incomplete", "kind": "embassy", "recruitment_status": "not_found", "recruitment_checked_at": "2026-10-03"}])
+        self.assertFalse(Organization.objects.exists())
+
     def test_source_moved_to_another_organization_is_not_duplicated(self):
         import io
         import tempfile
