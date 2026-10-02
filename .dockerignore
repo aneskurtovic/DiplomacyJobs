@@ -1,0 +1,10 @@
+.env
+.venv
+.venv311
+.vendor
+db.sqlite3
+staticfiles
+__pycache__
+*.pyc
+.git
+backups

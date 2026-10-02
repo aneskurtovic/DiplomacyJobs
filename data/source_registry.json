@@ -1,0 +1,662 @@
+[
+  {
+    "name": "Ambasada Japana u Bosni i Hercegovini",
+    "kind": "embassy",
+    "country": "JAPAN",
+    "city": "Sarajevo",
+    "website": "https://www.bosnia.emb-japan.go.jp/index_l.html",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237643328184701",
+    "verified_at": "2026-10-02",
+    "notes": "Oglasi su HTML članci; stariji oglasi ostaju dostupni nakon roka. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": [
+      {
+        "url": "https://www.bosnia.emb-japan.go.jp/index_l.html",
+        "adapter": "generic",
+        "status": "unsupported",
+        "adapter_config": {
+          "path_contains": "/itpr"
+        },
+        "notes": "Provjeriti selektor službenih linkova i lokalne formate datuma prije uključivanja."
+      }
+    ]
+  },
+  {
+    "name": "Ambasada Sjedinjenih Američkih Država u BiH",
+    "kind": "embassy",
+    "country": "United States of America",
+    "city": "Sarajevo",
+    "website": "https://ba.usembassy.gov/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713414625362",
+    "verified_at": "2026-10-02",
+    "notes": "Službena stranica za poslove upućuje na ERA; automatski pristup nije potvrđen. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": [
+      {
+        "url": "https://ba.usembassy.gov/jobs/",
+        "adapter": "none",
+        "status": "blocked",
+        "notes": "Prilikom javne provjere HTTP 403; ne uključivati bez dokazano dopuštenog pristupa."
+      }
+    ]
+  },
+  {
+    "name": "Apostolic Nunciature (Embassy of the Holy See/Vatican) in Bosnia and Herzegovina",
+    "kind": "embassy",
+    "country": "HOLY SEE",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Britanska ambasada u Sarajevu",
+    "kind": "embassy",
+    "country": "UK",
+    "city": "Sarajevo",
+    "website": "https://www.gov.uk/world/organisations/british-embassy-sarajevo",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639239538178785468",
+    "verified_at": "2026-10-02",
+    "notes": "Stranica za zapošljavanje upućuje na FCDO Local Staff portal i filtriranje po državi. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": [
+      {
+        "url": "https://www.gov.uk/world/organisations/british-embassy-sarajevo/about/recruitment",
+        "adapter": "govuk",
+        "status": "unsupported",
+        "notes": "Pratiti konačni FCDO portal; GOV.UK stranica sama ne sadrži pojedinačne oglase."
+      }
+    ]
+  },
+  {
+    "name": "Consulate General of the Republic of Croatia in Banja Luka",
+    "kind": "consulate",
+    "country": "CROATIA",
+    "city": "Banja Luka",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231690322413015",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Consulate General of the Republic of Croatia in Mostar",
+    "kind": "consulate",
+    "country": "CROATIA",
+    "city": "Mostar",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231691901696797",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Consulate General of the Republic of Croatia in Tuzla",
+    "kind": "consulate",
+    "country": "CROATIA",
+    "city": "Tuzla",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231706311360368",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Consulate General of the United Arab Emirates in Sarajevo",
+    "kind": "consulate",
+    "country": "UAE",
+    "city": "Sarajevo",
+    "website": "http://www.mofa.gov.ae",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237725083570881",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Consulate of Republic of Türkiye in Banja Luka",
+    "kind": "consulate",
+    "country": "TÜRKIYE- Consulate in Banja Luka",
+    "city": "Banja Luka",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227028868267",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Consulate of Republic of Türkiye in Mostar",
+    "kind": "consulate",
+    "country": "TÜRKIYE- Consulate in Mostar",
+    "city": "Mostar",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227286140685",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Delegacija Evropske unije i Ured specijalnog predstavnika EU u BiH",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.eeas.europa.eu/delegations/bosnia-and-herzegovina_en",
+    "evidence_url": "https://www.eeas.europa.eu/delegations/bosnia-and-herzegovina_en",
+    "verified_at": "2026-10-02",
+    "notes": "Središnja EEAS lista uključuje i druge države; svaki oglas zahtijeva zasebnu provjeru lokacije.",
+    "sources": [
+      {
+        "url": "https://www.eeas.europa.eu/eeas/vacancies_en?s=69",
+        "adapter": "eeas",
+        "status": "unsupported",
+        "notes": "Globalna lista; adapter i aktivne oglase treba provjeriti iz okruženja servera prije uključivanja."
+      }
+    ]
+  },
+  {
+    "name": "Embassy of Hungary",
+    "kind": "embassy",
+    "country": "HUNGARY",
+    "city": "Sarajevo",
+    "website": "http://www.mfa.gov.hu/kulkepviselet/BH/HU",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237657493898497",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of Malaysia",
+    "kind": "embassy",
+    "country": "MALAYSIA",
+    "city": "Sarajevo",
+    "website": "http://www.kin.gov.my/web/bih",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237657717587014",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of Romania",
+    "kind": "embassy",
+    "country": "ROMANIA",
+    "city": "Sarajevo",
+    "website": "http://www.sarajevo.mae.ro",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237704681153901",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Federal Republic of Germany",
+    "kind": "embassy",
+    "country": "GERMANY",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234985440596074",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Federative Republic of Brazil",
+    "kind": "embassy",
+    "country": "BRAZIL",
+    "city": "Sarajevo",
+    "website": "https://www.gov.br/mre/pt-br/embaixada-sarajevo",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234274891985621",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the French Republic",
+    "kind": "embassy",
+    "country": "FRANCE",
+    "city": "Sarajevo",
+    "website": "http://www.ambafrance-ba.org/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251396700875687",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Hellenic Republic",
+    "kind": "embassy",
+    "country": "GREECE",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234963454151503",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Islamic Republic of Iran",
+    "kind": "embassy",
+    "country": "IRAN",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641634470415",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Islamic Republic of Pakistan",
+    "kind": "embassy",
+    "country": "PAKISTAN",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251599358797730",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Kingdom of Denmark",
+    "kind": "embassy",
+    "country": "DENMARK",
+    "city": "Sarajevo",
+    "website": "http://www.bosnienhercegovina.um.dk",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639235050504397683",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Kingdom of Norway",
+    "kind": "embassy",
+    "country": "NORWAY",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237696922682793",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Kingdom of Saudi Arabia",
+    "kind": "embassy",
+    "country": "SAUDI ARABIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237708256174849",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Kingdom of Spain",
+    "kind": "embassy",
+    "country": "SPAIN",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237721907513526",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Kingdom of the Netherlands",
+    "kind": "embassy",
+    "country": "NETHERLANDS",
+    "city": "Sarajevo",
+    "website": "http://www.mfa.nl/sar",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237696521707168",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the People's Democratic Republic of Algeria",
+    "kind": "embassy",
+    "country": "ALGERIA",
+    "city": "Sarajevo",
+    "website": "http://www.embsarajevo.mfa.gov.dz",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234956404652907",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the People's Republic of China",
+    "kind": "embassy",
+    "country": "People's Republic of CHINA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237645355352792",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Albania",
+    "kind": "embassy",
+    "country": "ALBANIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639251392933332317",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Croatia",
+    "kind": "embassy",
+    "country": "CROATIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639231677011748930",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Indonesia",
+    "kind": "embassy",
+    "country": "INDONESIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641411171532",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Ireland to Bosnia and Herzegovina",
+    "kind": "embassy",
+    "country": "IRELAND",
+    "city": "Sarajevo",
+    "website": "http://www.ireland.ie/en/bosnia-herzegovina/sarajevo/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641870971367",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Italy",
+    "kind": "embassy",
+    "country": "ITALY",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237642481933716",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of North Macedonia",
+    "kind": "embassy",
+    "country": "SJEVERNA MAKEDONIJA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713628799673",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Poland",
+    "kind": "embassy",
+    "country": "POLAND",
+    "city": "Sarajevo",
+    "website": "http://www.sarajewo.msz.gov.pl/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237704279864184",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Serbia",
+    "kind": "embassy",
+    "country": "SERBIА",
+    "city": "Sarajevo",
+    "website": "http://www.sarajevo.mfa.gov.rs",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719377703225",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Slovenia",
+    "kind": "embassy",
+    "country": "SLOVENIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719167356670",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
+    "kind": "embassy",
+    "country": "TÜRKIYE",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222227821015349",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Russian Federation",
+    "kind": "embassy",
+    "country": "RUSSIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639235031973324416",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Slovak Republic",
+    "kind": "embassy",
+    "country": "SLOVAKIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713833267424",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Sovereign Military Order of Malta",
+    "kind": "embassy",
+    "country": "Sovereign Order of Malta",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237720949551663",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the State of Kuwait in Bosnia and Herzegovina",
+    "kind": "embassy",
+    "country": "KUWAIT",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639255693465656624",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the State of Libya",
+    "kind": "embassy",
+    "country": "Libya",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639232523885849194",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the State of Palestine to Bosnia and Herzegovina",
+    "kind": "embassy",
+    "country": "PALESTINE",
+    "city": "Sarajevo",
+    "website": "http://www.palestinianembassy.ba/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222035798722191",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the State of Qatar",
+    "kind": "embassy",
+    "country": "QATAR",
+    "city": "Sarajevo",
+    "website": "http://www.qatarembassy.it/",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237644979956654",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of the Swiss Confederation",
+    "kind": "embassy",
+    "country": "SWITZERLAND",
+    "city": "Sarajevo",
+    "website": "http://www.eda.admin.ch/sarajevo",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237722165818921",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Embassy of Ukraine",
+    "kind": "embassy",
+    "country": "UKRAINE",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234300278318806",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "General Honorary Consulate of Republic of Albania in Sarajevo",
+    "kind": "honorary",
+    "country": "ALBANIA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234955203445129",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Honorary Consulate of Canada in Sarajevo",
+    "kind": "honorary",
+    "country": "CANADA",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237644710280855",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Honorary Consulate of Republic of Cyprus in Sarajevo",
+    "kind": "honorary",
+    "country": "CYPRUS",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237645817973203",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Honorary Consulate of the Democratic Republic of the Congo",
+    "kind": "honorary",
+    "country": "CONGO DR, Honorary Consulate",
+    "city": "Brčko",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237646003066938",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Honorary Consulate of the People's Republic of Bangladesh in Banja Luka",
+    "kind": "honorary",
+    "country": "BANGLADESH",
+    "city": "Banja Luka",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234973303347314",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Kingdom of Sweden",
+    "kind": "embassy",
+    "country": "SWEDEN",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639235029954906911",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Misija OSCE-a u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://bih.osce.org/",
+    "evidence_url": "https://bih.osce.org/",
+    "verified_at": "2026-10-02",
+    "notes": "Službena stranica upućuje na globalni OSCE portal za zapošljavanje.",
+    "sources": [
+      {
+        "url": "https://vacancies.osce.org/",
+        "adapter": "none",
+        "status": "unsupported",
+        "notes": "Treba ispitati API/renderiranje i filtrirati Misiju BiH na nivou oglasa."
+      }
+    ]
+  },
+  {
+    "name": "People's Republic of Bangladesh Honorary General Consulate in Sarajevo",
+    "kind": "honorary",
+    "country": "BANGLADESH",
+    "city": "Sarajevo",
+    "website": "",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234973038706117",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "SERBIA - Consulate General in Banja Luka",
+    "kind": "consulate",
+    "country": "SERBIA",
+    "city": "Banja Luka",
+    "website": "http://www.banjaluka.mfa.gov.rs",
+    "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237719799122491",
+    "verified_at": "2026-10-02",
+    "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "sources": []
+  },
+  {
+    "name": "Ujedinjene nacije u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://bosniaherzegovina.un.org/bhs",
+    "evidence_url": "https://bosniaherzegovina.un.org/bhs/jobs",
+    "verified_at": "2026-10-02",
+    "notes": "Službena stranica za radna mjesta; trenutno nije potvrđen strojno čitljiv popis oglasa.",
+    "sources": [
+      {
+        "url": "https://bosniaherzegovina.un.org/bhs/jobs",
+        "adapter": "none",
+        "status": "unsupported"
+      }
+    ]
+  }
+]
