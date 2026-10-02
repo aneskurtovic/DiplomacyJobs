@@ -26,11 +26,16 @@ JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assista
 EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
-DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\.?\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2}(?:,\s*|\s+)\d{4}"
-DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(" + DATE_TEXT + r")", re.I)
-PUBLISHED = re.compile(r"(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
+DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
+DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(" + DATE_TEXT + r")", re.I)
+# An extension notice names the date that counts now; the original deadline usually comes first in the text.
+EXTENDED = re.compile(r"\b(?:extended|prolonged|produžen\w*|produljen\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
+PUBLISHED = re.compile(r"\b(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
+MONTHS["sept"] = 9
+# Croatian genitive month names.
+MONTHS.update({name: number for number, name in enumerate(["siječnja", "veljače", "ožujka", "travnja", "svibnja", "lipnja", "srpnja", "kolovoza", "rujna", "listopada", "studenoga", "prosinca"], 1)} | {"studenog": 11})
 # Bosnian nominative and Italian (Italian embassy pages) month names.
 MONTHS.update({name: number for number, names in enumerate([("januar", "gennaio"), ("februar", "febbraio"), ("mart", "marzo"), ("april", "aprile"), ("maj", "maggio"), ("juni", "giugno"), ("juli", "luglio"), ("august", "agosto"), ("septembar", "settembre"), ("oktobar", "ottobre"), ("novembar", "novembre"), ("decembar", "dicembre")], 1) for name in names})
 
@@ -76,34 +81,34 @@ def trusted_host(host, domain):
 
 
 def parse_date(value):
-    value = value.strip()
-    for fmt in ("%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"):
+    value = value.strip().rstrip(".")
+    compact = re.sub(r"\s+", "", value)
+    for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"):
         try:
-            return datetime.strptime(value, fmt).date()
+            return datetime.strptime(compact, fmt).date()
         except ValueError:
             pass
-    words = value.lower().replace(",", ", ").split()
-    if len(words) == 3 and words[0].rstrip(".") in MONTHS:
-        try:
-            return date(int(words[2]), MONTHS[words[0].rstrip(".")], int(words[1].rstrip(",")))
-        except ValueError:
-            pass
-    if len(words) == 3 and words[1].rstrip(".") in MONTHS:
-        try:
-            return date(int(words[2].rstrip(".")), MONTHS[words[1].rstrip(".")], int(words[0].rstrip(".")))
-        except ValueError:
-            pass
-    return None
+    words = [word.strip(".") for word in re.sub(r"(\d)(?:st|nd|rd|th)\b", r"\1", value.lower()).replace(",", " ").replace("-", " ").split()]
+    if len(words) != 3:
+        return None
+    day, month, year = (words[1], words[0], words[2]) if words[0] in MONTHS else (words[0], words[1], words[2])
+    try:
+        return date(int(year), MONTHS[month], int(day))
+    except (KeyError, ValueError):
+        return None
+
+
+def first_date(pattern, text):
+    """First match whose date actually parses; a garbled first hit must not hide a good second one."""
+    return next((parsed for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))), None)
 
 
 def parse_deadline(text):
-    match = DEADLINE.search(text)
-    return parse_date(match.group(1)) if match else None
+    return first_date(EXTENDED, text) or first_date(DEADLINE, text)
 
 
 def parse_published(text):
-    match = PUBLISHED.search(text)
-    return parse_date(match.group(1)) if match else None
+    return first_date(PUBLISHED, text)
 
 
 def fetch(client, url):

@@ -305,6 +305,22 @@ class DateParsingTests(TestCase):
         for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15))]:
             self.assertEqual(parse_deadline(text), expected, text)
 
+    def test_more_deadline_shapes(self):
+        cases = [
+            ("Široki Brijeg, 01.03.2026. Deadline: 15.10.2026", date(2026, 10, 15)),
+            ("Closing date: Sept 30, 2026", date(2026, 9, 30)),
+            ("Rok za prijavu: 15. 10. 2026.", date(2026, 10, 15)),
+            ("Deadline: 15th October 2026", date(2026, 10, 15)),
+            ("Deadline: 15 October, 2026", date(2026, 10, 15)),
+            ("Deadline 2026/10/15", date(2026, 10, 15)),
+            ("Deadline to apply 15-Oct-2026", date(2026, 10, 15)),
+            ("Rok za prijavu je 15. listopada 2026.", date(2026, 10, 15)),
+            ("Deadline: October 15 2026 (extended to 30 October 2026)", date(2026, 10, 30)),
+            ("Deadline: 99.99.2026, corrected deadline: 20.10.2026", date(2026, 10, 20)),
+        ]
+        for text, expected in cases:
+            self.assertEqual(parse_deadline(text), expected, text)
+
     def test_italian_and_nominative_months(self):
         from .ingest import parse_published
         self.assertEqual(parse_published("Data pubblicazione: 28 Aprile 2026"), date(2026, 4, 28))
