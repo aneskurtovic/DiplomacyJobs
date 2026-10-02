@@ -13,6 +13,8 @@ The local page now shows **0 unchecked, 23 not found, 7 awaiting integration, 17
 
 ## Method and limits
 
+Implementation commit `e19a79a` is pushed to `main`. [Linux CI run 37073582887](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37073582887) passed Python 3.12 system checks, migration drift checks and the full suite: PostgreSQL 16 passed all 132 tests; SQLite passed 131 with one PostgreSQL-only skip. Migration/import and all coverage status filters were verified in the running local app at `http://127.0.0.1:8000/sources/`.
+
 Official mission sites, sending-state/host-state directories, local-language recruitment searches and direct HTTPS requests were used. Certificate verification stayed enabled. HTTP 200 with only a JavaScript shell was treated as unresolved. Search-index evidence is identified in the individual notes; it is not evidence of a currently open job. Brazil demonstrates why: the search index says open while the live official page says closed. Spain’s Spanish page contains a 2026 process while the Bosnian version still holds 2025 results.
 
 Diplomatic-presence dates, recruitment-discovery dates and successful scrape timestamps are separate. Discovery results expire after 90 days; failed source checks remain unavailable. Official homepage/directory URLs are organization evidence, not fake vacancy feeds. Global recruitment portals require item-level employer, BiH duty-station, date and eligibility checks before activation.
