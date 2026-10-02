@@ -825,3 +825,10 @@ class CsodAdapterTests(TestCase):
         candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 18), date(2026, 10, 9), "Sarajevo"))
         self.assertTrue(candidate.eligible and candidate.year_proven)
+
+
+@override_settings(SECURE_SSL_REDIRECT=True, STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class SslRedirectTests(TestCase):
+    def test_health_stays_plain_http_for_container_check(self):
+        self.assertEqual(self.client.get("/health/").status_code, 200)
+        self.assertEqual(self.client.get("/").status_code, 301)
