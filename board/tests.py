@@ -4,10 +4,10 @@ from unittest.mock import patch
 
 import httpx
 from bs4 import BeautifulSoup
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from .ingest import discover_links, eeas_page_links, fetch, make_candidate, open_client, parse_deadline, unct_page_links
-from .models import Organization, Source
+from .models import Job, Organization, Source
 
 LISTING = """
 <div class="card node--type-vacancy"><h3 class="card-title"><a href="/delegations/bosnia-and-herzegovina/head-communications_en">Head of Communications and Spokesperson (IS 2026/02)</a></h3>
@@ -569,3 +569,31 @@ class DenmarkItalyAdapterTests(TestCase):
         self.assertEqual(parse_deadline(links[0][1]), date(2026, 3, 20))
         with self.assertRaises(ValueError):
             discover_links(None, self.italy, BeautifulSoup("<p>Amministrazione trasparente</p>", "html.parser"))
+
+
+@override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class PublicViewTests(TestCase):
+    def setUp(self):
+        from django.utils import timezone
+        self.today = timezone.localdate()
+        embassy = Organization.objects.create(name="Embassy A", kind="embassy")
+        old = Organization.objects.create(name="Embassy Expired", kind="embassy")
+        source = Source.objects.create(organization=embassy, url="https://a.example/jobs", adapter="generic", status="verified", enabled=True)
+        old_source = Source.objects.create(organization=old, url="https://b.example/jobs", adapter="generic", status="verified", enabled=True)
+        from datetime import timedelta
+        Job.objects.create(source=source, canonical_url="https://a.example/1", title="Driver", city="Sarajevo", status="published", deadline=self.today + timedelta(days=5))
+        Job.objects.create(source=source, canonical_url="https://a.example/2", title="Legal Consultant", city="Mostar", opportunity_type="consultancy", status="published", deadline=self.today + timedelta(days=5))
+        Job.objects.create(source=old_source, canonical_url="https://b.example/1", title="Old Clerk", city="Tuzla", status="published", deadline=self.today - timedelta(days=1))
+
+    def test_type_filter_and_visible_only_dropdowns(self):
+        response = self.client.get("/", {"type": "consultancy"})
+        self.assertContains(response, "Legal Consultant")
+        self.assertNotContains(response, "<h3>Driver</h3>", html=False)
+        self.assertNotContains(response, "Embassy Expired")
+        self.assertNotContains(response, "Tuzla")
+        self.assertContains(response, 'value="consultancy" selected')
+        self.assertNotContains(response, 'value="paid_internship"')
+
+    def test_unknown_type_ignored_and_sources_page_renders(self):
+        self.assertContains(self.client.get("/", {"type": "bogus"}), "Driver")
+        self.assertContains(self.client.get("/sources/"), "Embassy A")
