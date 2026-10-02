@@ -616,6 +616,28 @@ def rmk_links(client, source, soup, evidence):
 TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
 
 
+def rai_links(source, soup):
+    """Regional Anti-Corruption Initiative (Sarajevo). Current calls appear as info boxes above a Year/Title/Type/Status table; open vacancy or consultancy rows of that table also count, closed and cancelled ones do not."""
+    table = next((table for table in soup.find_all("table") if "Status" in [cell.get_text(" ", strip=True) for cell in table.find("tr").find_all(["th", "td"])]), None) if soup.find("table") else None
+    if table is None:
+        raise ValueError("RAI tenders and vacancies table missing")
+    result = []
+    for box in soup.select(".info_box"):
+        if re.search(r"no tenders or vacancies|currently closed", box.get_text(" ", strip=True), re.I):
+            continue
+        for link in box.find_all("a", href=True):
+            result.append((canonicalize(urljoin(source.url, link["href"])), box.get_text(" ", strip=True)[:400]))
+    for row in table.find_all("tr")[1:]:
+        cells = row.find_all("td")
+        link = cells[1].find("a", href=True) if len(cells) >= 4 else None
+        if not link:
+            continue
+        kind, status = cells[2].get_text(" ", strip=True), cells[3].get_text(" ", strip=True)
+        if re.search(r"vacanc|consultan|open call|intern", kind, re.I) and not re.search(r"closed|cancel|complet|selected|finished", status, re.I):
+            result.append((canonicalize(urljoin(source.url, link["href"])), link.get_text(" ", strip=True)[:400]))
+    return [(url, title) for url, title in dict.fromkeys(result) if trusted_host(urlsplit(url).hostname or "", "rai-see.org")]
+
+
 def taleo_date(value):
     try:
         return datetime.strptime(value, "%b %d, %Y").date()
@@ -788,6 +810,8 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "rai":
+        return rai_links(source, soup)
     elif source.adapter == "rmk":
         return rmk_links(client, source, soup, evidence)
     elif source.adapter == "bamboohr":

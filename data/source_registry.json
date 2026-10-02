@@ -843,6 +843,19 @@
     ]
   },
   {
+    "name": "Regionalna antikorupcijska inicijativa (RAI) – Sekretarijat",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://rai-see.org/",
+    "evidence_url": "https://rai-see.org/tenders-and-vacancies/",
+    "verified_at": "2026-10-02",
+    "notes": "Međuvladina organizacija jugoistočne Evrope sa sekretarijatom u Sarajevu.",
+    "sources": [
+      {"url": "https://rai-see.org/tenders-and-vacancies/", "adapter": "rai", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Stranica Tenders and Vacancies: aktuelni pozivi u okvirima iznad tabele, te otvoreni redovi tabele (vrsta Vacancy/Consultancy/Open Call). Oglasi su PDF dokumenti. Provjereno 2026-10-02: nema aktuelnih oglasa."}
+    ]
+  },
+  {
     "name": "Regionalna kancelarija za saradnju mladih (RYCO) – Lokalni ured u Sarajevu",
     "kind": "international",
     "country": "",

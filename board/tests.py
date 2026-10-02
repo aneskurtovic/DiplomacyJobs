@@ -1190,6 +1190,24 @@ class RmkAdapterTests(TestCase):
             discover_links(None, self.source, first, {})
 
 
+class RaiAdapterTests(TestCase):
+    def test_current_boxes_and_open_vacancy_rows(self):
+        organization = Organization.objects.create(name="RAI", kind="international")
+        source = Source.objects.create(organization=organization, adapter="rai", url="https://rai-see.org/tenders-and-vacancies/")
+        html = (
+            '<div class="info_box"><h4>Project Officer (Sarajevo)</h4><a href="/php_sets/uploads/2026/10/Vacancy_PO.pdf">Read more</a></div>'
+            '<div class="info_box"><h4>Internship Program - Currently closed</h4><a href="/internship/">More</a></div>'
+            '<table><tr><th>Year</th><th>Title</th><th>Type</th><th>Status</th></tr>'
+            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/09/Legal_Expert.pdf">Legal Expert</a></td><td>Consultancy</td><td>Open</td></tr>'
+            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/01/Comms.pdf">Communications Officer</a></td><td>Vacancy</td><td>Closed</td></tr>'
+            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/04/Tender.pdf">IT equipment</a></td><td>Tender</td><td>Open</td></tr></table>'
+        )
+        links = discover_links(None, source, BeautifulSoup(html, "html.parser"), {})
+        self.assertEqual([url for url, _ in links], ["https://rai-see.org/php_sets/uploads/2026/10/Vacancy_PO.pdf", "https://rai-see.org/php_sets/uploads/2026/09/Legal_Expert.pdf"])
+        with self.assertRaises(ValueError):
+            discover_links(None, source, BeautifulSoup("<p>Maintenance</p>", "html.parser"), {})
+
+
 class CsodAdapterTests(TestCase):
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_token_read_and_ba_postings_kept(self, _):
