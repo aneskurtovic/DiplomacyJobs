@@ -631,7 +631,7 @@ TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}|\d{1,2}/[A-Z][a-z]{2}/\d{
 
 def rai_links(source, soup):
     """Regional Anti-Corruption Initiative (Sarajevo). Current calls appear as info boxes above a Year/Title/Type/Status table; open vacancy or consultancy rows of that table also count, closed and cancelled ones do not."""
-    table = next((table for table in soup.find_all("table") if "Status" in [cell.get_text(" ", strip=True) for cell in table.find("tr").find_all(["th", "td"])]), None) if soup.find("table") else None
+    table = next((table for table in soup.find_all("table") if table.find("tr") and "Status" in [cell.get_text(" ", strip=True) for cell in table.find("tr").find_all(["th", "td"])]), None)
     if table is None:
         raise ValueError("RAI tenders and vacancies table missing")
     result = []
@@ -714,6 +714,8 @@ def lanteria_links(client, source, evidence):
         openings, _ = json.JSONDecoder().raw_decode(response.text[start + len("jobOpenings:"):].lstrip())
     except ValueError as exc:
         raise ValueError("Lanteria job list changed shape") from exc
+    if not isinstance(openings, list):
+        raise ValueError("Lanteria job list changed shape")
     result = []
     for opening in openings:
         places = opening.get("locations") or []
@@ -1151,7 +1153,7 @@ def ingest_source(source_id):
             if not discovered_links and not (source.adapter_config or {}).get("allow_empty", False):
                 raise ValueError("No vacancy links matched; verify selector before treating as empty")
             # Without a no-vacancies note or a result count, an empty listing may be a changed layout; it must not close live jobs.
-            unconfirmed_empty = source.adapter in ("generic", "japan", "swiss") and not (source.adapter_config or {}).get("empty_text")
+            unconfirmed_empty = source.adapter in ("generic", "japan", "swiss", "lanteria") and not (source.adapter_config or {}).get("empty_text")
             if not discovered_links and unconfirmed_empty and source.jobs.filter(status="published").exists():
                 raise ValueError("Listing is suddenly empty while jobs are published; verify the page before treating it as empty")
             # URL columns hold 1000 characters; on PostgreSQL a longer one would roll back the whole source.
