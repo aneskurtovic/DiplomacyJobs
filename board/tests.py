@@ -685,3 +685,18 @@ class AdminActionTests(TestCase):
         job = Job.objects.get(title="Open")
         self.assertEqual((job.status, job.closed_reason), ("closed", "manual"))
         self.assertIsNotNone(job.last_reviewed_at)
+
+
+@override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class StaleSourceTests(TestCase):
+    def test_stale_source_unavailable_and_scrape_health_fails(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        organization = Organization.objects.create(name="Embassy Stale", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", status="verified", enabled=True, last_success_at=timezone.now(), last_attempt_at=timezone.now())
+        self.assertEqual(self.client.get("/health/scrape/").status_code, 200)
+        self.assertContains(self.client.get("/sources/", {"status": "empty"}), "Embassy Stale")
+        Source.objects.filter(pk=source.pk).update(last_success_at=timezone.now() - timedelta(hours=49), last_attempt_at=timezone.now() - timedelta(hours=49))
+        self.assertEqual(self.client.get("/health/scrape/").status_code, 503)
+        self.assertContains(self.client.get("/sources/", {"status": "unavailable"}), "Embassy Stale")
+        self.assertEqual(self.client.get("/health/").status_code, 200)

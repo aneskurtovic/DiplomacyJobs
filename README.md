@@ -46,6 +46,6 @@ docker compose exec web python manage.py import_registry
 docker compose exec web python manage.py createsuperuser
 ```
 
-Proxy the hostname to `127.0.0.1:8000`, forwarding `Host` and `X-Forwarded-Proto`. Use the actual HTTPS hostname in `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. The database has no public port. Run `docker compose exec -T db pg_dump -U diplomacyjobs diplomacyjobs > backup.sql` from the host for a backup. Verify restoring that backup to a separate PostgreSQL database before launch. Monitor `/health/`, Compose logs, and the source coverage page.
+Proxy the hostname to `127.0.0.1:8000`, forwarding `Host` and `X-Forwarded-Proto`. Use the actual HTTPS hostname in `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. The database has no public port. Run `docker compose exec -T db pg_dump -U diplomacyjobs diplomacyjobs > backup.sql` from the host for a backup. Verify restoring that backup to a separate PostgreSQL database before launch. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable.
 
 This checkout does not contain the server hostname, access credentials, or a complete verified mission inventory. The app should not be publicly described as comprehensive until the inventory and 10-source gate are complete.

@@ -7,6 +7,8 @@ from django.shortcuts import render
 from django.utils import timezone
 from .models import Job, Organization, Source
 
+STALE_AFTER = timedelta(hours=48)
+
 
 def jobs(request):
     today = timezone.localdate()
@@ -41,7 +43,9 @@ def sources(request):
     for organization in organizations:
         for source in organization.sources.all() or [None]:
             last_check_failed = bool(source and source.last_attempt_at and (not source.last_success_at or source.last_attempt_at > source.last_success_at))
-            if source and (source.status in ("blocked", "failing") or last_check_failed):
+            # If the daily run stops, old counts must not keep reading as a healthy source.
+            stale = bool(source and source.enabled and source.last_success_at and source.last_success_at < timezone.now() - STALE_AFTER)
+            if source and (source.status in ("blocked", "failing") or last_check_failed or stale):
                 status = "unavailable"
             elif source and source.enabled and source.status == "verified" and source.last_success_at:
                 status = "partial" if (source.adapter_config or {}).get("partial_listing") else "available" if counts.get(source.pk, 0) else "review" if review_counts.get(source.pk, 0) else "empty"
@@ -60,3 +64,10 @@ def sources(request):
 
 def health(request):
     return HttpResponse("ok", content_type="text/plain")
+
+
+def scrape_health(request):
+    """For external monitoring. /health/ stays a liveness check because the scheduler container waits on it."""
+    stale = Source.objects.filter(enabled=True).exclude(adapter="none").filter(Q(last_success_at__isnull=True) | Q(last_success_at__lt=timezone.now() - STALE_AFTER))
+    names = list(stale.values_list("url", flat=True)[:20])
+    return HttpResponse("ok" if not names else "stale:\n" + "\n".join(names), content_type="text/plain", status=200 if not names else 503)
