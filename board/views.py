@@ -77,6 +77,16 @@ def sources(request):
     return render(request, "board/sources.html", {"rows": visible_rows, "total": len(rows), "organizations_total": organizations.count(), "shown": len(visible_rows), "totals": totals, "selected": selected, "open_jobs": published.count(), "latest": latest})
 
 
+def robots(request):
+    lines = ["User-agent: *", "Disallow: /admin/", "Disallow: /health/", f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}"]
+    return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
+
+
+def sitemap(request):
+    urls = "".join(f"<url><loc>{request.build_absolute_uri(path)}</loc><changefreq>daily</changefreq></url>" for path in ("/", "/sources/"))
+    return HttpResponse(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', content_type="application/xml")
+
+
 def health(request):
     return HttpResponse("ok", content_type="text/plain")
 

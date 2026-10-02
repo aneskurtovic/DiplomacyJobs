@@ -3,7 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block title %}DiplomacyJobs{% endblock %}</title>
+  <title>{% block title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH · DiplomacyJobs{% endblock %}</title>
+  {% with description="Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." %}
+  <meta name="description" content="{% block description %}{{ description }}{% endblock %}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DiplomacyJobs">
+  <meta property="og:title" content="{% block og_title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH{% endblock %}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:locale" content="bs_BA">
+  {% endwith %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">

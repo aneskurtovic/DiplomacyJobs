@@ -738,3 +738,16 @@ class AdminReviewQueueTests(TestCase):
         self.assertContains(response, "Godina objave nije potvrđena")
         self.assertContains(response, "https://a.example/1")
         self.assertNotContains(response, "Past lead")
+
+
+@override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class SeoTests(TestCase):
+    def test_meta_robots_and_sitemap(self):
+        page = self.client.get("/sources/").content.decode()
+        self.assertIn('<meta name="description" content="Koje službene izvore', page)
+        self.assertIn('<link rel="canonical" href="http://testserver/sources/">', page)
+        self.assertIn('<meta property="og:description" content="Provjereni oglasi', self.client.get("/").content.decode())
+        robots = self.client.get("/robots.txt").content.decode()
+        self.assertIn("Disallow: /admin/\n", robots)
+        self.assertIn("Sitemap: http://testserver/sitemap.xml", robots)
+        self.assertContains(self.client.get("/sitemap.xml"), "<loc>http://testserver/sources/</loc>")
