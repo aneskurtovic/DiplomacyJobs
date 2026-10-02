@@ -786,6 +786,12 @@ class AdminActionTests(TestCase):
         publish_jobs(admin, None, Job.objects.all())
         self.assertEqual(dict(Job.objects.values_list("title", "status")), {"Open": "published", "Expired": "review"})
         admin.message_user.assert_called_once()
+        disabled = Source.objects.create(organization=organization, url="https://off.example/jobs", enabled=False)
+        Job.objects.create(source=disabled, canonical_url="https://off.example/1", title="Off")
+        admin.reset_mock()
+        publish_jobs(admin, None, Job.objects.filter(title="Off"))
+        self.assertEqual(Job.objects.get(title="Off").status, "review")
+        admin.message_user.assert_called_once()
         close_jobs(admin, None, Job.objects.filter(title="Open"))
         job = Job.objects.get(title="Open")
         self.assertEqual((job.status, job.closed_reason), ("closed", "manual"))
@@ -830,6 +836,13 @@ class AdminReviewQueueTests(TestCase):
         source = Source.objects.create(organization=Organization.objects.create(name="Org", kind="embassy"), url="https://b.example/jobs")
         ScrapeRun.objects.create(source=source, success=False, error="Unusable response: HTTP 202")
         self.assertContains(self.client.get("/admin/board/source/"), "Greška: Unusable response: HTTP 202")
+        for index in range(10):
+            ScrapeRun.objects.create(source=Source.objects.create(organization=source.organization, url=f"https://c{index}.example/jobs"), success=True, candidates=index)
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        with CaptureQueriesContext(connection) as queries:
+            self.client.get("/admin/board/source/")
+        self.assertLess(len(queries), 12, "source list must not query runs per row")
 
 
 @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})

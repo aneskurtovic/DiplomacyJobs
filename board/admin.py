@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import OuterRef, Subquery
 from django.utils import timezone
 from django.utils.html import format_html
 from .models import Job, Organization, ScrapeRun, Source, SourceDocument
@@ -17,20 +18,26 @@ class SourceAdmin(admin.ModelAdmin):
     list_filter = ("adapter", "status", "enabled")
     search_fields = ("organization__name", "url")
 
+    def get_queryset(self, request):
+        latest = ScrapeRun.objects.filter(source=OuterRef("pk")).order_by("-started_at")
+        return super().get_queryset(request).select_related("organization").annotate(run_success=Subquery(latest.values("success")[:1]), run_candidates=Subquery(latest.values("candidates")[:1]), run_error=Subquery(latest.values("error")[:1]))
+
     @admin.display(description="Posljednje pokretanje")
     def last_run(self, obj):
-        run = obj.runs.order_by("-started_at").first()
-        if run is None:
+        if obj.run_success is None:
             return "—"
-        return f"{run.candidates} kandidata" if run.success else f"Greška: {run.error[:120]}"
+        return f"{obj.run_candidates} kandidata" if obj.run_success else f"Greška: {obj.run_error[:120]}"
 
 
 @admin.action(description="Objavi odabrane oglase")
 def publish_jobs(modeladmin, request, queryset):
     expired = queryset.filter(deadline__lt=timezone.localdate()).count()
+    disabled = queryset.filter(source__enabled=False).exclude(deadline__lt=timezone.localdate()).count()
     queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate()).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
     if expired:
         modeladmin.message_user(request, f"{expired} oglas(a) nije objavljeno jer je rok istekao.", level="warning")
+    if disabled:
+        modeladmin.message_user(request, f"{disabled} oglas(a) nije objavljeno jer je izvor isključen.", level="warning")
 
 
 @admin.action(description="Zatvori odabrane oglase")
