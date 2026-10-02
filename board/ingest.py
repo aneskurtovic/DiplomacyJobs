@@ -57,6 +57,7 @@ class Candidate:
     reason: str = ""
     excluded: bool = False
     opportunity_type: str = "employment"
+    scope: str = ""
 
 
 def canonicalize(url):
@@ -430,7 +431,9 @@ def oracle_links(client, source, evidence):
         published = (detail.get("ExternalPostedStartDate") or "")[:10]
         closing = oracle_closing_date(detail.get("ExternalPostedEndDate"))
         description = BeautifulSoup(detail.get("ExternalDescriptionStr") or "", "html.parser").get_text(" ", strip=True)
-        evidence[url] = f"{detail.get('Title', '')}. Location: {detail.get('PrimaryLocation', '')}. " + (f"Published {published}. " if published else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        # Agency, grade and contract type sit in flex fields, not in the description.
+        flex = " ".join(f"{field['Prompt']}: {field['Value']}." for field in detail.get("requisitionFlexFields") or [] if field.get("Prompt") in ("Agency", "Grade", "Vacancy Type") and field.get("Value"))
+        evidence[url] = f"{detail.get('Title', '')}. Location: {detail.get('PrimaryLocation', '')}. {flex} " + (f"Published {published}. " if published else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
         result.append((url, (detail.get("Title") or requisition.get("Title") or "")[:400]))
     return result
 
@@ -579,6 +582,21 @@ def opportunity_type(title):
     return "employment"
 
 
+NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
+INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|\(s\d?\)", re.I)
+
+
+def recruitment_scope(title, text):
+    """National or international post, from explicit grade or recruitment markers near the top. Mixed or missing evidence stays unknown. ERA only hosts locally employed staff vacancies, so its jobs are national."""
+    for evidence in (title, text[:800]):
+        national, international = bool(NATIONAL.search(evidence)), bool(INTERNATIONAL.search(evidence))
+        if national != international:
+            return "national" if national else "international"
+        if national:
+            return ""
+    return ""
+
+
 def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     title = listing_title
     structured_published = None
@@ -672,7 +690,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title))
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text))
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
@@ -728,10 +746,10 @@ def ingest_source(source_id):
             seen = {url for url, _ in discovered_links}
             for candidate in candidates:
                 SourceDocument.objects.create(source=source, url=candidate.url, content_hash=candidate.content_hash, text=candidate.text)
-                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
+                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
                 if not created:
                     protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
-                    for field, value in {"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "opportunity_type": candidate.opportunity_type, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility}.items():
+                    for field, value in {"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility}.items():
                         if field not in protected:
                             setattr(job, field, value)
                     review_reason = candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")

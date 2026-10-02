@@ -751,3 +751,18 @@ class SeoTests(TestCase):
         self.assertIn("Disallow: /admin/\n", robots)
         self.assertIn("Sitemap: http://testserver/sitemap.xml", robots)
         self.assertContains(self.client.get("/sitemap.xml"), "<loc>http://testserver/sources/</loc>")
+
+
+class RecruitmentScopeTests(TestCase):
+    def test_markers_decide_and_conflicts_stay_unknown(self):
+        from .ingest import recruitment_scope
+        cases = [
+            ("Project Associate", "Agency: UNDP. Grade: NPSA-9. Vacancy Type: National Personnel Service Agreement.", "national"),
+            ("Chief, General Services (S3)", "", "international"),
+            ("Purchasing Administrator", "Post no. CL FIN 0056 Grade: LCH-6", "national"),
+            ("Senior Project Officer", "Recruitment type: External recruitment (international)", "international"),
+            ("Driver", "Licence categories B and D1 required.", ""),
+            ("Programme Officer (P3 / NOC)", "", ""),
+        ]
+        for title, text, expected in cases:
+            self.assertEqual(recruitment_scope(title, text), expected, title)

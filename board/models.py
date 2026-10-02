@@ -69,6 +69,7 @@ class Job(models.Model):
     title = models.CharField(max_length=400)
     city = models.CharField(max_length=100, blank=True)
     opportunity_type = models.CharField(max_length=30, choices=TYPE, default="employment")
+    scope = models.CharField(max_length=20, choices=[("national", "Nacionalna pozicija"), ("international", "Međunarodna pozicija")], blank=True)
     deadline = models.DateField(null=True, blank=True)
     open_until_filled = models.BooleanField(default=False)
     location_evidence = models.TextField(blank=True)
