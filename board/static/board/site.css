@@ -14,6 +14,7 @@ a:hover{color:#0a3459}
 .footer{margin:64px auto 30px;color:#52606d;font-size:13px;border-top:1px solid #dce1e6;padding-top:20px}
 .eyebrow,.card-kicker{color:#0f4c81;font-size:12px;font-weight:700;letter-spacing:.08em}
 h1,h2,h3,p{overflow-wrap:anywhere}
+h1{font-size:2em;margin-block:.67em}
 
 /* Jobs page uses the same visual language as the supplied source design. */
 .hero{padding:58px 0 34px;max-width:790px}

@@ -1,5 +1,5 @@
 from datetime import timedelta
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.http import HttpResponse
@@ -50,7 +50,9 @@ def jobs(request):
     for job in page:
         job.days_left = (job.deadline - today).days if job.deadline else None
         job.is_new = job.first_seen_at >= timezone.now() - timedelta(days=3)
-    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
+    # The feed takes the same filters, so the current search can be followed.
+    feed_query = urlencode({key: filters[name] for key, name in (("q", "search"), ("employer", "employer"), ("city", "city"), ("type", "kind"), ("scope", "scope")) if filters[name]})
+    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
 
 
 def sources(request):

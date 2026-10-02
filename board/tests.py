@@ -874,6 +874,17 @@ class PublicViewTests(TestCase):
         from .text import fold
         self.assertEqual([fold(word) for word in ("Švicarska", "ĐURĐEVDAN", "djurdjevdan", "Žepče")], ["svicarska", "durdevdan", "durdevdan", "zepce"])
 
+    def test_filtered_page_links_its_feed_and_a_reset(self):
+        content = self.client.get("/", {"city": "Mostar", "page": "1"}).content.decode()
+        self.assertIn('href="/feed/?city=Mostar"', content)
+        self.assertIn("Poništi filtere", content)
+        self.assertIn('<span class="visually-hidden">: Legal Consultant</span>', content)
+        plain = self.client.get("/").content.decode()
+        self.assertNotIn("Poništi filtere", plain)
+        self.assertIn('type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="/feed/"', plain)
+        sources = self.client.get("/sources/").content.decode()
+        self.assertIn('<meta property="og:description" content="Koje službene izvore', sources)
+
     def test_feed_lists_visible_jobs_with_filters(self):
         feed = self.client.get("/feed/")
         self.assertEqual(feed["Content-Type"].split(";")[0], "application/atom+xml")
