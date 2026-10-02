@@ -486,13 +486,27 @@ class IngestRulesTests(TestCase):
         self.assertTrue(self.run_ingest().success)
         job = self.source.jobs.get()
         self.assertEqual((job.status, job.deadline, job.source_published_at), ("published", date(2026, 10, 30), date(2026, 9, 1)))
-        self.listing()
+        self.listing(("other", "Vacancy: Driver", "Published 01.09.2026. Deadline 30.10.2026."))
         self.run_ingest()
         job.refresh_from_db()
         self.assertEqual((job.status, job.missing_scans), ("published", 1))
         self.run_ingest()
         job.refresh_from_db()
         self.assertEqual(job.status, "closed")
+
+    def test_unconfirmed_empty_listing_does_not_close_live_jobs(self):
+        self.run_ingest()
+        self.listing()
+        run = self.run_ingest()
+        self.assertFalse(run.success)
+        self.assertIn("suddenly empty", run.error)
+        self.assertEqual(self.source.jobs.get().status, "published")
+        self.source.adapter_config = {"allow_empty": True, "empty_text": "No vacancies"}
+        self.source.save()
+        self.pages[self.source.url] = "<p>No vacancies</p>"
+        self.run_ingest()
+        self.assertTrue(self.run_ingest().success)
+        self.assertEqual(self.source.jobs.get().status, "closed")
 
     def test_failed_scan_never_closes(self):
         self.run_ingest()

@@ -800,6 +800,10 @@ def ingest_source(source_id):
             discovered_links = discover_links(client, source, soup, evidence)
             if not discovered_links and not (source.adapter_config or {}).get("allow_empty", False):
                 raise ValueError("No vacancy links matched; verify selector before treating as empty")
+            # Without a no-vacancies note or a result count, an empty listing may be a changed layout; it must not close live jobs.
+            unconfirmed_empty = source.adapter in ("generic", "japan", "swiss") and not (source.adapter_config or {}).get("empty_text")
+            if not discovered_links and unconfirmed_empty and source.jobs.filter(status="published").exists():
+                raise ValueError("Listing is suddenly empty while jobs are published; verify the page before treating it as empty")
             links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title)]
             if (source.adapter_config or {}).get("partial_listing"):
                 known = source.jobs.filter(status="published").values_list("canonical_url", "title")
