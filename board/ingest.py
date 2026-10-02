@@ -1,10 +1,11 @@
 """Conservative official-source ingestion. A link is a lead, never proof of a job."""
 import hashlib
+import json
 import re
 import ssl
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from urllib.parse import urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
+from urllib.parse import unquote, urljoin, urlsplit, urlunsplit, parse_qsl, urlencode
 
 import httpx
 from bs4 import BeautifulSoup
@@ -137,8 +138,8 @@ def fetch(client, url):
     return soup.get_text(" ", strip=True), soup
 
 
-def fetch_json(client, url, payload=None):
-    response = client.get(url) if payload is None else client.post(url, json=payload)
+def fetch_json(client, url, payload=None, headers=None):
+    response = client.get(url, headers=headers) if payload is None else client.post(url, json=payload, headers=headers)
     response.raise_for_status()
     if response.status_code != 200 or "json" not in response.headers.get("content-type", "").lower():
         raise ValueError(f"Unusable JSON response: HTTP {response.status_code}, {response.headers.get('content-type', '')}")
@@ -525,6 +526,65 @@ def csod_links(client, source, evidence):
     return result
 
 
+TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
+
+
+def taleo_date(value):
+    try:
+        return datetime.strptime(value, "%b %d, %Y").date()
+    except ValueError:
+        return None
+
+
+def taleo_links(client, source, evidence):
+    """Oracle Taleo career section (WHO). Its job board REST search is paged through and rows are kept by a BiH location; the detail page carries the closing date in an encoded field list."""
+    parts = urlsplit(source.url)
+    section = re.search(r"/careersection/([A-Za-z0-9_]+)/", parts.path)
+    # The portal number sits only in the page's scripts, so the registry records it.
+    portal = str((source.adapter_config or {}).get("portal", ""))
+    if parts.scheme != "https" or not section or not portal.isdigit():
+        raise ValueError("Taleo career section or adapter_config portal missing")
+    api = f"https://{parts.hostname}/careersection/rest/jobboard/searchjobs?lang=en&portal={portal}"
+    # totalCount runs a few above the rows the board will ever list (WHO: 59 against 56), so the end of the list is proven by a short page instead.
+    rows, complete = {}, False
+    for page in range(1, 21):
+        payload = {"multilineEnabled": False, "sortingSelection": {"sortBySelectionParam": "3", "ascendingSortingOrder": "false"}, "fieldData": {"fields": {"KEYWORD": "", "LOCATION": ""}, "valid": True}, "filterSelectionParam": {"searchFilterSelections": []}, "advancedSearchFiltersSelectionParam": {"searchFilterSelections": []}, "pageNo": page}
+        # Taleo answers 500 without the visitor's time zone.
+        data = fetch_json(client, api, payload, {"tz": "GMT+01:00"})
+        listed, size = data.get("requisitionList"), (data.get("pagingData") or {}).get("pageSize")
+        if not isinstance(listed, list) or not isinstance(size, int) or size < 1:
+            raise ValueError("Taleo response changed shape")
+        before = len(rows)
+        for row in listed:
+            rows[str(row["contestNo"])] = row
+        # Past the end the board repeats its last page.
+        if len(listed) < size or len(rows) == before:
+            complete = True
+            break
+    if not complete:
+        raise ValueError(f"Taleo list did not end within 20 pages; read {len(rows)} postings")
+    result = []
+    for number, row in rows.items():
+        title, places, posted = (row.get("column") or ["", "[]", ""])[:3]
+        places = json.loads(places) if places.startswith("[") else [places]
+        if not any(LOCATION.search(place) for place in places):
+            continue
+        url = f"https://{parts.hostname}/careersection/{section.group(1)}/jobdetail.ftl?job={number}"
+        _, detail = fetch(client, url + "&tz=GMT%2B01%3A00")
+        history = detail.find("input", id="initialHistory") if detail else None
+        if not history:
+            raise ValueError("Taleo job detail changed shape")
+        fields = [unquote(field).replace("!*!", "").replace("\\", "") for field in history.get("value", "").split("!|!")]
+        # Fields come in pairs (posting date, closing date, ...); the first two distinct dates are publication and closing.
+        dates = list(dict.fromkeys(match.group(0) for field in fields for match in [TALEO_DATE.match(field)] if match))
+        opened = taleo_date(dates[0]) if dates else taleo_date((TALEO_DATE.match(posted) or [""])[0])
+        closing = taleo_date(dates[1]) if len(dates) > 1 else None
+        description = BeautifulSoup(max(fields, key=len), "html.parser").get_text(" ", strip=True)
+        evidence[canonicalize(url)] = f"{title}. Location: {', '.join(places)}. " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        result.append((canonicalize(url), title[:400]))
+    return result
+
+
 UN_BIH_STATIONS = {"SARAJEVO", "BANJA LUKA", "MOSTAR", "TUZLA", "BRCKO", "BRČKO", "BIHAC", "BIHAĆ", "ZENICA"}
 
 
@@ -610,7 +670,7 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
@@ -643,6 +703,8 @@ def discover_links(client, source, soup, evidence=None):
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
         return csod_links(client, source, evidence)
+    elif source.adapter == "taleo":
+        return taleo_links(client, source, evidence)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):

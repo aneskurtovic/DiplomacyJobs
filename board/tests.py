@@ -999,6 +999,40 @@ class UnCareersShortPageTests(TestCase):
                 discover_links(client, source, None, {})
 
 
+def taleo_site(request):
+    if request.url.path.endswith("/searchjobs"):
+        assert request.headers["tz"] == "GMT+01:00"
+        page = json.loads(request.content)["pageNo"]
+        geneva = [{"contestNo": str(2600000 + n), "column": [f"Officer {n}", '["Switzerland-Geneva"]', "Sep 30, 2026, 9:00:00 AM"]} for n in range(2)]
+        sarajevo = {"contestNo": "2604321", "column": ["National Professional Officer (Health Systems)", '["Bosnia and Herzegovina-Sarajevo"]', "Sep 29, 2026, 4:12:00 PM"]}
+        rows = geneva if page == 1 else [sarajevo]
+        return httpx.Response(200, json={"requisitionList": rows, "pagingData": {"currentPageNo": page, "pageSize": 2, "totalCount": 4}})
+    assert request.url.params["job"] == "2604321"
+    fields = ["ftlx0", "National Professional Officer (Health Systems)", "NO-B", "Sep 29, 2026, 4%5C:12%5C:00 PM", "Sep 29, 2026, 4%5C:12%5C:00 PM", "Oct 13, 2026, 10%5C:59%5C:00 PM", "Oct 13, 2026, 10%5C:59%5C:00 PM", "Bosnia and Herzegovina-Sarajevo", "%3Cp%3EThe incumbent supports the WHO Country Office in Bosnia and Herzegovina, Sarajevo, on health system reform and coordination with national authorities.%3C/p%3E"]
+    page = f'<html><body><input type="hidden" id="initialHistory" value="{"!|!".join(fields)}"></body></html>'
+    return httpx.Response(200, text=page, headers={"content-type": "text/html"})
+
+
+class TaleoAdapterTests(TestCase):
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_pages_read_and_bih_row_dated_from_detail(self, _):
+        organization = Organization.objects.create(name="WHO", kind="international")
+        source = Source.objects.create(organization=organization, adapter="taleo", url="https://careers.who.int/careersection/ex/jobsearch.ftl", adapter_config={"portal": "101430233"})
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(taleo_site)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual(links, [("https://careers.who.int/careersection/ex/jobdetail.ftl?job=2604321", "National Professional Officer (Health Systems)")])
+        candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 29), date(2026, 10, 13), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_portal_required(self):
+        organization = Organization.objects.create(name="WHO", kind="international")
+        source = Source.objects.create(organization=organization, adapter="taleo", url="https://careers.who.int/careersection/ex/jobsearch.ftl")
+        with self.assertRaisesRegex(ValueError, "portal"):
+            discover_links(None, source, None, {})
+
+
 class CsodAdapterTests(TestCase):
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_token_read_and_ba_postings_kept(self, _):

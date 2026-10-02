@@ -804,6 +804,19 @@
     ]
   },
   {
+    "name": "Svjetska zdravstvena organizacija (WHO) – Ured u BiH",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.who.int/europe/countries/bosnia-and-herzegovina",
+    "evidence_url": "https://careers.who.int/careersection/ex/jobsearch.ftl",
+    "verified_at": "2026-10-02",
+    "notes": "Državni ured WHO-a u Sarajevu. Oglasi s globalnog karijernog portala WHO-a, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://careers.who.int/careersection/ex/jobsearch.ftl", "adapter": "taleo", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "portal": "101430233"}, "notes": "WHO karijere (Oracle Taleo). REST pretraga oglasne ploče, sve stranice; rok s detalja oglasa. Provjereno 2026-10-02: 56 oglasa u svijetu, nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Ured visokog predstavnika (OHR)",
     "kind": "international",
     "country": "",
