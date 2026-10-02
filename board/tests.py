@@ -1038,6 +1038,8 @@ class RecruitmentScopeTests(TestCase):
             ("Programme Officer (P3 / NOC)", "", ""),
             ("Programme Associate", "Applicant(s) must be citizens of Bosnia and Herzegovina.", ""),
             ("Finance Assistant, GS-5", "National(s) of Bosnia and Herzegovina only.", "national"),
+            ("Project Assistant, SB-3", "", "national"),
+            ("Programme Associate", "Contract type: Service Contract, SC-7.", "national"),
         ]
         for title, text, expected in cases:
             self.assertEqual(recruitment_scope(title, text), expected, title)

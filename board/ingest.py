@@ -520,7 +520,8 @@ def csod_links(client, source, evidence):
     site = re.search(r"/careersite/(\d+)/", parts.path)
     if parts.scheme != "https" or not (parts.hostname or "").endswith(".csod.com") or not site:
         raise ValueError("Cornerstone career site missing from source URL")
-    response = client.get(source.url)
+    # The token sits in a script, which fetch strips, so the raw page is read.
+    response = request(client, "get", source.url)
     response.raise_for_status()
     token, cloud = re.search(r'"token"\s*:\s*"([^"]+)"', response.text), re.search(r'"cloud"\s*:\s*"(https://[a-z0-9.-]+\.csod\.com)/?"', response.text)
     if not token or not cloud:
@@ -529,9 +530,7 @@ def csod_links(client, source, evidence):
     postings, page, total = [], 1, None
     while page <= 10:
         body = {"careerSiteId": int(site.group(1)), "careerSitePageId": int(site.group(1)), "pageNumber": page, "pageSize": 100, "cultureId": 1, "searchText": "", "cultureName": "en-US", "states": [], "countryCodes": [], "cities": [], "placeID": "", "radius": None, "postingsWithinDays": None, "customFieldCheckboxKeys": [], "customFieldDropdowns": [], "customFieldRadios": []}
-        reply = client.post(f"{cloud.group(1)}/rec-job-search/external/jobs", json=body, headers=headers)
-        reply.raise_for_status()
-        data = reply.json().get("data") or {}
+        data = fetch_json(client, f"{cloud.group(1)}/rec-job-search/external/jobs", body, headers).get("data") or {}
         if "totalCount" not in data:
             raise ValueError("Cornerstone search response changed shape")
         total = data["totalCount"]
@@ -824,7 +823,7 @@ def opportunity_type(title):
     return "employment"
 
 
-NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
+NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|sb-?[1-5]|sc-?\d{1,2}|service contract|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
 INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
 
 
