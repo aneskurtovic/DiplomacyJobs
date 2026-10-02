@@ -1063,6 +1063,9 @@ class CityTests(TestCase):
             ("Field office Bihac", "Bihać"),
             ("Mjesto rada: Goražde", "Goražde"),
             ("Duty Station : Tuzla", "Tuzla"),
+            ("Mjesto rada: u Sarajevu", "Sarajevo"),
+            ("Radno mjesto u Banjoj Luci", "Banja Luka"),
+            ("Kancelarija u Mostaru", "Mostar"),
         ]
         for text, expected in cases:
             self.assertTrue(LOCATION.search(text), text)
@@ -1246,7 +1249,8 @@ class RaiAdapterTests(TestCase):
             '<table><tr><th>Year</th><th>Title</th><th>Type</th><th>Status</th></tr>'
             '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/09/Legal_Expert.pdf">Legal Expert</a></td><td>Consultancy</td><td>Open</td></tr>'
             '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/01/Comms.pdf">Communications Officer</a></td><td>Vacancy</td><td>Closed</td></tr>'
-            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/04/Tender.pdf">IT equipment</a></td><td>Tender</td><td>Open</td></tr></table>'
+            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/04/Tender.pdf">IT equipment</a></td><td>Tender</td><td>Open</td></tr>'
+            '<tr><td>2026</td><td><a href="/php_sets/uploads/2026/05/Audit.pdf">Audit services</a></td><td>International tender</td><td>Open</td></tr></table>'
         )
         links = discover_links(None, source, BeautifulSoup(html, "html.parser"), {})
         self.assertEqual([url for url, _ in links], ["https://rai-see.org/php_sets/uploads/2026/10/Vacancy_PO.pdf", "https://rai-see.org/php_sets/uploads/2026/09/Legal_Expert.pdf"])
@@ -1257,7 +1261,20 @@ class RaiAdapterTests(TestCase):
 TALEO_FTL_PAGE = '<html><body><input type="hidden" id="initialHistory" value="ftlx0!|!jobsearch_processSearchInitialHistory%21%24%21requisitionListInterface!|!listRequisition!|!171111!|!Civilian%20Advisor%20!|!264001!|!Bosnia%20and%20Herzegovina-Sarajevo!|!false!|!05-Nov-2026%2C%201%5C%3A59%5C%3A00%20AM!|!NATO%20Headquarter%20Sarajevo%20%28NHQSa%29!|!NATO%20Grade%20G15!|!Apply!|!Submission%20for%20the%20position%5C%3A%20Civilian%20Advisor%20%20-%20%28Job%20Number%5C%3A%20264001%29!|!false!|!listRequisition.nbElements!|!1"></body></html>'
 
 
+TALEO_FTL_TWO = '<html><body><input type="hidden" id="initialHistory" value="ftlx0!|!listRequisition!|!Head%20of%20Office%20-%20Legal!|!264001!|!Bosnia%20and%20Herzegovina-Sarajevo!|!05-Nov-2026%2C%201%5C%3A59%5C%3A00%20AM!|!NATO%20Headquarter%20Sarajevo%20%28NHQSa%29!|!Submission%20for%20the%20position%5C%3A%20Head%20of%20Office%20-%20Legal%20-%20%28Job%20Number%5C%3A%20264001%29!|!Logistics%20Officer!|!264002!|!Belgium-Mons!|!06-Nov-2026%2C%201%5C%3A59%5C%3A00%20AM!|!NATO%20Headquarter%20Sarajevo%20%28NHQSa%29!|!Submission%20for%20the%20position%5C%3A%20Logistics%20Officer%20-%20%28Job%20Number%5C%3A%20264002%29!|!listRequisition.nbElements!|!2"></body></html>'
+
+
 class TaleoFtlAdapterTests(TestCase):
+    def test_location_field_decides_not_the_organization_label(self):
+        organization = Organization.objects.create(name="NATO HQ Sarajevo", kind="international")
+        source = Source.objects.create(organization=organization, adapter="taleoftl", url="https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146")
+        evidence = {}
+        page = lambda request: httpx.Response(200, text=TALEO_FTL_TWO, headers={"content-type": "text/html"})
+        with httpx.Client(transport=httpx.MockTransport(page)) as client:
+            links = discover_links(client, source, None, evidence)
+        self.assertEqual([title for _, title in links], ["Head of Office - Legal"])
+        self.assertIn("Location: Bosnia and Herzegovina-Sarajevo.", evidence[links[0][0]])
+
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_encoded_list_read_and_closing_day_corrected(self, _):
         organization = Organization.objects.create(name="NATO HQ Sarajevo", kind="international")
@@ -1288,6 +1305,9 @@ class SuccessFactorsRssTests(TestCase):
         with httpx.Client(transport=httpx.MockTransport(feed)) as client:
             links = discover_links(client, source, None, evidence)
         self.assertEqual(links, [("https://jobs.ilo.org/job/Sarajevo-National-Project-Officer/1442900033", "National Project Officer - Grant Officer - NOA")])
+        reordered = ILO_FEED.replace("National Project Officer - Grant Officer - NOA", "Grant Officer").replace("Location: Sarajevo Contract type", "Location: Sarajevo Job ID: 13900 Contract type")
+        with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(200, content=reordered.encode(), headers={"content-type": "application/rss+xml"}))) as client:
+            self.assertEqual(len(discover_links(client, source, None, {})), 1, "a BiH location followed by any label is kept")
         candidate = make_candidate(source, links[0][0], links[0][1], evidence[links[0][0]], None)
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city, candidate.scope), (date(2026, 9, 28), date(2026, 10, 12), "Sarajevo", "national"))
         self.assertTrue(candidate.eligible and candidate.year_proven)

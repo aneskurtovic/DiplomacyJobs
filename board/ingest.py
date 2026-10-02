@@ -24,7 +24,7 @@ TARGET_YEAR = 2026
 MAX_DETAIL_LINKS = 100
 MAX_LISTING_PAGES = 10
 # Cities with the spellings sources use (one-word Banjaluka, ASCII Brcko and Bihac).
-CITIES = {"Sarajevo": r"sarajevo", "Banja Luka": r"banja\s?luka", "Mostar": r"mostar", "Brčko": r"br[cč]ko", "Tuzla": r"tuzla", "Zenica": r"zenica", "Bijeljina": r"bijeljina", "Trebinje": r"trebinje", "Bihać": r"biha[cć]", "Doboj": r"doboj", "Prijedor": r"prijedor", "Travnik": r"travnik", "Goražde": r"gora[zž]de", "Livno": r"livno", "Cazin": r"cazin"}
+CITIES = {"Sarajevo": r"sarajev[oua]", "Banja Luka": r"banj(?:a|oj|e)[\s-]?lu(?:k[aeu]|ci)", "Mostar": r"mostar[ua]?", "Brčko": r"br[cč]k[oau]m?", "Tuzla": r"tuzl[aeiu]", "Zenica": r"zenic[aeiu]", "Bijeljina": r"bijeljin[aeiu]", "Trebinje": r"trebinj[eua]", "Bihać": r"biha[cć][ua]?", "Doboj": r"doboj[ua]?", "Prijedor": r"prijedor[ua]?", "Travnik": r"travnik[ua]?", "Goražde": r"gora[zž]de", "Livno": r"livno", "Cazin": r"cazin"}
 CITY = re.compile(r"\b(" + "|".join(CITIES.values()) + r")\b", re.I)
 LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|" + "|".join(CITIES.values()) + r")\b", re.I)
 # A labelled duty station names the job's city even when the text mentions another one first (the embassy's seat).
@@ -638,7 +638,9 @@ def rai_links(source, soup):
     for box in soup.select(".info_box"):
         if re.search(r"no tenders or vacancies|currently closed", box.get_text(" ", strip=True), re.I):
             continue
-        for link in box.find_all("a", href=True):
+        # A box may link the terms of reference and a form; its first link is the advert.
+        link = box.find("a", href=True)
+        if link:
             result.append((canonicalize(urljoin(source.url, link["href"])), box.get_text(" ", strip=True)[:400]))
     for row in table.find_all("tr")[1:]:
         cells = row.find_all("td")
@@ -646,7 +648,7 @@ def rai_links(source, soup):
         if not link:
             continue
         kind, status = cells[2].get_text(" ", strip=True), cells[3].get_text(" ", strip=True)
-        if re.search(r"vacanc|consultan|open call|intern", kind, re.I) and not re.search(r"closed|cancel|complet|selected|finished", status, re.I):
+        if re.search(r"vacanc|consultan|open call|\bintern(?!ational)", kind, re.I) and not re.search(r"closed|cancel|complet|selected|finished", status, re.I):
             result.append((canonicalize(urljoin(source.url, link["href"])), link.get_text(" ", strip=True)[:400]))
     return [(url, title) for url, title in dict.fromkeys(result) if trusted_host(urlsplit(url).hostname or "", "rai-see.org")]
 
@@ -685,16 +687,17 @@ def taleoftl_links(client, source, evidence):
         if not match:
             continue
         block, start = fields[start:index], index + 1
-        place = next((value for value in block if re.fullmatch(r"[A-Z][A-Za-z ]+-[A-Za-z .()'-]+", value) and not value.startswith(("Re-apply", "Apply"))), "")
+        title = match.group(1).strip()
+        place = next((value for value in block if re.fullmatch(r"[A-Z][A-Za-z ]*[A-Za-z]-[A-Z][A-Za-z .()'-]*", value) and value.strip() != title and not value.startswith(("Re-apply", "Apply"))), "")
         closing = next((taleo_ftl_closing(value) for value in block if re.match(r"\d{1,2}-[A-Za-z]{3}-\d{4}", value)), None)
         url = canonicalize(f"https://{parts.hostname}/careersection/{section.group(1)}/jobdetail.ftl?job={match.group(2)}")
-        title = match.group(1).strip()
         labels = [value for value in dict.fromkeys(block) if re.search(r"[A-Za-z]{3}", value) and value not in (title, place, "false", "true") and "!$!" not in value and not re.match(r"(?:Apply|Re-apply|Add |listRequisition|ftlx|\d{1,2}-[A-Za-z]{3}-)", value)]
         evidence[url] = f"{title}. Location: {place}. " + (f"Closing date {closing.isoformat()}. " if closing else "") + ". ".join(labels)[:1000]
-        result.append((url, title[:400]))
+        result.append((url, title[:400], place))
     if len(result) != total:
         raise ValueError(f"Taleo shows {len(result)} of {total} jobs; add pagination")
-    return [(url, title) for url, title in result if LOCATION.search(evidence[url])]
+    # The organization label (NATO Headquarter Sarajevo) names Sarajevo for every job, so only the location field decides.
+    return [(url, title) for url, title, place in result if LOCATION.search(place)]
 
 
 def lanteria_links(client, source, evidence):
@@ -750,8 +753,8 @@ def sfrss_links(client, source, evidence):
         if urlsplit(url).hostname != parts.hostname or not urlsplit(url).path.startswith("/job/"):
             continue
         description = BeautifulSoup(item.findtext("description") or "", "html.parser").get_text(" ", strip=True)
-        place = re.search(r"\bLocation:\s*([^:]{0,60}?)\s+(?:[A-Z][a-z]+(?: [a-z]+)*:|$)", description)
-        if not LOCATION.search(title) and not (place and LOCATION.search(place.group(1))):
+        place = re.search(r"\bLocation:\s*(.{0,40})", description)
+        if not LOCATION.search(title) and not (place and LOCATION.match(place.group(1))):
             continue
         posted = item.findtext("pubDate") or ""
         opened = parse_date(" ".join(posted.split()[1:4])) if posted else None
