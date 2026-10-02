@@ -60,7 +60,7 @@ class SourceDocument(models.Model):
 
 class Job(models.Model):
     STATUS = [("review", "Na provjeri"), ("published", "Objavljeno"), ("closed", "Zatvoreno")]
-    CLOSED_REASON = [("deadline", "Istekao rok"), ("missing", "Nestao sa izvora"), ("stale", "Bez roka, zastario"), ("manual", "Zatvoren ručno")]
+    CLOSED_REASON = [("deadline", "Istekao rok"), ("missing", "Nestao sa izvora"), ("stale", "Bez roka, zastario"), ("withdrawn", "Povučen na izvoru"), ("manual", "Zatvoren ručno")]
     TYPE = [("employment", "Zaposlenje"), ("paid_internship", "Plaćena praksa"), ("consultancy", "Individualni konsultantski angažman")]
     source = models.ForeignKey(Source, on_delete=models.PROTECT, related_name="jobs")
     external_id = models.CharField(max_length=250, blank=True)

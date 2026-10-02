@@ -575,6 +575,46 @@ class IngestRulesTests(TestCase):
         expire_jobs()
         self.assertEqual(dict(Job.objects.values_list("title", "closed_reason")), {"Expired lead": "deadline", "Old undated lead": "stale", "Fresh undated lead": ""})
 
+    def test_late_2026_lead_with_2027_deadline_goes_to_review(self):
+        self.listing(("driver", "Vacancy: Driver", "Deadline 15.01.2027."))
+        self.run_on(date(2026, 12, 10))
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.deadline), ("review", date(2027, 1, 15)))
+
+    def test_deadline_extended_into_2027_keeps_job_open(self):
+        self.listing(("driver", "Vacancy: Driver", "Published 01.12.2026. Deadline 20.12.2026."))
+        self.run_on(date(2026, 12, 10))
+        self.listing(("driver", "Vacancy: Driver", "Published 01.12.2026. Deadline 20.12.2026, extended until 15.01.2027."))
+        self.run_on(date(2026, 12, 18))
+        from .ingest import expire_jobs
+        with patch("board.ingest.timezone.localdate", return_value=date(2026, 12, 21)):
+            expire_jobs()
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.deadline), ("published", date(2027, 1, 15)))
+
+    def test_closed_notice_withdraws_even_reviewed_job(self):
+        self.run_ingest()
+        Job.objects.update(last_reviewed_at=Job.objects.get().first_seen_at)
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026. Unfortunately, this position has been closed."))
+        self.run_ingest()
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.closed_reason), ("closed", "withdrawn"))
+
+    def test_reviewed_job_back_to_review_when_source_changes_and_fails_checks(self):
+        self.run_ingest()
+        Job.objects.update(last_reviewed_at=Job.objects.get().first_seen_at)
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026. Duty station moved to Belgrade, Serbia."))
+        self.pages["https://emb.example/jobs/officer"] = "<h1>Vacancy: Political Officer</h1><p>Duty station: Belgrade, Serbia. Published 01.09.2026. Deadline 30.10.2026.</p>"
+        self.run_ingest()
+        self.assertEqual(self.source.jobs.get().status, "review")
+
+    def test_duplicate_anchor_fetched_once_with_first_title(self):
+        self.pages[self.source.url] = '<a href="/jobs/officer">Vacancy: Political Officer</a><a href="/jobs/officer">Read more about this vacancy</a>'
+        self.pages["https://emb.example/jobs/officer"] = "<p>Location: Sarajevo. Published 01.09.2026. Deadline 30.10.2026. Vacancy notice.</p>"
+        self.run_ingest()
+        from .models import SourceDocument
+        self.assertEqual((self.source.jobs.get().title, SourceDocument.objects.count()), ("Vacancy: Political Officer", 1))
+
     def test_ai_fields_kept_and_changed_source_sent_to_review(self):
         self.run_ingest()
         job = self.source.jobs.get()
@@ -622,6 +662,8 @@ class DenmarkItalyAdapterTests(TestCase):
 
     def test_denmark_note_and_same_host_links(self):
         self.assertEqual(discover_links(None, self.denmark, BeautifulSoup("<h1>Vacancies</h1><p>No current vacancies</p>", "html.parser")), [])
+        with self.assertRaises(ValueError):
+            discover_links(None, self.denmark, BeautifulSoup("<h1>Vacancies</h1><p>Page under construction</p>", "html.parser"))
         html = '<a href="/Bosnien-Hercegovina/en/about-us/vacancies/driver-position">Driver position</a><a href="https://jobs.example.com/x">Job portal</a>'
         self.assertEqual(discover_links(None, self.denmark, BeautifulSoup(html, "html.parser")), [("https://um.dk/Bosnien-Hercegovina/en/about-us/vacancies/driver-position", "Driver position")])
 

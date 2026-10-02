@@ -58,6 +58,7 @@ class Candidate:
     excluded: bool = False
     opportunity_type: str = "employment"
     scope: str = ""
+    withdrawn: bool = False
 
 
 def canonicalize(url):
@@ -206,7 +207,13 @@ def listing_links(source, soup):
             if required_path and required_path not in urlsplit(url).path:
                 continue
         links.append((canonicalize(url), title[:400]))
-    links = list(dict.fromkeys(links))
+    # The same vacancy is often linked twice ("Driver", "Read more"); the first anchor carries the title.
+    first_titles = {}
+    for url, title in links:
+        first_titles.setdefault(url, title)
+    links = list(first_titles.items())
+    if not links and source.adapter == "denmark":
+        raise ValueError("Danish vacancies page has neither vacancies nor its no-vacancies note")
     # empty_text: the page's own no-vacancies note; without it, an empty page means the layout changed.
     if not links and config.get("empty_text") and config["empty_text"].lower() not in soup.get_text(" ", strip=True).lower():
         raise ValueError("Listing has neither vacancy links nor its no-vacancies note")
@@ -763,12 +770,13 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         in_scope_year = int(path_year.group(1)) == TARGET_YEAR
         year_proven = in_scope_year
     elif deadline:
-        in_scope_year = deadline.year == TARGET_YEAR
+        # A late-2026 posting may close in 2027; without a publication date it still goes to review.
+        in_scope_year = deadline.year >= TARGET_YEAR
         year_proven = False
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text))
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed)
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
@@ -818,9 +826,9 @@ def ingest_source(source_id):
                     else:
                         text, detail_soup = fetch(client, url)
                         candidate = make_candidate(source, url, title, text, detail_soup, evidence.get(url, ""))
-                    skip_if_new = candidate.excluded or bool(candidate.deadline and candidate.deadline < timezone.localdate())
-                    # Expired vacancies and excluded kinds (scholarships, tenders) are not worth a review entry; known jobs still refresh.
-                    if candidate.in_scope_year and (not skip_if_new or source.jobs.filter(canonical_url=candidate.url).exists()):
+                    skip_if_new = candidate.excluded or candidate.withdrawn or bool(candidate.deadline and candidate.deadline < timezone.localdate())
+                    # Expired, withdrawn and excluded leads are not worth a review entry; known jobs always refresh, even when their deadline moved into 2027.
+                    if source.jobs.filter(canonical_url=candidate.url).exists() or (candidate.in_scope_year and not skip_if_new):
                         candidates.append(candidate)
                 except FETCH_ERRORS as exc:
                     raise ValueError(f"Vacancy detail failed: {url}: {exc}") from exc
@@ -836,6 +844,7 @@ def ingest_source(source_id):
                             setattr(job, field, value)
                     review_reason = candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")
                     # A source change after AI enrichment waits for a human, also on later unchanged scans.
+                    source_changed = job.content_hash != candidate.content_hash
                     ai_changed = bool(job.field_evidence.get("ai_fields")) and (job.content_hash != candidate.content_hash or (job.status == "review" and job.field_evidence.get("review_reason") == AI_CHANGED))
                     if ai_changed:
                         job.status = "review"
@@ -858,8 +867,13 @@ def ingest_source(source_id):
                         job.status = "review"
                     if not candidate.eligible and job.status == "published" and not job.last_reviewed_at:
                         job.status = "review"
+                    # A reviewed job is trusted until its source changes and it no longer qualifies.
+                    if not candidate.eligible and job.status == "published" and job.last_reviewed_at and source_changed:
+                        job.status = "review"
                     if expired and job.status != "closed":
                         job.status, job.closed_reason = "closed", "deadline"
+                    if candidate.withdrawn and job.status != "closed":
+                        job.status, job.closed_reason = "closed", "withdrawn"
                     job.save()
             if not (source.adapter_config or {}).get("partial_listing"):
                 for job in Job.objects.filter(source=source, status__in=("published", "review")).exclude(canonical_url__in=seen):
