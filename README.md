@@ -18,11 +18,11 @@ python -m venv .venv
 .venv\Scripts\python manage.py runserver
 ```
 
-Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, and admin at `/admin/`. Development defaults to SQLite. The imported registry enables the three complete sources and the partial OSCE feed that passed live checks; the board may still be empty when none has an open 2026 vacancy.
+Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, and admin at `/admin/`. Development defaults to SQLite. The imported registry enables the eight complete sources and the partial OSCE feed that passed live checks; the board may still be empty when none has an open 2026 vacancy.
 
 ## Operations
 
-The [source registry](data/source_registry.json) is an evidence-backed starting set. The [MFA candidate inventory](data/mfa_inventory.json) distinguishes local and nonresident missions. Complete international and honorary-consulate reconciliation before launch. Three complete sources (Denmark, Italy, and the EU Delegation) and one partial OSCE feed have passed live checks. All other sources require validation before enabling. The launch threshold is at least 10 complete working sources.
+The [source registry](data/source_registry.json) is an evidence-backed starting set. The [MFA candidate inventory](data/mfa_inventory.json) distinguishes local and nonresident missions. Complete international and honorary-consulate reconciliation before launch. Eight complete sources (Denmark, Italy, EU Delegation, UN in BiH, OHR, EUFOR, EBRD, RCC) and one partial OSCE feed have passed live checks. All other sources require validation before enabling. The launch threshold is at least 10 complete working sources.
 
 Run one fetch with `python manage.py scrape_jobs --source ID` or all enabled sources with `python manage.py scrape_jobs`. The dedicated Compose scheduler runs this daily. Errors are recorded per run; a failed run does not remove jobs. Scrape details are visible in admin. The scraper lock file is `/tmp/diplomacyjobs-scrape.lock` in the container.
 

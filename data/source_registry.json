@@ -544,6 +544,32 @@
     "sources": []
   },
   {
+    "name": "Evropska banka za obnovu i razvoj (EBRD)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.ebrd.com/",
+    "evidence_url": "https://jobs.ebrd.com/",
+    "verified_at": "2026-10-02",
+    "notes": "Rezidentni ured u Sarajevu; oglasi na globalnom EBRD portalu.",
+    "sources": [
+      {"url": "https://jobs.ebrd.com/search/?q=&locationsearch=Sarajevo", "adapter": "ebrd", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Pretraga bez pogotka vraća najnovije svjetske oglase, pa adapter zadržava samo redove s lokacijom ', BA'. Provjereno 2026-10-02: nema BiH oglasa."}
+    ]
+  },
+  {
+    "name": "EUFOR (Operacija EU Althea)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.euforbih.org/",
+    "evidence_url": "https://www.euforbih.org/index.php/vacancies-a",
+    "verified_at": "2026-10-02",
+    "notes": "Lokalni civilni angažmani (LCH) u štabu EUFOR-a, Butmir.",
+    "sources": [
+      {"url": "https://www.euforbih.org/index.php/vacancies-a", "adapter": "eufor", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Svaki oglas ima PDF opis posla i rok; datum objave nije naveden pa oglasi idu na administratorsku provjeru. Provjereno 2026-10-02: 2 otvorena oglasa."}
+    ]
+  },
+  {
     "name": "General Honorary Consulate of Republic of Albania in Sarajevo",
     "kind": "honorary",
     "country": "ALBANIA",
@@ -641,6 +667,19 @@
     "sources": []
   },
   {
+    "name": "Regionalno vijeće za saradnju (RCC)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.rcc.int/",
+    "evidence_url": "https://www.rcc.int/vacancies",
+    "verified_at": "2026-10-02",
+    "notes": "Sekretarijat RCC-a je u Sarajevu; ured za vezu je u Briselu.",
+    "sources": [
+      {"url": "https://www.rcc.int/vacancies", "adapter": "rcc", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartica poziva (datum objave, rok) je dokaz jer je dokumentacija ZIP. Pozivi za briselski ured idu na provjeru. Provjereno 2026-10-02: nema otvorenih poziva; struktura potvrđena arhivom od 2025-02-15."}
+    ]
+  },
+  {
     "name": "SERBIA - Consulate General in Banja Luka",
     "kind": "consulate",
     "country": "SERBIA",
@@ -659,13 +698,23 @@
     "website": "https://bosniaherzegovina.un.org/bhs",
     "evidence_url": "https://bosniaherzegovina.un.org/bhs/jobs",
     "verified_at": "2026-10-02",
-    "notes": "Službena stranica za radna mjesta; trenutno nije potvrđen strojno čitljiv popis oglasa.",
+    "notes": "Službena stranica UN tima u BiH agregira oglase agencija (UNICEF, UNDP, UNHCR...).",
     "sources": [
-      {
-        "url": "https://bosniaherzegovina.un.org/bhs/jobs",
-        "adapter": "none",
-        "status": "unsupported"
-      }
+      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali nakon nekoliko zahtjeva portal vraća HTTP 202 bez sadržaja (bot zaštita). Ne zaobilaziti; ponovo provjeriti s Hetzner servera. Do tada UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."},
+      {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
+    ]
+  },
+  {
+    "name": "Ured visokog predstavnika (OHR)",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.ohr.int/",
+    "evidence_url": "https://www.ohr.int/vacancies/",
+    "verified_at": "2026-10-02",
+    "notes": "Oglasi su podijeljeni na nacionalne, međunarodne, fellowship, praksu i konsultantske pozicije.",
+    "sources": [
+      {"url": "https://www.ohr.int/vacancies/", "adapter": "ohr", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Svaka sekcija mora imati tabelu ili izričitu napomenu da nema oglasa. Provjereno 2026-10-02: nema aktivnih oglasa."}
     ]
   }
 ]

@@ -24,7 +24,7 @@ OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north ma
 JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
 EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont|scholarship|stipendij|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
 DATE_TEXT = r"\d{1,2}[./-]\d{1,2}[./-]\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s+[A-Za-zčćšđž]{3,}\s+\d{4}|\b[A-Za-z]{3,}\s+\d{1,2},?\s+\d{4}"
-DEADLINE = re.compile(r"(?:deadline|closing date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,35}(" + DATE_TEXT + r")", re.I)
+DEADLINE = re.compile(r"(?:deadline|closing date|closing for applications?|posting end date|apply by|rok(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,35}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
@@ -102,6 +102,9 @@ def parse_published(text):
 def fetch(client, url):
     response = client.get(url)
     response.raise_for_status()
+    # Bot challenges answer 202/204 with an empty body; that must not read as "no vacancies".
+    if response.status_code != 200 or not response.content.strip():
+        raise ValueError(f"Unusable response: HTTP {response.status_code}, {len(response.content)} bytes")
     if len(response.content) > 5_000_000:
         raise ValueError("Document larger than 5 MB")
     content_type = response.headers.get("content-type", "").lower()
@@ -193,25 +196,197 @@ def eeas_page_links(source, soup):
     return result
 
 
-def discover_links(client, source, soup):
-    links = listing_links(source, soup)
-    if source.adapter == "eeas":
-        if not soup.select(".node--type-vacancy"):
-            raise ValueError("EEAS vacancy cards missing")
+def us_date(value):
+    try:
+        return datetime.strptime(value.strip(), "%m/%d/%Y").date()
+    except ValueError:
+        return None
+
+
+def unct_page_links(source, soup, evidence):
+    """Job cards on one page of the UN country team listing. Cards link to agency sites, so the card itself is the evidence."""
+    result = []
+    for card in soup.select("article.node--type-job-vacancy"):
+        link = card.select_one("a[href]")
+        if not link:
+            raise ValueError("UN job card without a link")
+        url = urljoin(source.url, link["href"])
+        # Agencies with their own source (e.g. UNICEF) are skipped to avoid duplicate jobs.
+        if urlsplit(url).scheme != "https" or urlsplit(url).hostname in (source.adapter_config or {}).get("skip_hosts", []):
+            continue
+        fields = [div.get_text(" ", strip=True) for div in card.select(".node__content > div > div")]
+        published = parse_date(fields[0]) if fields else None
+        card_text = card.get_text(" ", strip=True)
+        deadline = parse_deadline(card_text)
+        if deadline and deadline.year < TARGET_YEAR:
+            continue
+        url = canonicalize(url)
+        evidence[url] = (f"Published {published.isoformat()}. " if published else "") + card_text
+        result.append((url, link.get_text(" ", strip=True)[:400]))
+    return result
+
+
+def ohr_links(source, soup, evidence):
+    """Every OHR section is either an explicit 'no active vacancy' note or a table; anything else means the page changed."""
+    main = soup.select_one("main")
+    headings = main.find_all("h4") if main else []
+    if not headings:
+        raise ValueError("OHR vacancy sections missing")
+    result = []
+    for heading in headings:
+        block = heading.find_next_sibling(["p", "table"])
+        if block is not None and block.name == "p" and "no active vacancy" in block.get_text(" ", strip=True).lower():
+            continue
+        if block is None or block.name != "table":
+            raise ValueError(f"OHR section without vacancy table: {heading.get_text(' ', strip=True)}")
+        for row in block.select("tbody tr"):
+            cells = row.find_all("td")
+            link = cells[0].find("a", href=True) if cells else None
+            if len(cells) < 3 or not link:
+                raise ValueError("OHR vacancy row changed shape")
+            url = urljoin(source.url, link["href"])
+            if not trusted_host(urlsplit(url).hostname or "", "ohr.int"):
+                continue
+            url = canonicalize(url)
+            closing = us_date(cells[2].get_text(" ", strip=True))
+            evidence[url] = f"{heading.get_text(' ', strip=True)}. Duty station: {cells[1].get_text(' ', strip=True)}." + (f" Closing date {closing.isoformat()}." if closing else "")
+            result.append((url, link.get_text(" ", strip=True)[:400]))
+    return result
+
+
+def eufor_links(source, soup, evidence):
+    """EUFOR lists local civilian hires as paragraphs linking a PDF job description, or says it has no vacancies."""
+    block = soup.select_one(".category-desc")
+    if block is None:
+        raise ValueError("EUFOR vacancy block missing")
+    result = []
+    for paragraph in block.find_all("p"):
+        link = paragraph.find("a", href=re.compile(r"\.pdf(?:\?|$)", re.I))
+        if not link:
+            continue
+        text = paragraph.get_text(" ", strip=True)
+        if not DEADLINE.search(text):
+            raise ValueError(f"EUFOR vacancy without closing date: {text[:80]}")
+        url = urljoin(source.url, link["href"])
+        if not trusted_host(urlsplit(url).hostname or "", "euforbih.org"):
+            continue
+        url = canonicalize(url)
+        evidence[url] = text
+        result.append((url, link.get_text(" ", strip=True)[:400]))
+    if not result and "do not have any vacancies" not in block.get_text(" ", strip=True).lower():
+        raise ValueError("EUFOR page has neither vacancies nor a no-vacancies note")
+    return result
+
+
+def unicef_links(source, soup):
+    """UNICEF careers keyword search. A 'More Jobs' control means the result set is truncated and coverage would be partial."""
+    if soup.select_one(".more-link"):
+        raise ValueError("UNICEF search results are paginated; narrow the search")
+    result = []
+    for link in soup.select("a.job-link[href]"):
+        url = urljoin(source.url, link["href"])
+        if urlsplit(url).hostname != "jobs.unicef.org" or not re.match(r"/en-us/job/\d+", urlsplit(url).path):
+            continue
+        result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
+    return list(dict.fromkeys(result))
+
+
+def ebrd_links(source, soup):
+    """EBRD SuccessFactors search. An unmatched location search falls back to the latest jobs worldwide, so rows are kept only by their BA location."""
+    rows = soup.select("tr.data-row")
+    if not rows and not soup.select_one("#searchresults, .searchResultsShell"):
+        raise ValueError("EBRD search results missing")
+    result = []
+    for row in rows:
+        link = row.select_one("a.jobTitle-link[href]")
+        location = row.select_one("td.colLocation .jobLocation")
+        if not link or not location:
+            raise ValueError("EBRD result row changed shape")
+        if not re.search(r",\s*BA$", location.get_text(" ", strip=True)):
+            continue
+        url = urljoin(source.url, link["href"])
+        if urlsplit(url).hostname != "jobs.ebrd.com":
+            continue
+        result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
+    label = soup.select_one(".paginationLabel")
+    total = re.search(r"of\s+(\d+)", label.get_text(" ", strip=True)) if label else None
+    if result and len(result) == len(rows) and total and int(total.group(1)) > len(rows):
+        raise ValueError("EBRD BiH results span several pages; add pagination")
+    return result
+
+
+def rcc_links(source, soup, evidence):
+    """RCC Secretariat calls: cards with publication date and deadline; documentation is a ZIP, so the card is the evidence."""
+    items = soup.select(".doc-item")
+    if not items:
+        if "there are currently no open vacancies" in soup.get_text(" ", strip=True).lower():
+            return []
+        raise ValueError("RCC page has neither vacancies nor a no-vacancies note")
+    result = []
+    for item in items:
+        title = item.select_one(".title")
+        link = item.find("a", href=re.compile(r"/vacancy_apps/|open_calls_zip"))
+        if not title or not link:
+            raise ValueError("RCC vacancy card changed shape")
+        url = urljoin(source.url, link["href"])
+        if not trusted_host(urlsplit(url).hostname or "", "rcc.int"):
+            continue
+        url = canonicalize(url)
+        name = re.sub(r"^[\d-]+\s*(?:Terms of Reference\s*)?", "", title.get_text(" ", strip=True))
+        text = item.get_text(" ", strip=True)
+        # The Secretariat sits in Sarajevo; only its Brussels liaison office is elsewhere, and those cards go to review.
+        if not re.search(r"brussels|liaison", text, re.I):
+            text += " Duty station: Sarajevo (RCC Secretariat)."
+        evidence[url] = text
+        result.append((url, name[:400]))
+    return result
+
+
+# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP.
+CARD_EVIDENCE = {"unct", "rcc"}
+PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
+
+
+def discover_links(client, source, soup, evidence=None):
+    """Listing leads as (url, title). Adapters may add per-URL listing evidence (card text, closing dates) to `evidence`."""
+    evidence = {} if evidence is None else evidence
+    if source.adapter == "unct":
+        if not soup.select_one(".view-jobs"):
+            raise ValueError("UN jobs view missing")
+        links = unct_page_links(source, soup, evidence)
+    elif source.adapter == "ohr":
+        return ohr_links(source, soup, evidence)
+    elif source.adapter == "eufor":
+        return eufor_links(source, soup, evidence)
+    elif source.adapter == "unicef":
+        return unicef_links(source, soup)
+    elif source.adapter == "ebrd":
+        return ebrd_links(source, soup)
+    elif source.adapter == "rcc":
+        return rcc_links(source, soup, evidence)
+    else:
+        links = listing_links(source, soup)
+    if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
+        raise ValueError("EEAS vacancy cards missing")
+    if source.adapter in PAGINATED and soup.select(PAGINATED[source.adapter]):
         for page in range(1, MAX_LISTING_PAGES + 1):
             parts = urlsplit(source.url)
             query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "page"] + [("page", str(page))]
             _, page_soup = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), "")))
-            if page_soup is None or not page_soup.select(".node--type-vacancy"):
+            if page_soup is None or not page_soup.select(PAGINATED[source.adapter]):
                 return list(dict.fromkeys(links))
-            links += eeas_page_links(source, page_soup)
-        raise ValueError(f"EEAS listing exceeds {MAX_LISTING_PAGES} pages; check the BiH filter")
+            page_links = eeas_page_links(source, page_soup) if source.adapter == "eeas" else unct_page_links(source, page_soup, evidence)
+            if page_links and set(page_links) <= set(links):
+                # Some listings repeat the last page past the end.
+                return list(dict.fromkeys(links))
+            links += page_links
+        raise ValueError(f"{source.adapter} listing exceeds {MAX_LISTING_PAGES} pages; check the BiH filter")
     return links
 
 
-def make_candidate(source, url, listing_title, text, soup):
+def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     title = listing_title
-    eeas_published = None
+    structured_published = None
     if source.adapter == "eeas" and soup:
         # Judge only the vacancy itself; site navigation mentions BiH and unrelated jobs.
         article = soup.select_one("article.node--type-vacancy")
@@ -219,11 +394,38 @@ def make_candidate(source, url, listing_title, text, soup):
             raise ValueError("EEAS vacancy article missing")
         meta = soup.select_one(".content-header .node__meta")
         published_match = re.search(r"\d{2}\.\d{2}\.\d{4}", meta.get_text(" ", strip=True)) if meta else None
-        eeas_published = parse_date(published_match.group(0)) if published_match else None
+        structured_published = parse_date(published_match.group(0)) if published_match else None
         text = article.get_text(" ", strip=True)
+    if source.adapter == "ohr" and soup:
+        main = soup.select_one("main article")
+        if main is None:
+            raise ValueError("OHR post missing")
+        date_tag = main.select_one(".date-publish")
+        structured_published = us_date(date_tag.get_text(" ", strip=True)) if date_tag else None
+        text = main.get_text(" ", strip=True)
+    if source.adapter == "unicef" and soup:
+        content = soup.select_one("#job-content")
+        if content is None:
+            raise ValueError("UNICEF job content missing")
+        opened = soup.select_one(".open-date time[datetime]")
+        structured_published = parse_date(opened["datetime"][:10]) if opened else None
+        text = content.get_text(" ", strip=True)
+    if source.adapter == "ebrd" and soup:
+        description = soup.select_one(".jobdescription")
+        if description is None:
+            raise ValueError("EBRD job description missing")
+        posted = soup.select_one("[itemprop=datePosted][content]")
+        try:
+            structured_published = datetime.strptime(posted["content"], "%a %b %d %H:%M:%S UTC %Y").date() if posted else None
+        except ValueError:
+            structured_published = None
+        text = description.get_text(" ", strip=True)
+    if listing_evidence:
+        text = f"{listing_evidence} {text}"
     if soup:
         heading = soup.find("h1")
-        if heading:
+        # UNICEF's h1 is the generic "Current vacancies".
+        if heading and source.adapter != "unicef":
             title = heading.get_text(" ", strip=True)[:400] or title
     excerpt = LOCATION.search(text)
     city = ""
@@ -232,9 +434,9 @@ def make_candidate(source, url, listing_title, text, soup):
         city = city_match.group(1).title() if city_match else ""
     location_evidence = text[max(0, excerpt.start()-75):excerpt.end()+75] if excerpt else ""
     deadline = parse_deadline(text) or parse_deadline(listing_title)
-    published = eeas_published or parse_published(text)
+    published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter == "eeas"
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
@@ -273,7 +475,8 @@ def ingest_source(source_id):
             listing_text, soup = fetch(client, source.url)
             if soup is None:
                 raise ValueError("Source listing must be HTML")
-            discovered_links = discover_links(client, source, soup)
+            evidence = {}
+            discovered_links = discover_links(client, source, soup, evidence)
             if not discovered_links and not (source.adapter_config or {}).get("allow_empty", False):
                 raise ValueError("No vacancy links matched; verify selector before treating as empty")
             links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title)]
@@ -285,8 +488,11 @@ def ingest_source(source_id):
             candidates = []
             for url, title in links:
                 try:
-                    text, detail_soup = fetch(client, url)
-                    candidate = make_candidate(source, url, title, text, detail_soup)
+                    if source.adapter in CARD_EVIDENCE:
+                        candidate = make_candidate(source, url, title, evidence[url], None)
+                    else:
+                        text, detail_soup = fetch(client, url)
+                        candidate = make_candidate(source, url, title, text, detail_soup, evidence.get(url, ""))
                     expired = bool(candidate.deadline and candidate.deadline < timezone.localdate())
                     # Already-expired vacancies are not worth a review entry; known jobs still refresh.
                     if candidate.in_scope_year and (not expired or source.jobs.filter(canonical_url=candidate.url).exists()):
