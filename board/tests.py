@@ -630,6 +630,16 @@ class IngestRulesTests(TestCase):
         for text, expected in cases:
             self.assertEqual(parse_deadline(text), expected, text)
 
+    def test_deadline_with_time_or_day_count_before_date(self):
+        cases = [
+            ("Deadline: 5 p.m., 15 March 2026", date(2026, 3, 15)),
+            ("Closing date: 12:00 CET, 1 November 2026", date(2026, 11, 1)),
+            ("Rok za prijavu: 15 dana od objave, najkasnije do 20.10.2026.", date(2026, 10, 20)),
+            ("Deadline: 17:00 h, 15.03.2026", date(2026, 3, 15)),
+        ]
+        for text, expected in cases:
+            self.assertEqual(parse_deadline(text), expected, text)
+
     def test_source_change_after_ai_keeps_human_closure(self):
         self.run_ingest()
         job = self.source.jobs.get()
