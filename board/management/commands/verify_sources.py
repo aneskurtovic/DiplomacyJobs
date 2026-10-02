@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from board.ingest import FETCH_ERRORS, TARGET_YEAR, discover_links, fetch, listing_link_in_scope, open_client
+from board.ingest import TARGET_YEAR, discover_links, fetch, listing_link_in_scope, open_client
 from board.models import Source
 
 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
                     if soup is None:
                         raise ValueError("Source listing must be HTML")
                     links = discover_links(client, source, soup, {})
-            except FETCH_ERRORS as exc:
+            except Exception as exc:  # an adapter shape error must not hide the remaining sources
                 failures += 1
                 self.stdout.write(f"FAIL {label}: {str(exc)[:200]}")
                 continue

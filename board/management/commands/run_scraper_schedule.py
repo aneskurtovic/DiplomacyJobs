@@ -1,7 +1,7 @@
 import signal
 import sys
 import time
-from datetime import timedelta
+from datetime import UTC, timedelta
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -18,7 +18,8 @@ def seconds_until_next_run(now):
     target = now.replace(hour=RUN_AT_HOUR, minute=0, second=0, microsecond=0)
     if target <= now:
         target += timedelta(days=1)
-    return (target - now).total_seconds()
+    # Aware datetimes in one zone subtract by wall clock; through UTC the DST change day is an hour shorter or longer.
+    return (target.astimezone(UTC) - now.astimezone(UTC)).total_seconds()
 
 
 class Command(BaseCommand):

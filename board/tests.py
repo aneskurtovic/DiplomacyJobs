@@ -613,6 +613,28 @@ class IngestRulesTests(TestCase):
         job = self.source.jobs.get()
         self.assertEqual((job.status, job.deadline), ("published", date(2027, 1, 15)))
 
+    def test_contract_extension_is_not_a_deadline_extension(self):
+        cases = [
+            ("Deadline for applications: 15 October 2026. Initial contract of one year, may be extended until 31 December 2027.", date(2026, 10, 15)),
+            ("Rok za prijave: 30.09.2026. Ugovor se može produžiti do 31.12.2027.", date(2026, 9, 30)),
+            ("Deadline 20.12.2026, extended until 15.01.2027.", date(2027, 1, 15)),
+            ("The deadline for applications has been extended to 20 October 2026.", date(2026, 10, 20)),
+            ("Rok za prijavu je produžen do 25.10.2026.", date(2026, 10, 25)),
+            ("Extended deadline: 5 November 2026", date(2026, 11, 5)),
+        ]
+        for text, expected in cases:
+            self.assertEqual(parse_deadline(text), expected, text)
+
+    def test_source_change_after_ai_keeps_human_closure(self):
+        self.run_ingest()
+        job = self.source.jobs.get()
+        job.status, job.closed_reason, job.field_evidence = "closed", "manual", {**job.field_evidence, "ai_fields": ["city"]}
+        job.save()
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026. Updated terms."))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.closed_reason), ("closed", "manual"))
+
     def test_closed_notice_withdraws_even_reviewed_job(self):
         self.run_ingest()
         Job.objects.update(last_reviewed_at=Job.objects.get().first_seen_at)
@@ -830,7 +852,8 @@ class StaleSourceTests(TestCase):
         from datetime import timedelta
         from django.utils import timezone
         organization = Organization.objects.create(name="Embassy Stale", kind="embassy")
-        source = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", status="verified", enabled=True, last_success_at=timezone.now(), last_attempt_at=timezone.now())
+        now = timezone.now()
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", status="verified", enabled=True, last_success_at=now, last_attempt_at=now)
         self.assertEqual(self.client.get("/health/scrape/").status_code, 200)
         self.assertContains(self.client.get("/sources/", {"status": "empty"}), "Embassy Stale")
         Source.objects.filter(pk=source.pk).update(last_success_at=timezone.now() - timedelta(hours=49), last_attempt_at=timezone.now() - timedelta(hours=49))
@@ -894,6 +917,8 @@ class RecruitmentScopeTests(TestCase):
             ("Senior Project Officer", "Recruitment type: External recruitment (international)", "international"),
             ("Driver", "Licence categories B and D1 required.", ""),
             ("Programme Officer (P3 / NOC)", "", ""),
+            ("Programme Associate", "Applicant(s) must be citizens of Bosnia and Herzegovina.", ""),
+            ("Finance Assistant, GS-5", "National(s) of Bosnia and Herzegovina only.", "national"),
         ]
         for title, text, expected in cases:
             self.assertEqual(recruitment_scope(title, text), expected, title)
@@ -904,7 +929,7 @@ def uncareers_api(request):
     page = body["pagination"]["page"]
     sarajevo = {"jobId": 300001, "postingTitle": "Coordination Officer, NOB", "jobLevel": "NO-B", "dutyStation": [{"description": "SARAJEVO"}], "startDate": "2026-09-30T04:00:00.000Z", "endDate": "2026-10-15T03:59:59.000Z", "dept": {"name": "Resident Coordinator Office"}, "jobDescription": "<p>Coordination.</p>"}
     vienna = {"jobId": 300002, "postingTitle": "Accounting Assistant, G4", "dutyStation": [{"description": "VIENNA"}], "startDate": "2026-10-01T04:00:00.000Z", "endDate": "2026-10-09T03:59:59.000Z"}
-    return httpx.Response(200, json={"data": {"count": 101, "list": [vienna] * 100 if page == 0 else [sarajevo]}})
+    return httpx.Response(200, json={"data": {"count": 101, "list": [{**vienna, "jobId": 200000 + n} for n in range(100)] if page == 0 else [sarajevo]}})
 
 
 class UnCareersAdapterTests(TestCase):
@@ -927,6 +952,19 @@ def csod_site(request):
     assert request.headers["Authorization"] == "Bearer anon123"
     rows = [{"requisitionId": 38336, "displayJobTitle": "Operations Analyst", "locations": [{"city": "Sarajevo", "country": "BA"}], "postingEffectiveDate": "9/18/2026", "postingExpirationDate": "10/9/2026", "externalDescription": "<p>Analyst role.</p>"}, {"requisitionId": 38502, "displayJobTitle": "Finance Analyst", "locations": [{"city": "Dakar", "country": "SN"}]}]
     return httpx.Response(200, json={"data": {"totalCount": 2, "requisitions": rows}})
+
+
+class UnCareersShortPageTests(TestCase):
+    def test_fewer_rows_than_count_fails(self):
+        organization = Organization.objects.create(name="UN", kind="international")
+        source = Source.objects.create(organization=organization, adapter="uncareers", url="https://careers.un.org/jobopening?language=en")
+        def short_pages(request):
+            page = json.loads(request.content)["pagination"]["page"]
+            rows = [{"jobId": page * 50 + n, "dutyStation": [{"description": "VIENNA"}]} for n in range(50)] if page < 2 else []
+            return httpx.Response(200, json={"data": {"count": 150, "list": rows}})
+        with httpx.Client(transport=httpx.MockTransport(short_pages)) as client:
+            with self.assertRaisesRegex(ValueError, "150 openings"):
+                discover_links(client, source, None, {})
 
 
 class CsodAdapterTests(TestCase):
@@ -1059,6 +1097,18 @@ class VerifySourcesTests(TestCase):
         self.assertIn("1 reachable, 1 failing", out.getvalue())
         self.assertFalse(ScrapeRun.objects.exists() or Job.objects.exists())
 
+    def test_adapter_shape_error_does_not_stop_the_check(self):
+        import io
+        from django.core.management import call_command
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
+        Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="generic", enabled=True)
+        soup = BeautifulSoup("<p>No jobs</p>", "html.parser")
+        out = io.StringIO()
+        with patch("board.management.commands.verify_sources.fetch", return_value=("", soup)), patch("board.management.commands.verify_sources.discover_links", side_effect=[KeyError("jobId"), []]):
+            call_command("verify_sources", stdout=out)
+        self.assertIn("1 reachable, 1 failing", out.getvalue())
+
 
 @override_settings(ALLOWED_HOSTS=["jobs.example.com"])
 class ProductionHostTests(TestCase):
@@ -1076,6 +1126,9 @@ class SchedulerTests(TestCase):
         self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 5, 30, tzinfo=sarajevo)), 30 * 60)
         self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 6, 0, tzinfo=sarajevo)), 24 * 60 * 60)
         self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 18, 0, tzinfo=sarajevo)), 12 * 60 * 60)
+        # Clocks go back on 25 October 2026 and forward on 28 March 2027.
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 24, 7, 0, tzinfo=sarajevo)), 24 * 60 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2027, 3, 27, 7, 0, tzinfo=sarajevo)), 22 * 60 * 60)
 
     def test_start_skips_run_when_scraped_recently_and_clears_lock(self):
         from .management.commands.run_scraper_schedule import Command

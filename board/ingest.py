@@ -29,7 +29,8 @@ INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*
 DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
 DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
-EXTENDED = re.compile(r"\b(?:extended|prolonged|produžen\w*|produljen\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
+# It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
+EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)\D{0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
 PUBLISHED = re.compile(r"\b(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
@@ -537,10 +538,10 @@ def uncareers_links(client, source, evidence):
         count = data["count"]
         for opening in data["list"]:
             openings[int(opening["jobId"])] = opening
-        if not data["list"] or (page + 1) * 100 >= count:
+        if not data["list"] or len(openings) >= count:
             break
         page += 1
-    if count and (page + 1) * 100 < count:
+    if len(openings) < count:
         raise ValueError(f"UN careers lists {count} openings; more than the pages read")
     result = []
     for job_id, opening in openings.items():
@@ -668,7 +669,7 @@ def opportunity_type(title):
 
 
 NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
-INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|\(s\d?\)", re.I)
+INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
 
 
 def recruitment_scope(title, text):
@@ -863,7 +864,11 @@ def ingest_source(source_id):
                     # A source change after AI enrichment waits for a human, also on later unchanged scans.
                     source_changed = job.content_hash != candidate.content_hash
                     ai_changed = bool(job.field_evidence.get("ai_fields")) and (job.content_hash != candidate.content_hash or (job.status == "review" and job.field_evidence.get("review_reason") == AI_CHANGED))
-                    if ai_changed:
+                    expired = bool(job.deadline and job.deadline < timezone.localdate())
+                    # An extended deadline or a job back on the listing reopens it; human and stale closures stay.
+                    if job.status == "closed" and job.closed_reason in REOPENABLE and not expired:
+                        job.status, job.closed_reason = "review", ""
+                    if ai_changed and job.status != "closed":
                         job.status = "review"
                         review_reason = AI_CHANGED
                     job.content_hash = candidate.content_hash
@@ -874,10 +879,6 @@ def ingest_source(source_id):
                     job.last_seen_at = now
                     job.last_checked_at = now
                     job.missing_scans = 0
-                    expired = bool(job.deadline and job.deadline < timezone.localdate())
-                    # An extended deadline or a job back on the listing reopens it; human and stale closures stay.
-                    if job.status == "closed" and job.closed_reason in REOPENABLE and not expired:
-                        job.status, job.closed_reason = "review", ""
                     if candidate.eligible and candidate.year_proven and job.status == "review" and not job.manually_edited_fields and not ai_changed:
                         job.status = "published"
                     if not candidate.year_proven and job.status == "published" and not job.last_reviewed_at:

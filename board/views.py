@@ -52,7 +52,8 @@ def jobs(request):
 def sources(request):
     organizations = Organization.objects.prefetch_related("sources").order_by("name")
     today = timezone.localdate()
-    cutoff = timezone.now() - timedelta(days=30)
+    # Undated leads stay in the review queue until expire_jobs closes them as stale after 60 days.
+    cutoff = timezone.now() - timedelta(days=60)
     published = visible_jobs()
     counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
     review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
