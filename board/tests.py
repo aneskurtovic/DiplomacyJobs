@@ -979,6 +979,30 @@ class SeoTests(TestCase):
         self.assertContains(self.client.get("/sitemap.xml"), "<loc>http://testserver/sources/</loc>")
 
 
+class CityTests(TestCase):
+    def test_spellings_and_labelled_station(self):
+        from .ingest import LOCATION, city_name
+        cases = [
+            ("Embassy in Sarajevo. Vacancy: Driver. Duty station: Banja Luka office", "Banja Luka"),
+            ("Location: Banjaluka", "Banja Luka"),
+            ("Brcko District of BiH", "Brčko"),
+            ("Field office Bihac", "Bihać"),
+            ("Mjesto rada: Goražde", "Goražde"),
+            ("Duty Station : Tuzla", "Tuzla"),
+        ]
+        for text, expected in cases:
+            self.assertTrue(LOCATION.search(text), text)
+            self.assertEqual(city_name(text), expected, text)
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_portal_adapters_accept_titles_without_job_words(self, _):
+        organization = Organization.objects.create(name="Agency", kind="international")
+        for adapter in ("taleo", "bamboohr", "rmk"):
+            source = Source.objects.create(organization=organization, adapter=adapter, url=f"https://{adapter}.example/jobs")
+            candidate = make_candidate(source, f"https://{adapter}.example/jobs/1", "Forensic Anthropologist", "Forensic Anthropologist. Location: Sarajevo, Bosnia and Herzegovina. Published 2026-09-30. Closing date 2026-12-01.", None)
+            self.assertTrue(candidate.eligible, adapter)
+
+
 class RecruitmentScopeTests(TestCase):
     def test_markers_decide_and_conflicts_stay_unknown(self):
         from .ingest import recruitment_scope

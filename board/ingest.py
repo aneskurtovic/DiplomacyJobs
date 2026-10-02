@@ -21,7 +21,17 @@ USER_AGENT = "DiplomacyJobs/0.1 (+official vacancy monitor; contact via site adm
 TARGET_YEAR = 2026
 MAX_DETAIL_LINKS = 100
 MAX_LISTING_PAGES = 10
-LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|sarajevo|banja luka|mostar|brčko|tuzla|zenica|bijeljina|trebinje)\b", re.I)
+# Cities with the spellings sources use (one-word Banjaluka, ASCII Brcko and Bihac).
+CITIES = {"Sarajevo": r"sarajevo", "Banja Luka": r"banja\s?luka", "Mostar": r"mostar", "Brčko": r"br[cč]ko", "Tuzla": r"tuzla", "Zenica": r"zenica", "Bijeljina": r"bijeljina", "Trebinje": r"trebinje", "Bihać": r"biha[cć]", "Doboj": r"doboj", "Prijedor": r"prijedor", "Travnik": r"travnik", "Goražde": r"gora[zž]de", "Livno": r"livno", "Cazin": r"cazin"}
+CITY = re.compile(r"\b(" + "|".join(CITIES.values()) + r")\b", re.I)
+LOCATION = re.compile(r"\b(bosnia(?: and | & )herzegovina|bosna i hercegovina|" + "|".join(CITIES.values()) + r")\b", re.I)
+# A labelled duty station names the job's city even when the text mentions another one first (the embassy's seat).
+STATION = re.compile(r"\b(?:duty station|location|work location|place of work|mjesto rada|lokacija)\W{0,5}[^.;\n]{0,40}?\b(" + "|".join(CITIES.values()) + r")\b", re.I)
+
+
+def city_name(text):
+    match = STATION.search(text) or CITY.search(text)
+    return next((name for name, pattern in CITIES.items() if match and re.fullmatch(pattern, match.group(1), re.I)), "")
 OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north macedonia|belgrade|zagreb|tirana|pristina)\b", re.I)
 JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
 EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
@@ -663,9 +673,6 @@ def taleo_links(client, source, evidence):
     return result
 
 
-UN_BIH_STATIONS = {"SARAJEVO", "BANJA LUKA", "MOSTAR", "TUZLA", "BRCKO", "BRČKO", "BIHAC", "BIHAĆ", "ZENICA"}
-
-
 def uncareers_links(client, source, evidence):
     """UN Secretariat careers (careers.un.org) public API. Keyword search also hits descriptions, so every opening is paged through and kept by its BiH duty station."""
     api = "https://careers.un.org/api/public/opening/jo/list/filteredV2/en"
@@ -685,7 +692,7 @@ def uncareers_links(client, source, evidence):
     result = []
     for job_id, opening in openings.items():
         stations = [station.get("description", "") for station in opening.get("dutyStation") or []]
-        if not any(station.upper() in UN_BIH_STATIONS for station in stations):
+        if not any(CITY.fullmatch(station.strip()) for station in stations):
             continue
         url = f"https://careers.un.org/jobSearchDescription/{job_id}?language=en"
         opened = (opening.get("startDate") or "")[:10]
@@ -907,13 +914,12 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     excerpt = LOCATION.search(text)
     city = ""
     if excerpt:
-        city_match = re.search(r"\b(Sarajevo|Banja Luka|Mostar|Brčko|Tuzla|Zenica|Bijeljina|Trebinje)\b", text, re.I)
-        city = city_match.group(1).title() if city_match else ""
+        city = city_name(text)
     location_evidence = text[max(0, excerpt.start()-75):excerpt.end()+75] if excerpt else ""
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
