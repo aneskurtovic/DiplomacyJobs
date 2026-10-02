@@ -744,7 +744,8 @@ def taleo_links(client, source, evidence):
 def uncareers_links(client, source, evidence):
     """UN Secretariat careers (careers.un.org) public API. Keyword search also hits descriptions, so every opening is paged through and kept by its BiH duty station."""
     api = "https://careers.un.org/api/public/opening/jo/list/filteredV2/en"
-    openings, page, count = {}, 0, None
+    # Rows read, not distinct ids, prove completeness: a job repeated across pages still counts once per row in the API's total.
+    openings, page, count, read = {}, 0, None, 0
     while page < 20:
         data = fetch_json(client, api, {"filterConfig": {}, "pagination": {"page": page, "itemPerPage": 100, "sortBy": "startDate", "sortDirection": -1}}).get("data") or {}
         if "count" not in data or not isinstance(data.get("list"), list):
@@ -752,10 +753,11 @@ def uncareers_links(client, source, evidence):
         count = data["count"]
         for opening in data["list"]:
             openings[int(opening["jobId"])] = opening
-        if not data["list"] or len(openings) >= count:
+        read += len(data["list"])
+        if not data["list"] or read >= count:
             break
         page += 1
-    if len(openings) < count:
+    if read < count:
         raise ValueError(f"UN careers lists {count} openings; more than the pages read")
     result = []
     for job_id, opening in openings.items():
