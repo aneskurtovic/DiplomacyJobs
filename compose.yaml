@@ -34,8 +34,8 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      # Django rejects Host: 127.0.0.1 in production, so the check presents the first public hostname.
-      test: ["CMD", "python", "-c", "import os, urllib.request as r; host = os.environ['DJANGO_ALLOWED_HOSTS'].split(',')[0].strip(); r.urlopen(r.Request('http://127.0.0.1:8000/health/', headers={'Host': host}), timeout=3)"]
+      # Django rejects Host: 127.0.0.1 in production, so the check presents the first public hostname (a wildcard entry becomes a name it matches).
+      test: ["CMD", "python", "-c", "import os, urllib.request as r; host = os.environ['DJANGO_ALLOWED_HOSTS'].split(',')[0].strip().lstrip('.').replace('*', 'localhost'); r.urlopen(r.Request('http://127.0.0.1:8000/health/', headers={'Host': host}), timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3
