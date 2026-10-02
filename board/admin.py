@@ -13,9 +13,16 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(Source)
 class SourceAdmin(admin.ModelAdmin):
-    list_display = ("organization", "adapter", "status", "enabled", "last_success_at", "consecutive_failures")
+    list_display = ("organization", "adapter", "status", "enabled", "last_success_at", "consecutive_failures", "last_run")
     list_filter = ("adapter", "status", "enabled")
     search_fields = ("organization__name", "url")
+
+    @admin.display(description="Posljednje pokretanje")
+    def last_run(self, obj):
+        run = obj.runs.order_by("-started_at").first()
+        if run is None:
+            return "—"
+        return f"{run.candidates} kandidata" if run.success else f"Greška: {run.error[:120]}"
 
 
 @admin.action(description="Objavi odabrane oglase")

@@ -746,6 +746,14 @@ class AdminReviewQueueTests(TestCase):
         self.assertContains(response, "https://a.example/1")
         self.assertNotContains(response, "Past lead")
 
+    def test_source_list_shows_last_run(self):
+        from django.contrib.auth.models import User
+        from .models import ScrapeRun
+        self.client.force_login(User.objects.create_superuser("admin2", "b@example.com", "x"))
+        source = Source.objects.create(organization=Organization.objects.create(name="Org", kind="embassy"), url="https://b.example/jobs")
+        ScrapeRun.objects.create(source=source, success=False, error="Unusable response: HTTP 202")
+        self.assertContains(self.client.get("/admin/board/source/"), "Greška: Unusable response: HTTP 202")
+
 
 @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
 class SeoTests(TestCase):
