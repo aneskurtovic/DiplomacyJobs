@@ -3,6 +3,7 @@ from django.db.models import OuterRef, Subquery
 from django.utils import timezone
 from django.utils.html import format_html
 from .models import Job, Organization, ScrapeRun, Source, SourceDocument
+from .text import bs_plural
 
 
 @admin.register(Organization)
@@ -35,9 +36,9 @@ def publish_jobs(modeladmin, request, queryset):
     disabled = queryset.filter(source__enabled=False).exclude(deadline__lt=timezone.localdate()).count()
     queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate()).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
     if expired:
-        modeladmin.message_user(request, f"{expired} oglas(a) nije objavljeno jer je rok istekao.", level="warning")
+        modeladmin.message_user(request, f"{expired} {bs_plural(expired, 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer je rok istekao.", level="warning")
     if disabled:
-        modeladmin.message_user(request, f"{disabled} oglas(a) nije objavljeno jer je izvor isključen.", level="warning")
+        modeladmin.message_user(request, f"{disabled} {bs_plural(disabled, 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer je izvor isključen.", level="warning")
 
 
 @admin.action(description="Zatvori odabrane oglase")

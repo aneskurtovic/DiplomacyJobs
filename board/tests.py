@@ -1091,3 +1091,10 @@ class SchedulerTests(TestCase):
                 Command().handle()
         scrape.assert_not_called()
         self.assertFalse(lock.exists())
+
+
+class BosnianPluralTests(TestCase):
+    def test_count_agreement(self):
+        from .text import bs_plural
+        self.assertEqual([bs_plural(n, "oglas", "oglasa", "oglasa") + "/" + bs_plural(n, "nije objavljen", "nisu objavljena", "nije objavljeno") for n in (1, 2, 5, 11, 12, 21, 22, 25)],
+                         ["oglas/nije objavljen", "oglasa/nisu objavljena", "oglasa/nije objavljeno", "oglasa/nije objavljeno", "oglasa/nije objavljeno", "oglas/nije objavljen", "oglasa/nisu objavljena", "oglasa/nije objavljeno"])
