@@ -42,10 +42,10 @@
     <thead><tr><th>Izvor</th><th>Vrsta</th><th>Status</th><th class="numeric">Otvoreni oglasi</th><th>Posljednja uspješna provjera</th></tr></thead>
     <tbody>{% for row in rows %}<tr>
       <td><strong>{{ row.organization.name }}</strong>{% if row.url %}<a class="source-domain" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.domain|default:'Službena stranica' }} ↗</a>{% endif %}</td>
-      <td>{{ row.organization.get_kind_display }}{% if row.organization.city %}<small>{{ row.organization.city }}</small>{% endif %}</td>
-      <td>{% if row.status == 'available' %}<span class="status-pill good">Dostupan</span>{% elif row.status == 'empty' %}<span class="status-pill empty">Bez potvrđenih oglasa</span>{% elif row.status == 'review' %}<span class="status-pill review">Oglasi na provjeri</span>{% elif row.status == 'partial' %}<span class="status-pill partial">Djelimično praćen</span>{% elif row.status == 'unavailable' %}<span class="status-pill unavailable">Nedostupan</span>{% else %}<span class="status-pill pending">Izvor nije provjeren</span>{% endif %}</td>
-      <td class="numeric">{% if row.status == 'available' or row.status == 'empty' %}{{ row.count }}{% elif row.status == 'partial' and row.count %}{{ row.count }}+{% else %}<span title="Broj nije potvrđen">—</span>{% endif %}</td>
-      <td class="checked-at">{% if row.source and row.source.last_success_at %}{{ row.source.last_success_at|date:'d.m.Y. H:i' }}{% else %}—{% endif %}</td>
+      <td data-label="Vrsta">{{ row.organization.get_kind_display }}{% if row.organization.city %}<small>{{ row.organization.city }}</small>{% endif %}</td>
+      <td data-label="Status">{% if row.status == 'available' %}<span class="status-pill good">Dostupan</span>{% elif row.status == 'empty' %}<span class="status-pill empty">Bez potvrđenih oglasa</span>{% elif row.status == 'review' %}<span class="status-pill review">Oglasi na provjeri</span>{% elif row.status == 'partial' %}<span class="status-pill partial">Djelimično praćen</span>{% elif row.status == 'unavailable' %}<span class="status-pill unavailable">Nedostupan</span>{% else %}<span class="status-pill pending">Izvor nije provjeren</span>{% endif %}</td>
+      <td class="numeric" data-label="Otvoreni oglasi">{% if row.status == 'available' or row.status == 'empty' %}{{ row.count }}{% elif row.status == 'partial' and row.count %}{{ row.count }}+{% else %}<span title="Broj nije potvrđen">—</span>{% endif %}</td>
+      <td class="checked-at" data-label="Posljednja provjera">{% if row.source and row.source.last_success_at %}{{ row.source.last_success_at|date:'d.m.Y. H:i' }}{% else %}—{% endif %}</td>
     </tr>{% empty %}<tr><td colspan="5" class="no-rows">Nema izvora s odabranim statusom.</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="table-footnote">Prikazano {{ shown }} od {{ total }} izvora. Djelimični, nedostupni i neprovjereni izvori mogu imati oglase koje još nismo otkrili.</p>

@@ -90,3 +90,4 @@ h1,h2,h3,p{overflow-wrap:anywhere}
 .badge.new{color:#0f4c81;background:#e8f1f8}
 .badge.soon{color:#6b3a00;background:#fbf3e8}
 .badge.urgent{color:#fff;background:#a23b2a}
+@media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid #dce1e6}.source-table td{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:4px 0;border:0;text-align:right}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:#52606d;font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600}}
