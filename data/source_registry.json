@@ -651,12 +651,12 @@
     "notes": "Službena stranica upućuje na globalni OSCE portal za zapošljavanje.",
     "sources": [
       {
-        "url": "https://vacancies.osce.org/latest-jobs",
+        "url": "https://vacancies.osce.org/jobs/search/?location_ids=19",
         "adapter": "osce",
         "status": "verified",
         "enabled": true,
-        "adapter_config": {"allow_empty": true, "partial_listing": true},
-        "notes": "Živi scraper uspješan 2.10.2026. Posljednjih 10 oglasa na globalnom portalu; filtrira se BAH lokacija. Djelimičan obuhvat, ne broji se prema cilju od 10 potpunih izvora."
+        "adapter_config": {"allow_empty": true, "impersonate": true},
+        "notes": "Pretraga globalnog portala filtrirana na BAH (location_ids=19) daje sve oglase Misije sa brojem rezultata; pretraga odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: 1 oglas (Chief, General Services)."
       }
     ]
   },

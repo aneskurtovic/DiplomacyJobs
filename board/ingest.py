@@ -145,8 +145,13 @@ def listing_links(source, soup):
     config = source.adapter_config or {}
     if source.adapter == "osce":
         rows = soup.select(".job_list_row")
+        count = re.search(r"(\d+)\s+results?\b", soup.get_text(" ", strip=True))
+        if count and int(count.group(1)) == 0:
+            return []
         if not rows:
             raise ValueError("OSCE job rows missing")
+        if count and int(count.group(1)) > len(rows):
+            raise ValueError(f"OSCE search shows {len(rows)} of {count.group(1)} jobs; add pagination")
         result = []
         for row in rows:
             link = row.select_one("a.job_link[href]")

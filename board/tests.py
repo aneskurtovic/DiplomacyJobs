@@ -424,3 +424,18 @@ class ImportRegistryTests(TestCase):
             call_command("import_registry", str(path), stdout=io.StringIO())
         source = Source.objects.get(url="https://example.org/jobs")
         self.assertEqual((source.organization.name, source.notes, source.adapter, source.enabled), ("UNDP", "moved", "oracle", True))
+
+
+OSCE_ROW = '<div class="job_list_row"><a class="job_link" href="https://vacancies.osce.org/jobs/chief-general-services-s3-4991">Chief, General Services (S3)</a><span class="location">BAH - OSCE Mission to Bosnia and Herzegovina, Sarajevo</span></div>'
+
+
+class OsceAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="OSCE", kind="international")
+        self.source = Source.objects.create(organization=organization, adapter="osce", url="https://vacancies.osce.org/jobs/search/?location_ids=19")
+
+    def test_result_count_must_match_rows(self):
+        self.assertEqual(len(discover_links(None, self.source, BeautifulSoup("1 result" + OSCE_ROW, "html.parser"))), 1)
+        self.assertEqual(discover_links(None, self.source, BeautifulSoup("0 results", "html.parser")), [])
+        with self.assertRaises(ValueError):
+            discover_links(None, self.source, BeautifulSoup("11 results" + OSCE_ROW, "html.parser"))
