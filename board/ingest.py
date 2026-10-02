@@ -447,7 +447,7 @@ def oracle_links(client, source, evidence):
 
 
 def workday_links(client, source, evidence):
-    """Workday career site JSON API (UNHCR). The country facet lists every country with an open posting, so no BiH entry means no BiH jobs."""
+    """Workday career site JSON API (UNHCR, IMF). The country facet (or a location facet on sites without one) lists every place with an open posting, so no BiH entry means no BiH jobs."""
     parts = urlsplit(source.url)
     site = parts.path.strip("/").split("/")[-1]
     if parts.scheme != "https" or not (parts.hostname or "").endswith(".myworkdayjobs.com") or not re.fullmatch(r"[A-Za-z0-9_-]+", site):
@@ -455,12 +455,13 @@ def workday_links(client, source, evidence):
     api = f"https://{parts.hostname}/wday/cxs/{parts.hostname.split('.')[0]}/{site}"
     search = {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": ""}
     facets = {facet.get("facetParameter"): facet for group in fetch_json(client, f"{api}/jobs", search).get("facets", []) for facet in [group, *group.get("values", [])] if isinstance(facet, dict)}
-    if "locationCountry" not in facets:
+    facet = next((name for name in ("locationCountry", "locations") if name in facets), None)
+    if facet is None:
         raise ValueError("Workday country facet missing")
-    country = next((value["id"] for value in facets["locationCountry"].get("values", []) if LOCATION.fullmatch(value.get("descriptor", "").strip())), None)
-    if country is None:
+    places = [value["id"] for value in facets[facet].get("values", []) if LOCATION.search(value.get("descriptor", ""))]
+    if not places:
         return []
-    search["appliedFacets"] = {"locationCountry": [country]}
+    search["appliedFacets"] = {facet: places}
     page = fetch_json(client, f"{api}/jobs", search)
     postings = page.get("jobPostings", [])
     if page.get("total", 0) > len(postings):

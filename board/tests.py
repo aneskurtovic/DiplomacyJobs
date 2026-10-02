@@ -390,6 +390,18 @@ class WorkdayAdapterTests(TestCase):
         with httpx.Client(transport=httpx.MockTransport(no_bih)) as client:
             self.assertEqual(discover_links(client, self.source, None, {}), [])
 
+    def test_location_facet_used_when_site_has_no_country_facet(self):
+        def imf(request):
+            if not request.url.path.endswith("/jobs"):
+                return workday_api(request)
+            places = {"facetParameter": "locationMainGroup", "values": [{"facetParameter": "locations", "values": [{"descriptor": "Gabon", "id": "ga1"}, {"descriptor": "Bosnia and Herzegovina, Sarajevo", "id": "sa1"}]}]}
+            if json.loads(request.content)["appliedFacets"]:
+                assert json.loads(request.content)["appliedFacets"] == {"locations": ["sa1"]}
+                return httpx.Response(200, json={"total": 1, "jobPostings": [{"title": "Office Manager", "externalPath": "/job/Sarajevo/Protection-Associate_JR1"}]})
+            return httpx.Response(200, json={"total": 15, "jobPostings": [], "facets": [places]})
+        with httpx.Client(transport=httpx.MockTransport(imf)) as client:
+            self.assertEqual(len(discover_links(client, self.source, None, {})), 1)
+
 
 class OpportunityTypeTests(TestCase):
     def test_title_decides_type(self):

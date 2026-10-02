@@ -791,6 +791,19 @@
     ]
   },
   {
+    "name": "Međunarodni monetarni fond (MMF) – Ured stalnog predstavnika u BiH",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.imf.org/en/Countries/BIH",
+    "evidence_url": "https://imf.wd5.myworkdayjobs.com/IMF",
+    "verified_at": "2026-10-02",
+    "notes": "MMF ima ured stalnog predstavnika u Sarajevu. Oglasi s globalnog karijernog portala MMF-a, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://imf.wd5.myworkdayjobs.com/IMF", "adapter": "workday", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "MMF karijere (Workday). Javni JSON API bez fasete države; filtrira se po faseti lokacija. Provjereno 2026-10-02: 15 oglasa u svijetu, nijedan u BiH."}
+    ]
+  },
+  {
     "name": "Ured visokog predstavnika (OHR)",
     "kind": "international",
     "country": "",
