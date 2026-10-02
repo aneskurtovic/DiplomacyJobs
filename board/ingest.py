@@ -589,7 +589,7 @@ def rmk_links(client, source, soup, evidence):
         # An ignored offset returns rows already read; the count check below then fails instead of looping.
         if not page_rows or len(rows) >= total or len(rows) == before or len(rows) > 10 * MAX_DETAIL_LINKS:
             break
-        _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", "", "")))
+        _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", parts.query, "")))
     if len(rows) != total:
         raise ValueError(f"SuccessFactors shows {len(rows)} of {total} jobs")
     result = []
