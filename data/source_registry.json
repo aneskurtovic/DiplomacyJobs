@@ -703,15 +703,87 @@
     "website": "https://bosniaherzegovina.un.org/bhs",
     "evidence_url": "https://bosniaherzegovina.un.org/bhs/jobs",
     "verified_at": "2026-10-02",
-    "notes": "Službena stranica UN tima u BiH agregira oglase agencija (UNICEF, UNDP, UNHCR...).",
+    "notes": "Službena stranica UN tima u BiH agregira oglase agencija. Agencije s vlastitim izvorom (UNICEF, UNDP, UNFPA, UN Women, IOM, UNHCR) vode se kao zasebne organizacije.",
     "sources": [
-      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."},
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions?location=Bosnia+and+Herzegovina&locationId=300000000440419&locationLevel=country", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNDP karijere (Oracle Recruiting Cloud). Javni JSON API daje datum objave i rok; zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-02: 3 oglasa u Sarajevu."},
-      {"url": "https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "IOM karijere (Oracle Recruiting Cloud), isti API kao UNDP. Provjereno 2026-10-02: nema oglasa s lokacijom u BiH (pretraga 'Bosnia' daje jedan oglas u Tirani)."},
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2003/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNFPA karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalna pozicija u Sarajevu."},
-      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UN Women karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalni konsultant u Sarajevu."},
-      {"url": "https://unhcr.wd3.myworkdayjobs.com/External", "adapter": "workday", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNHCR karijere (Workday). Javni JSON API; filtrira se po državi BiH, a rok i datum objave dolaze iz API-ja. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH."},
       {"url": "https://bosniaherzegovina.un.org/en/jobs", "adapter": "unct", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true, "skip_hosts": ["estm.fa.em2.oraclecloud.com", "jobs.undp.org", "fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com", "unhcr.wd3.myworkdayjobs.com"]}, "notes": "Kartica oglasa na stranici UN-a je dokaz (datum objave, rok, agencija); portali agencija se ne dohvataju jer dio njih blokira botove. Provjereno 2026-10-02: trenutno nema oglasa; struktura potvrđena arhivom od 2026-04-18."}
+    ]
+  },
+  {
+    "name": "UNICEF u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.unicef.org/bih/",
+    "evidence_url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia",
+    "verified_at": "2026-10-02",
+    "notes": "Fond UN-a za djecu. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://jobs.unicef.org/en-us/search/?search-keyword=Bosnia", "adapter": "unicef", "status": "blocked", "enabled": false, "adapter_config": {"allow_empty": true, "impersonate": true}, "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."}
+    ]
+  },
+  {
+    "name": "UNDP u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.undp.org/bosnia-herzegovina",
+    "evidence_url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions?location=Bosnia+and+Herzegovina&locationId=300000000440419&locationLevel=country",
+    "verified_at": "2026-10-02",
+    "notes": "Razvojni program UN-a. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions?location=Bosnia+and+Herzegovina&locationId=300000000440419&locationLevel=country", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNDP karijere (Oracle Recruiting Cloud). Javni JSON API daje datum objave i rok; zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-02: 3 oglasa u Sarajevu."}
+    ]
+  },
+  {
+    "name": "IOM u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://bih.iom.int/",
+    "evidence_url": "https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions",
+    "verified_at": "2026-10-02",
+    "notes": "Međunarodna organizacija za migracije. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "IOM karijere (Oracle Recruiting Cloud), isti API kao UNDP. Provjereno 2026-10-02: nema oglasa s lokacijom u BiH (pretraga 'Bosnia' daje jedan oglas u Tirani)."}
+    ]
+  },
+  {
+    "name": "UNFPA u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://ba.unfpa.org/en",
+    "evidence_url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2003/requisitions",
+    "verified_at": "2026-10-02",
+    "notes": "Populacijski fond UN-a. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2003/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNFPA karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalna pozicija u Sarajevu."}
+    ]
+  },
+  {
+    "name": "UN Women u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://eca.unwomen.org/en/where-we-are/bosnia-and-herzegovina",
+    "evidence_url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions",
+    "verified_at": "2026-10-02",
+    "notes": "Entitet UN-a za rodnu ravnopravnost i osnaživanje žena. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/requisitions", "adapter": "oracle", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UN Women karijere (Oracle Recruiting Cloud, isti API kao UNDP). Provjereno 2026-10-02: 1 nacionalni konsultant u Sarajevu."}
+    ]
+  },
+  {
+    "name": "UNHCR u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.unhcr.org/where-we-work/countries/bosnia-and-herzegovina",
+    "evidence_url": "https://unhcr.wd3.myworkdayjobs.com/External",
+    "verified_at": "2026-10-02",
+    "notes": "Visoki komesarijat UN-a za izbjeglice. Oglasi s globalnog portala agencije, samo mjesta rada u BiH.",
+    "sources": [
+      {"url": "https://unhcr.wd3.myworkdayjobs.com/External", "adapter": "workday", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "UNHCR karijere (Workday). Javni JSON API; filtrira se po državi BiH, a rok i datum objave dolaze iz API-ja. Provjereno 2026-10-02: 14 oglasa u svijetu, nijedan u BiH."}
     ]
   },
   {
