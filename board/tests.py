@@ -245,3 +245,29 @@ class RccAdapterTests(TestCase):
         self.assertEqual(discover_links(None, self.source, BeautifulSoup("<p>There are currently no open vacancies.</p>", "html.parser"), {}), [])
         with self.assertRaises(ValueError):
             discover_links(None, self.source, BeautifulSoup("<p>Under maintenance</p>", "html.parser"), {})
+
+
+ERA_ROW = '<a href="/dos-era/vacancy/viewVacancyDetail.hms?_ref=abc123&returnToSearch=true&jnum={jnum}&orgId=121">{title}</a>'
+
+
+class EraAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="US Embassy", kind="embassy")
+        self.source = Source.objects.create(organization=organization, adapter="era", url="https://erajobs.state.gov/dos-era/bih/vacancysearch/searchVacancies.hms")
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_session_token_dropped_and_open_period_parsed(self, _):
+        html = "2 records found, showing 1 - 2 of 2" + ERA_ROW.format(jnum=77122, title="Senior Guard") + ERA_ROW.format(jnum=77608, title="Electrical Engineer Supervisor")
+        links = discover_links(None, self.source, BeautifulSoup(html, "html.parser"))
+        self.assertEqual(links[1], ("https://erajobs.state.gov/dos-era/vacancy/viewVacancyDetail.hms?jnum=77608&orgId=121", "Electrical Engineer Supervisor"))
+        detail = "<h1>U.S. Department Of State</h1>Open Period: 09/25/2026 - 10/08/2026 Duty Location(s): 1 Vacancy in Sarajevo, BK"
+        soup = BeautifulSoup(detail, "html.parser")
+        candidate = make_candidate(self.source, links[1][0], links[1][1], soup.get_text(" ", strip=True), soup)
+        self.assertEqual(candidate.title, "Electrical Engineer Supervisor")
+        self.assertEqual((candidate.source_published_at, candidate.deadline), (date(2026, 9, 25), date(2026, 10, 8)))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_unseen_results_fail(self):
+        with self.assertRaises(ValueError):
+            discover_links(None, self.source, BeautifulSoup("12 records found, showing 1 - 10 of 12" + ERA_ROW.format(jnum=1, title="Driver"), "html.parser"))
+        self.assertEqual(discover_links(None, self.source, BeautifulSoup("0 records found", "html.parser")), [])

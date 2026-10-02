@@ -28,13 +28,15 @@
     "website": "https://ba.usembassy.gov/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237713414625362",
     "verified_at": "2026-10-02",
-    "notes": "Službena stranica za poslove upućuje na ERA; automatski pristup nije potvrđen. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
+    "notes": "Službena stranica za poslove upućuje na ERA. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
       {
-        "url": "https://ba.usembassy.gov/jobs/",
-        "adapter": "none",
-        "status": "blocked",
-        "notes": "Prilikom javne provjere HTTP 403; ne uključivati bez dokazano dopuštenog pristupa."
+        "url": "https://erajobs.state.gov/dos-era/bih/vacancysearch/searchVacancies.hms",
+        "adapter": "era",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {"allow_empty": true},
+        "notes": "2026-10-02: ba.usembassy.gov/jobs upućuje na ERA (State Department sistem za lokalne oglase). ERA pretraga za BiH misiju radi sa službenim botom; detalj daje period objave i rok (MM/DD/YYYY)."
       }
     ]
   },

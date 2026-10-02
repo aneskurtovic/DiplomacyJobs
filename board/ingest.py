@@ -342,6 +342,26 @@ def rcc_links(source, soup, evidence):
     return result
 
 
+def era_links(source, soup):
+    """US State Department ERA vacancy search for the BiH mission. The record count must match the rows shown, or results are paginated."""
+    count = re.search(r"(\d+)\s+records? found", soup.get_text(" ", strip=True))
+    if not count:
+        raise ValueError("ERA record count missing")
+    result = []
+    for link in soup.select('a[href*="viewVacancyDetail.hms"]'):
+        url = urljoin(source.url, link["href"])
+        params = dict(parse_qsl(urlsplit(url).query))
+        if urlsplit(url).hostname != "erajobs.state.gov" or not params.get("jnum"):
+            continue
+        # _ref is a per-session token; jnum and orgId identify the vacancy.
+        url = urlunsplit(("https", "erajobs.state.gov", urlsplit(url).path, urlencode({"jnum": params["jnum"], "orgId": params.get("orgId", "")}), ""))
+        result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
+    result = list(dict.fromkeys(result))
+    if len(result) != int(count.group(1)):
+        raise ValueError(f"ERA shows {len(result)} of {count.group(1)} vacancies; add pagination")
+    return result
+
+
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP.
 CARD_EVIDENCE = {"unct", "rcc"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
@@ -364,6 +384,8 @@ def discover_links(client, source, soup, evidence=None):
         return ebrd_links(source, soup)
     elif source.adapter == "rcc":
         return rcc_links(source, soup, evidence)
+    elif source.adapter == "era":
+        return era_links(source, soup)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -420,12 +442,19 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         except ValueError:
             structured_published = None
         text = description.get_text(" ", strip=True)
+    if source.adapter == "era" and soup:
+        period = re.search(r"Open Period:\s*(\d{2}/\d{2}/\d{4})\s*-\s*(\d{2}/\d{2}/\d{4})", text)
+        if period is None:
+            raise ValueError("ERA open period missing")
+        structured_published = us_date(period.group(1))
+        closing = us_date(period.group(2))
+        text = (f"Closing date {closing.isoformat()}. " if closing else "") + text
     if listing_evidence:
         text = f"{listing_evidence} {text}"
     if soup:
         heading = soup.find("h1")
-        # UNICEF's h1 is the generic "Current vacancies".
-        if heading and source.adapter != "unicef":
+        # UNICEF's h1 is the generic "Current vacancies"; ERA's is the State Department banner.
+        if heading and source.adapter not in ("unicef", "era"):
             title = heading.get_text(" ", strip=True)[:400] or title
     excerpt = LOCATION.search(text)
     city = ""
@@ -436,7 +465,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc")
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
