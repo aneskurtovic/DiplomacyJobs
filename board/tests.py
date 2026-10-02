@@ -655,6 +655,15 @@ class PublicViewTests(TestCase):
         self.assertIn("Legal Consultant", city)
         self.assertNotIn("<h3>Driver</h3>", city)
 
+    def test_feed_lists_visible_jobs_with_filters(self):
+        feed = self.client.get("/feed/")
+        self.assertEqual(feed["Content-Type"].split(";")[0], "application/atom+xml")
+        content = feed.content.decode()
+        self.assertIn("Driver – Embassy A", content)
+        self.assertNotIn("Old Clerk", content)
+        self.assertNotIn("Driver", self.client.get("/feed/", {"type": "consultancy"}).content.decode())
+        self.assertContains(self.client.get("/"), 'href="/feed/"')
+
     def test_unknown_type_ignored_and_sources_page_renders(self):
         self.assertContains(self.client.get("/", {"type": "bogus"}), "Driver")
         self.assertContains(self.client.get("/sources/"), "Embassy A")

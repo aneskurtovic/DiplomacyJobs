@@ -10,16 +10,18 @@ from .models import Job, Organization, Source
 STALE_AFTER = timedelta(hours=48)
 
 
-def jobs(request):
+def visible_jobs():
+    """Published, current jobs: what the public board and the feed show."""
     today = timezone.localdate()
     cutoff = timezone.now() - timedelta(days=30)
-    visible = Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
-    query = visible
-    search = request.GET.get("q", "").strip()[:100]
-    employer = request.GET.get("employer", "")
-    city = request.GET.get("city", "")
-    kind = request.GET.get("type", "")
-    sort = "deadline" if request.GET.get("sort") == "deadline" else ""
+    return Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
+
+
+def filter_jobs(query, params):
+    search = params.get("q", "").strip()[:100]
+    employer = params.get("employer", "")
+    city = params.get("city", "")
+    kind = params.get("type", "")
     if search:
         query = query.filter(Q(title__icontains=search) | Q(source__organization__name__icontains=search) | Q(city__icontains=search))
     if employer.isdecimal() and len(employer) <= 18:
@@ -28,19 +30,27 @@ def jobs(request):
         query = query.filter(city=city[:100])
     if kind in dict(Job.TYPE):
         query = query.filter(opportunity_type=kind)
+    return query, {"search": search, "employer": employer, "city": city, "kind": kind}
+
+
+def jobs(request):
+    today = timezone.localdate()
+    visible = visible_jobs()
+    query, filters = filter_jobs(visible, request.GET)
+    sort = "deadline" if request.GET.get("sort") == "deadline" else ""
     order = (F("deadline").asc(nulls_last=True), "-first_seen_at", "-pk") if sort else ("-first_seen_at", "-pk")
     page = Paginator(query.select_related("source__organization").order_by(*order), 20).get_page(request.GET.get("page"))
     for job in page:
         job.days_left = (job.deadline - today).days if job.deadline else None
         job.is_new = job.first_seen_at >= timezone.now() - timedelta(days=3)
-    return render(request, "board/jobs.html", {"page": page, "search": search, "employer": employer, "city": city, "kind": kind, "sort": sort, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
+    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
 
 
 def sources(request):
     organizations = Organization.objects.prefetch_related("sources").order_by("name")
     today = timezone.localdate()
     cutoff = timezone.now() - timedelta(days=30)
-    published = Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
+    published = visible_jobs()
     counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
     review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
     rows = []

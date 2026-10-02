@@ -18,7 +18,7 @@ python -m venv .venv
 .venv\Scripts\python manage.py runserver
 ```
 
-Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, and admin at `/admin/`. Development defaults to SQLite. The imported registry enables the nineteen complete sources that passed live checks; the board may still be empty when none has an open 2026 vacancy.
+Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, an Atom feed of new jobs at `/feed/` (accepts the board's `q`, `employer`, `city` and `type` filters), and admin at `/admin/`. Development defaults to SQLite. The imported registry enables the nineteen complete sources that passed live checks; the board may still be empty when none has an open 2026 vacancy.
 
 ## Operations
 
