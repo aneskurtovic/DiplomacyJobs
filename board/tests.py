@@ -192,6 +192,19 @@ EBRD_DETAIL = """
 """
 
 
+class RetryTests(TestCase):
+    def test_dropped_connection_retried_once(self):
+        calls = []
+        def flaky(request):
+            calls.append(request.url)
+            if len(calls) == 1:
+                raise httpx.RemoteProtocolError("Server disconnected without sending a response.")
+            return httpx.Response(200, text="<p>Vacancy</p>", headers={"content-type": "text/html"})
+        with httpx.Client(transport=httpx.MockTransport(flaky)) as client:
+            self.assertEqual(fetch(client, "https://a.example/jobs")[0], "Vacancy")
+        self.assertEqual(len(calls), 2)
+
+
 class EbrdAdapterTests(TestCase):
     def setUp(self):
         organization = Organization.objects.create(name="EBRD", kind="international")

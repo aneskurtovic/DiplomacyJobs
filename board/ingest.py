@@ -115,8 +115,19 @@ def parse_published(text):
     return first_date(PUBLISHED, text)
 
 
+# Some servers drop idle keep-alive connections without notice (gov.br); one retry opens a fresh connection.
+RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError)
+
+
+def request(client, method, url, **options):
+    try:
+        return getattr(client, method)(url, **options)
+    except RETRYABLE:
+        return getattr(client, method)(url, **options)
+
+
 def fetch(client, url):
-    response = client.get(url)
+    response = request(client, "get", url)
     response.raise_for_status()
     # Bot challenges answer 202/204 with an empty body; that must not read as "no vacancies".
     if response.status_code != 200 or not response.content.strip():
@@ -139,7 +150,7 @@ def fetch(client, url):
 
 
 def fetch_json(client, url, payload=None, headers=None):
-    response = client.get(url, headers=headers) if payload is None else client.post(url, json=payload, headers=headers)
+    response = request(client, "get", url, headers=headers) if payload is None else request(client, "post", url, json=payload, headers=headers)
     response.raise_for_status()
     if response.status_code != 200 or "json" not in response.headers.get("content-type", "").lower():
         raise ValueError(f"Unusable JSON response: HTTP {response.status_code}, {response.headers.get('content-type', '')}")
