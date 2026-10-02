@@ -749,6 +749,13 @@ class IngestRulesTests(TestCase):
         self.assertTrue(self.run_ingest().success)
         self.assertEqual(list(self.source.jobs.values_list("title", flat=True)), ["Vacancy: Political Officer"])
 
+    def test_review_reason_names_failed_checks(self):
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026."))
+        self.pages["https://emb.example/jobs/officer"] = "<h1>Vacancy: Political Officer</h1><p>Published 01.09.2026. Duty station Belgrade.</p>"
+        self.run_ingest()
+        job = self.source.jobs.get()
+        self.assertEqual((job.status, job.field_evidence["review_reason"]), ("review", "Lokacija u BiH nije pronađena; rok nije naveden"))
+
     def test_ai_fields_kept_and_changed_source_sent_to_review(self):
         self.run_ingest()
         job = self.source.jobs.get()

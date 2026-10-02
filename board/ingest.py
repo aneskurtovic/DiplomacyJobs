@@ -1000,7 +1000,18 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     closed = "unfortunately, this position has been closed" in text.lower()
     eligible = job_like and in_country and not outside and not excluded and fresh and not closed
     eligibility = "Državljani i stalni rezidenti BiH ne ispunjavaju uslove za ovu međunarodnu poziciju." if source.adapter == "osce" and "nationals and permanent residents of the duty station are not eligible" in text.lower() else ""
-    reason = "" if eligible else "Nedovoljno dokaza o aktivnom oglasu, lokaciji ili vrsti angažmana"
+    # Each failed check is named, so a reviewer sees what to verify.
+    reasons = [label for failed, label in (
+        (not job_like, "nije prepoznat kao oglas za posao"),
+        (not in_country, "lokacija u BiH nije pronađena"),
+        (outside, "uz lokaciju se spominje druga država"),
+        (excluded, "isključena vrsta (neplaćeno, volontiranje, stipendija ili tender)"),
+        (not fresh and not deadline, "rok nije naveden"),
+        (not fresh and bool(deadline), "rok je istekao"),
+        (closed, "izvor navodi da je oglas zatvoren"),
+    ) if failed]
+    reason = "" if eligible else ("; ".join(reasons) or "nedovoljno dokaza")
+    reason = reason[:1].upper() + reason[1:]
     path_year = re.search(r"/(20\d{2})/", urlsplit(url).path)
     if published:
         in_scope_year = published.year == TARGET_YEAR
