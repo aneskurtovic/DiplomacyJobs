@@ -636,6 +636,21 @@ class IngestRulesTests(TestCase):
         from .models import SourceDocument
         self.assertEqual((self.source.jobs.get().title, SourceDocument.objects.count()), ("Vacancy: Political Officer", 1))
 
+    def test_snapshot_stored_only_when_page_changes(self):
+        from .models import SourceDocument
+        self.run_ingest()
+        self.run_ingest()
+        self.assertEqual(SourceDocument.objects.count(), 1)
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 31.10.2026."))
+        self.run_ingest()
+        self.assertEqual(SourceDocument.objects.count(), 2)
+
+    def test_overlong_link_skipped(self):
+        slug = "x" * 1000
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026."), (slug, "Vacancy: Driver", "Published 01.09.2026. Deadline 30.10.2026."))
+        self.assertTrue(self.run_ingest().success)
+        self.assertEqual(list(self.source.jobs.values_list("title", flat=True)), ["Vacancy: Political Officer"])
+
     def test_ai_fields_kept_and_changed_source_sent_to_review(self):
         self.run_ingest()
         job = self.source.jobs.get()

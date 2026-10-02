@@ -825,7 +825,8 @@ def ingest_source(source_id):
             unconfirmed_empty = source.adapter in ("generic", "japan", "swiss") and not (source.adapter_config or {}).get("empty_text")
             if not discovered_links and unconfirmed_empty and source.jobs.filter(status="published").exists():
                 raise ValueError("Listing is suddenly empty while jobs are published; verify the page before treating it as empty")
-            links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title)]
+            # URL columns hold 1000 characters; on PostgreSQL a longer one would roll back the whole source.
+            links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title) and len(url) <= 1000]
             if (source.adapter_config or {}).get("partial_listing"):
                 known = source.jobs.filter(status="published").values_list("canonical_url", "title")
                 links = list(dict.fromkeys([*links, *known]))
@@ -848,7 +849,10 @@ def ingest_source(source_id):
         with transaction.atomic():
             seen = {url for url, _ in discovered_links}
             for candidate in candidates:
-                SourceDocument.objects.create(source=source, url=candidate.url, content_hash=candidate.content_hash, text=candidate.text)
+                # A snapshot is kept per change, not per scan; unchanged pages would store the same text every day.
+                latest = SourceDocument.objects.filter(source=source, url=candidate.url).order_by("-fetched_at").values_list("content_hash", flat=True).first()
+                if latest != candidate.content_hash:
+                    SourceDocument.objects.create(source=source, url=candidate.url, content_hash=candidate.content_hash, text=candidate.text)
                 job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
                 if not created:
                     protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
@@ -921,3 +925,4 @@ def expire_jobs():
     # Undated leads nobody reviewed in two months are not worth keeping in the queue.
     Job.objects.filter(status="review", deadline__isnull=True, first_seen_at__lt=now-timedelta(days=60)).update(status="closed", closed_reason="stale")
     SourceDocument.objects.filter(fetched_at__lt=now-timedelta(days=90)).delete()
+    ScrapeRun.objects.filter(started_at__lt=now-timedelta(days=365)).delete()
