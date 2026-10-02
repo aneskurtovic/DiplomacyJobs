@@ -977,6 +977,23 @@ class StaleSourceTests(TestCase):
 
 @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
 class AdminReviewQueueTests(TestCase):
+    @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+    def test_change_view_shows_what_changed_on_the_source(self):
+        from datetime import timedelta
+        from django.contrib.auth.models import User
+        from django.utils import timezone
+        from .models import SourceDocument
+        self.client.force_login(User.objects.create_superuser("admin", "a@example.com", "x"))
+        source = Source.objects.create(organization=Organization.objects.create(name="Embassy", kind="embassy"), url="https://a.example/jobs")
+        job = Job.objects.create(source=source, canonical_url="https://a.example/1", title="Driver", status="review")
+        SourceDocument.objects.create(source=source, url=job.canonical_url, content_hash="a", text="Driver. Deadline 10.10.2026. Location Sarajevo.")
+        SourceDocument.objects.filter(content_hash="a").update(fetched_at=timezone.now() - timedelta(days=1))
+        SourceDocument.objects.create(source=source, url=job.canonical_url, content_hash="b", text="Driver. Deadline 20.10.2026. Location Sarajevo.")
+        response = self.client.get(f"/admin/board/job/{job.pk}/change/")
+        self.assertContains(response, "-Deadline 10.10.2026.")
+        self.assertContains(response, "+Deadline 20.10.2026.")
+        self.assertNotContains(response, "Location Sarajevo.</div>")
+
     def test_changelist_shows_reason_and_deadline_filter(self):
         from datetime import timedelta
         from django.contrib.auth.models import User

@@ -1,7 +1,10 @@
+import difflib
+import re
+
 from django.contrib import admin
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from .models import Job, Organization, ScrapeRun, Source, SourceDocument
 from .text import bs_plural
 
@@ -69,7 +72,7 @@ class JobAdmin(admin.ModelAdmin):
     list_filter = ("status", DeadlineFilter, "closed_reason", "opportunity_type", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
     actions = (publish_jobs, close_jobs, renew_jobs)
-    readonly_fields = ("first_seen_at", "last_seen_at", "content_hash", "raw_text", "field_evidence", "missing_scans")
+    readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "missing_scans")
 
     @admin.display(description="Organizacija")
     def organization(self, obj):
@@ -78,6 +81,19 @@ class JobAdmin(admin.ModelAdmin):
     @admin.display(description="Razlog provjere")
     def review_reason(self, obj):
         return obj.field_evidence.get("review_reason", "") if obj.status == "review" else ""
+
+    @admin.display(description="Promjene izvora")
+    def source_changes(self, obj):
+        """What changed between the last two stored snapshots of the job's page, so a reviewer of a changed source does not compare texts by eye."""
+        texts = list(SourceDocument.objects.filter(source_id=obj.source_id, url=obj.canonical_url).order_by("-fetched_at", "-pk").values_list("text", "fetched_at")[:2])
+        if len(texts) < 2:
+            return "Nema ranije verzije."
+        (new, new_at), (old, old_at) = texts
+        lines = [line for line in difflib.unified_diff(re.split(r"(?<=[.!?])\s+", old), re.split(r"(?<=[.!?])\s+", new), lineterm="", n=0) if line[:1] in "+-" and line[:3] not in ("+++", "---")]
+        if not lines:
+            return "Tekst se nije promijenio."
+        rows = format_html_join("", '<div style="white-space:pre-wrap;color:{}">{}</div>', (("#1d6b45" if line[0] == "+" else "#a23b2a", line[:600]) for line in lines[:60]))
+        return format_html("<p>{} → {}</p>{}", old_at.strftime("%d.%m.%Y."), new_at.strftime("%d.%m.%Y."), rows)
 
     @admin.display(description="Oglas")
     def official_link(self, obj):
