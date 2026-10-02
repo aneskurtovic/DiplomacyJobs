@@ -700,3 +700,20 @@ class StaleSourceTests(TestCase):
         self.assertEqual(self.client.get("/health/scrape/").status_code, 503)
         self.assertContains(self.client.get("/sources/", {"status": "unavailable"}), "Embassy Stale")
         self.assertEqual(self.client.get("/health/").status_code, 200)
+
+
+@override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class AdminReviewQueueTests(TestCase):
+    def test_changelist_shows_reason_and_deadline_filter(self):
+        from datetime import timedelta
+        from django.contrib.auth.models import User
+        from django.utils import timezone
+        self.client.force_login(User.objects.create_superuser("admin", "a@example.com", "x"))
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs")
+        Job.objects.create(source=source, canonical_url="https://a.example/1", title="Undated lead", status="review", field_evidence={"review_reason": "Godina objave nije potvrđena"})
+        Job.objects.create(source=source, canonical_url="https://a.example/2", title="Past lead", status="review", deadline=timezone.localdate() - timedelta(days=2))
+        response = self.client.get("/admin/board/job/", {"rok": "none"})
+        self.assertContains(response, "Godina objave nije potvrđena")
+        self.assertContains(response, "https://a.example/1")
+        self.assertNotContains(response, "Past lead")

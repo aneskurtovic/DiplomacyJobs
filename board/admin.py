@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+from django.utils.html import format_html
 from .models import Job, Organization, ScrapeRun, Source, SourceDocument
 
 
@@ -35,10 +36,22 @@ def renew_jobs(modeladmin, request, queryset):
     queryset.filter(deadline__isnull=True).update(last_reviewed_at=timezone.now())
 
 
+class DeadlineFilter(admin.SimpleListFilter):
+    title = "rok"
+    parameter_name = "rok"
+
+    def lookups(self, request, model_admin):
+        return [("open", "Aktuelan"), ("past", "Istekao"), ("none", "Bez roka")]
+
+    def queryset(self, request, queryset):
+        today = timezone.localdate()
+        return {"open": queryset.filter(deadline__gte=today), "past": queryset.filter(deadline__lt=today), "none": queryset.filter(deadline__isnull=True)}.get(self.value(), queryset)
+
+
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "organization", "city", "deadline", "status", "last_checked_at")
-    list_filter = ("status", "closed_reason", "opportunity_type", "source__organization")
+    list_display = ("title", "organization", "city", "deadline", "source_published_at", "status", "review_reason", "official_link", "last_checked_at")
+    list_filter = ("status", DeadlineFilter, "closed_reason", "opportunity_type", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
     actions = (publish_jobs, close_jobs, renew_jobs)
     readonly_fields = ("first_seen_at", "last_seen_at", "content_hash", "raw_text", "field_evidence", "missing_scans")
@@ -46,6 +59,17 @@ class JobAdmin(admin.ModelAdmin):
     @admin.display(description="Organizacija")
     def organization(self, obj):
         return obj.source.organization
+
+    @admin.display(description="Razlog provjere")
+    def review_reason(self, obj):
+        return obj.field_evidence.get("review_reason", "") if obj.status == "review" else ""
+
+    @admin.display(description="Oglas")
+    def official_link(self, obj):
+        return format_html('<a href="{}" target="_blank" rel="noopener noreferrer">Otvori ↗</a>', obj.canonical_url)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("source__organization")
 
     def save_model(self, request, obj, form, change):
         if change:
