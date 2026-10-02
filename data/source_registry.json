@@ -726,5 +726,18 @@
     "sources": [
       {"url": "https://www.ohr.int/vacancies/", "adapter": "ohr", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Svaka sekcija mora imati tabelu ili izričitu napomenu da nema oglasa. Provjereno 2026-10-02: nema aktivnih oglasa."}
     ]
+  },
+  {
+    "name": "Vijeće Evrope – Ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.coe.int/en/web/sarajevo",
+    "evidence_url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs",
+    "verified_at": "2026-10-02",
+    "notes": "Lokalni i međunarodni oglasi Vijeća Evrope objavljuju se na portalu talents.coe.int; stranica ureda preusmjerava na portal.",
+    "sources": [
+      {"url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs", "adapter": "coe", "status": "verified", "enabled": true, "adapter_config": {"allow_empty": true}, "notes": "Kartice (6 po stranici) imaju mjesto rada; zadržavaju se samo oglasi s mjestom rada u BiH, a datum objave i rok čitaju se iz polja oglasa. Provjereno 2026-10-02: 14 oglasa, nijedan u BiH."}
+    ]
   }
 ]

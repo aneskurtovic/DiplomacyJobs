@@ -459,6 +459,53 @@ def workday_links(client, source, evidence):
     return result
 
 
+def coe_links(client, source, soup):
+    """Council of Europe talent marketplace (Avature). Six cards per page; the stated result count must be reached, and only BiH duty stations are kept."""
+    total = re.search(r"(\d+)\s+results?\b", soup.get_text(" ", strip=True))
+    if not total:
+        raise ValueError("CoE result count missing")
+    cards, page = [], soup
+    while True:
+        page_cards = page.select("article.article--result")
+        if not page_cards:
+            break
+        cards += page_cards
+        if len(cards) >= int(total.group(1)) or len(cards) > MAX_DETAIL_LINKS:
+            break
+        parts = urlsplit(source.url)
+        _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode({"jobOffset": len(cards)}), "")))
+        if page is None:
+            break
+    if len(cards) != int(total.group(1)):
+        raise ValueError(f"CoE shows {len(cards)} of {total.group(1)} vacancies")
+    result = []
+    for card in cards:
+        link = card.select_one("h3 a[href*='/JobDetail/']")
+        station = card.select_one(".list-item-dutyStation")
+        if not link or not station:
+            raise ValueError("CoE vacancy card changed shape")
+        url = urljoin(source.url, link["href"])
+        if LOCATION.search(station.get_text(" ", strip=True)) and urlsplit(url).hostname == "talents.coe.int":
+            result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
+    return result
+
+
+def coe_fields(soup):
+    fields = {}
+    for field in soup.select(".article__content__view__field"):
+        label, value = field.select_one(".article__content__view__field__label"), field.select_one(".article__content__view__field__value")
+        if label and value:
+            fields[label.get_text(" ", strip=True)] = value.get_text(" ", strip=True)
+    return fields
+
+
+def coe_date(value):
+    try:
+        return datetime.strptime(value or "", "%d-%b-%Y").date()
+    except ValueError:
+        return None
+
+
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
 CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
@@ -487,6 +534,8 @@ def discover_links(client, source, soup, evidence=None):
         return oracle_links(client, source, evidence)
     elif source.adapter == "workday":
         return workday_links(client, source, evidence)
+    elif source.adapter == "coe":
+        return coe_links(client, source, soup)
     else:
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
@@ -559,6 +608,13 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         structured_published = us_date(period.group(1))
         closing = us_date(period.group(2))
         text = (f"Closing date {closing.isoformat()}. " if closing else "") + text
+    if source.adapter == "coe" and soup:
+        fields = coe_fields(soup)
+        if not fields.get("Duty station"):
+            raise ValueError("CoE vacancy fields missing")
+        structured_published = coe_date(fields.get("Posted date"))
+        closing = coe_date(fields.get("Deadline to apply"))
+        text = f"Duty station: {fields['Duty station']}. " + (f"Closing date {closing.isoformat()}. " if closing else "") + " ".join(f"{label}: {value}" for label, value in fields.items())
     if source.adapter == "japan" and soup:
         # The publication date sits right under the h1 as YYYY/M/D; it is the page's only date in that form.
         stamp = re.search(r"\b(20\d{2})/(\d{1,2})/(\d{1,2})\b", text)
@@ -579,7 +635,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday")
+    job_like = bool(JOB_WORDS.search(title) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

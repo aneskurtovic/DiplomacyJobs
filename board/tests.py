@@ -380,3 +380,30 @@ class OpportunityTypeTests(TestCase):
         from .ingest import opportunity_type
         for title, expected in [("Family Law and Legal Reform Expert, National Consultant,NOC, Sarajevo, BIH", "consultancy"), ("Project Associate [Open to internal and external applicants]", "employment"), ("PSP Fundraising Intern", "paid_internship"), ("Plaćena praksa u Ambasadi", "paid_internship"), ("Senior Guard", "employment")]:
             self.assertEqual(opportunity_type(title), expected, title)
+
+
+def coe_card(number, title, station):
+    return f'<article class="article article--result"><h3><a href="https://talents.coe.int/en_GB/careersmarketplace/JobDetail/{title.replace(" ", "-")}/{number}">{title}</a></h3><span class="list-item-dutyStation">{station}</span></article>'
+
+
+class CoeAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="CoE", kind="international")
+        self.source = Source.objects.create(organization=organization, adapter="coe", url="https://talents.coe.int/en_GB/careersmarketplace/SearchJobs")
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_pages_followed_and_bih_station_kept(self, _):
+        second = BeautifulSoup("2 results" + coe_card(1600, "Project Officer", "Sarajevo"), "html.parser")
+        with patch("board.ingest.fetch", return_value=("", second)) as fetch_page:
+            links = discover_links(None, self.source, BeautifulSoup("2 results" + coe_card(1565, "Head of Department", "Strasbourg"), "html.parser"))
+        self.assertIn("jobOffset=1", fetch_page.call_args.args[1])
+        self.assertEqual(links, [("https://talents.coe.int/en_GB/careersmarketplace/JobDetail/Project-Officer/1600", "Project Officer")])
+        field = '<div class="article__content__view__field"><div class="article__content__view__field__label">{}</div><div class="article__content__view__field__value">{}</div></div>'
+        detail = BeautifulSoup("".join(field.format(*pair) for pair in [("Vacancy number", "1600/2026"), ("Posted date", "22-Sep-2026"), ("Deadline to apply", "06-Oct-2026"), ("Duty station", "Sarajevo")]), "html.parser")
+        candidate = make_candidate(self.source, links[0][0], links[0][1], detail.get_text(" ", strip=True), detail)
+        self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 9, 22), date(2026, 10, 6), "Sarajevo"))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+
+    def test_short_result_set_fails(self):
+        with patch("board.ingest.fetch", return_value=("", BeautifulSoup("9 results", "html.parser"))), self.assertRaises(ValueError):
+            discover_links(None, self.source, BeautifulSoup("9 results" + coe_card(1, "Officer", "Strasbourg"), "html.parser"))
