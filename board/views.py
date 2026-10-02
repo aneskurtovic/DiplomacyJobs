@@ -4,6 +4,7 @@ from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Count, F, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
+from django.conf import settings
 from django.utils import timezone
 from .models import Job, Organization, Source
 from .text import fold
@@ -102,13 +103,22 @@ def sources(request):
     return render(request, "board/sources.html", {"rows": visible_rows, "total": len(rows), "organizations_total": organizations.count(), "shown": len(visible_rows), "totals": totals, "selected": selected, "open_jobs": published.count(), "latest": latest})
 
 
+def absolute(request, path):
+    return f"{settings.PUBLIC_BASE_URL}{path}" if settings.PUBLIC_BASE_URL else request.build_absolute_uri(path)
+
+
+def public_base(request):
+    """Template origin for canonical and Open Graph URLs."""
+    return {"public_base": settings.PUBLIC_BASE_URL or f"{request.scheme}://{request.get_host()}"}
+
+
 def robots(request):
-    lines = ["User-agent: *", "Disallow: /admin/", "Disallow: /health/", f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}"]
+    lines = ["User-agent: *", "Disallow: /admin/", "Disallow: /health/", f"Sitemap: {absolute(request, '/sitemap.xml')}"]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
 
 
 def sitemap(request):
-    urls = "".join(f"<url><loc>{request.build_absolute_uri(path)}</loc><changefreq>daily</changefreq></url>" for path in ("/", "/sources/"))
+    urls = "".join(f"<url><loc>{absolute(request, path)}</loc><changefreq>daily</changefreq></url>" for path in ("/", "/sources/"))
     return HttpResponse(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', content_type="application/xml")
 
 

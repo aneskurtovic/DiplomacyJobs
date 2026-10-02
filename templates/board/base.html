@@ -6,12 +6,12 @@
   <title>{% block title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH · DiplomacyJobs{% endblock %}</title>
   {% with description="Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." %}
   <meta name="description" content="{% block description %}{{ description }}{% endblock %}">
-  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <link rel="canonical" href="{{ public_base }}{{ request.path }}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="DiplomacyJobs">
   <meta property="og:title" content="{% block og_title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ description }}{% endblock %}">
-  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:url" content="{{ public_base }}{{ request.path }}">
   <meta property="og:locale" content="bs_BA">
   {% endwith %}
   <link rel="preconnect" href="https://fonts.googleapis.com">

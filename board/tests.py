@@ -1184,6 +1184,12 @@ class SeoTests(TestCase):
         self.assertIn("Sitemap: http://testserver/sitemap.xml", robots)
         self.assertContains(self.client.get("/sitemap.xml"), "<loc>http://testserver/sources/</loc>")
 
+    def test_public_base_url_overrides_the_request_host(self):
+        with override_settings(PUBLIC_BASE_URL="https://jobs.example.com"):
+            self.assertIn('<link rel="canonical" href="https://jobs.example.com/sources/">', self.client.get("/sources/").content.decode())
+            self.assertIn("Sitemap: https://jobs.example.com/sitemap.xml", self.client.get("/robots.txt").content.decode())
+            self.assertContains(self.client.get("/sitemap.xml"), "<loc>https://jobs.example.com/</loc>")
+
 
 class CityTests(TestCase):
     def test_spellings_and_labelled_station(self):

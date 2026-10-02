@@ -27,7 +27,8 @@ Priority follows the product requirement: the board must show trustworthy, curre
 - [ ] Validate a full deployment on the actual Hetzner host and HTTPS subdomain, including migrations, backup restore, static assets, source access, and scheduled runs.
 - [x] Confirm AI imports and manual corrections survive subsequent source updates; handle changed source text through review. A source change after AI enrichment stays in review until a reviewer acts.
 - [ ] Add source-specific handling for PDFs, dynamically rendered portals, and paid internships only where an official source requires it.
-- [ ] Follow up on Claude's remaining review ideas: pagination URL/canonical behavior, snapshot lookup performance, unused `PUBLIC_BASE_URL`, and admin run/snapshot filtering. Establish a retention policy before any additional job-text trimming.
+- [x] Claude's remaining review ideas: page links keep only active filters and missing pages return 404; the latest-snapshot lookup is indexed; `PUBLIC_BASE_URL` sets canonical, Open Graph, sitemap and robots URLs; admin runs and snapshots can be filtered and the snapshot list no longer loads page texts.
+- [ ] Establish a retention policy before trimming stored text of long-closed jobs.
 - [ ] Recheck prior-session review items: local admin credential rotation and the manually published RYCO Tirana listing. Do not assume they are resolved from historical session notes.
 
 - [x] Accent-insensitive search: the board and feed match on case- and diacritic-folded text ("svicarska" finds "Švicarska", "dj" matches "đ"), in Python over the visible jobs, so it behaves the same on SQLite and PostgreSQL without `unaccent`.

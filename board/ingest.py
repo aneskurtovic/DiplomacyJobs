@@ -596,7 +596,7 @@ def bamboohr_links(client, source, evidence):
 def rmk_links(client, source, soup, evidence):
     """SuccessFactors career site (UNESCO). The all-jobs category is paged by a start row in the path until the stated total is read; rows are kept by a BiH location and their posting date is listing evidence."""
     total = re.search(r"\bof\s+(\d+)", soup.select_one(".paginationLabel").get_text(" ", strip=True)) if soup.select_one(".paginationLabel") else None
-    if not total and soup.select("tr.data-row"):
+    if not total and (soup.select("tr.data-row") or not re.search(r"no (?:jobs|results)|no matching", soup.get_text(" ", strip=True), re.I)):
         raise ValueError("SuccessFactors result count missing")
     total = int(total.group(1)) if total else 0
     parts = urlsplit(source.url)
@@ -611,7 +611,12 @@ def rmk_links(client, source, soup, evidence):
         # An ignored offset returns rows already read; the count check below then fails instead of looping.
         if not page_rows or len(rows) >= total or len(rows) == before or len(rows) > 10 * MAX_DETAIL_LINKS:
             break
-        _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", parts.query, "")))
+        if (source.adapter_config or {}).get("pagination") == "startrow":
+            query = [(key, value) for key, value in parse_qsl(parts.query) if key != "startrow"] + [("startrow", str(len(rows)))]
+            next_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), ""))
+        else:
+            next_url = urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/") + f"/{len(rows)}/", parts.query, ""))
+        _, page = fetch(client, next_url)
     if len(rows) != total:
         raise ValueError(f"SuccessFactors shows {len(rows)} of {total} jobs")
     result = []
@@ -908,14 +913,17 @@ def coe_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-FEED_ADAPTERS = {"sfrss"}
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss"}
+FEED_ADAPTERS = {"sfrss", "turkey", "canadales"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales"}
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
 def discover_links(client, source, soup, evidence=None):
     """Listing leads as (url, title). Adapters may add per-URL listing evidence (card text, closing dates) to `evidence`."""
     evidence = {} if evidence is None else evidence
+    from .recruitment import ADAPTERS
+    if source.adapter in ADAPTERS:
+        return ADAPTERS[source.adapter](client, source, soup, evidence)
     if source.adapter == "unct":
         if not soup.select_one(".view-jobs"):
             raise ValueError("UN jobs view missing")
@@ -1081,7 +1089,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
