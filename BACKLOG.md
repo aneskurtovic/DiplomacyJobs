@@ -4,8 +4,9 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P0 — Coverage and content review (owner priority, 2026-10-03)
 
-- [ ] Still unavailable: Malaysia, Pakistan, Qatar (incomplete certificate chains), Romania, Russia (JavaScript browser checks), Kuwait (Cloudflare challenge). No challenge solving, no TLS weakening.
-- [ ] Still blocked: UK (FCDO anti-bot check) and UNICEF's listing (AWS WAF JavaScript challenge; UNICEF jobs also arrive through the aggregators). UNICEF job detail pages on jobs.unicef.org were reachable on 2026-10-03.
+- [ ] Still unavailable (2026-10-03 afternoon): Romania (JavaScript browser check on sarajevo.mae.ro and www.mae.ro; cariera.mae.ro is a login-only platform) and Kuwait (Cloudflare challenge). No challenge solving.
+- [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Retry UNICEF from the server's IP once deployed; its jobs also arrive through the aggregators.
+- [x] Malaysia and Pakistan are sources (2026-10-03): their missing intermediates are fetched from the certificate's own AIA link and verified to a trusted root (`scripts/cert_chain.py`, `data/intermediates/`, `adapter_config.intermediates`). Qatar's site, now readable the same way, has no recruitment section; Russia's official Telegram channel has never posted a vacancy. Both are "no local recruitment list".
 
 ## P1 — Deployment and operations
 
@@ -29,6 +30,9 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Translate the remaining public jobs with `/translate-jobs`; decide whether translation runs after every scrape or on demand.
 - [ ] "Junior college" / "viša škola" has no education level between secondary school and a bachelor's degree; consider adding one.
 - [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
+- [ ] Source/employer page (owner request, 2026-10-03): a dedicated page per organization (e.g. `/sources/<id>/<slug>/`, linked from its `/sources/` row, the job card's employer line and the job page) with basic info: name, kind, city, monogram, official website, coverage status and last check, and the recruitment audit note with its evidence link. It lists the organization's current jobs, then past jobs (closed or expired, newest first, paginated). Decide whether past jobs that were never published are listed (probably not), and whether the page is indexed. Syndicated jobs appear under their employer when the registry knows it, not under the aggregator.
+- [ ] Job page: "Jobs from the same employer" section (owner request, 2026-10-03): up to three other current jobs from the same employer (same employer key, so aggregator copies count), with a link to the employer page. Hidden when there are none.
+- [ ] Job page: "Similar positions" section (owner request, 2026-10-03): up to three current jobs from other employers, ranked by overlap in title words, field of study, opportunity type and education level. Start rule-based (no embeddings) and test the ranking against the current jobs before showing it; hide the section when nothing scores above a threshold.
 
 ## Done
 

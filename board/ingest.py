@@ -3,6 +3,7 @@ import hashlib
 import json
 import re
 import ssl
+import time
 from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from datetime import date, datetime, timedelta
@@ -15,12 +16,16 @@ from django.db import transaction
 from django.utils import timezone
 from pypdf import PdfReader
 from io import BytesIO
+from pathlib import Path
 from xml.etree import ElementTree
 
 from .models import Job, ScrapeRun, Source, SourceDocument
 from . import requirements
 
 USER_AGENT = "DiplomacyJobs/0.1 (+official vacancy monitor; contact via site administrator)"
+BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+# Intermediate certificates that some servers fail to send, fetched from their AIA links and verified by scripts/cert_chain.py.
+INTERMEDIATES = Path(__file__).resolve().parent.parent / "data" / "intermediates"
 TARGET_YEAR = 2026
 MAX_DETAIL_LINKS = 100
 MAX_LISTING_PAGES = 10
@@ -1184,11 +1189,26 @@ AI_CHANGED = "Izvor je promijenjen nakon AI obrade"
 REOPENABLE = ("deadline", "missing")
 
 
+def tls_context(source):
+    """System trust store; a source whose server omits its intermediate (intermediates: true) also gets the stored one.
+
+    The stored intermediates are only chain material: partial chains stay off, so the chain must still end in a trusted root.
+    """
+    context = ssl.create_default_context()
+    if (source.adapter_config or {}).get("intermediates"):
+        host = urlsplit(source.url).hostname or ""
+        context.load_verify_locations(cafile=str(INTERMEDIATES / f"{host}.pem"))
+        context.verify_flags &= ~getattr(ssl, "VERIFY_X509_PARTIAL_CHAIN", 0)
+    return context
+
+
 def open_client(source):
-    """Sites that refuse non-browser TLS fingerprints opt in with adapter_config.impersonate."""
-    if (source.adapter_config or {}).get("impersonate"):
+    """Sites that refuse non-browser TLS fingerprints opt in with adapter_config.impersonate; those that only refuse a bot user agent with browser_user_agent."""
+    config = source.adapter_config or {}
+    if config.get("impersonate"):
         return curl_requests.Session(impersonate="chrome", timeout=20, allow_redirects=True)
-    return httpx.Client(headers={"User-Agent": USER_AGENT}, timeout=20, follow_redirects=True, verify=ssl.create_default_context())
+    agent = BROWSER_USER_AGENT if config.get("browser_user_agent") else USER_AGENT
+    return httpx.Client(headers={"User-Agent": agent}, timeout=20, follow_redirects=True, verify=tls_context(source))
 
 
 def ingest_source(source_id):
@@ -1229,11 +1249,14 @@ def ingest_source(source_id):
             if len(links) > MAX_DETAIL_LINKS:
                 raise ValueError(f"More than {MAX_DETAIL_LINKS} possible {TARGET_YEAR} vacancy links; narrow the source adapter")
             candidates = []
+            # Rate-limited portals (UNICEF's WAF) opt in to a pause before each detail page.
+            delay = float((source.adapter_config or {}).get("request_delay", 0))
             for url, title in links:
                 try:
                     if source.adapter in CARD_EVIDENCE:
                         candidate = make_candidate(source, url, title, evidence[url], None)
                     else:
+                        time.sleep(delay)
                         text, detail_soup = fetch(client, url, keep=("footer",)) if source.adapter in AGGREGATOR_ADAPTERS else fetch(client, url)
                         listed = evidence.get(url, "")
                         # A source whose adverts are bare PDFs (EUFOR) may opt in to the server's file date as the publication date.

@@ -256,13 +256,29 @@
         "adapter": "none",
         "status": "blocked",
         "enabled": false,
-        "notes": "2026-10-03: Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
+        "notes": "Zamijenjeno 2026-10-03 namjenskom stranicom Job Vacancy. 2026-10-03: Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj.",
+        "adapter_config": {
+          "superseded_by": "https://www.kln.gov.my/web/bih_sarajevo/job_vacancy"
+        }
+      },
+      {
+        "url": "https://www.kln.gov.my/web/bih_sarajevo/job_vacancy",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "link_selector": "div.ck-content a[href]",
+          "empty_text": "There are no job vacancies at this time",
+          "allow_empty": true,
+          "intermediates": true
+        },
+        "notes": "2026-10-03: namjenska stranica Notice > Job Vacancy ambasade; trenutno 'There are no job vacancies at this time.' Oglasi bi bili linkovi u sadržaju stranice (ck-content) s nazivom oglasa. kln.gov.my ne šalje međucertifikat; on se preuzima s adrese iz samog certifikata (AIA, kao preglednik) skriptom scripts/cert_chain.py, a lanac se provjerava do korijena iz trust storea (verifikacija, provjera imena i puni lanac uključeni). Pohranjen u data/intermediates/ (adapter_config.intermediates)."
       }
     ],
-    "recruitment_status": "blocked",
-    "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: kln.gov.my ne šalje međucertifikat (greška 'unable to get local issuer certificate' s Windows trust storeom, certifi i Chrome impersonacijom). To je konfiguracija servera; ne zaobilazi se. Ranije: Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
+    "recruitment_status": "",
+    "recruitment_checked_at": "",
+    "recruitment_evidence_url": "",
+    "recruitment_notes": ""
   },
   {
     "name": "Embassy of Romania",
@@ -278,7 +294,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://sarajevo.mae.ro/",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: sarajevo.mae.ro i dalje vraća HTTP 503 'Verifying your browser' i uz Chrome impersonaciju (JavaScript provjera se ne rješava); cariera.mae.ro ne šalje međucertifikat. Ranije: Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 popodne: cariera.mae.ro uz potpun lanac (međucertifikat preuzet preko AIA i provjeren do korijena) je platforma za konkurse MAE koja traži prijavu (login), a ne javna lista; www.mae.ro vraća istu JavaScript provjeru (HTTP 503) kao sarajevo.mae.ro. Ponovo provjereno 2026-10-03: sarajevo.mae.ro i dalje vraća HTTP 503 'Verifying your browser' i uz Chrome impersonaciju (JavaScript provjera se ne rješava); cariera.mae.ro ne šalje međucertifikat. Ranije: Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo."
   },
   {
     "name": "Embassy of the Federal Republic of Germany",
@@ -420,13 +436,30 @@
         "adapter": "none",
         "status": "blocked",
         "enabled": false,
-        "notes": "2026-10-03: Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
+        "notes": "2026-10-03: centralna stranica Vacancies (uz potpun lanac i Chrome user agent dostupna) nudi samo pozicije u Pakistanu, ne BiH; ambasada ima vlastitu stranicu Work With Us, koja je izvor. 2026-10-03: Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa.",
+        "adapter_config": {
+          "superseded_by": "https://mofa.gov.pk/sarajevo-work-with-us"
+        }
+      },
+      {
+        "url": "https://mofa.gov.pk/sarajevo-work-with-us",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "link_selector": "#print-section a[href]",
+          "empty_text": "not currently hiring",
+          "allow_empty": true,
+          "intermediates": true,
+          "browser_user_agent": true
+        },
+        "notes": "2026-10-03: stranica ambasade Work With Us; trenutno \"We're not currently hiring\". mofa.gov.pk ne šalje međucertifikat (preuzet preko AIA i provjeren do korijena, data/intermediates/) i njen WAF (FortiWeb) odbija bot user agent, pa se šalje Chrome user agent (browser_user_agent). Najave ambasade (/announcements/categories/sarajevo) trenutno su prazne."
       }
     ],
-    "recruitment_status": "blocked",
-    "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://mofa.gov.pk/vacancies",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: mofa.gov.pk ne šalje međucertifikat (sva tri klijenta); konfiguracija servera, ne zaobilazi se. Ranije: Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
+    "recruitment_status": "",
+    "recruitment_checked_at": "",
+    "recruitment_evidence_url": "",
+    "recruitment_notes": ""
   },
   {
     "name": "Embassy of the Kingdom of Denmark",
@@ -788,10 +821,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: uz Chrome impersonaciju sarajevo.mid.ru vraća samo JavaScript provjeru ('Please enable JavaScript', support ID); provjera se ne rješava. Ranije: Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno."
+    "recruitment_evidence_url": "https://t.me/s/RusEmbBiH",
+    "recruitment_notes": "Provjereno 2026-10-03: zvanični Telegram kanal ambasade ('Официальный канал Посольства России в Боснии и Герцеговине', oko 4.800 objava od 2022) pretražen je za вакансия/вакансии, оглас, oglas, конкурс, konkurs, запошљавање, zapošljavanje, радно мјесто, radno mjesto, posao, vacancy i сотрудник: nijedna objava nije oglas za posao (pogoci su vijesti, takmičenja i događaji). Web stranica sarajevo.mid.ru i dalje vraća JavaScript provjeru, koja se ne rješava, pa stranica nije pregledana; ponovo provjeriti pri obnovi audita. Ponovo provjereno 2026-10-03: uz Chrome impersonaciju sarajevo.mid.ru vraća samo JavaScript provjeru ('Please enable JavaScript', support ID); provjera se ne rješava. Ranije: Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno."
   },
   {
     "name": "Embassy of the Slovak Republic",
@@ -884,10 +917,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://sarajevo.embassy.qa/en/home",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: sarajevo.embassy.qa ne šalje međucertifikat (sva tri klijenta); konfiguracija servera, ne zaobilazi se. Ranije: Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena."
+    "recruitment_evidence_url": "https://sarajevo.embassy.qa/en/site-map",
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 uz potpun lanac (međucertifikat preuzet preko AIA i provjeren do korijena, data/intermediates/sarajevo.embassy.qa.pem): stranica ambasade i mapa sajta nemaju rubriku za posao, oglase ni karijeru; samo vijesti, konzularne usluge i stipendije. Ponovo provjereno 2026-10-03: sarajevo.embassy.qa ne šalje međucertifikat (sva tri klijenta); konfiguracija servera, ne zaobilazi se. Ranije: Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena."
   },
   {
     "name": "Embassy of the Swiss Confederation",
@@ -1241,9 +1274,10 @@
         "enabled": false,
         "adapter_config": {
           "allow_empty": true,
-          "impersonate": true
+          "impersonate": true,
+          "request_delay": 5
         },
-        "notes": "Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."
+        "notes": "2026-10-03 popodne: lista je prvo odgovorila uz Chrome impersonaciju (3 oglasa), ali već druga stranica oglasa, i uz pauzu od 5 s (request_delay), vratila je AWS WAF izazov (HTTP 202), a zatim i lista. Ograničenje je po IP adresi i vrlo strogo; izazov se ne rješava. Ranije: Adapter radi (2 BiH oglasa 2026-10-02), ali portal je iza AWS WAF JavaScript izazova (HTTP 202, CloudFront) i nakon nekoliko zahtjeva blokira i Chrome TLS otisak. Izazov se ne rješava. UNICEF BiH oglasi dolaze preko stranice UN-a u BiH."
       }
     ]
   },
