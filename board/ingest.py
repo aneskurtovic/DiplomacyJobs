@@ -867,41 +867,51 @@ def uncareers_links(client, source, evidence):
     return result
 
 
-def coe_links(client, source, soup):
-    """Council of Europe talent marketplace (Avature). Six cards per page; the stated result count must be reached, and only BiH duty stations are kept."""
+AVATURE_STATION = ".list-item-dutyStation, .list-item-Duty.Station"
+
+
+def avature_links(client, source, soup):
+    """Avature career marketplace (Council of Europe, UNOPS). Six cards per page; the stated result count must be reached, and only BiH duty stations are kept."""
     total = re.search(r"(\d+)\s+results?\b", soup.get_text(" ", strip=True))
     if not total:
-        raise ValueError("CoE result count missing")
+        raise ValueError("Avature result count missing")
+    # Cards are cheap listing rows; a worldwide portal (UNOPS) may set a higher limit than the detail-page cap.
+    limit = int((source.adapter_config or {}).get("max_results", MAX_DETAIL_LINKS))
     cards, page = [], soup
     while True:
         page_cards = page.select("article.article--result")
         if not page_cards:
             break
         cards += page_cards
-        if len(cards) >= int(total.group(1)) or len(cards) > MAX_DETAIL_LINKS:
+        if len(cards) >= int(total.group(1)) or len(cards) > limit:
             break
         parts = urlsplit(source.url)
         _, page = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode({"jobOffset": len(cards)}), "")))
         if page is None:
             break
     if len(cards) != int(total.group(1)):
-        raise ValueError(f"CoE shows {len(cards)} of {total.group(1)} vacancies")
+        raise ValueError(f"Avature shows {len(cards)} of {total.group(1)} vacancies")
     # If the offset were ignored, repeats of the first page would reach the count while other vacancies stay unread.
     if len({str(card.select_one("h3 a[href*='/JobDetail/']")) for card in cards}) != len(cards):
-        raise ValueError("CoE pages repeat vacancies; pagination changed")
+        raise ValueError("Avature pages repeat vacancies; pagination changed")
     result = []
     for card in cards:
         link = card.select_one("h3 a[href*='/JobDetail/']")
-        station = card.select_one(".list-item-dutyStation")
+        station = card.select_one(AVATURE_STATION)
         if not link or not station:
-            raise ValueError("CoE vacancy card changed shape")
+            raise ValueError("Avature vacancy card changed shape")
         url = urljoin(source.url, link["href"])
-        if LOCATION.search(station.get_text(" ", strip=True)) and urlsplit(url).hostname == "talents.coe.int":
+        if LOCATION.search(station.get_text(" ", strip=True)) and urlsplit(url).hostname == urlsplit(source.url).hostname:
             result.append((canonicalize(url), link.get_text(" ", strip=True)[:400]))
     return result
 
 
-def coe_fields(soup):
+def first_field(fields, *labels):
+    """Avature portals name the same field differently (CoE "Duty station", UNOPS "Duty Station(s)")."""
+    return next((fields[label] for label in labels if fields.get(label)), "")
+
+
+def avature_fields(soup):
     fields = {}
     for field in soup.select(".article__content__view__field"):
         label, value = field.select_one(".article__content__view__field__label"), field.select_one(".article__content__view__field__value")
@@ -910,16 +920,16 @@ def coe_fields(soup):
     return fields
 
 
-def coe_date(value):
+def avature_date(value):
     try:
         return datetime.strptime(value or "", "%d-%b-%Y").date()
     except ValueError:
         return None
 
 
-# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
-FEED_ADAPTERS = {"sfrss", "turkey", "canadales"}
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales"}
+# Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs, PeopleSoft and sitemap adapters read the advert themselves.
+FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap"}
 AGGREGATOR_ADAPTERS = ("reliefweb", "impactpool")
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
@@ -960,8 +970,8 @@ def discover_links(client, source, soup, evidence=None):
         return oracle_links(client, source, evidence)
     elif source.adapter == "workday":
         return workday_links(client, source, evidence)
-    elif source.adapter == "coe":
-        return coe_links(client, source, soup)
+    elif source.adapter == "avature":
+        return avature_links(client, source, soup)
     elif source.adapter == "uncareers":
         return uncareers_links(client, source, evidence)
     elif source.adapter == "csod":
@@ -1009,8 +1019,8 @@ def opportunity_type(title):
     return "employment"
 
 
-NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|sb-?[1-5]|sc-?\d{1,2}|service contract|lp-?[1-5]|ls-?[1-5]|local agent|local staff|locally engaged)\b|external recruitment \(local\)", re.I)
-INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|ip-?[1-5]|secondment|seconded)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
+NATIONAL = re.compile(r"\b(national (?:post|position|consultant|personnel|officer|professional)|npsa|no[a-d]|g-?[1-7]|gs-?[1-7]|lch-?\d|sb-?[1-5]|sc-?\d{1,2}|service contract|lp-?[1-5]|ls-?[1-5]|local agent|local staff|locally engaged|(?-i:LICA)(?:[\s-]?\d{1,2})?)\b|external recruitment \(local\)", re.I)
+INTERNATIONAL = re.compile(r"\b(international (?:consultant|position|post|recruitment|staff)|ipsa|p-?[1-5]|ip-?[1-5]|secondment|seconded|(?-i:IICA)(?:[\s-]?\d{1,2})?)\b|external recruitment \(international\)|(?<!\w)(?-i:\(S\d?\))", re.I)
 
 
 def recruitment_scope(title, text):
@@ -1027,6 +1037,7 @@ def recruitment_scope(title, text):
 def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     title = listing_title
     structured_published = None
+    title_from_fields = False
     if source.adapter == "eeas" and soup:
         # Judge only the vacancy itself; site navigation mentions BiH and unrelated jobs.
         article = soup.select_one("article.node--type-vacancy")
@@ -1079,13 +1090,17 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
         # A <meta content> or <time datetime> stamp holds an ISO timestamp; only its date counts.
         stamp_value = (stamp.get("content") or stamp.get("datetime") or stamp.get_text(" ", strip=True)) if stamp else ""
         structured_published = parse_date(stamp_value[:10] if re.match(r"\d{4}-\d{2}-\d{2}[T ]\d", stamp_value) else stamp_value) if stamp else None
-    if source.adapter == "coe" and soup:
-        fields = coe_fields(soup)
-        if not fields.get("Duty station"):
-            raise ValueError("CoE vacancy fields missing")
-        structured_published = coe_date(fields.get("Posted date"))
-        closing = coe_date(fields.get("Deadline to apply"))
-        text = f"Duty station: {fields['Duty station']}. " + (f"Closing date {closing.isoformat()}. " if closing else "") + " ".join(f"{label}: {value}" for label, value in fields.items())
+    if source.adapter == "avature" and soup:
+        fields = avature_fields(soup)
+        station = first_field(fields, "Duty station", "Duty Station(s)")
+        if not station:
+            raise ValueError("Avature vacancy fields missing")
+        structured_published = avature_date(first_field(fields, "Posted date", "Posting Start Date"))
+        closing = avature_date(first_field(fields, "Deadline to apply", "Posting End Date"))
+        # UNOPS pages carry the portal name as h1; the field holds the job title.
+        position = first_field(fields, "Position Title")
+        title_from_fields, title = bool(position), position or title
+        text = f"Duty station: {station}. " + (f"Closing date {closing.isoformat()}. " if closing else "") + " ".join(f"{label}: {value}" for label, value in fields.items())
     if source.adapter == "japan" and soup:
         # The publication date sits right under the h1 as YYYY/M/D; it is the page's only date in that form.
         stamp = re.search(r"\b(20\d{2})/(\d{1,2})/(\d{1,2})\b", text)
@@ -1095,7 +1110,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     if soup:
         heading = soup.find("h1")
         # UNICEF's h1 is the generic "Current vacancies", ERA's the State Department banner, Lanteria's "Job Opening Details".
-        if heading and source.adapter not in ("unicef", "era", "lanteria"):
+        if heading and source.adapter not in ("unicef", "era", "lanteria") and not title_from_fields:
             title = heading.get_text(" ", strip=True)[:400] or title
     excerpt = LOCATION.search(text)
     city = ""
@@ -1105,7 +1120,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "coe", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

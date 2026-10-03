@@ -4,11 +4,14 @@ Each adapter checks its listing structure before accepting an empty result. Glob
 portals filter employer and duty station separately from incidental body mentions.
 """
 import ast
+import gzip
 import json
 import re
 from datetime import date
 from email.utils import parsedate_to_datetime
+from io import BytesIO
 from urllib.parse import parse_qsl, urljoin, urlsplit
+from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup
 
@@ -330,4 +333,86 @@ def canada_links(client, source, soup, evidence):
     return result
 
 
-ADAPTERS = {"turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links}
+ATOM = "{http://www.w3.org/2005/Atom}"
+FEED_HISTORY = "{http://purl.org/syndication/history/1.0}"
+PS_DEADLINE = re.compile(r"Deadline:\s*(?:[A-Za-z]+day,?\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s+(20\d{2})")
+
+
+def xml_document(client, url):
+    response = core.request(client, "get", url)
+    response.raise_for_status()
+    content = response.content
+    # Sitemaps are often served as .xml.gz files, not with a gzip transfer encoding.
+    if content[:2] == b"\x1f\x8b":
+        content = gzip.GzipFile(fileobj=BytesIO(content)).read(5_000_001)
+    if response.status_code != 200 or len(content) > 5_000_000 or urlsplit(str(response.url)).hostname != urlsplit(url).hostname:
+        raise ValueError(f"Unusable XML document: {url}")
+    return ElementTree.fromstring(content)
+
+
+def peoplesoft_links(client, source, soup, evidence):
+    """PeopleSoft HCM job-posting Atom feed (EIB Group). The feed declares itself
+    complete; an entry is kept when its title or "based in/at" sentence names a BiH
+    place. Entries without a stated deadline are open until filled."""
+    feed = xml_document(client, source.url)
+    if feed.tag != ATOM + "feed" or feed.find(FEED_HISTORY + "complete") is None:
+        raise ValueError("PeopleSoft feed is not a complete Atom feed")
+    host, result, seen = urlsplit(source.url).hostname, [], set()
+    for entry in feed.findall(ATOM + "entry"):
+        title, link = (entry.findtext(ATOM + "title") or "").strip(), entry.find(ATOM + "link[@rel='alternate']")
+        published = core.parse_date((entry.findtext(ATOM + "published") or "")[:10])
+        if not title or link is None or not published:
+            raise ValueError("PeopleSoft feed entry changed shape")
+        url = core.canonicalize(link.get("href", ""))
+        if urlsplit(url).hostname != host:
+            raise ValueError("PeopleSoft job link outside the feed host")
+        if url in seen:
+            continue  # The same posting can appear twice in one feed.
+        seen.add(url)
+        body = BeautifulSoup(entry.findtext(ATOM + "content") or "", "html.parser").get_text(" ", strip=True)
+        if not core.LOCATION.search(title) and not any(core.LOCATION.search(match[0]) for match in re.finditer(r"\bbased (?:in|at)\b[^.]{0,80}", body, re.I)):
+            continue
+        entity = re.search(r"\(Entity:\s*([^-)]+)", title)
+        stated = PS_DEADLINE.search(body)
+        deadline = core.parse_date(" ".join(stated.groups())) if stated else None
+        clean = re.sub(r"\s*\(Entity:[^)]*\)\s*$", "", title)
+        result.append(put(evidence, url, clean, f"Employer: {entity[1].strip() if entity else source.organization.name}. {body}", published, deadline))
+    return result
+
+
+def sitemap_links(client, source, soup, evidence):
+    """Mission site without a vacancy list whose adverts are stand-alone articles
+    (German embassy). Its daily-generated sitemap names every page, so articles
+    newer than adapter_config.min_article_id are read, and those whose heading
+    matches adapter_config.title_pattern are kept."""
+    config = source.adapter_config or {}
+    floor, prefix, pattern = int(config["min_article_id"]), config["path_prefix"], re.compile(config["title_pattern"], re.I)
+    host = urlsplit(source.url).hostname
+    index = xml_document(client, source.url)
+    namespace = index.tag.split("}")[0] + "}" if index.tag.startswith("{") else ""
+    maps = [loc.text.strip() for loc in index.iter(namespace + "loc")] if index.tag.endswith("sitemapindex") else []
+    pages = []
+    for document in [xml_document(client, url) for url in maps] if maps else [index]:
+        pages += [loc.text.strip() for loc in document.iter(namespace + "loc")]
+    if any(urlsplit(url).hostname != host for url in maps + pages) or not any(urlsplit(url).path.startswith(prefix) for url in pages):
+        raise ValueError("Sitemap lists no pages of this mission")
+    articles = [url for url in pages if (match := re.fullmatch(re.escape(prefix) + r"(\d+)-\1", urlsplit(url).path)) and int(match[1]) > floor]
+    if len(articles) > core.MAX_DETAIL_LINKS:
+        raise ValueError(f"{len(articles)} new sitemap articles; raise adapter_config.min_article_id")
+    result = []
+    for url in articles:
+        body, page = core.fetch(client, url)
+        heading = page.select_one("main h1.heading__title") if page else None
+        stamp = re.search(r"(\d{2}\.\d{2}\.\d{4})\s*-\s*(?:Članak|Artikel|Article)", body)
+        if not heading or not stamp:
+            raise ValueError("Mission article heading or date missing")
+        if not pattern.search(text(heading)):
+            continue
+        content = body[stamp.end():]
+        # Headings are often just "Oglas za posao"; the employer label makes the board title useful.
+        title = f"{text(heading)} — {config['employer_label']}" if config.get("employer_label") else text(heading)
+        result.append(put(evidence, core.canonicalize(url), title, f"Location: {source.organization.city}. Employer: {source.organization.name}. {content}", core.parse_date(stamp[1]), core.parse_deadline(content)))
+    return result
+
+
+ADAPTERS = {"turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}

@@ -487,7 +487,7 @@ def coe_card(number, title, station):
 class CoeAdapterTests(TestCase):
     def setUp(self):
         organization = Organization.objects.create(name="CoE", kind="international")
-        self.source = Source.objects.create(organization=organization, adapter="coe", url="https://talents.coe.int/en_GB/careersmarketplace/SearchJobs")
+        self.source = Source.objects.create(organization=organization, adapter="avature", url="https://talents.coe.int/en_GB/careersmarketplace/SearchJobs")
 
     @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
     def test_pages_followed_and_bih_station_kept(self, _):

@@ -275,11 +275,26 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234985440596074",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": [],
-    "recruitment_status": "not_found",
+    "sources": [
+      {
+        "url": "https://sarajewo.diplo.de/service-sitemap-ba-sh-sitemap_index.xml",
+        "adapter": "sitemap",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "path_prefix": "/ba-sh/",
+          "min_article_id": 2700000,
+          "title_pattern": "oglas za posao|stellenausschreibung|radno mjesto|konkurs za|zapošljavanje",
+          "employer_label": "Ambasada Njemačke"
+        },
+        "notes": "Ambasada nema listu oglasa; oglasi su samostalni članci (/ba-sh/<id>-<id>, 2020. i 2022). Dnevno generisana mapa stranice navodi sve stranice; čitaju se članci noviji od min_article_id (2700000 = maj 2025) i zadržavaju oni čiji naslov glasi kao oglas za posao. Provjereno 2026-10-03: 4 nova članka, nijedan oglas."
+      }
+    ],
+    "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://sarajewo.diplo.de/ba-sh",
-    "recruitment_notes": "Pregledana službena početna stranica i ciljana pretraga. Pronađeni pojedinačni oglasi iz 2019/2020. i 2022, bez potvrđene aktuelne liste za 2026. Pozivi za projekte nisu individualni poslovi."
+    "recruitment_evidence_url": "https://sarajewo.diplo.de/service-sitemap-ba-sh-sitemap_index.xml",
+    "recruitment_notes": "Nema liste oglasa; raniji oglasi (2020, 2022) su samostalni članci koje navodi mapa stranice. Izvor preko mape stranice dodan 2026-10-03."
   },
   {
     "name": "Embassy of the Federative Republic of Brazil",
@@ -1518,7 +1533,7 @@
     "sources": [
       {
         "url": "https://talents.coe.int/en_GB/careersmarketplace/SearchJobs",
-        "adapter": "coe",
+        "adapter": "avature",
         "status": "verified",
         "enabled": true,
         "adapter_config": {
@@ -1653,5 +1668,66 @@
         "notes": "CRS karijere (Oracle Recruiting Cloud, isti API kao UNDP); zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-03: 35 oglasa globalno, nijedan u BiH."
       }
     ]
+  },
+  {
+    "name": "UNOPS u Bosni i Hercegovini",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.unops.org/europe-and-central-asia",
+    "evidence_url": "https://careers.unops.org/careersmarketplace/SearchJobs",
+    "verified_at": "2026-10-03",
+    "notes": "UNOPS je jobs.unops.org (nepotpun lanac certifikata) zamijenio portalom careers.unops.org (Avature), čiji se certifikat uredno provjerava.",
+    "sources": [
+      {
+        "url": "https://careers.unops.org/careersmarketplace/SearchJobs",
+        "adapter": "avature",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "max_results": 240
+        },
+        "notes": "Globalni portal, 6 kartica po stranici s mjestom rada; čitaju se sve stranice i zadržavaju samo mjesta rada u BiH. Provjereno 2026-10-03: 74 oglasa, nijedan u BiH."
+      }
+    ]
+  },
+  {
+    "name": "Evropska investicijska banka (EIB) – Ured u Sarajevu",
+    "kind": "international",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.eib.org/en/projects/regions/enlargement/the-western-balkans/index",
+    "evidence_url": "https://www.eib.org/en/about/careers/index",
+    "verified_at": "2026-10-03",
+    "notes": "EIB grupa objavljuje sve oglase u javnom Atom feedu svog PeopleSoft portala (erecruitment.eib.org).",
+    "sources": [
+      {
+        "url": "https://erecruitment.eib.org/PSIGW/HttpListeningConnector/feeds/RealtimeQueryFeed?FEED_ID=ADMN_BEI_HRS_JOB_POSTING_RSS_1&S=P",
+        "adapter": "peoplesoft",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "active_undated_listing": true
+        },
+        "notes": "Feed se označava kao potpun (fh:complete); zadržavaju se oglasi čiji naslov ili rečenica 'based in/at' navodi mjesto u BiH. Oglasi bez roka su otvoreni do popune. Provjereno 2026-10-03: 30 oglasa (EIB i EIF), svi u Luksemburgu."
+      }
+    ]
+  },
+  {
+    "name": "Embassy of the Republic of Austria",
+    "kind": "embassy",
+    "country": "AUSTRIA",
+    "city": "Sarajevo",
+    "website": "https://www.bmeia.gv.at/oeb-sarajewo",
+    "evidence_url": "https://www.bmeia.gv.at/oeb-sarajewo",
+    "verified_at": "2026-10-03",
+    "notes": "Nije bila u inventaru; dodana pri ponovnoj provjeri 2026-10-03. Stara adresa /oeb-sarajevo vraća 404, ispravna je /oeb-sarajewo.",
+    "sources": [],
+    "recruitment_status": "not_found",
+    "recruitment_checked_at": "2026-10-03",
+    "recruitment_evidence_url": "https://www.bmeia.gv.at/oeb-sarajewo/ueber-uns",
+    "recruitment_notes": "Stranica ambasade nema rubriku za oglase (provjerene putanje stellenausschreibungen, stellenangebote, jobs, offene-stellen vraćaju 404); centralni oglasi ministarstva su za službu u Austriji."
   }
 ]
