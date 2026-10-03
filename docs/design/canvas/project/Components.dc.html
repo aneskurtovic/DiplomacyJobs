@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Components</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#0f4c81}a:hover{color:#0b3a63}
+</style>
+</helmet>
+<div style="font-family: 'Public Sans', system-ui, sans-serif; color: #253441; background: #ffffff; min-height: 100%">
+<div style="max-width: 1280px; margin: 0 auto; padding: 64px 2.5rem 80px; display: flex; flex-direction: column; gap: 40px">
+
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 900px">
+    <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0f4c81">3 · Components</p>
+    <h1 style="margin: 0; font-size: 39px; line-height: 1.12; letter-spacing: -0.02em; color: #13202d">The parts the screens are built from</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3e4c59">Each component maps to an existing template, so it can land without restructuring the views. The deadline is one inclusion tag shared by the card, the job page and the sticky bar.</p>
+  </header>
+
+  <!-- Buttons -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+      <a href="#buttons" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 6px; background: #0f4c81; color: #ffffff; font-weight: 600; text-decoration: none">Službeni oglas i prijava <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+      <a href="#buttons" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; text-decoration: none">Službeni oglas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+      <a href="#buttons" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 6px; color: #0f4c81; font-weight: 600; text-decoration: none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8"></path><circle cx="6" cy="18" r="1"></circle></svg>Prati rezultate</a>
+      <a href="#buttons" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 6px; background: #0f4c81; color: #ffffff; font-weight: 600; text-decoration: none; outline: 2px solid #1a5a96; outline-offset: 2px">Focus ring</a>
+      <a href="#buttons" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; font-size: 14px; text-decoration: none">Small</a>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Button</h2>Primary, one per view: Apply on the job page, Search in the filter bar. Secondary is the external link on cards. Ghost is for feeds and clearing.</div>
+      <div style="padding-top: 28px">Minimum height 44px (36px small). External links always carry the arrow icon and a hidden "(otvara se u novom prozoru)". Replaces .apply, .filters button and .report-form button.</div>
+    </div>
+  </section>
+
+  <!-- Deadline -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+      <div style="display: grid; gap: 2px; text-align: right; min-width: 120px"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 16px; font-weight: 700; color: #13202d">03.10.2026.</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #a23b2a; color: #ffffff">Ističe danas</span></div>
+      <div style="display: grid; gap: 2px; text-align: right; min-width: 120px"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 16px; font-weight: 700; color: #13202d">09.10.2026.</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #fbf3e8; color: #6b3a00">Još 6 dana</span></div>
+      <div style="display: grid; gap: 2px; text-align: right; min-width: 120px"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 16px; font-weight: 700; color: #13202d">28.10.2026.</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #eef1f4; color: #3e4c59">Još 25 dana</span></div>
+      <div style="display: grid; gap: 2px; text-align: right; min-width: 120px"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 14px; font-weight: 700; color: #13202d">Do popune</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #eef1f4; color: #3e4c59">Bez roka</span></div>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Deadline</h2>Label, the date in bold tabular figures, and a countdown pill. Today or tomorrow is red, within 7 days amber, later or rolling grey.</div>
+      <div style="padding-top: 28px">Uses job.days_left as it is today and replaces the urgency badges and the "Rok:" meta text. One tag, deadline job, reused by the card, the job summary and the sticky bar.</div>
+    </div>
+  </section>
+
+  <!-- Pills and tags -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec"><span style="width: 7px; height: 7px; border-radius: 50%; background: #1d6b45"></span>Dostupan</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #0f4c81; background: #eef4fa"><span style="width: 7px; height: 7px; border-radius: 50%; background: #0f4c81"></span>Djelimično praćen</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #5b3fa0; background: #f1eefa"><span style="width: 7px; height: 7px; border-radius: 50%; background: #5b3fa0"></span>Oglasi na provjeri</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #6b3a00; background: #fbf3e8"><span style="width: 7px; height: 7px; border-radius: 50%; background: #6b3a00"></span>Nedostupan</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4"><span style="width: 7px; height: 7px; border-radius: 50%; background: #3e4c59"></span>Izvor nije pronađen</span>
+      <span style="border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #0f4c81; background: #eef4fa">Novo</span>
+      <span style="width: 1px; height: 24px; background: #c3cbd3"></span>
+      <span style="border: 1px solid #dce1e6; background: #ffffff; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Fakultet (bachelor)</span>
+      <span style="border: 1px solid #dce1e6; background: #ffffff; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">5+ god. iskustva</span>
+      <span style="border: 1px solid #dce1e6; background: #ffffff; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Vozačka dozvola</span>
+      <span style="border: 1px solid #dce1e6; background: #ffffff; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">+2</span>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Status pill and requirement tag</h2>Five coverage states, each with its own hue and a leading dot, always with a text label. A covered source with zero jobs stays green and shows "0".</div>
+      <div style="padding-top: 28px">Tags are neutral facts read from the advert and never use status colours. A card shows at most three, then "+n"; the job page shows them all.</div>
+    </div>
+  </section>
+
+  <!-- Job card -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+      <article style="display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 16px; padding: 24px; border: 1px solid #dce1e6; border-radius: 10px; background: #ffffff">
+        <span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; background: #eef4fa; color: #0f4c81; font-weight: 700; font-size: 9.5px">UNFPA</span>
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+          <p style="margin: 0; font-size: 14px; color: #3e4c59; display: flex; gap: 8px; align-items: center">UNFPA u Bosni i Hercegovini <span style="border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; color: #0f4c81; background: #eef4fa">Novo</span></p>
+          <h3 style="margin: 0; font-size: 20px; line-height: 1.35"><a href="#card" style="color: #13202d; text-decoration: none">Programme Monitoring &amp; Evaluation Analyst</a></h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: #52606d">
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Sarajevo</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>Zaposlenje</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>Nacionalna pozicija</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Master</span>
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">2+ god. iskustva</span>
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Društvene nauke</span>
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">+1</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 16px">
+          <div style="display: grid; gap: 2px; text-align: right"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 16px; font-weight: 700; color: #13202d">22.10.2026.</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #eef1f4; color: #3e4c59">Još 19 dana</span></div>
+          <a href="#card" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; font-size: 14px; text-decoration: none">Službeni oglas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+        </div>
+      </article>
+      <article style="display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 16px; padding: 24px; border: 1px solid #c3cbd3; border-radius: 10px; background: #ffffff; box-shadow: 0 4px 14px rgba(19, 32, 45, 0.08), 0 1px 3px rgba(19, 32, 45, 0.06)">
+        <span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; background: #eef4fa; color: #0f4c81; font-weight: 700; font-size: 13px">EU</span>
+        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+          <p style="margin: 0; font-size: 14px; color: #3e4c59">Delegacija EU i Ured specijalnog predstavnika EU u BiH</p>
+          <h3 style="margin: 0; font-size: 20px; line-height: 1.35"><a href="#card" style="color: #13202d; text-decoration: underline; text-underline-offset: 3px">Head of Communications</a></h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: #52606d">
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Sarajevo</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>Zaposlenje</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>Međunarodna pozicija</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Master</span>
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">10+ god. iskustva</span>
+            <span style="border: 1px solid #dce1e6; background: #f4f6f8; color: #3e4c59; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500">Komunikacije i novinarstvo</span>
+          </div>
+          <p style="margin: 4px 0 0; display: flex; gap: 6px; align-items: center; font-size: 14px; color: #6b3a00"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path><path d="M12 10v4M12 17v.01"></path></svg>Samo za državljane EU.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 16px">
+          <div style="display: grid; gap: 2px; text-align: right"><span style="font-size: 12px; color: #52606d">Rok prijave</span><span style="font-size: 16px; font-weight: 700; color: #13202d">06.10.2026.</span><span style="justify-self: end; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #fbf3e8; color: #6b3a00">Još 3 dana</span></div>
+          <a href="#card" style="display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; font-size: 14px; text-decoration: none">Službeni oglas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+        </div>
+      </article>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Job card v2 (second card: hover)</h2>Employer monogram, employer line with "Novo", title linking to the job page, meta row with icons, up to three tags, eligibility as one amber line. The side column holds the deadline and a secondary external link.</div>
+      <div style="padding-top: 28px">The whole card is clickable via a stretched title link; the external button sits above it. Hover raises the border and adds shadow-2, with no movement. Under 640px the side column becomes a footer row. "Detalji i uslovi" goes; "Provjereno" moves to the job page.</div>
+    </div>
+  </section>
+
+  <!-- Search and filter bar -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+      <form role="search" aria-label="Pretraga oglasa" style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: 8px; padding: 8px; border: 1px solid #dce1e6; border-radius: 12px; background: #ffffff; box-shadow: 0 1px 2px rgba(19, 32, 45, 0.06)">
+        <label style="position: relative; display: flex; align-items: center"><span style="position: absolute; left: 12px; display: flex; color: #52606d"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></span><input aria-label="Pretraga" placeholder="Naziv posla, organizacija ili ključna riječ" value="analyst" style="width: 100%; min-height: 44px; padding: 0 12px 0 38px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; box-sizing: border-box"></label>
+        <select aria-label="Grad" style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; background: #ffffff"><option>Sarajevo</option></select>
+        <select aria-label="Vrsta angažmana" style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; background: #ffffff"><option>Sve vrste</option></select>
+        <button type="button" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font: inherit; font-weight: 600; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>Filteri <span style="display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #0f4c81; color: #ffffff; font-size: 11px; font-weight: 700">2</span></button>
+        <button type="button" style="min-height: 44px; padding: 0 20px; border-radius: 6px; background: #0f4c81; color: #ffffff; border: 0; font: inherit; font-weight: 600; cursor: pointer">Traži</button>
+      </form>
+      <div style="border: 1px solid #dce1e6; border-radius: 10px; background: #ffffff; padding: 16px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: #13202d">Organizacija<select style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; font-weight: 400; background: #ffffff"><option>Sve organizacije</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: #13202d">Pozicija<select style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; font-weight: 400; background: #ffffff"><option>Nacionalne</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: #13202d">Moje obrazovanje<select style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; font-weight: 400; background: #ffffff"><option>Master</option></select></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: #13202d">Traženo iskustvo<select style="min-height: 44px; padding: 0 12px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; font-weight: 400; background: #ffffff"><option>Bilo koje</option></select></label>
+        <p style="grid-column: 1 / -1; margin: 0; font-size: 12px; color: #52606d">Obrazovanje, iskustvo i oblast prikazuju samo oglase u kojima je uslov jasno naveden.</p>
+      </div>
+      <div aria-label="Aktivni filteri" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+        <span style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 4px 0 12px; border-radius: 999px; background: #eef4fa; color: #0f4c81; font-size: 14px; font-weight: 600; border: 1px solid #b6cfe7">„analyst“ <a href="#chips" aria-label="Ukloni pretragu" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #0f4c81"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></a></span>
+        <span style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 4px 0 12px; border-radius: 999px; background: #eef4fa; color: #0f4c81; font-size: 14px; font-weight: 600; border: 1px solid #b6cfe7">Sarajevo <a href="#chips" aria-label="Ukloni grad" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #0f4c81"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></a></span>
+        <span style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 4px 0 12px; border-radius: 999px; background: #eef4fa; color: #0f4c81; font-size: 14px; font-weight: 600; border: 1px solid #b6cfe7">Nacionalne <a href="#chips" aria-label="Ukloni poziciju" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #0f4c81"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></a></span>
+        <span style="display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 4px 0 12px; border-radius: 999px; background: #eef4fa; color: #0f4c81; font-size: 14px; font-weight: 600; border: 1px solid #b6cfe7">Master <a href="#chips" aria-label="Ukloni obrazovanje" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: #0f4c81"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></a></span>
+        <a href="#chips" style="font-size: 14px; font-weight: 600; margin-left: 4px">Poništi sve</a>
+      </div>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Search and filter bar</h2>The primary row holds search, City, Type, Filters (n) and Search. Filters is a details element with organization, scope, education, experience and field; it opens by default when any of them is set. Sort moves to the results header.</div>
+      <div style="padding-top: 28px">Applied chips are plain links built from the current query minus one key, so no JavaScript is needed. The badge counts only hidden active filters. On mobile the search field takes the full row.</div>
+    </div>
+  </section>
+
+  <!-- Evidence and notices -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-direction: column; gap: 16px">
+      <dl style="margin: 0; border: 1px solid #dce1e6; border-radius: 10px; background: #ffffff">
+        <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 16px 20px; border-bottom: 1px solid #dce1e6">
+          <dt style="font-size: 14px; font-weight: 600; color: #3e4c59">Minimalno obrazovanje</dt>
+          <dd style="margin: 0; color: #13202d; display: flex; flex-direction: column; gap: 8px">
+            <span>Fakultet (bachelor) <span style="color: #52606d">· oglas spominje i master</span></span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: #0f4c81"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h4v4H8v2a2 2 0 0 0 2 2M14 7h4v4h-3v2a2 2 0 0 0 2 2"></path></svg>Iz oglasa</span>
+            <blockquote lang="en" style="margin: 0; padding: 8px 12px; background: #fafbfc; border-radius: 6px; box-shadow: inset 3px 0 0 #0f4c81; color: #3e4c59; font-style: italic; font-size: 14px">University degree in public administration, law or economics.<span style="display: block; font-style: normal; font-size: 12px; color: #52606d; margin-top: 4px">Službeni oglas · OSCE · provjereno 03.10.2026.</span></blockquote>
+          </dd>
+        </div>
+        <div style="display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 16px 20px">
+          <dt style="font-size: 14px; font-weight: 600; color: #3e4c59">Radno iskustvo</dt>
+          <dd style="margin: 0; color: #13202d; display: flex; flex-direction: column; gap: 8px">
+            <span>Najmanje 7 godina</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: #0f4c81"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h4v4H8v2a2 2 0 0 0 2 2M14 7h4v4h-3v2a2 2 0 0 0 2 2"></path></svg>Iz oglasa</span>
+          </dd>
+        </div>
+      </dl>
+      <p style="margin: 0; display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 6px; font-size: 14px; border: 1px solid #e8c79a; background: #fbf3e8; color: #6b3a00"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path><path d="M12 10v4M12 17v.01"></path></svg>Ovaj oglas više nije među aktuelnim oglasima. Provjerite stanje na službenoj stranici.</p>
+      <p style="margin: 0; display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 6px; font-size: 14px; border: 1px solid #dce1e6; background: #ffffff; color: #3e4c59"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>Automatski prijevod sa engleskog jezika. Mjerodavan je službeni oglas.</p>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Fact row, evidence and notices</h2>Evidence is the product's signature pattern: a quote icon in the summary, a brand rule and italic source text in the advert's language, with an optional source and check-date line. Collapsed by default.</div>
+      <div style="padding-top: 28px">Warning notices (amber, bordered) cover expired jobs and eligibility limits; info notices (neutral) cover translations and filter explanations. Both carry an icon and text, never colour alone.</div>
+    </div>
+  </section>
+
+  <!-- Header -->
+  <section style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="background: #f4f6f8; padding: 32px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+      <header style="flex: 1 1 640px; display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 24px; border: 1px solid #dce1e6; border-radius: 10px; background: #ffffff">
+        <a href="#header" style="margin-right: auto; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: #13202d; text-decoration: none"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f4c81"></rect><g fill="none" stroke="#ffffff" stroke-width="1.6"><circle cx="16" cy="16" r="8.5"></circle><path d="M7.5 16h17M16 7.5c-3.2 3.5-3.2 13.5 0 17M16 7.5c3.2 3.5 3.2 13.5 0 17"></path></g></svg>DiplomacyJobs</a>
+        <nav aria-label="Glavna navigacija" style="display: flex; height: 100%">
+          <a href="#header" aria-current="page" style="display: flex; align-items: center; padding: 0 12px; color: #13202d; text-decoration: none; font-weight: 500; font-size: 15px; box-shadow: inset 0 -2px 0 #13202d">Oglasi</a>
+          <a href="#header" style="display: flex; align-items: center; padding: 0 12px; color: #52606d; text-decoration: none; font-weight: 500; font-size: 15px">Izvori</a>
+        </nav>
+        <span style="display: inline-flex; border: 1px solid #7b8794; border-radius: 6px; overflow: hidden; font-size: 13px; font-weight: 700"><span aria-current="true" style="display: grid; place-items: center; min-width: 40px; height: 32px; background: #13202d; color: #ffffff">BS</span><a href="#header" lang="en" style="display: grid; place-items: center; min-width: 40px; height: 32px; color: #52606d; text-decoration: none">EN</a></span>
+      </header>
+      <header style="flex: 0 0 340px; border: 1px solid #dce1e6; border-radius: 10px; background: #ffffff; padding: 8px 16px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px">
+        <a href="#header" style="margin-right: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 700; font-size: 17px; color: #13202d; text-decoration: none"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f4c81"></rect><g fill="none" stroke="#ffffff" stroke-width="1.6"><circle cx="16" cy="16" r="8.5"></circle><path d="M7.5 16h17M16 7.5c-3.2 3.5-3.2 13.5 0 17M16 7.5c3.2 3.5 3.2 13.5 0 17"></path></g></svg>DiplomacyJobs</a>
+        <span style="display: inline-flex; border: 1px solid #7b8794; border-radius: 6px; overflow: hidden; font-size: 13px; font-weight: 700"><span aria-current="true" style="display: grid; place-items: center; min-width: 40px; height: 32px; background: #13202d; color: #ffffff">BS</span><a href="#header" lang="en" style="display: grid; place-items: center; min-width: 40px; height: 32px; color: #52606d; text-decoration: none">EN</a></span>
+        <nav aria-label="Glavna navigacija" style="width: 100%; display: flex; height: 44px; margin-left: -8px">
+          <a href="#header" aria-current="page" style="display: flex; align-items: center; padding: 0 8px; color: #13202d; text-decoration: none; font-size: 15px; font-weight: 500; box-shadow: inset 0 -2px 0 #13202d">Oglasi</a>
+          <a href="#header" style="display: flex; align-items: center; padding: 0 8px; color: #52606d; text-decoration: none; font-size: 15px; font-weight: 500">Izvori</a>
+        </nav>
+      </header>
+    </div>
+    <div style="padding: 20px 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; font-size: 14px; line-height: 1.55; color: #3e4c59">
+      <div><h2 style="margin: 0 0 6px; font-size: 17px; color: #13202d">Header, desktop and mobile (shipped in Phase 1)</h2>An SVG globe seal replaces the ◎ glyph. BS/EN is a segmented control with 40×32px targets, outside the nav.</div>
+      <div style="padding-top: 28px">Under 760px the header has two rows: brand and BS/EN, then the tabs. No page scrolls sideways at 320, 360 or 390px.</div>
+    </div>
+  </section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
