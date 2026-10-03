@@ -10,6 +10,9 @@
  * against WCAG 2.2: body text >= 4.5:1, control borders >= 3:1 (1.4.11).
  * The brand blue #0f4c81 and the slate text colours are kept from site.css so
  * adoption is a find-and-replace, not a rebrand.
+ *
+ * Dark mode is opt-in: it follows the OS only on <html data-theme="auto">.
+ * base.html leaves it off until the dark theme has had a QA pass on the real pages.
  */
 
 :root {
@@ -62,6 +65,7 @@
 
   --color-border: var(--dj-slate-200);
   --color-border-strong: var(--dj-slate-300);
+  --color-border-subtle: var(--dj-slate-100);
   --color-border-control: var(--dj-slate-400);
 
   --color-brand: var(--dj-blue-700);
@@ -177,7 +181,7 @@
 
 /* Dark theme: alias tokens remap; components never change. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root[data-theme="auto"] {
     --color-bg: #0e1a26;
     --color-bg-subtle: #122030;
     --color-surface: #15232f;
@@ -189,6 +193,7 @@
     --color-text-muted: #9fb3c8;
     --color-border: #2a3a49;
     --color-border-strong: #3a4c5d;
+    --color-border-subtle: #1f2f3e;
     --color-border-control: #6b7c8f;
     --color-brand: #7cb8f0;
     --color-brand-hover: #a6cff5;
@@ -197,6 +202,10 @@
     --color-link-hover: #a6cff5;
     --color-focus: #7cb8f0;
     --color-text-inverse: #0e1a26;
+    --color-success-fg: #7fd1a6;
+    --color-success-bg: #143326;
+    --color-error-fg: #f4a593;
+    --color-error-bg: #3a1d18;
     --color-deadline-soon-fg: #f2c27b;
     --color-deadline-soon-bg: #3a2a12;
     --color-deadline-open-fg: #b8c5d2;

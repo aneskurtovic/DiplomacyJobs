@@ -44,7 +44,7 @@
         <div><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
         <div><dt>{% translate "Provjereno" %}</dt><dd>{% if job.last_checked_at %}{{ job.last_checked_at|date:'d.m.Y.' }}{% else %}{% translate "Nije dostupno" %}{% endif %}</dd></div>
       </dl>
-      <a class="apply apply-block" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}{% translate "Oglas / prijava" %}{% else %}{% translate "Službeni oglas i prijava" %}{% endif %} <span aria-hidden="true">↗</span><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>
+      <a class="apply apply-block" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}{% translate "Oglas / prijava" %}{% else %}{% translate "Službeni oglas i prijava" %}{% endif %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>
       {% if job.is_aggregated %}<p class="aside-note">{% blocktranslate with portal=job.via %}Oglas smo pronašli putem portala {{ portal }}.{% endblocktranslate %}</p>{% endif %}
     </aside>
   </div>

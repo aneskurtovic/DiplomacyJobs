@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="auto">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="../../board/static/board/tokens.css">
 <style>
 /* ---------- Document chrome (uses the proposed tokens) ---------- */
 *{box-sizing:border-box}
@@ -321,7 +321,7 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
     <p class="kicker">Design proposal · MVP · 3 Oct 2026</p>
     <h1>DiplomacyJobs Design System</h1>
     <p class="lede">An audit of the public site as it stands on <code>claude/great-cerf-a494ae</code>, a token-based design system that keeps today's institutional look, and redesigned job list, job page and sources screens. The aim is to make the site calmer on phones and put the deadline first. Every claim it makes should stay visibly backed by evidence.</p>
-    <div class="doc-meta"><span>Scope: <code>templates/board/*</code>, <code>board/static/board/site.css</code></span><span>Method: heuristic evaluation, visual critique, tokenization</span><span>Drop-in tokens: <a href="tokens.css">tokens.css</a></span></div>
+    <div class="doc-meta"><span>Scope: <code>templates/board/*</code>, <code>board/static/board/site.css</code></span><span>Method: heuristic evaluation, visual critique, tokenization</span><span>Drop-in tokens: <a href="../../board/static/board/tokens.css">tokens.css</a></span></div>
     <div class="stat-row" aria-label="Audit in numbers">
       <div><strong>123</strong><span>raw hex values in site.css (23 distinct colours, no tokens)</span></div>
       <div><strong>16</strong><span>distinct font sizes, from 12 to 36px; proposed: 7</span></div>
@@ -357,7 +357,7 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
   <table class="findings">
     <thead><tr><th>Sev.</th><th>Finding and fix</th><th>Heuristic</th></tr></thead>
     <tbody>
-      <tr><td><span class="sev sev-4">4</span></td><td><strong>The whole site scrolls sideways on phones.</strong>At 390px, <code>.site-nav</code> plus the language switch are 425px wide, so every page overflows by 35px. Fix: let the header wrap, drop the nav gap to <code>--space-1</code>, and render BS/EN as a 2×40px segmented control.</td><td class="h">Consistency, platform conventions</td></tr>
+      <tr><td><span class="sev sev-4">4</span></td><td><strong>The whole site scrolls sideways on phones.</strong>At 390px, <code>.site-nav</code> plus the language switch are 425px wide, so every page overflows by 35px. Fix (done): under 760px the header has two rows, with the brand and BS/EN on the first and the Oglasi/Izvori tabs on the second. BS/EN is a 2×40px segmented control outside the <code>&lt;nav&gt;</code>. The English job cards also overflowed at 320px; their actions now wrap.</td><td class="h">Consistency, platform conventions</td></tr>
       <tr><td><span class="sev sev-3">3</span></td><td><strong>On mobile the first screen has no jobs.</strong>The hero plus nine stacked selects take ~1,250px before the first result. Fix: show the search field, City, Type and a <em>Filters (n)</em> disclosure. The six requirement filters move into the disclosure (<code>&lt;details&gt;</code>, no JS), and the hero shrinks to one line.</td><td class="h">Aesthetic &amp; minimalist; Hick's law</td></tr>
       <tr><td><span class="sev sev-3">3</span></td><td><strong>Deadline, the deciding fact, is the quietest text on the card.</strong>It is 13px grey monospace, and urgency appears as a separate badge above it. Fix: a <em>Deadline</em> component in the card's right column shows the date in bold with a countdown pill coloured by urgency.</td><td class="h">Visibility of status; content priority</td></tr>
       <tr><td><span class="sev sev-3">3</span></td><td><strong>The job page's Apply button and deadline are at the bottom on mobile.</strong>The aside follows the requirements. Fix: a two-up summary grid under the title, plus a sticky bottom bar with the deadline and <em>Službeni oglas ↗</em>.</td><td class="h">Recognition over recall; Fitts's law</td></tr>
@@ -392,7 +392,7 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
 <!-- ============ 3. FOUNDATIONS ============ -->
 <section class="part" id="foundations">
   <h2>3 · Foundations</h2>
-  <p class="intro">The tokens come in three tiers (global → alias → component), defined in <a href="tokens.css">tokens.css</a>. The brand blue <code>#0f4c81</code> and the slate text colours stay as they are, so adopting them is mostly replacing hex values with <code>var()</code>. Dark mode only remaps alias tokens. Switch your OS to dark mode to preview it on this page.</p>
+  <p class="intro">The tokens come in three tiers (global → alias → component), defined in <a href="../../board/static/board/tokens.css">tokens.css</a>. The brand blue <code>#0f4c81</code> and the slate text colours stay as they are, so adopting them is mostly replacing hex values with <code>var()</code>. Dark mode only remaps alias tokens. Switch your OS to dark mode to preview it on this page.</p>
 
   <h3 class="sub">Colour: global palette</h3>
   <div class="ramp">
@@ -763,12 +763,12 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
 <section class="part" id="roadmap">
   <h2>6 · Rollout</h2>
   <p class="intro">The work is ordered so the launch blockers come first and each step can be shipped and reviewed on its own. Django view logic doesn't change. The work is in CSS and templates, plus one small template tag.</p>
-  <div class="phase"><div><h4>Phase 1</h4><p class="when">Before launch · ~1 day</p></div><ol>
-    <li><b>Fix mobile overflow</b> in <code>.site-nav</code> and the language switch (base.html, site.css).</li>
-    <li><b>Adopt tokens:</b> link <code>tokens.css</code> before site.css and replace the 123 hex values with alias tokens. Expect no visual change except the input border.</li>
+  <div class="phase"><div><h4>Phase 1</h4><p class="when">Done 3 Oct 2026</p></div><ol>
+    <li><b>Fix mobile overflow:</b> a two-row header under 760px, with the language switch moved out of the nav (base.html, site.css). No page scrolls sideways at 320, 360 or 390px.</li>
+    <li><b>Adopt tokens:</b> <code>board/static/board/tokens.css</code> is linked before site.css, and site.css has no raw hex values left. Dark mode is defined but opt-in (<code>&lt;html data-theme="auto"&gt;</code>), so it stays off until QA.</li>
     <li><b>Accessibility:</b> add a global <code>:focus-visible</code> ring, set <code>--color-border-control</code> on inputs and enlarge the language switch targets.</li>
-    <li><b>Status colours:</b> make review violet and give each of pending and not-found its own label (sources.html).</li>
-    <li><b>Icons:</b> replace 📍, ↗ and ◎ with an inline SVG sprite partial (<code>templates/board/_icons.html</code>).</li>
+    <li><b>Status colours:</b> review is violet. Covered-with-zero jobs is green, like covered. Awaiting integration, unchecked and not found share grey and are told apart by their labels.</li>
+    <li><b>Icons:</b> 📍, ↗ and ◎ are replaced by an inline SVG sprite (<code>templates/board/_icons.html</code>).</li>
   </ol></div>
   <div class="phase"><div><h4>Phase 2</h4><p class="when">Launch week · 2–3 days</p></div><ol>
     <li><b>Filter bar:</b> a primary row plus a <code>&lt;details&gt;</code> for requirement filters, and applied chips built from <code>page_query</code> (jobs.html, a small helper in views.py).</li>

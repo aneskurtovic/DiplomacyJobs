@@ -19,7 +19,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
-- [ ] Design system Phase 1 before launch ([proposal](docs/design/design-system.html)): fix the 35px horizontal overflow of the header at 390px, adopt `docs/design/tokens.css`, add `:focus-visible` styles, raise input border contrast to 3:1, and separate the review/unavailable status colours on `/sources/`. Phases 2–3 (filter bar, job card v2, mobile apply bar, sources grouping) follow after owner review.
+- [ ] Design system Phases 2–3 ([proposal](docs/design/design-system.html)): filter bar with removable chips, job card v2 with a deadline component, mobile sticky apply bar, trust strip, self-hosted fonts, then grouped `/sources/` and a dark theme QA pass. Awaiting owner review.
 
 ## P2 — Job pages and enrichment
 
@@ -32,6 +32,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## Done
 
+- [x] Design system Phase 1 (2026-10-03): design tokens (`board/static/board/tokens.css`) adopted in site.css; two-row mobile header fixes the horizontal overflow at 320–390px; `:focus-visible` outline; input borders at 3.66:1; violet review status on `/sources/`; SVG icons instead of emoji/glyphs. Dark mode is defined but off.
 - [x] English interface at `/en/`, and Bosnian/English advert versions imported from the local `/translate-jobs` skill (2026-10-03).
 - [x] Job pages (`/jobs/<id>/<slug>/`) with rule-based requirements (education, field, experience, languages, licence, citizenship, terms), quotes and admin overrides; board filters by education, experience and field; visitor problem reports with admin queue (2026-10-03).
 - [x] Django models, admin, public jobs and `/sources/` pages, Atom feed, scheduler command, run history, optional AI enrichment interface.

@@ -73,6 +73,14 @@ Each site was retried with the Windows trust store, certifi and Chrome TLS imper
 - English interface at `/en/` (owner request); Bosnian stays at `/`.
 - Advert translations come from the local `/translate-jobs` skill (owner decision: Claude Code subscription, no API key) through `export_translations`/`import_translations`. One job is translated locally (EUFOR Purchasing Administrator, id 6); the other 22 public jobs are pending. Database backups: `backups/db-before-requirements-*.sqlite3`, `backups/db-before-first-translation-*.sqlite3`.
 
+## Design system Phase 1 (2026-10-03)
+
+- The [design proposal](docs/design/design-system.html) contains an audit, tokens, component specs and redesigned screens. Phase 1 is applied: `board/static/board/tokens.css` is linked before `site.css`, which now has no raw hex values.
+- Under 760px the header has two rows: brand and BS/EN on the first, the Oglasi/Izvori tabs on the second. The language switch moved out of `<nav>`. Checked in Chromium: no page (`/`, `/en/`, `/sources/`, a job page, `/report/`) scrolls sideways at 320, 360 or 390px; before the change every page was 35px too wide at 390px.
+- Also in Phase 1: a `:focus-visible` outline, input borders at 3.66:1, a violet "review" pill on `/sources/` (it was the same amber as "unavailable") and an SVG sprite (`templates/board/_icons.html`) replacing 📍, ↗ and ◎. No translatable strings changed.
+- Dark mode is defined in the tokens but off; it applies only on `<html data-theme="auto">`.
+- Tests: 216 discovered locally on Python 3.11, 215 passed, one PostgreSQL-only skip; Django checks and migration drift are clean.
+
 ## Next steps
 
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
