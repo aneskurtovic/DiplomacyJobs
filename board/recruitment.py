@@ -8,7 +8,7 @@ import json
 import re
 from datetime import date
 from email.utils import parsedate_to_datetime
-from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -24,7 +24,8 @@ def text(node):
 
 def local_url(base, href, prefix=None):
     url = core.canonicalize(urljoin(base, href))
-    if urlsplit(url).hostname != urlsplit(base).hostname or (prefix and not urlsplit(url).path.startswith(prefix)):
+    path = urlsplit(url).path
+    if urlsplit(url).hostname != urlsplit(base).hostname or (prefix and path != prefix.rstrip("/") and not path.startswith(prefix.rstrip("/") + "/")):
         raise ValueError("Recruitment link outside official source")
     return url
 
@@ -68,6 +69,8 @@ def turkey_links(client, source, soup, evidence):
         if not content:
             raise ValueError("Turkish vacancy article missing")
         body = text(content)
+        if not re.search(re.escape(mission) + r"|büyükelçiliğimiz|başkonsolosluğumuz", body, re.I):
+            raise ValueError("Turkish recruitment employer unconfirmed in article")
         # A labelled application deadline is required; the publication date and
         # interview/exam dates are never substituted for a deadline.
         match = re.search(r"(?:son başvuru tarihi|başvurular[^.]{0,60}?en geç)\D{0,20}(\d{1,2}[./]\d{1,2}[./]\d{4})", body, re.I)
@@ -97,7 +100,7 @@ def spain_links(client, source, soup, evidence):
         if node.name == "div" and node.find(["h2", "p", "ul", "div"]):
             continue
         value = text(node)
-        if re.search(r"s\s*a\s*r\s*a\s*j\s*e\s*v\s*o\s*,", value, re.I) and (stamp := spanish_date(value)):
+        if re.match(r"s\s*a\s*r\s*a\s*j\s*e\s*v\s*o\s*,", value, re.I) and len(value) < 100 and (stamp := spanish_date(value)):
             current = {"date": stamp, "parts": [], "links": [], "role": ""}
             blocks.append(current)
         elif current:
@@ -133,6 +136,13 @@ def spain_links(client, source, soup, evidence):
         normalized = re.sub(r"\s+", " ", body)
         match = re.search(r"(?:plazo de presentaci[oó]n de solicitudes|fecha de finalizaci[oó]n)[^.;]{0,150}?(\d{1,2}\s+de\s+\w+\s+(?:del?\s+)?20\d{2})", normalized, re.I)
         deadline = spanish_date(match[1]) if match else None
+        if not deadline:
+            inline = re.search(r"plazo de presentaci[oó]n de solicitudes[^.;]{0,200}?finaliza (?:el\s+)?(\d{1,2})\s+de\s+(\w+)", " ".join(block["parts"]), re.I)
+            if inline:
+                try:
+                    deadline = date(block["date"].year, SPANISH_MONTHS[inline[2].lower()], int(inline[1]))
+                except (KeyError, ValueError):
+                    raise ValueError("Spanish revised application deadline invalid")
         result.append(put(evidence, url, f"{role.title()} — Ambasada Španije", normalized, block["date"], deadline, final))
     return result
 
@@ -162,6 +172,8 @@ def brazil_links(client, source, soup, evidence):
             raise ValueError("Brazil vacancy PDF missing")
         url = local_url(source.url, advert["href"])
         body, _ = core.fetch(client, url)
+        if len(body.strip()) < 150 and not closed:
+            raise ValueError("Brazil open vacancy PDF needs OCR; no readable text")
         # Never use the CMS's 2023 creation date as the 2026 call date.
         published = core.parse_published(body)
         if not published:
@@ -175,7 +187,7 @@ def brazil_links(client, source, soup, evidence):
 
 def slovenia_links(client, source, soup, evidence):
     result, seen_pages, seen_jobs = [], set(), set()
-    page, page_url = soup, source.url
+    page, page_url = soup, source.adapter_config.get("listing_url", source.url)
     for _ in range(core.MAX_LISTING_PAGES):
         table = page.select_one("table.employment-list-table") if page else None
         if table is None:
@@ -213,6 +225,8 @@ def slovenia_links(client, source, soup, evidence):
             result.append(put(evidence, url, title, f"Location: Sarajevo. Employer: {employer}. {body}", published, deadline, "Zaključeno" in text(row)))
         next_link = next((a for a in page.select("a[href]") if text(a) == "Naprej"), None)
         if not next_link:
+            if not rows and not re.search(r"ni zadetkov|ni rezultatov|ni (?:prostih )?delovnih mest|ni najdenih", text(page), re.I):
+                raise ValueError("Slovenian empty listing lacks confirmation")
             return result
         next_url = local_url(source.url, next_link["href"], "/zbirke/delovna-mesta/")
         if dict(parse_qsl(urlsplit(next_url).query)).get("status") != "ongoing" or dict(parse_qsl(urlsplit(next_url).query)).get("org[0]") != "3745" or next_url == core.canonicalize(page_url):
@@ -256,6 +270,8 @@ def canada_links(client, source, soup, evidence):
     if not maps:
         raise ValueError("Canadian build chunk map changed")
     names, hashes = [dict(re.findall(r'(\d+):"([^"\\]+)"', part)) for part in maps.groups()]
+    if len([name for name in names.values() if re.fullmatch(r"[a-f0-9]{40}", name)]) > core.MAX_LISTING_PAGES:
+        raise ValueError("Canadian build exceeds data chunk limit")
     jobs, missions = None, None
     for chunk, name in names.items():
         if not re.fullmatch(r"[a-f0-9]{40}", name) or chunk not in hashes:
@@ -288,7 +304,11 @@ def canada_links(client, source, soup, evidence):
         if not core.LOCATION.search(station):
             continue
         mission = mission_map.get(symbol)
-        if not mission or not core.LOCATION.search(mission["country"] + " " + mission["city"]) or not re.search(r"canada", station, re.I):
+        if not mission:
+            raise ValueError("Canadian recruitment mission code unknown")
+        if not core.LOCATION.search(mission["country"] + " " + mission["city"]):
+            continue
+        if not re.search(r"canada", station, re.I):
             raise ValueError("Canadian BiH employer/duty station unconfirmed")
         # This organization is an honorary consulate. An embassy job cannot be
         # attributed to it merely because it serves Bosnia from another country.

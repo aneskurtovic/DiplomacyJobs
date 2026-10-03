@@ -1,0 +1,84 @@
+{
+  "checked_at": "2026-10-02T23:48:27.927988+00:00",
+  "jobs_before": 15,
+  "jobs_after": 15,
+  "sources": [
+    {
+      "source_id": 37,
+      "organization": "Consulate General of the United Arab Emirates in Sarajevo",
+      "url": "https://www.mofa.gov.ae/en/Careers",
+      "adapter": "rmk",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:47:41.041128+00:00",
+      "partial": false
+    },
+    {
+      "source_id": 38,
+      "organization": "Consulate of Republic of Türkiye in Mostar",
+      "url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
+      "adapter": "turkey",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:47:55.260259+00:00",
+      "partial": false
+    },
+    {
+      "source_id": 40,
+      "organization": "Embassy of the Federative Republic of Brazil",
+      "url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
+      "adapter": "brazil",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:48:02.058334+00:00",
+      "partial": true
+    },
+    {
+      "source_id": 43,
+      "organization": "Embassy of the Kingdom of Spain",
+      "url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
+      "adapter": "spain",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:48:09.334859+00:00",
+      "partial": false
+    },
+    {
+      "source_id": 44,
+      "organization": "Embassy of the Republic of Slovenia",
+      "url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
+      "adapter": "slovenia",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:48:11.684536+00:00",
+      "partial": false
+    },
+    {
+      "source_id": 45,
+      "organization": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
+      "url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
+      "adapter": "turkey",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:48:26.645380+00:00",
+      "partial": false
+    },
+    {
+      "source_id": 47,
+      "organization": "Honorary Consulate of Canada in Sarajevo",
+      "url": "https://staffing-les.international.gc.ca/en/",
+      "adapter": "canadales",
+      "success": true,
+      "candidates": 0,
+      "error": "",
+      "checked_at": "2026-10-02T23:48:27.917499+00:00",
+      "partial": true
+    }
+  ]
+}

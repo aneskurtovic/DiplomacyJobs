@@ -135,16 +135,21 @@
     "sources": [
       {
         "url": "https://www.mofa.gov.ae/en/Careers",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Stranica konzulata vodi na centralni MoFA Careers. Potrebno provjeriti odredišni portal, mogućnost filtriranja Sarajeva i lokalne uslove; nije potvrđena operativna lista oglasa za BiH."
+        "adapter": "rmk",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: MoFA SuccessFactors: potpuna paginacija i filtriranje mjesta rada u BiH; dva trenutna oglasa su u UAE.",
+        "adapter_config": {
+          "allow_empty": true,
+          "listing_url": "https://careers.mofa.gov.ae/search/",
+          "pagination": "startrow"
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.mofa.gov.ae/en/Careers",
-    "recruitment_notes": "Stranica konzulata vodi na centralni MoFA Careers. Potrebno provjeriti odredišni portal, mogućnost filtriranja Sarajeva i lokalne uslove; nije potvrđena operativna lista oglasa za BiH."
+    "recruitment_notes": "MoFA SuccessFactors: potpuna paginacija i filtriranje mjesta rada u BiH; dva trenutna oglasa su u UAE."
   },
   {
     "name": "Consulate of Republic of Türkiye in Banja Luka",
@@ -173,16 +178,21 @@
     "sources": [
       {
         "url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Dostupna mješovita lista objava konzulata i ministarstva. Za praćenje lokalnog zapošljavanja treba zaseban turski filter, datumi i zaštita od nacionalnih saopćenja; broj aktuelnih oglasa nije potvrđen."
+        "adapter": "turkey",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: Turska lokalna lista: javni odabir jezika, lokalni izdavač, datumi i pojmovi zapošljavanja; bez novih oglasa za 2026.",
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "mission_name": "Mostar Başkonsolosluğu"
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://mostar-bk.mfa.gov.tr/Mission/Announcements",
-    "recruitment_notes": "Dostupna mješovita lista objava konzulata i ministarstva. Za praćenje lokalnog zapošljavanja treba zaseban turski filter, datumi i zaštita od nacionalnih saopćenja; broj aktuelnih oglasa nije potvrđen."
+    "recruitment_notes": "Turska lokalna lista: javni odabir jezika, lokalni izdavač, datumi i pojmovi zapošljavanja; bez novih oglasa za 2026."
   },
   {
     "name": "Delegacija Evropske unije i Ured specijalnog predstavnika EU u BiH",
@@ -283,16 +293,21 @@
     "sources": [
       {
         "url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Službeni folder za 2026 radi. Proces je trenutno označen ENCERRADO / ZATVORENO, iako indeks pretraživača još prikazuje ABERTO. Dokumenti BHS/portugalski su iza podstranica; potreban parser foldera i PDF-ova koji prepoznaje završene procese."
+        "adapter": "brazil",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: Djelimično praćenje: folder, BHS stranica i PDF; trenutni proces je zatvoren. PDF je skeniran; otvoren dokument bez čitljivog teksta izaziva grešku i zahtijeva OCR/provjeru.",
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "partial_listing": true
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.gov.br/mre/pt-br/embaixada-sarajevo/OGLAS%20ZA%20POSAO%202026",
-    "recruitment_notes": "Službeni folder za 2026 radi. Proces je trenutno označen ENCERRADO / ZATVORENO, iako indeks pretraživača još prikazuje ABERTO. Dokumenti BHS/portugalski su iza podstranica; potreban parser foldera i PDF-ova koji prepoznaje završene procese."
+    "recruitment_notes": "Djelimično praćenje: folder, BHS stranica i PDF; trenutni proces je zatvoren. PDF je skeniran; otvoren dokument bez čitljivog teksta izaziva grešku i zahtijeva OCR/provjeru."
   },
   {
     "name": "Embassy of the French Republic",
@@ -434,16 +449,20 @@
     "sources": [
       {
         "url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Španska lista sadrži proces Auxiliar iz 2026: obnovljeni rok 13.07.2026, konačni rezultati 13.08.2026. Bosanska verzija je ostala na 2025. Potreban parser procesa i PDF dokumenata; rezultati konkursa nisu otvoreni poslovi."
+        "adapter": "spain",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: Španska lista i PDF poziva: datumi, kategorije, izmjene i završeni procesi; Auxiliar 2026 je završen i nije objavljen kao otvoren posao.",
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.exteriores.gob.es/Embajadas/sarajevo/es/Embajada/Paginas/Ofertas-de-empleo.aspx",
-    "recruitment_notes": "Španska lista sadrži proces Auxiliar iz 2026: obnovljeni rok 13.07.2026, konačni rezultati 13.08.2026. Bosanska verzija je ostala na 2025. Potreban parser procesa i PDF dokumenata; rezultati konkursa nisu otvoreni poslovi."
+    "recruitment_notes": "Španska lista i PDF poziva: datumi, kategorije, izmjene i završeni procesi; Auxiliar 2026 je završen i nije objavljen kao otvoren posao."
   },
   {
     "name": "Embassy of the Kingdom of the Netherlands",
@@ -638,16 +657,20 @@
     "sources": [
       {
         "url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Službeni portal ambasade i centralna lista MZEZ poslova dostupni. Lista uključuje domaće poslove, druge ambasade i upućivanja u međunarodne organizacije; treba paginacija i dokaz poslodavca/mjesta rada za svaki BiH oglas."
+        "adapter": "slovenia",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: MZEZ: aktivni konkursi i paginacija, zaseban dokaz lokalnog poslodavca/mjesta rada; isključena posmatranja izbora i druge misije.",
+        "adapter_config": {
+          "allow_empty": true,
+          "listing_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=ongoing"
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.gov.si/zbirke/delovna-mesta/?org%5B0%5D=3745&status=%2A",
-    "recruitment_notes": "Službeni portal ambasade i centralna lista MZEZ poslova dostupni. Lista uključuje domaće poslove, druge ambasade i upućivanja u međunarodne organizacije; treba paginacija i dokaz poslodavca/mjesta rada za svaki BiH oglas."
+    "recruitment_notes": "MZEZ: aktivni konkursi i paginacija, zaseban dokaz lokalnog poslodavca/mjesta rada; isključena posmatranja izbora i druge misije."
   },
   {
     "name": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
@@ -661,16 +684,21 @@
     "sources": [
       {
         "url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Službena lista radi; primjer lokalnog zapošljavanja Mahalli Kâtip/Sözleşmeli Sekreter objavljen 31.07.2023, izvan 2026. Treba razdvojiti objave ambasade od ministarstva, filtrirati turske naslove i provjeriti datume/rokove."
+        "adapter": "turkey",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: Turska lokalna lista: javni odabir jezika, lokalni izdavač, datumi i pojmovi zapošljavanja; bez novih oglasa za 2026.",
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "mission_name": "Saraybosna Büyükelçiliği"
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://saraybosna-be.mfa.gov.tr/Mission/Announcements",
-    "recruitment_notes": "Službena lista radi; primjer lokalnog zapošljavanja Mahalli Kâtip/Sözleşmeli Sekreter objavljen 31.07.2023, izvan 2026. Treba razdvojiti objave ambasade od ministarstva, filtrirati turske naslove i provjeriti datume/rokove."
+    "recruitment_notes": "Turska lokalna lista: javni odabir jezika, lokalni izdavač, datumi i pojmovi zapošljavanja; bez novih oglasa za 2026."
   },
   {
     "name": "Embassy of the Russian Federation",
@@ -895,16 +923,20 @@
     "sources": [
       {
         "url": "https://staffing-les.international.gc.ca/en/",
-        "adapter": "none",
-        "status": "unsupported",
-        "enabled": false,
-        "notes": "2026-10-03: Kanadski direktorij potvrđuje Sarajevo konzulat. Pronađen službeni globalni portal Locally Engaged Staff; lista poslova se učitava dinamički. Treba javni endpoint, filtriranje BiH i dokaz da poslodavac zaista predstavlja ovu lokalnu misiju."
+        "adapter": "canadales",
+        "status": "verified",
+        "enabled": true,
+        "notes": "2026-10-03: Djelimično praćenje globalnog LES portala: javni podaci i registri misija, zaseban dokaz mjesta rada i poslodavca. Sarajevo počasni konzulat nije naveden u portalu; njegovi zasebni oglasi nisu potpuno pokriveni. Nema potvrđenog lokalnog oglasa.",
+        "adapter_config": {
+          "allow_empty": true,
+          "partial_listing": true
+        }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://staffing-les.international.gc.ca/en/",
-    "recruitment_notes": "Kanadski direktorij potvrđuje Sarajevo konzulat. Pronađen službeni globalni portal Locally Engaged Staff; lista poslova se učitava dinamički. Treba javni endpoint, filtriranje BiH i dokaz da poslodavac zaista predstavlja ovu lokalnu misiju."
+    "recruitment_notes": "Djelimično praćenje globalnog LES portala: javni podaci i registri misija, zaseban dokaz mjesta rada i poslodavca. Sarajevo počasni konzulat nije naveden u portalu; njegovi zasebni oglasi nisu potpuno pokriveni. Nema potvrđenog lokalnog oglasa."
   },
   {
     "name": "Honorary Consulate of Republic of Cyprus in Sarajevo",

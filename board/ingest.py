@@ -599,7 +599,8 @@ def rmk_links(client, source, soup, evidence):
     if not total and (soup.select("tr.data-row") or not re.search(r"no (?:jobs|results)|no matching", soup.get_text(" ", strip=True), re.I)):
         raise ValueError("SuccessFactors result count missing")
     total = int(total.group(1)) if total else 0
-    parts = urlsplit(source.url)
+    listing_url = (source.adapter_config or {}).get("listing_url") or source.url
+    parts = urlsplit(listing_url)
     rows, page = {}, soup
     while page is not None:
         page_rows, before = page.select("tr.data-row"), len(rows)
@@ -607,7 +608,7 @@ def rmk_links(client, source, soup, evidence):
             link = row.select_one("a.jobTitle-link[href^='/job/']")
             if not link:
                 raise ValueError("SuccessFactors row changed shape")
-            rows.setdefault(urljoin(source.url, link["href"]), row)
+            rows.setdefault(urljoin(listing_url, link["href"]), row)
         # An ignored offset returns rows already read; the count check below then fails instead of looping.
         if not page_rows or len(rows) >= total or len(rows) == before or len(rows) > 10 * MAX_DETAIL_LINKS:
             break
@@ -921,6 +922,13 @@ PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vaca
 def discover_links(client, source, soup, evidence=None):
     """Listing leads as (url, title). Adapters may add per-URL listing evidence (card text, closing dates) to `evidence`."""
     evidence = {} if evidence is None else evidence
+    listing_url = (source.adapter_config or {}).get("listing_url")
+    if listing_url and source.adapter in ("rmk", "slovenia"):
+        if not trusted_host(urlsplit(listing_url).hostname or "", (urlsplit(source.url).hostname or "").removeprefix("www.")):
+            raise ValueError("Listing URL outside official source")
+        _, soup = fetch(client, listing_url)
+        if soup is None:
+            raise ValueError("Recruitment listing must be HTML")
     from .recruitment import ADAPTERS
     if source.adapter in ADAPTERS:
         return ADAPTERS[source.adapter](client, source, soup, evidence)
@@ -1167,7 +1175,10 @@ def ingest_source(source_id):
             # URL columns hold 1000 characters; on PostgreSQL a longer one would roll back the whole source.
             links = [(url, title) for url, title in discovered_links if listing_link_in_scope(url, title) and len(url) <= 1000]
             known_only, gone = set(), []
-            if (source.adapter_config or {}).get("partial_listing"):
+            if (source.adapter_config or {}).get("partial_listing") and source.adapter not in CARD_EVIDENCE:
+                # Card/API evidence cannot refresh a missing job by fetching its
+                # URL: that would lose the authoritative process/location fields.
+                # Partial card feeds leave unseen jobs unchanged, without closure.
                 known = source.jobs.filter(status="published").values_list("canonical_url", "title")
                 known_only = {url for url, _ in known} - {url for url, _ in links}
                 links = list(dict.fromkeys([*links, *known]))

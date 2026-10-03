@@ -2,7 +2,21 @@
 
 Updated: 2026-10-03 (Europe/Sarajevo). This records local verification, not deployment readiness.
 
-## Latest completed work: all 46 unchecked entries
+## Latest completed work: seven audit integrations
+
+See [implementation, limits and verification](docs/recruitment-integrations-2026-10-03.md) and [actual source runs](data/recruitment_integration_2026-10-03.json). All seven leads now have enabled adapters and successful first local scrapes: five complete (UAE, Türkiye Mostar/Sarajevo, Spain, Slovenia), two partial (Brazil scanned-PDF support and Canada honorary-consulate coverage). No current job was imported; all 15 existing job rows were compared with the backup and preserved exactly.
+
+Verified local snapshot on 2026-10-03: 79 coverage rows, **0 awaiting integration**, 35 complete, 4 partial, 23 no-list, 17 unavailable, 0 unchecked; **39 enabled sources**. Django checks/migration drift passed; SQLite suite: **154 tests, 153 passed, one PostgreSQL-only skip**. Migration 0025 applied; updated server and source filters returned HTTP 200 at http://127.0.0.1:8000/sources/. Linux/PostgreSQL CI and deployment were not run for this integration change. The seven audit leads no longer require initial parser integration; Brazil OCR and Canada honorary-consulate discovery still need follow-up.
+
+The local database backup is `backups/before-seven-integrations-2026-10-03.sqlite3` (ignored). Parser settings and reviewed enablement are in `data/source_registry.json`. Use `scripts/validate_recruitment_integrations.py` for read-only live candidate checks; `--adapter spain` checks one adapter. `import_registry` preserves existing enablement. The backed-up local database has already been migrated, imported and activated through `scripts/activate_recruitment_integrations.py`; a future activation must again leave failed sources disabled. That script scans only these seven sources and does not run global expiry.
+
+### Integration commit review
+
+The prior GitHub run 37078478439 failed on both database jobs at migration drift: the tracked adapter choices required migration 0025, which was still untracked. This exact failure was reproduced against an isolated archive of HEAD; including 0025 clears the local migration check. Review also fixed partial card/API feeds so a published job outside current evidence remains unchanged instead of failing through a missing evidence lookup. The read-only validator now creates its report directory on fresh checkouts and returns a failing exit code for failed or unmatched checks. The final local suite passed 154 tests (153 passed, one PostgreSQL-only skip); Linux results will be recorded after the push.
+
+## Earlier completed work: discovery audit of all 46 unchecked entries
+
+The counts and disabled-source state below describe the initial audit, before the seven integrations above. They are retained as historical evidence.
 
 See [findings for every entry](docs/source-audit-2026-10-03.md), [findings and HTTP checks in JSON](data/recruitment_audit_2026-10-03.json), and [registry](data/source_registry.json).
 
@@ -16,7 +30,7 @@ See [findings for every entry](docs/source-audit-2026-10-03.md), [findings and H
 - Local database backed up before migration/import at ignored `backups/before-recruitment-audit-2026-10-03.sqlite3`. Migration and import applied. Coverage: **79 rows, 0 unchecked, 23 no-list, 7 integration, 17 unavailable (15 audit + UK/UNICEF), 30 complete and 2 partial**. Still **32 enabled sources, 15 stored jobs, 13 publicly visible jobs**. No audit job publication/closure/deletion.
 - Certificate verification stayed enabled; no JavaScript challenge was solved. Raw responses are ignored under `data/raw/source_audit_2026-10-03/`; committed evidence includes requested/final URLs, HTTP status/error, size, title and timestamps. Search-index evidence is labelled and is weaker than live page verification.
 - Audit commit **`e19a79a1aa0d592d2e830b471dc4b56606e9ed63`** is pushed to `main`. Local suite: **132 discovered, 131 passed, one PostgreSQL-only skip**. Both Linux/Python 3.12 jobs succeeded in [run 37073582887](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37073582887): PostgreSQL 16 passed **132 tests, no skips**; SQLite passed **131 with one skip**. System and migration drift checks passed on both. Seven new tests cover imports, unknown counts, evidence expiry, source failure precedence and safe replacement.
-- Restarted the local server and stopped the identified obsolete repository launcher/child. The updated `/sources/` returns HTTP 200 with 79 rows, 0 unchecked, 23 no-list, 7 integration and 17 unavailable; each status filter was checked over HTTP. Current server launcher PID 1092, serving child PID 36476. Future restarts must stop both the validated launcher and child; Windows Python venv launchers can leave the serving child alive. URL: **http://127.0.0.1:8000/sources/**.
+- Restarted the local server and stopped the identified obsolete repository launcher/child. The updated `/sources/` returns HTTP 200 with 79 rows, 0 unchecked, 23 no-list, 7 integration and 17 unavailable; each status filter was checked over HTTP. At the initial audit, the server launcher was PID 1092 and its child PID 36476; both were subsequently stopped during the integration restart. Future restarts must stop both the validated launcher and child; Windows Python venv launchers can leave the serving child alive. URL: **http://127.0.0.1:8000/sources/**.
 - After restart, jobs/feed/admin login/health/static CSS returned HTTP 200. All 23 no-list rows include an evidence disclosure and display an unknown vacancy count.
 
 ### Reliability push and Linux CI completed
@@ -27,11 +41,12 @@ See [findings for every entry](docs/source-audit-2026-10-03.md), [findings and H
 
 ### Current next steps
 
-1. Implement/live-validate the seven leads. Spain/Brazil need process and PDF parsing; Türkiye needs local mission filtering and Turkish recruitment dates/terms. Global Canada/Slovenia/UAE portals need per-item employer, BiH duty-station, pagination, currentness and eligibility proof. Activate only after complete validated scans.
-2. Resolve the 15 access/rendering cases from the deployment network; revisit no-list discoveries within 90 days. Full international/honorary reconciliation beyond these 46 remains outstanding.
-3. Recheck prior admin credential rotation and the manually published RYCO Tirana role, then verify Hetzner deployment, HTTPS, backup restore and daily scraping. These remain unverified; push/CI are not deployment proof.
+1. Add verified OCR/manual handling for Brazil's open scanned vacancy PDFs and investigate a separate recruitment source for Canada's Sarajevo honorary consulate. Both enabled adapters remain explicitly partial until those gaps are resolved.
+2. Run the integration changes through Linux/Python 3.12 CI on SQLite and PostgreSQL 16. The earlier reliability/audit CI success does not validate these later changes.
+3. Resolve the 15 access/rendering cases from the deployment network; revisit no-list discoveries within 90 days. Full international/honorary reconciliation beyond these 46 remains outstanding.
+4. Recheck prior admin credential rotation and the manually published RYCO Tirana role, then verify Hetzner deployment, HTTPS, backup restore and daily scraping. These remain unverified; push/CI are not deployment proof.
 
-The sections below retain the recovery history. The completed push/CI and audit above supersede their earlier pending-access notes.
+The sections below retain the recovery history. The local integration state and current next steps above supersede earlier pending integration work. Historical push/CI results apply only to their recorded commits. Verify the current local server's process identity before restarting it; historical PIDs must not be reused blindly.
 
 ## Goal and boundaries
 
@@ -95,4 +110,4 @@ Results on 2026-10-02:
 4. Verify the actual Hetzner host, hostname, proxy/HTTPS, migrations, static assets, backup restore, source access, and daily scheduling. Check `/health/`, `/health/scrape/`, logs, public listings, and the source coverage page. Deployment access and hostname are not present in the checkout.
 5. Done 2026-10-03 (commits 31de56c, 3074958 and the `PUBLIC_BASE_URL` commit): pagination links and 404s, snapshot index (migration 0024), `PUBLIC_BASE_URL`, admin run/snapshot filters without loading texts. Still open: decide the retention policy before adding destructive trimming. Source expansion, email alerts, structured job data, and widening employer scope require separate product decisions.
 
-The Linux/PostgreSQL reliability gate has now passed. Recruitment integrations, unresolved source access, inventory reconciliation and deployment validation remain the next work.
+The historical Linux/PostgreSQL reliability gate passed. The seven recruitment adapters now pass local scans; Brazil/Canada coverage gaps, integration CI, unresolved source access, inventory reconciliation and deployment validation remain the next work.
