@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<title>Job list, mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#0f4c81}a:hover{color:#0b3a63}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; overflow: hidden; box-sizing: border-box; font-family: 'Public Sans', system-ui, sans-serif; color: #253441; background: #ffffff; display: flex; flex-direction: column">
+
+  <header style="flex: none; border-bottom: 1px solid #dce1e6; padding: 8px 16px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px">
+    <a href="#top" style="margin-right: auto; display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 700; font-size: 17px; color: #13202d; text-decoration: none"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f4c81"></rect><g fill="none" stroke="#ffffff" stroke-width="1.6"><circle cx="16" cy="16" r="8.5"></circle><path d="M7.5 16h17M16 7.5c-3.2 3.5-3.2 13.5 0 17M16 7.5c3.2 3.5 3.2 13.5 0 17"></path></g></svg>DiplomacyJobs</a>
+    <span style="display: inline-flex; border: 1px solid #7b8794; border-radius: 6px; overflow: hidden; font-size: 13px; font-weight: 700"><span aria-current="true" style="display: grid; place-items: center; min-width: 40px; height: 32px; background: #13202d; color: #ffffff">BS</span><a href="#top" lang="en" style="display: grid; place-items: center; min-width: 40px; height: 32px; color: #52606d; text-decoration: none">EN</a></span>
+    <nav aria-label="Glavna navigacija" style="width: 100%; display: flex; height: 44px; margin-left: -8px">
+      <a href="#top" aria-current="page" style="display: flex; align-items: center; padding: 0 8px; color: #13202d; text-decoration: none; font-size: 15px; font-weight: 500; box-shadow: inset 0 -2px 0 #13202d">Oglasi</a>
+      <a href="#top" style="display: flex; align-items: center; padding: 0 8px; color: #52606d; text-decoration: none; font-size: 15px; font-weight: 500">Izvori</a>
+    </nav>
+  </header>
+
+  <main style="flex: 1; overflow: hidden; padding: 20px 16px 0; display: flex; flex-direction: column">
+    <h1 style="margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; color: #13202d">Poslovi u diplomatiji u BiH</h1>
+    <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; margin-top: 8px; font-size: 13px; color: #3e4c59">
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #1d6b45; box-shadow: 0 0 0 3px #e7f2ec"></span><strong style="color: #13202d">23</strong> oglasa</span>
+      <span><strong style="color: #13202d">50</strong> izvora · danas 06:00</span>
+    </div>
+
+    <form role="search" aria-label="Pretraga oglasa" style="margin-top: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; border: 1px solid #dce1e6; border-radius: 12px; box-shadow: 0 1px 2px rgba(19, 32, 45, 0.06)">
+      <label style="grid-column: 1 / -1; position: relative; display: flex; align-items: center"><span style="position: absolute; left: 12px; display: flex; color: #52606d"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg></span><input aria-label="Pretraga" placeholder="Posao ili organizacija" style="width: 100%; min-height: 44px; padding: 0 12px 0 38px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; box-sizing: border-box"></label>
+      <select aria-label="Grad" style="min-height: 44px; padding: 0 10px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; background: #ffffff"><option>Svi gradovi</option></select>
+      <select aria-label="Vrsta" style="min-height: 44px; padding: 0 10px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; color: #13202d; background: #ffffff"><option>Sve vrste</option></select>
+      <button type="button" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 6px; background: #ffffff; color: #0f4c81; border: 1px solid #7b8794; font: inherit; font-weight: 600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>Filteri</button>
+      <button type="submit" style="min-height: 44px; border-radius: 6px; background: #0f4c81; color: #ffffff; border: 0; font: inherit; font-weight: 600">Traži</button>
+    </form>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px">
+      <h2 style="margin: 0; font-size: 20px; color: #13202d">23 oglasa</h2>
+      <select aria-label="Redoslijed" style="min-height: 36px; padding: 0 10px; border: 1px solid #7b8794; border-radius: 6px; font: inherit; font-size: 14px; color: #13202d; background: #ffffff"><option>Rok uskoro</option></select>
+    </div>
+
+    <article style="padding: 16px; border: 1px solid #dce1e6; border-radius: 10px; display: flex; flex-direction: column; gap: 8px">
+      <p style="margin: 0; font-size: 14px; color: #3e4c59">UN Women u BiH</p>
+      <h3 style="margin: 0; font-size: 20px; line-height: 1.3"><a href="JobPageMobile.dc.html" style="color: #13202d; text-decoration: none">Family Law Consultant</a></h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: #52606d"><span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Sarajevo</span><span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg>Konsultant</span></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #dce1e6; padding-top: 12px; margin-top: 4px">
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="font-size: 16px; font-weight: 700; color: #13202d">03.10.</span><span style="font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #a23b2a; color: #ffffff">Ističe danas</span></span>
+        <a href="#top" style="display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 6px; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; font-size: 14px; text-decoration: none">Oglas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+      </div>
+    </article>
+
+    <article style="margin-top: 12px; padding: 16px; border: 1px solid #dce1e6; border-radius: 10px; display: flex; flex-direction: column; gap: 8px">
+      <p style="margin: 0; font-size: 14px; color: #3e4c59; display: flex; gap: 8px; align-items: center">Delegacija EU u BiH <span style="border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; color: #0f4c81; background: #eef4fa">Novo</span></p>
+      <h3 style="margin: 0; font-size: 20px; line-height: 1.3"><a href="JobPageMobile.dc.html" style="color: #13202d; text-decoration: none">Head of Communications</a></h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: #52606d"><span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Sarajevo</span><span style="display: inline-flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>Međunarodna</span></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #dce1e6; padding-top: 12px; margin-top: 4px">
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="font-size: 16px; font-weight: 700; color: #13202d">06.10.</span><span style="font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; background: #fbf3e8; color: #6b3a00">Još 3 dana</span></span>
+        <a href="#top" style="display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 6px; color: #0f4c81; border: 1px solid #7b8794; font-weight: 600; font-size: 14px; text-decoration: none">Oglas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+      </div>
+    </article>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
