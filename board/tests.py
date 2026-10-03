@@ -996,13 +996,47 @@ class PublicViewTests(TestCase):
     def test_filtered_page_links_its_feed_and_a_reset(self):
         content = self.client.get("/", {"city": "Mostar", "page": "1"}).content.decode()
         self.assertIn('href="/feed/?city=Mostar"', content)
-        self.assertIn("Poništi filtere", content)
+        self.assertIn("Poništi sve", content)
+        self.assertIn('<span class="chip">Mostar<a href="/" aria-label="Ukloni grad: Mostar">', content)
         self.assertIn('<span class="visually-hidden">: Legal Consultant</span>', content)
         plain = self.client.get("/").content.decode()
-        self.assertNotIn("Poništi filtere", plain)
+        self.assertNotIn("Poništi sve", plain)
         self.assertIn('type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="/feed/"', plain)
         sources = self.client.get("/sources/").content.decode()
         self.assertIn('<meta property="og:description" content="Koje službene izvore', sources)
+
+    def test_filter_chips_remove_one_filter_and_keep_the_rest(self):
+        content = self.client.get("/", {"city": "Mostar", "type": "consultancy", "scope": "national", "sort": "deadline"}).content.decode()
+        self.assertIn('aria-label="Ukloni grad: Mostar"', content)
+        self.assertIn('href="/?type=consultancy&amp;scope=national&amp;sort=deadline" aria-label="Ukloni grad: Mostar"', content)
+        self.assertIn('href="/?city=Mostar&amp;type=consultancy&amp;sort=deadline" aria-label="Ukloni poziciju: Nacionalne"', content)
+        self.assertIn('<a class="clear-all" href="/?sort=deadline">', content)
+        # Scope sits behind the disclosure, so it opens and counts one hidden filter.
+        self.assertIn('<details class="more-filters" open>', content)
+        self.assertIn('<span class="filter-count">1<', content)
+        self.assertIn('<a href="/?city=Mostar&amp;type=consultancy&amp;scope=national&amp;sort=deadline" aria-current="true">', content)
+        self.assertIn('<details class="more-filters">', self.client.get("/", {"city": "Mostar"}).content.decode())
+
+    def test_deadline_countdown_agrees_with_the_number(self):
+        from datetime import timedelta
+        from .templatetags.board_extras import deadline
+        job = Job.objects.get(title="Driver")
+        for days, text, urgency in ((0, "Ističe danas", "today"), (1, "Ističe sutra", "today"), (2, "Još 2 dana", "soon"), (7, "Još 7 dana", "soon"), (21, "Još 21 dan", "open"), (25, "Još 25 dana", "open")):
+            job.days_left = days
+            self.assertEqual((deadline(job)["countdown"], deadline(job)["urgency"]), (text, urgency), days)
+        job.days_left = -1
+        self.assertEqual(deadline(job)["countdown"], "")
+
+    def test_job_page_has_a_summary_and_apply_bar_only_while_current(self):
+        job = Job.objects.get(title="Driver")
+        page = self.client.get(job.get_absolute_url()).content.decode()
+        self.assertIn('<dl class="key-facts">', page)
+        self.assertIn('<div class="apply-bar"><div class="deadline deadline-bar">', page)
+        self.assertIn("Još 5 dana", page)
+        old = Job.objects.get(title="Old Clerk")
+        closed = self.client.get(old.get_absolute_url()).content.decode()
+        self.assertNotIn('class="apply-bar"', closed)
+        self.assertNotIn("deadline-countdown", closed)
 
     def test_feed_lists_visible_jobs_with_filters(self):
         feed = self.client.get("/feed/")

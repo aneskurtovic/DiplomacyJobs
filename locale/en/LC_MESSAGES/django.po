@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 13:02+0200\n"
+"POT-Creation-Date: 2026-10-03 17:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,6 +244,12 @@ msgstr "Part time"
 msgid "Način rada"
 msgstr "Work arrangement"
 
+msgid "Ističe danas"
+msgstr "Closes today"
+
+msgid "Ističe sutra"
+msgstr "Closes tomorrow"
+
 msgid "bosanskog"
 msgstr "Bosnian"
 
@@ -310,6 +316,42 @@ msgstr "Up to 5 years"
 msgid "Do 10 godina"
 msgstr "Up to 10 years"
 
+msgid "Nacionalne"
+msgstr "National"
+
+msgid "Međunarodne"
+msgstr "International"
+
+msgid "Ukloni pretragu"
+msgstr "Remove search"
+
+msgid "Ukloni organizaciju"
+msgstr "Remove organisation"
+
+msgid "Ukloni grad"
+msgstr "Remove city"
+
+msgid "Ukloni vrstu angažmana"
+msgstr "Remove type of engagement"
+
+msgid "Ukloni poziciju"
+msgstr "Remove position"
+
+msgid "Ukloni obrazovanje"
+msgstr "Remove education"
+
+msgid "Ukloni iskustvo"
+msgstr "Remove experience"
+
+msgid "Ukloni oblast studija"
+msgstr "Remove field of study"
+
+msgid "Najnoviji prvo"
+msgstr "Newest first"
+
+msgid "Rok uskoro"
+msgstr "Deadline soon"
+
 msgid "Nema tog oglasa"
 msgstr "No such job"
 
@@ -337,6 +379,15 @@ msgstr "You sent several reports in a short time. Please try again in an hour."
 
 msgid "Hvala! Prijava je zaprimljena i pregledat ćemo je."
 msgstr "Thank you! Your report was received and we will review it."
+
+msgid "Rok prijave"
+msgstr "Application deadline"
+
+msgid "Do popune mjesta"
+msgstr "Until filled"
+
+msgid "Nije naveden"
+msgstr "Not stated"
 
 msgid "Ne popunjavajte ovo polje"
 msgstr "Leave this field empty"
@@ -408,21 +459,20 @@ msgstr "All jobs"
 msgid "putem %(portal)s"
 msgstr "via %(portal)s"
 
-msgid "Prijevod naslova:"
-msgstr "Title translation:"
-
 msgid "Novo"
 msgstr "New"
 
-msgid "Ističe danas"
-msgstr "Closes today"
+msgid "Prijevod naslova:"
+msgstr "Title translation:"
 
-msgid "Ističe sutra"
-msgstr "Closes tomorrow"
+msgid "Lokacija"
+msgstr "Location"
 
-#, python-format
-msgid "Ističe za %(days)s dana"
-msgstr "Closes in %(days)s days"
+msgid "Vrsta"
+msgstr "Type"
+
+msgid "Pozicija"
+msgstr "Position"
 
 msgid "Uslovi iz oglasa"
 msgstr "Requirements from the advert"
@@ -496,26 +546,11 @@ msgstr ""
 msgid "Osnovni podaci"
 msgstr "Key facts"
 
-msgid "Lokacija"
-msgstr "Location"
-
-msgid "Rok prijave"
-msgstr "Application deadline"
-
-msgid "Do popune mjesta"
-msgstr "Until filled"
-
-msgid "Nije naveden"
-msgstr "Not stated"
-
 msgid "Objavljeno"
 msgstr "Published"
 
 msgid "Poslodavac"
 msgstr "Employer"
-
-msgid "Vrsta"
-msgstr "Type"
 
 msgid "Provjereno"
 msgstr "Checked"
@@ -535,6 +570,9 @@ msgstr "(opens in a new window)"
 #, python-format
 msgid "Oglas smo pronašli putem portala %(portal)s."
 msgstr "We found this advert via %(portal)s."
+
+msgid "Službeni oglas"
+msgstr "Official advert"
 
 msgid "Prijavi problem s ovim oglasom"
 msgstr "Report a problem with this job"
@@ -565,17 +603,25 @@ msgid ""
 msgstr ""
 "Verified adverts in one place. You apply on the employer's official website."
 
+#, python-format
+msgid "Provjereno danas u %(time)s"
+msgstr "Checked today at %(time)s"
+
+#, python-format
+msgid "Zadnja provjera %(date)s"
+msgstr "Last checked %(date)s"
+
+msgid "Kako prikupljamo oglase"
+msgstr "How we collect adverts"
+
+msgid "Pretraga oglasa"
+msgstr "Job search"
+
 msgid "Pretraga"
 msgstr "Search"
 
 msgid "Naziv posla ili organizacije"
 msgstr "Job title or organisation"
-
-msgid "Organizacija"
-msgstr "Organisation"
-
-msgid "Sve organizacije"
-msgstr "All organisations"
 
 msgid "Grad"
 msgstr "City"
@@ -589,17 +635,26 @@ msgstr "Type of engagement"
 msgid "Sve vrste"
 msgstr "All types"
 
-msgid "Pozicija"
-msgstr "Position"
+msgid "Filteri"
+msgstr "Filters"
+
+msgid "aktivno"
+msgstr "active"
+
+msgid "Traži"
+msgstr "Search"
+
+msgid "Organizacija"
+msgstr "Organisation"
+
+msgid "Sve organizacije"
+msgstr "All organisations"
 
 msgid "Sve pozicije"
 msgstr "All positions"
 
 msgid "Nacionalne (lokalno zapošljavanje)"
 msgstr "National (local hire)"
-
-msgid "Međunarodne"
-msgstr "International"
 
 msgid "Moje obrazovanje"
 msgstr "My education"
@@ -613,30 +668,6 @@ msgstr "Experience required"
 msgid "Sve oblasti"
 msgstr "All fields"
 
-msgid "Redoslijed"
-msgstr "Sort by"
-
-msgid "Najnoviji prvo"
-msgstr "Newest first"
-
-msgid "Rok uskoro"
-msgstr "Deadline soon"
-
-msgid "Prikaži poslove"
-msgstr "Show jobs"
-
-msgid "Aktuelni oglasi"
-msgstr "Current jobs"
-
-msgid "Poništi filtere"
-msgstr "Clear filters"
-
-msgid "Prati ove rezultate"
-msgstr "Follow these results"
-
-msgid "Prati nove oglase"
-msgstr "Follow new jobs"
-
 msgid ""
 "Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je "
 "taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
@@ -645,17 +676,26 @@ msgstr ""
 "state that requirement. We read requirements automatically from the advert "
 "text."
 
+msgid "Aktivni filteri"
+msgstr "Active filters"
+
+msgid "Poništi sve"
+msgstr "Clear all"
+
+msgid "Aktuelni oglasi"
+msgstr "Current jobs"
+
+msgid "Redoslijed"
+msgstr "Sort by"
+
+msgid "Prati ove rezultate"
+msgstr "Follow these results"
+
+msgid "Prati nove oglase"
+msgstr "Follow new jobs"
+
 msgid "Lokacija:"
 msgstr "Location:"
-
-msgid "Provjereno:"
-msgstr "Checked:"
-
-msgid "Detalji i uslovi"
-msgstr "Details and requirements"
-
-msgid "Službeni oglas"
-msgstr "Official advert"
 
 msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
 msgstr "No jobs currently match your search."
@@ -894,3 +934,16 @@ msgstr ""
 "within 90 days at the latest. Organisations with no list found, sources "
 "awaiting integration, and partial, unavailable and unchecked sources may "
 "have adverts we have not found yet."
+
+#, python-format
+#~ msgid "Ističe za %(days)s dana"
+#~ msgstr "Closes in %(days)s days"
+
+#~ msgid "Prikaži poslove"
+#~ msgstr "Show jobs"
+
+#~ msgid "Provjereno:"
+#~ msgstr "Checked:"
+
+#~ msgid "Detalji i uslovi"
+#~ msgstr "Details and requirements"

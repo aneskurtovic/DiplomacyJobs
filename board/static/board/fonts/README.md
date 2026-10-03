@@ -1,0 +1,1 @@
+Self-hosted from Fontsource (2026-10-03): Public Sans variable (weights 100–900) and IBM Plex Mono 400, latin and latin-ext subsets. Both are under the SIL Open Font License 1.1; the Public Sans licence text is in OFL-public-sans.txt, and IBM Plex is © IBM Corp. under the same licence.

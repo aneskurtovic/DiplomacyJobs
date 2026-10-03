@@ -71,6 +71,7 @@
   --color-brand: var(--dj-blue-700);
   --color-brand-hover: var(--dj-blue-800);
   --color-brand-subtle: var(--dj-blue-50);
+  --color-brand-border: var(--dj-blue-200);
   --color-link: var(--dj-blue-700);
   --color-link-hover: var(--dj-blue-800);
   --color-focus: var(--dj-blue-600);
@@ -198,6 +199,7 @@
     --color-brand: #7cb8f0;
     --color-brand-hover: #a6cff5;
     --color-brand-subtle: #16304a;
+    --color-brand-border: #2c5a86;
     --color-link: #7cb8f0;
     --color-link-hover: #a6cff5;
     --color-focus: #7cb8f0;

@@ -101,7 +101,55 @@ def jobs(request):
     for job in visible.select_related("source__organization").defer("raw_text"):
         key = employer_key(job.employer_name)
         employers[key] = known.get(key) or {"pk": "name:" + job.employer_name, "name": job.employer_name}
-    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "employers": sorted(employers.values(), key=lambda item: item["name"] if isinstance(item, dict) else item.name), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()], "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields_in(visible), "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS)})
+    employers = sorted(employers.values(), key=lambda item: item["name"] if isinstance(item, dict) else item.name)
+    fields = fields_in(visible)
+    types = [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]
+    sort_query = urlencode({"sort": sort}) if sort else ""
+    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible)})
+
+
+# Filters behind the "Filters" disclosure; search, city and type stay in the main row.
+MORE_FILTERS = ("employer", "scope", "education", "experience", "field")
+
+
+def filter_chips(filters, sort, employers, types, fields):
+    """One removable chip per active filter: its label and a link to the same results without it."""
+    employer_names = {str(item["pk"]): item["name"] for item in employers if isinstance(item, dict)} | {str(item.pk): item.name for item in employers if not isinstance(item, dict)}
+    labels = {
+        "search": lambda value: f"„{value}“",
+        "employer": lambda value: employer_names.get(value, value.removeprefix("name:")),
+        "city": str,
+        "kind": lambda value: dict(types).get(value, value),
+        "scope": lambda value: {"national": gettext("Nacionalne"), "international": gettext("Međunarodne")}.get(value, value),
+        "education": lambda value: dict(requirements.EDUCATION_LEVELS).get(value, value),
+        "experience": lambda value: EXPERIENCE_CHOICES.get(value, value),
+        "field": lambda value: dict(fields).get(value) or requirements.FIELD_LABELS.get(value, value),
+    }
+    names = {
+        "search": _("Ukloni pretragu"), "employer": _("Ukloni organizaciju"), "city": _("Ukloni grad"), "kind": _("Ukloni vrstu angažmana"),
+        "scope": _("Ukloni poziciju"), "education": _("Ukloni obrazovanje"), "experience": _("Ukloni iskustvo"), "field": _("Ukloni oblast studija"),
+    }
+    chips = []
+    for key, name in FILTER_PARAMS:
+        if filters[name]:
+            rest = {other_key: filters[other] for other_key, other in FILTER_PARAMS if other != name and filters[other]}
+            if sort:
+                rest["sort"] = sort
+            chips.append({"label": labels[name](filters[name]), "remove": names[name], "query": urlencode(rest)})
+    return chips
+
+
+def sort_links(feed_query):
+    """The two orders as plain links that keep the active filters, so sorting needs no JavaScript."""
+    return [(value, label, "&".join(part for part in (feed_query, urlencode({"sort": value}) if value else "") if part)) for value, label in (("", _("Najnoviji prvo")), ("deadline", _("Rok uskoro")))]
+
+
+def trust_strip(visible):
+    """Counts for the line under the hero: open jobs, sources the daily run checks, and the latest successful check."""
+    latest = Source.objects.filter(enabled=True, last_success_at__isnull=False).order_by("-last_success_at").values_list("last_success_at", flat=True).first()
+    tracked = Source.objects.filter(enabled=True, status="verified", last_success_at__isnull=False).exclude(adapter="none").count()
+    latest_local = timezone.localtime(latest) if latest else None
+    return {"jobs": visible.count(), "sources": tracked, "latest": latest_local, "latest_today": bool(latest_local and latest_local.date() == timezone.localdate())}
 
 
 def annotate(job, today):
@@ -131,6 +179,8 @@ def job_detail(request, pk, slug=None):
     annotate(job, timezone.localdate())
     # Published but expired, hidden as a duplicate, or from a disabled source: still readable, marked as not current.
     current = visible_jobs().filter(pk=job.pk).exists()
+    if not current:
+        job.days_left = None  # no countdown on a job that is no longer open
     return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job)})
 
 

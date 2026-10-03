@@ -37,7 +37,7 @@ class DedupTests(TestCase):
         original = self.job()
         self.assertEqual(list(visible_jobs()), [original])
         self.assertEqual(Job.objects.count(), 2)
-        self.assertContains(self.client.get("/"), "Project Officer", count=3)  # title and the accessible names of the details and apply links
+        self.assertContains(self.client.get("/"), "Project Officer", count=2)  # title and the accessible name of the apply link
         self.assertEqual(self.client.get("/feed/").content.count(b"<entry>"), 1)
         self.assertTrue(Job.objects.filter(pk=copy.pk).exists())
 

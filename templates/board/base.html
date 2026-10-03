@@ -15,9 +15,7 @@
   <meta property="og:description" content="{% block og_description %}{{ description }}{% endblock %}">
   <meta property="og:url" content="{{ public_base }}{{ request.path }}">
   <meta property="og:locale" content="{% if LANGUAGE_CODE == 'en' %}en_GB{% else %}bs_BA{% endif %}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="{% static 'board/fonts/public-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'board/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'board/site.css' %}">
   <link rel="alternate" type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="{% block feed_href %}/feed/{% endblock %}">

@@ -81,12 +81,23 @@ Each site was retried with the Windows trust store, certifi and Chrome TLS imper
 - Dark mode is defined in the tokens but off; it applies only on `<html data-theme="auto">`.
 - Tests: 216 discovered locally on Python 3.11, 215 passed, one PostgreSQL-only skip; Django checks and migration drift are clean.
 
+## Design system Phase 2 (2026-10-03)
+
+- Job list: one search row (search, city, type, "Filteri", "Traži"). Organisation, position, education, experience and field sit in a panel opened by a `<details>` summary; the panel is a sibling of the details element (`.more-filters[open]~.filter-panel`), so its fields always submit with the form. It opens by default and shows a count when any of those five is active.
+- Active filters show as chips (`views.filter_chips`), each a link to the same results without that parameter; sort is kept. Sort is two links (`views.sort_links`), not a select, so it needs no JavaScript.
+- Trust strip (`views.trust_strip`): visible jobs, enabled verified sources with a successful run, and the latest successful check.
+- Job card v2: the title link is stretched over the card; "Detalji i uslovi" and "Provjereno" are gone from the card (the job page still has "Provjereno"). Tags are capped at three plus "+n".
+- `{% deadline job variant %}` (`board_extras.py`, `_deadline.html`): red for today/tomorrow, amber within 7 days, grey later; Bosnian count agreement via `text.plural`. A job page that is no longer current gets no countdown.
+- Job page under 960px: a key-facts grid under the title and a fixed apply bar (`scroll-padding-bottom` set on pages with the bar); the aside's apply button is hidden there.
+- Fonts are self-hosted in `board/static/board/fonts/` (OFL); Google Fonts is no longer loaded.
+- Checked in Chromium: no sideways scroll at 320, 360 or 390px on `/`, `/en/`, a filtered list and a job page. Tests: 219, all pass (one PostgreSQL-only skip).
+
 ## Next steps
 
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
 2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
 3. Remaining blocked sites (BACKLOG P0) stay blocked by policy; recheck them with the 90-day audit renewals.
-4. **Design Phase 2** (after owner review), from [the proposal](docs/design/design-system.html), Rollout section: filter bar with removable chips, job card v2 with a shared deadline tag, mobile sticky apply bar (with `scroll-padding-bottom`), trust strip, self-hosted Public Sans. The Phase 1 commits (`cdf071e`) show how tokens and templates fit together. Changing interface copy needs `makemessages`/`compilemessages` (see README).
+4. **Design Phase 3** (after owner review), from [the proposal](docs/design/design-system.html), Rollout section: grouped `/sources/`, dark theme QA, forced-colours borders, employer monograms, share images, a mobile usability check. Changing interface copy needs `makemessages`/`compilemessages` (see README).
 
 ## Design system files
 

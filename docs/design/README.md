@@ -14,4 +14,4 @@ Phase 1 of the rollout (the launch blockers) was done on 2026-10-03:
 4. On `/sources/`, "review" and "unavailable" shared the same amber pill. Review is now violet.
 5. The 📍, ↗ and ◎ glyphs are now SVG icons (`templates/board/_icons.html`).
 
-Phases 2–3 (filter bar, job card v2, mobile apply bar, sources grouping, dark theme) await owner review.
+Phase 2 was done on 2026-10-03: the search bar with a Filters disclosure and removable chips, a trust strip, job card v2 with the shared deadline component, the job page summary grid and mobile apply bar, and self-hosted fonts. Phase 3 (sources grouping, dark theme, monograms, share images) awaits owner review.
