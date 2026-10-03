@@ -1571,5 +1571,43 @@
         "notes": "Stranica daje anonimni token za vlastiti API pretrage; pretraga po ključnoj riječi ne gleda lokaciju, pa se čitaju svi oglasi (oko 60) i zadržavaju oni s državom BA. Provjereno 2026-10-02: nema oglasa u BiH."
       }
     ]
+  },
+  {
+    "name": "ReliefWeb",
+    "kind": "aggregator",
+    "country": "",
+    "city": "",
+    "website": "https://reliefweb.int/",
+    "evidence_url": "https://reliefweb.int/jobs?advanced-search=%28C40%29",
+    "verified_at": "2026-10-03",
+    "notes": "Agregator (UN OCHA). Poslodavac i originalni link za prijavu se čuvaju; oglas se ne prikazuje ako postoji službeni zapis istog oglasa.",
+    "sources": [
+      {
+        "url": "https://reliefweb.int/jobs?advanced-search=%28C40%29",
+        "adapter": "reliefweb",
+        "status": "verified",
+        "enabled": true,
+        "notes": "Filter zemlje C40 (BiH). Regionalni oglasi s više zemalja traže BiH kao mjesto boravka/rada u tekstu. Provjereno uživo 2026-10-03: 1 oglas (International Detention Coalition, Balkans)."
+      }
+    ]
+  },
+  {
+    "name": "Impactpool",
+    "kind": "aggregator",
+    "country": "",
+    "city": "",
+    "website": "https://www.impactpool.org/",
+    "evidence_url": "https://www.impactpool.org/search?q=&wl%5B%5D=28",
+    "verified_at": "2026-10-03",
+    "notes": "Agregator. Ne objavljuje datum objave; oglasi bez službenog duplikata idu na pregled.",
+    "sources": [
+      {
+        "url": "https://www.impactpool.org/search?q=&wl%5B%5D=28",
+        "adapter": "impactpool",
+        "status": "verified",
+        "enabled": true,
+        "notes": "Filter mjesta rada 28 (BiH). Provjereno uživo 2026-10-03: 8 oglasa; 6 je duplikat službenih izvora (UNDP x3, UN Women, UNFPA, OSCE), 2 UNICEF oglasa su nova jer je UNICEF izvor blokiran."
+      }
+    ]
   }
 ]

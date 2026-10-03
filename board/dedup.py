@@ -39,6 +39,9 @@ def url_key(url):
     # UNICEF publishes the same requisition under multiple locale/channel paths.
     if host == "jobs.unicef.org" and (match := re.search(r"/job/(\d+)(?:/|$)", path)):
         return f"{host}/job/{match[1]}"
+    # Oracle Candidate Experience: aggregators link /requisitions/job/N or /preview/N, in any locale, for the site's /job/N.
+    if host.endswith(".oraclecloud.com") and (match := re.search(r"/CandidateExperience/[^/]+/sites/([^/]+)/(?:requisitions/)?(?:job|preview)/(\d+)(?:/|$)", path, re.I)):
+        return f"{host}/sites/{match[1]}/job/{match[2]}"
     if path.lower() in {"", "/jobs", "/careers", "/vacancies", "/search", "/en/jobs", "/en/careers"} and not query:
         return ""  # Shared careers homepages never identify one vacancy.
     return host + path + ("?" + urlencode(sorted(query)) if query else "")

@@ -75,6 +75,9 @@ class Candidate:
     opportunity_type: str = "employment"
     scope: str = ""
     withdrawn: bool = False
+    employer_name: str = ""
+    application_url: str = ""
+    external_id: str = ""
 
 
 def canonicalize(url):
@@ -144,7 +147,8 @@ def request(client, method, url, **options):
         return getattr(client, method)(url, **options)
 
 
-def fetch(client, url):
+def fetch(client, url, keep=()):
+    """Page text and soup; `keep` names layout tags a parser needs (ReliefWeb puts country tags in an article footer)."""
     response = request(client, "get", url)
     response.raise_for_status()
     # Bot challenges answer 202/204 with an empty body; that must not read as "no vacancies".
@@ -162,7 +166,7 @@ def fetch(client, url):
     if "html" not in content_type:
         raise ValueError(f"Unsupported content type: {content_type}")
     soup = BeautifulSoup(response.text, "html.parser")
-    for tag in soup(["script", "style", "noscript", "nav", "footer"]):
+    for tag in soup([name for name in ("script", "style", "noscript", "nav", "footer") if name not in keep]):
         tag.decompose()
     return soup.get_text(" ", strip=True), soup
 
@@ -916,12 +920,16 @@ def coe_date(value):
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs.
 FEED_ADAPTERS = {"sfrss", "turkey", "canadales"}
 CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales"}
+AGGREGATOR_ADAPTERS = ("reliefweb", "impactpool")
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
 
 def discover_links(client, source, soup, evidence=None):
     """Listing leads as (url, title). Adapters may add per-URL listing evidence (card text, closing dates) to `evidence`."""
     evidence = {} if evidence is None else evidence
+    if source.adapter in AGGREGATOR_ADAPTERS:
+        from .aggregators import listing_links as aggregator_links
+        return aggregator_links(client, source, soup)
     listing_url = (source.adapter_config or {}).get("listing_url")
     if listing_url and source.adapter in ("rmk", "slovenia"):
         if not trusted_host(urlsplit(listing_url).hostname or "", (urlsplit(source.url).hostname or "").removeprefix("www.")):
@@ -1190,12 +1198,16 @@ def ingest_source(source_id):
                     if source.adapter in CARD_EVIDENCE:
                         candidate = make_candidate(source, url, title, evidence[url], None)
                     else:
-                        text, detail_soup = fetch(client, url)
+                        text, detail_soup = fetch(client, url, keep=("footer",)) if source.adapter in AGGREGATOR_ADAPTERS else fetch(client, url)
                         listed = evidence.get(url, "")
                         # A source whose adverts are bare PDFs (EUFOR) may opt in to the server's file date as the publication date.
                         if detail_soup is None and (source.adapter_config or {}).get("pdf_date_as_published") and (uploaded := file_date(client, url)):
                             listed = f"{listed} Published {uploaded.isoformat()}.".strip()
-                        candidate = make_candidate(source, url, title, text, detail_soup, listed)
+                        if source.adapter in AGGREGATOR_ADAPTERS:
+                            from .aggregators import make_candidate as aggregator_candidate
+                            candidate = aggregator_candidate(client, source, url, detail_soup)
+                        else:
+                            candidate = make_candidate(source, url, title, text, detail_soup, listed)
                     skip_if_new = candidate.excluded or candidate.withdrawn or bool(candidate.deadline and candidate.deadline < timezone.localdate())
                     # Expired, withdrawn and excluded leads are not worth a review entry; known jobs always refresh, even when their deadline moved into 2027.
                     if source.jobs.filter(canonical_url=candidate.url).exists() or (candidate.in_scope_year and not skip_if_new):
@@ -1253,6 +1265,14 @@ def ingest_source(source_id):
                     if candidate.withdrawn and job.status != "closed":
                         job.status, job.closed_reason = "closed", "withdrawn"
                     job.save()
+                if source.adapter in AGGREGATOR_ADAPTERS:
+                    protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
+                    if "application_url" not in protected:
+                        job.application_url = candidate.application_url
+                    job.external_id = candidate.external_id
+                    job.field_evidence = {**job.field_evidence, "employer_name": candidate.employer_name,
+                                          "aggregator": source.adapter, "original_url": candidate.application_url}
+                    job.save(update_fields=["application_url", "external_id", "field_evidence"])
             if not (source.adapter_config or {}).get("partial_listing"):
                 for job in Job.objects.filter(source=source, status__in=("published", "review")).exclude(canonical_url__in=seen):
                     job.missing_scans += 1

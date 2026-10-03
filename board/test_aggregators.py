@@ -1,8 +1,14 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from types import SimpleNamespace
+from unittest.mock import patch
+
+import httpx
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from .aggregators import make_candidate
 from .dedup import same_vacancy, url_key
+from .ingest import fetch
 from .models import Job, Organization, Source
 from .views import visible_jobs
 
@@ -76,3 +82,58 @@ class DedupTests(TestCase):
         self.copy(field_evidence={"employer_name": "International Detention Coalition"})
         self.assertContains(self.client.get("/", {"employer": "name:International Detention Coalition"}), "Project Officer")
         self.assertNotContains(self.client.get("/", {"employer": self.org.pk}), "Project Officer")
+
+
+RELIEFWEB_JOB = """<html><body><nav>menu</nav><article class="node--job"><header class="rw-article__header">
+<h1>Europe Programme Officer - Balkans</h1>
+<dd class="rw-entity-meta__tag-value--source">International Detention Coalition</dd>
+<dd class="rw-entity-meta__tag-value--posted"><time datetime="2026-09-22T07:30:02+00:00">22 Sep 2026</time></dd>
+<dd class="rw-entity-meta__tag-value--closing"><time datetime="2026-10-16T00:00:00+00:00">16 Oct 2026</time></dd></header>
+<div class="rw-article__content">The officer must be based in one of Albania or Bosnia and Herzegovina.</div>
+<section class="rw-how-to-apply"><a href="https://idc.bamboohr.com/careers/47?utm_source=reliefweb">IDC careers</a></section>
+<footer class="rw-article__footer"><section id="details"><dd class="rw-entity-meta__tag-value--country">
+<a href="/country/alb">Albania</a><a href="/country/bih">Bosnia and Herzegovina</a></dd></section></footer></article></body></html>"""
+
+IMPACTPOOL_JOB = """<html><body><div id="job-description"><div><h1>Project Manager</h1>
+<span type="bodyEmphasis">UNDP - United Nations Development Programme</span><span type="body">Sarajevo</span>
+<span>Application deadline: October 09, 2026 (5 days)</span></div><p>Background</p></div></body></html>"""
+
+
+class AggregatorAdapterTests(TestCase):
+    def http(self, routes):
+        def handle(request):
+            status, body, headers = routes[str(request.url)]
+            return httpx.Response(status, content=body.encode(), headers={"content-type": "text/html", **headers}, request=request)
+        return httpx.Client(transport=httpx.MockTransport(handle))
+
+    def test_reliefweb_country_tags_in_article_footer_survive_fetch(self):
+        url = "https://reliefweb.int/job/4230833/europe-programme-officer-balkans"
+        source = SimpleNamespace(adapter="reliefweb", url="https://reliefweb.int/jobs", adapter_config={})
+        with self.http({url: (200, RELIEFWEB_JOB, {})}) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 3)):
+            self.assertIsNone(fetch(client, url)[1].select_one("footer"))  # other adapters keep stripping layout
+            candidate = make_candidate(client, source, url, fetch(client, url, keep=("footer",))[1])
+        self.assertTrue(candidate.eligible, candidate.reason)
+        self.assertIn("Regionalna pozicija", candidate.eligibility)
+        self.assertEqual((candidate.source_published_at, candidate.deadline), (date(2026, 9, 22), date(2026, 10, 16)))
+        self.assertEqual(candidate.employer_name, "International Detention Coalition")
+        self.assertEqual(candidate.external_id, "4230833")
+
+    def test_reliefweb_multi_country_without_bih_residence_is_not_eligible(self):
+        url = "https://reliefweb.int/job/1/x"
+        source = SimpleNamespace(adapter="reliefweb", url="https://reliefweb.int/jobs", adapter_config={})
+        html = RELIEFWEB_JOB.replace("Albania or Bosnia and Herzegovina", "Tirana, Albania")
+        with self.http({url: (200, html, {})}) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 3)):
+            candidate = make_candidate(client, source, url, fetch(client, url, keep=("footer",))[1])
+        self.assertFalse(candidate.eligible)
+
+    def test_impactpool_original_url_dedupes_oracle_requisition_variant(self):
+        url = "https://www.impactpool.org/jobs/696031"
+        oracle = "https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions/job/36935?utm_medium=referral&utm_source=impactpool"
+        source = SimpleNamespace(adapter="impactpool", url="https://www.impactpool.org/search", adapter_config={})
+        routes = {url: (200, IMPACTPOOL_JOB, {}), url + "/apply": (302, "", {"location": oracle})}
+        with self.http(routes) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 3)):
+            candidate = make_candidate(client, source, url, fetch(client, url, keep=("footer",))[1])
+        self.assertEqual((candidate.city, candidate.deadline, candidate.source_published_at), ("Sarajevo", date(2026, 10, 9), None))
+        self.assertFalse(candidate.year_proven)  # Impactpool shows no publication date; never invent one
+        self.assertEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/36935"))
+        self.assertNotEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/36935"))
