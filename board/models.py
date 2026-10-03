@@ -100,3 +100,12 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def employer_name(self):
+        return self.field_evidence.get("employer_name") or self.source.organization.name
+
+    @property
+    def is_aggregated(self):
+        from .dedup import AGGREGATORS
+        return self.source.adapter in AGGREGATORS

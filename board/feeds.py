@@ -22,7 +22,7 @@ class JobsFeed(Feed):
         return query.select_related("source__organization").order_by("-first_seen_at", "-pk")[:50]
 
     def item_title(self, job):
-        return f"{job.title} – {job.source.organization.name}"
+        return f"{job.title} – {job.employer_name}"
 
     def item_description(self, job):
         deadline = job.deadline.strftime("%d.%m.%Y.") if job.deadline else "nije naveden"

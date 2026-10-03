@@ -8,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 from .models import Job, Organization, Source
 from .text import fold
+from .dedup import employer_key, unique_visible_ids
 
 STALE_AFTER = timedelta(hours=48)
 DISCOVERY_RECHECK_AFTER = timedelta(days=90)
@@ -17,7 +18,8 @@ def visible_jobs():
     """Published, current jobs: what the public board and the feed show."""
     today = timezone.localdate()
     cutoff = timezone.now() - timedelta(days=30)
-    return Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
+    query = Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
+    return query.filter(pk__in=unique_visible_ids(query))
 
 
 def filter_jobs(query, params):
@@ -29,10 +31,14 @@ def filter_jobs(query, params):
     if search:
         # Neither database ignores diacritics in a portable way; visible jobs are few, so matching is done on folded text.
         needle = fold(search)
-        rows = query.values_list("pk", "title", "city", "source__organization__name")
-        query = query.filter(pk__in=[pk for pk, *fields in rows if needle in fold(" ".join(fields))])
+        rows = query.select_related("source__organization").defer("raw_text")
+        query = query.filter(pk__in=[job.pk for job in rows if needle in fold(" ".join((job.title, job.city, job.employer_name)))])
     if employer.isdecimal() and len(employer) <= 18:
-        query = query.filter(source__organization_id=int(employer))
+        organization = Organization.objects.filter(pk=int(employer)).first()
+        key = employer_key(organization.name) if organization else None
+        query = query.filter(pk__in=[job.pk for job in query.select_related("source__organization") if employer_key(job.employer_name) == key])
+    elif employer.startswith("name:"):
+        query = query.filter(pk__in=[job.pk for job in query.select_related("source__organization") if employer_key(job.employer_name) == employer_key(employer[5:])])
     if city:
         query = query.filter(city=city[:100])
     if kind in dict(Job.TYPE):
@@ -60,7 +66,12 @@ def jobs(request):
     feed_query = urlencode({key: filters[name] for key, name in (("q", "search"), ("employer", "employer"), ("city", "city"), ("type", "kind"), ("scope", "scope")) if filters[name]})
     # Page links keep only the active filters and sort.
     page_query = "&".join(part for part in (feed_query, urlencode({"sort": sort}) if sort else "") if part)
-    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "employers": Organization.objects.filter(sources__jobs__in=visible).distinct().order_by("name"), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
+    known = {employer_key(org.name): org for org in Organization.objects.all()}
+    employers = {}
+    for job in visible.select_related("source__organization").defer("raw_text"):
+        key = employer_key(job.employer_name)
+        employers[key] = known.get(key) or {"pk": "name:" + job.employer_name, "name": job.employer_name}
+    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "employers": sorted(employers.values(), key=lambda item: item["name"] if isinstance(item, dict) else item.name), "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]})
 
 
 def sources(request):

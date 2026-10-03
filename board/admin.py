@@ -76,7 +76,7 @@ class JobAdmin(admin.ModelAdmin):
 
     @admin.display(description="Organizacija")
     def organization(self, obj):
-        return obj.source.organization
+        return obj.employer_name
 
     @admin.display(description="Razlog provjere")
     def review_reason(self, obj):
