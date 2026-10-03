@@ -415,4 +415,50 @@ def sitemap_links(client, source, soup, evidence):
     return result
 
 
-ADAPTERS = {"turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}
+def wordpress_links(client, source, soup, evidence):
+    """Third-party WordPress job board (mreza-mira.net, where GIZ advertises BiH
+    posts). The REST API lists every post of the year in the board's job
+    categories, without its archive category (expired posts move there); posts
+    whose title matches adapter_config.title_pattern are kept and attributed to
+    this source's employer."""
+    config = source.adapter_config or {}
+    parts = urlsplit(source.url)
+    if parts.scheme != "https" or not parts.path.rstrip("/").endswith("/wp-json/wp/v2/posts") or parts.query:
+        raise ValueError("WordPress posts endpoint missing from source URL")
+    query = {"categories": ",".join(str(int(value)) for value in config["categories"]), "after": f"{core.TARGET_YEAR}-01-01T00:00:00",
+             "per_page": 100, "_fields": "id,date,link,title,content"}
+    if config.get("exclude_categories"):
+        query["categories_exclude"] = ",".join(str(int(value)) for value in config["exclude_categories"])
+    posts, page, pages, total = [], 1, 1, 0
+    while page <= pages:
+        if page > core.MAX_LISTING_PAGES:
+            raise ValueError("WordPress job categories exceed the page limit")
+        response = core.request(client, "get", source.url, params={**query, "page": page})
+        response.raise_for_status()
+        if "json" not in response.headers.get("content-type", "") or urlsplit(str(response.url)).hostname != parts.hostname or len(response.content) > 5_000_000:
+            raise ValueError("WordPress API response unusable")
+        batch = response.json()
+        try:
+            pages, total = int(response.headers["x-wp-totalpages"]), int(response.headers["x-wp-total"])
+        except (KeyError, ValueError) as exc:
+            raise ValueError("WordPress API paging headers missing") from exc
+        if not isinstance(batch, list):
+            raise ValueError("WordPress API response changed shape")
+        posts += batch
+        page += 1
+    if len(posts) != total:
+        raise ValueError(f"WordPress API listed {len(posts)} of {total} posts")
+    pattern, result = re.compile(config["title_pattern"], re.I), []
+    for post in posts:
+        title = BeautifulSoup(post["title"]["rendered"], "html.parser").get_text(" ", strip=True)
+        if not pattern.search(title):
+            continue
+        url = core.canonicalize(post["link"])
+        if urlsplit(url).hostname != parts.hostname:
+            raise ValueError("WordPress post link outside the board")
+        body = BeautifulSoup(post["content"]["rendered"], "html.parser").get_text(" ", strip=True)
+        result.append(put(evidence, url, title, f"Employer: {source.organization.name}. Advertised on {parts.hostname}. {body}", core.parse_date(post["date"][:10]), core.parse_deadline(body)))
+    return result
+
+
+ADAPTERS = {"wordpress": wordpress_links, "turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}

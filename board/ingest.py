@@ -42,7 +42,7 @@ INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*
 DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}-[A-Za-z]{3}-\d{4}|\d{1,2}(?:\.|st|nd|rd|th)?\s+[A-Za-zčćšđž]{3,}\.?,?\s+\d{4}|\b[A-Za-z]{3,}\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,\s*|\s+)\d{4}"
 DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:(?<=UTC[−+-])\d{1,2}(?::\d{2})?|\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?:\s*\(?\s*(?:UTC|GMT|CET|CEST)\s*(?:[−+-]\s?\d{1,2}(?::\d{2})?)?\)?)?(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
 # "Open until", "received by": only a date right after counts, since "open until filled. Start date …" names another date.
-DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do)\s*(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
+DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|application documents by|applications? by|ističe)\s*(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)(?:(?!contract|ugovor|appointment|angažman)[^\d.;]){0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
@@ -928,8 +928,8 @@ def avature_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs, PeopleSoft and sitemap adapters read the advert themselves.
-FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap"}
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap"}
+FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap", "wordpress"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress"}
 AGGREGATOR_ADAPTERS = ("reliefweb", "impactpool")
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
@@ -1120,7 +1120,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

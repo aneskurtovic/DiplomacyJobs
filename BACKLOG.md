@@ -4,7 +4,6 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P0 — Coverage and content review (owner priority, 2026-10-03)
 
-- [ ] **GIZ via a third-party board.** The owner has approved this. GIZ advertises BiH national posts on mreza-mira.net; add a source filtered to GIZ, attributed to the portal. See [employer check](docs/ngo-donor-employers-2026-10-03.md).
 - [ ] **UNDP individual-consultant notices.** These appear on UNDP's procurement-notices system, which the UNDP Oracle source does not read; add a source for BiH notices.
 - [ ] **Complete the four partial sources:** Sweden (news list shows only the latest five items), RYCO (first page of its vacancies-and-tenders category only), Brazil (open scanned PDFs need OCR or manual handling), Canada (no source for the Sarajevo honorary consulate's own notices). Failed or partial scans must keep preserving existing jobs.
 - [ ] **Resolve the 15 sites that could not be accessed or rendered** in the [2026-10-03 audit](docs/source-audit-2026-10-03.md): Holy See, Malaysia, Romania, Ukraine, Greece, Pakistan, Indonesia, Russia, Slovakia, Order of Malta, Kuwait, Qatar, and the honorary consulates of Cyprus, DR Congo and Bangladesh (Sarajevo). No JavaScript-challenge solving and no TLS weakening. Recheck from the deployment network where local access fails.
@@ -35,6 +34,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [x] AI imports and manual corrections survive source updates; a source change after enrichment returns the job to review.
 - [x] Pagination links keep only active filters; missing pages return 404; indexed snapshot lookup; `PUBLIC_BASE_URL` for canonical, Open Graph, sitemap and robots URLs; admin run and snapshot filters.
 - [x] Accent-insensitive search on the board and feed.
+- [x] GIZ via mreza-mira.net (owner-approved third-party board): `wordpress` adapter filtered to GIZ titles, attributed to the portal on the board (2026-10-03).
 - [x] Rechecked the 2026-10-02 dead-end leads (2026-10-03): UNOPS (`avature`), EIB (`peoplesoft`) and Germany (`sitemap`) enabled; Austria and the Netherlands have no vacancy page. Details in HANDOFF.
 - [x] Content review of all 21 open jobs (2026-10-03): 15 published, 6 aggregator duplicates closed; details in HANDOFF.
 - [x] Bulk publish skips jobs that have a review reason; bulk publish, close and renew write admin history. The RYCO Tirana job published in error was closed (`manual`).

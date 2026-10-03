@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 class Organization(models.Model):
-    TYPE_CHOICES = [("aggregator", "Agregator poslova"), ("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija"), ("ngo", "Međunarodna nevladina organizacija")]
+    TYPE_CHOICES = [("aggregator", "Agregator poslova"), ("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija"), ("ngo", "Međunarodna nevladina organizacija"), ("agency", "Razvojna agencija")]
     RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)
@@ -25,7 +25,7 @@ class Organization(models.Model):
 
 class Source(models.Model):
     STATUS = [("discovered", "Otkriven"), ("verified", "Provjeren"), ("unsupported", "Čeka integraciju"), ("blocked", "Nedostupan"), ("none", "Izvor nije pronađen"), ("failing", "Greška")]
-    ADAPTERS = [("none", "Bez adaptera"), ("eeas", "EEAS"), ("govuk", "GOV.UK"), ("generic", "Strukturirana lista"), ("denmark", "Ambasada Danske"), ("italy", "Ambasada Italije"), ("swiss", "Ambasada Švicarske"), ("osce", "Misija OSCE-a"), ("unct", "UN u BiH"), ("ohr", "OHR"), ("eufor", "EUFOR"), ("unicef", "UNICEF"), ("ebrd", "EBRD"), ("rcc", "RCC"), ("era", "Ambasada SAD (ERA)"), ("japan", "Ambasada Japana"), ("oracle", "Oracle Recruiting (UN agencije)"), ("workday", "Workday (UNHCR)"), ("avature", "Avature (Vijeće Evrope, UNOPS)"), ("uncareers", "UN Sekretarijat (careers.un.org)"), ("csod", "Cornerstone (Svjetska banka)"), ("taleo", "Taleo (WHO)"), ("bamboohr", "BambooHR (ICMP)"), ("rmk", "SuccessFactors (UNESCO)"), ("rai", "RAI"), ("taleoftl", "Taleo, stariji (NATO)"), ("sfrss", "SuccessFactors RSS (ILO)"), ("lanteria", "Lanteria (ICMPD)"), ("turkey", "Turske lokalne objave"), ("spain", "Ambasada Spanije"), ("brazil", "Ambasada Brazila"), ("slovenia", "Slovenija MZEZ"), ("canadales", "Kanada LES"), ("peoplesoft", "PeopleSoft Atom feed (EIB)"), ("sitemap", "Sitemap misije (Njemačka)"), ("reliefweb", "ReliefWeb"), ("impactpool", "Impactpool")]
+    ADAPTERS = [("none", "Bez adaptera"), ("eeas", "EEAS"), ("govuk", "GOV.UK"), ("generic", "Strukturirana lista"), ("denmark", "Ambasada Danske"), ("italy", "Ambasada Italije"), ("swiss", "Ambasada Švicarske"), ("osce", "Misija OSCE-a"), ("unct", "UN u BiH"), ("ohr", "OHR"), ("eufor", "EUFOR"), ("unicef", "UNICEF"), ("ebrd", "EBRD"), ("rcc", "RCC"), ("era", "Ambasada SAD (ERA)"), ("japan", "Ambasada Japana"), ("oracle", "Oracle Recruiting (UN agencije)"), ("workday", "Workday (UNHCR)"), ("avature", "Avature (Vijeće Evrope, UNOPS)"), ("uncareers", "UN Sekretarijat (careers.un.org)"), ("csod", "Cornerstone (Svjetska banka)"), ("taleo", "Taleo (WHO)"), ("bamboohr", "BambooHR (ICMP)"), ("rmk", "SuccessFactors (UNESCO)"), ("rai", "RAI"), ("taleoftl", "Taleo, stariji (NATO)"), ("sfrss", "SuccessFactors RSS (ILO)"), ("lanteria", "Lanteria (ICMPD)"), ("turkey", "Turske lokalne objave"), ("spain", "Ambasada Spanije"), ("brazil", "Ambasada Brazila"), ("slovenia", "Slovenija MZEZ"), ("canadales", "Kanada LES"), ("peoplesoft", "PeopleSoft Atom feed (EIB)"), ("sitemap", "Sitemap misije (Njemačka)"), ("wordpress", "WordPress oglasnik (mreza-mira.net)"), ("reliefweb", "ReliefWeb"), ("impactpool", "Impactpool")]
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="sources")
     url = models.URLField(max_length=1000)
     adapter = models.CharField(max_length=20, choices=ADAPTERS, default="none")
@@ -63,6 +63,10 @@ class SourceDocument(models.Model):
     class Meta:
         # The latest snapshot of a page is looked up per candidate in every run and in the job admin.
         indexes = [models.Index(fields=["fetched_at"]), models.Index(fields=["source", "url", "-fetched_at"], name="sourcedoc_latest")]
+
+
+# Single-employer sources read from a third-party board; their adverts are not the employer's own page.
+THIRD_PARTY_BOARDS = {"wordpress"}
 
 
 class Job(models.Model):
@@ -106,6 +110,13 @@ class Job(models.Model):
         return self.field_evidence.get("employer_name") or self.source.organization.name
 
     @property
-    def is_aggregated(self):
+    def via(self):
+        """The portal a syndicated job came through: an aggregator, or a third-party board filtered to one employer."""
         from .dedup import AGGREGATORS
-        return self.source.adapter in AGGREGATORS
+        if self.source.adapter in AGGREGATORS:
+            return self.source.organization.name
+        return (self.source.adapter_config or {}).get("portal_name", "") if self.source.adapter in THIRD_PARTY_BOARDS else ""
+
+    @property
+    def is_aggregated(self):
+        return bool(self.via)

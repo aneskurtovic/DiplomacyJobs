@@ -1729,5 +1729,36 @@
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.bmeia.gv.at/oeb-sarajewo/ueber-uns",
     "recruitment_notes": "Stranica ambasade nema rubriku za oglase (provjerene putanje stellenausschreibungen, stellenangebote, jobs, offene-stellen vraćaju 404); centralni oglasi ministarstva su za službu u Austriji."
+  },
+  {
+    "name": "GIZ – Ured u Sarajevu",
+    "kind": "agency",
+    "country": "GERMANY",
+    "city": "Sarajevo",
+    "website": "https://www.giz.de/en/worldwide/298.html",
+    "evidence_url": "https://www.mreza-mira.net/vijesti/poslovi/giz-office-sarajevo-technical-advisor-m-f-d/",
+    "verified_at": "2026-10-03",
+    "notes": "Njemačka razvojna agencija. Nema službene liste oglasa za BiH (jobs.giz.de učitava rezultate JavaScriptom); ured u Sarajevu oglašava nacionalne pozicije na mreza-mira.net. Vlasnik je 2026-10-03 odobrio taj portal kao izvor.",
+    "sources": [
+      {
+        "url": "https://www.mreza-mira.net/wp-json/wp/v2/posts",
+        "adapter": "wordpress",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "categories": [
+            9,
+            1272
+          ],
+          "exclude_categories": [
+            5885
+          ],
+          "title_pattern": "^GIZ\\b|\\bGIZ (?:Office|Ured|ured)\\b",
+          "portal_name": "mreza-mira.net"
+        },
+        "notes": "Treća strana (mreza-mira.net, WordPress REST API): sve objave iz 2026. u kategorijama Poslovi (9) i Volonterski angažman i internships (1272), bez Arhive (5885); zadržavaju se naslovi GIZ oglasa. Raniji GIZ oglasi: Communication Specialist (11/2024), internship (1/2025), Technical Advisor (2/2025), Local Intern (12/2025). Provjereno 2026-10-03: nijedan GIZ oglas u 2026."
+      }
+    ]
   }
 ]

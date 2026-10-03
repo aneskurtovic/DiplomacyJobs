@@ -4,11 +4,11 @@ from unittest.mock import patch
 
 import httpx
 from bs4 import BeautifulSoup
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from board.ingest import discover_links, make_candidate
 from board.models import Organization, Source
-from board.recruitment import peoplesoft_links, sitemap_links
+from board.recruitment import peoplesoft_links, sitemap_links, wordpress_links
 
 EIB_FEED = "https://erecruitment.eib.org/PSIGW/HttpListeningConnector/feeds/RealtimeQueryFeed?FEED_ID=ADMN_BEI_HRS_JOB_POSTING_RSS_1&S=P"
 
@@ -85,6 +85,54 @@ class SitemapTests(TestCase):
             candidate = make_candidate(source, *links[0], evidence[links[0][0]], None)
         self.assertEqual((candidate.source_published_at, candidate.deadline, candidate.city), (date(2026, 10, 1), date(2026, 10, 20), "Sarajevo"))
         self.assertTrue(candidate.eligible and candidate.year_proven)
+
+
+class WordPressBoardTests(TestCase):
+    def test_job_categories_paged_and_employer_titles_kept(self):
+        posts = [
+            {"id": 1, "date": "2026-10-01T09:00:00", "link": "https://www.mreza-mira.net/vijesti/poslovi/giz-local-intern/", "title": {"rendered": "GIZ: Local Intern"},
+             "content": {"rendered": "<p>GIZ Office Sarajevo is looking for a paid intern in Sarajevo. Please send your application documents by 15.10.2026.</p>"}},
+            {"id": 2, "date": "2026-10-02T09:00:00", "link": "https://www.mreza-mira.net/vijesti/poslovi/caritas-finance-manager/", "title": {"rendered": "Caritas: Finance Manager"},
+             "content": {"rendered": "<p>Sarajevo. Rok: 20.10.2026</p>"}},
+            {"id": 3, "date": "2026-09-20T09:00:00", "link": "https://www.mreza-mira.net/vijesti/poslovi/advisor/", "title": {"rendered": "Advisor (m/f/d) &#8211; GIZ Office Sarajevo"},
+             "content": {"rendered": "<p>Sarajevo. Trajanje oglasa: 14 dana (ističe 30.10.2026.)</p>"}},
+        ]
+        seen = []
+
+        def respond(request):
+            seen.append(dict(request.url.params))
+            page = int(request.url.params["page"])
+            return httpx.Response(200, json=posts[:2] if page == 1 else posts[2:], headers={"x-wp-total": "3", "x-wp-totalpages": "2"}, request=request)
+        config = {"allow_empty": True, "categories": [9, 1272], "exclude_categories": [5885], "title_pattern": r"^GIZ\b|\bGIZ (?:Office|Ured|ured)\b"}
+        source = Source(organization=Organization.objects.create(name="GIZ – Ured u Sarajevu", kind="agency"), adapter="wordpress", url="https://www.mreza-mira.net/wp-json/wp/v2/posts", adapter_config=config)
+        with patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 3)), httpx.Client(transport=httpx.MockTransport(respond)) as client:
+            evidence = {}
+            links = wordpress_links(client, source, None, evidence)
+            candidates = [make_candidate(source, url, title, evidence[url], None) for url, title in links]
+        self.assertEqual((seen[0]["categories"], seen[0]["categories_exclude"], seen[0]["after"], len(seen)), ("9,1272", "5885", "2026-01-01T00:00:00", 2))
+        self.assertEqual([title for _, title in links], ["GIZ: Local Intern", "Advisor (m/f/d) – GIZ Office Sarajevo"])
+        self.assertEqual([(c.deadline, c.source_published_at, c.city, c.opportunity_type) for c in candidates],
+                         [(date(2026, 10, 15), date(2026, 10, 1), "Sarajevo", "paid_internship"), (date(2026, 10, 30), date(2026, 9, 20), "Sarajevo", "employment")])
+        self.assertTrue(all(c.eligible and c.year_proven for c in candidates))
+
+    @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+    def test_board_names_the_portal(self):
+        from django.utils import timezone
+        from board.models import Job
+        organization = Organization.objects.create(name="GIZ – Ured u Sarajevu", kind="agency")
+        source = Source.objects.create(organization=organization, adapter="wordpress", enabled=True, status="verified", url="https://www.mreza-mira.net/wp-json/wp/v2/posts", adapter_config={"portal_name": "mreza-mira.net"})
+        job = Job.objects.create(source=source, canonical_url="https://www.mreza-mira.net/vijesti/poslovi/giz-local-intern", title="GIZ: Local Intern", status="published", deadline=timezone.localdate())
+        self.assertEqual((job.via, job.is_aggregated), ("mreza-mira.net", True))
+        page = self.client.get("/").content.decode()
+        self.assertIn("putem mreza-mira.net", page)
+        self.assertIn("Oglas / prijava", page)
+        self.assertNotIn("Službeni oglas<", page)
+
+    def test_short_listing_fails(self):
+        source = Source(organization=Organization.objects.create(name="GIZ", kind="agency"), adapter="wordpress", url="https://www.mreza-mira.net/wp-json/wp/v2/posts", adapter_config={"categories": [9], "title_pattern": "GIZ"})
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=[], headers={"x-wp-total": "5", "x-wp-totalpages": "1"}, request=request))
+        with httpx.Client(transport=transport) as client, self.assertRaisesMessage(ValueError, "listed 0 of 5"):
+            wordpress_links(client, source, None, {})
 
 
 class UnopsAvatureTests(TestCase):
