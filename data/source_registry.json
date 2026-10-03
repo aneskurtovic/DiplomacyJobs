@@ -195,7 +195,8 @@
         "adapter_config": {
           "allow_empty": true,
           "impersonate": true,
-          "mission_name": "Mostar Başkonsolosluğu"
+          "mission_name": "Mostar Başkonsolosluğu",
+          "history": {}
         }
       }
     ],
@@ -220,7 +221,10 @@
         "adapter": "eeas",
         "status": "verified",
         "enabled": true,
-        "notes": "EEAS lista filtrirana na BiH; adapter prolazi kroz sve stranice. Provjereno uživo 2026-10-02: 3 otvorena oglasa."
+        "notes": "EEAS lista filtrirana na BiH; adapter prolazi kroz sve stranice. Provjereno uživo 2026-10-02: 3 otvorena oglasa.",
+        "adapter_config": {
+          "history": {}
+        }
       }
     ]
   },
@@ -394,7 +398,8 @@
           "content_selector": "#sitecontent .inside",
           "published_selector": ".item_createdate",
           "page_item_selector": "li.sectiontableentry1, li.sectiontableentry2",
-          "stop_at_older_page": true
+          "stop_at_older_page": true,
+          "history": {}
         },
         "notes": "Vijesti ambasade (Elxis CMS), 15 po stranici, sortirane po datumu; čitaju se stranice dok ima vijesti iz 2026. Oglasi imaju naslove kao 'OGLAS ZA SLOBODNO RADNO MJESTO', 'VACANCY ANNOUNCEMENT' (2024), 'Call for Applications - Administrative Staff'. Stranica odbija ne-preglednički TLS otisak (HTTP 403), pa koristi Chrome TLS impersonaciju. Provjereno 2026-10-03: nema oglasa u 2026."
       }
@@ -535,7 +540,8 @@
         "notes": "2026-10-03: Španska lista i PDF poziva: datumi, kategorije, izmjene i završeni procesi; Auxiliar 2026 je završen i nije objavljen kao otvoren posao.",
         "adapter_config": {
           "allow_empty": true,
-          "impersonate": true
+          "impersonate": true,
+          "history": {}
         }
       }
     ],
@@ -647,7 +653,8 @@
           "sections": {
             "karir": "",
             "berita": "career|vacanc|lowongan|rekrutmen|recruitment|local staff|staf lokal|oglas|posao"
-          }
+          },
+          "history": {}
         },
         "notes": "Javni API portala kemlu.go.id (/contentMenu, isti poziv koji koristi stranica): sekcija Karir (namjenska lista karijera, sve objave) i Berita (vijesti; zadržavaju se naslovi o zapošljavanju, npr. 'CAREER OPPERTUNITY' iz 2023). Svaka sekcija se čita do broja meta.filtered. Provjereno 2026-10-03: Karir 0 objava, Berita 195 objava (meta.total 200), nema oglasa u 2026."
       }
@@ -801,7 +808,8 @@
         "adapter_config": {
           "allow_empty": true,
           "impersonate": true,
-          "mission_name": "Saraybosna Büyükelçiliği"
+          "mission_name": "Saraybosna Büyükelçiliği",
+          "history": {}
         }
       }
     ],
@@ -940,7 +948,8 @@
         "enabled": true,
         "adapter_config": {
           "allow_empty": true,
-          "impersonate": true
+          "impersonate": true,
+          "history": {}
         },
         "notes": "HTML sadrži članke i PDF priloge. Stranica odbija TLS potpis Python klijenta (403), pa se dohvata kao Chrome. Provjereno 2026-10-02: jedini oglas je iz 2025."
       }
@@ -1130,7 +1139,8 @@
           "published_selector": ".article__info__date",
           "allow_empty": true,
           "page_item_selector": "li.article-list-block__list__item",
-          "second_page": 2
+          "second_page": 2,
+          "history": {}
         },
         "notes": "Lista vijesti je paginirana (?page=2 …, 5 vijesti po stranici, cijela arhiva oko 30 vijesti); čitaju se sve stranice do prve prazne, pa je izvor potpun (ranija bilješka o samo 5 vijesti bila je pogrešna). Datum objave je ispod naslova. Provjereno 2026-10-03: 6 stranica, nema oglasa."
       }
@@ -1310,7 +1320,10 @@
         "adapter_config": {
           "allow_empty": true,
           "ref_prefix": "UNDP-BIH",
-          "opportunity_type": "consultancy"
+          "opportunity_type": "consultancy",
+          "history": {
+            "request_delay": 3
+          }
         },
         "notes": "UNDP-ovi pozivi za individualne konsultante (IC) objavljuju se na sistemu procurement notices, ne na Oracle portalu. Jedna dnevna pretraga po prefiksu reference UNDP-BIH (sve objave ureda u 2026); zadržavaju se otvoreni IC pozivi, a stranica poziva daje zemlju i trajanje. robots.txt sajta zabranjuje crawlere; vlasnik je 2026-10-03 odobrio čitanje. Provjereno 2026-10-03: 169 objava u 2026, 65 IC."
       }
@@ -1611,7 +1624,8 @@
         "status": "verified",
         "enabled": true,
         "adapter_config": {
-          "allow_empty": true
+          "allow_empty": true,
+          "history": {}
         },
         "notes": "Stranica Tenders and Vacancies: aktuelni pozivi u okvirima iznad tabele, te otvoreni redovi tabele (vrsta Vacancy/Consultancy/Open Call). Oglasi su PDF dokumenti. Provjereno 2026-10-02: nema aktuelnih oglasa."
       }
@@ -1657,7 +1671,8 @@
           "require_categories": [
             110
           ],
-          "location": "Sarajevo, Bosnia and Herzegovina"
+          "location": "Sarajevo, Bosnia and Herzegovina",
+          "history": {}
         },
         "notes": "RYCO-ov WordPress REST API: sve objave iz 2026. u kategoriji Vacancies (136); zadržavaju se one označene kategorijom Local Branch Office Sarajevo (110). Oglasi sjedišta (Tirana) i drugih ureda nose druge kategorije. Provjereno 2026-10-03: 2026. bez oglasa za Sarajevo; posljednji 18.11.2025 (Finance and Administration Assistant)."
       }
@@ -1931,7 +1946,16 @@
             5885
           ],
           "title_pattern": "^GIZ\\b|\\bGIZ (?:Office|Ured|ured)\\b",
-          "portal_name": "mreza-mira.net"
+          "portal_name": "mreza-mira.net",
+          "history": {
+            "categories": [
+              9,
+              1272,
+              5885
+            ],
+            "exclude_categories": [],
+            "search": "GIZ"
+          }
         },
         "notes": "Treća strana (mreza-mira.net, WordPress REST API): sve objave iz 2026. u kategorijama Poslovi (9) i Volonterski angažman i internships (1272), bez Arhive (5885); zadržavaju se naslovi GIZ oglasa. Raniji GIZ oglasi: Communication Specialist (11/2024), internship (1/2025), Technical Advisor (2/2025), Local Intern (12/2025). Provjereno 2026-10-03: nijedan GIZ oglas u 2026."
       }

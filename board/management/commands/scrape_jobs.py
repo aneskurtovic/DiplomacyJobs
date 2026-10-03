@@ -3,7 +3,7 @@ import os
 import time
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
-from board.ingest import expire_jobs, ingest_source
+from board.ingest import archive_source, expire_jobs, ingest_source
 from board.models import Source
 
 STALE_LOCK_SECONDS = 6 * 60 * 60
@@ -19,6 +19,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--source", type=int)
+        # A one-off backfill, not part of the schedule: ended adverts of a past or the current year, stored as closed.
+        parser.add_argument("--history", type=int, metavar="YEAR", help="Store this year's ended adverts from sources with history settings")
 
     def handle(self, *args, **options):
         lock = lock_path()
@@ -38,6 +40,9 @@ class Command(BaseCommand):
                 sources = sources.filter(pk=options["source"])
                 if not sources.exists():
                     raise CommandError(f"No enabled source with id {options['source']}")
+            if options["history"]:
+                self.archive(sources, options["history"])
+                return
             try:
                 for source in sources:
                     # One source's unexpected error must not skip the rest or the expiry pass.
@@ -55,3 +60,17 @@ class Command(BaseCommand):
                 expire_jobs()
         finally:
             lock.unlink(missing_ok=True)
+
+    def archive(self, sources, year):
+        sources = [source for source in sources if "history" in (source.adapter_config or {})]
+        if not sources:
+            raise CommandError("No enabled source with history settings")
+        for source in sources:
+            try:
+                jobs = archive_source(source.pk, year)
+            except Exception as exc:
+                logger.exception("Source %s: archive backfill error", source.pk)
+                self.stderr.write(f"{source.pk}: {exc}")
+                continue
+            public = sum(1 for job in jobs if job.published_at)
+            self.stdout.write(f"{source.pk}: {len(jobs)} archived, {public} listed on the employer page")

@@ -354,8 +354,8 @@ def past_job_query(visible):
 
 
 def past_jobs(organization, known, visible):
-    """The organization's past jobs, newest first; an aggregator copy of a vacancy its own source also had is the same job and is left out."""
-    rows = [job for job in past_job_query(visible).order_by("-first_seen_at", "-pk") if related.owner(job, known).pk == organization.pk]
+    """The organization's past jobs, latest deadline first (adverts backfilled from a source's archive were found long after they ended); an aggregator copy of a vacancy its own source also had is the same job and is left out."""
+    rows = [job for job in past_job_query(visible).order_by(F("deadline").desc(nulls_last=True), F("source_published_at").desc(nulls_last=True), "-first_seen_at", "-pk") if related.owner(job, known).pk == organization.pk]
     direct = [job for job in rows if not job.is_aggregated]
     return [job for job in rows if not (job.is_aggregated and any(same_vacancy(job, other) for other in direct))]
 

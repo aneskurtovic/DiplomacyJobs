@@ -427,13 +427,19 @@ def wordpress_links(client, source, soup, evidence):
     and its title matches the optional title_pattern. Used for a third-party board
     filtered to one employer (mreza-mira.net for GIZ; expired posts move to its
     archive category) and for an employer's own site (RYCO, whose Sarajevo office
-    category is the location evidence, given as adapter_config.location)."""
+    category is the location evidence, given as adapter_config.location). An archive
+    backfill reads only its year; adapter_config.search narrows a large category to
+    posts naming the employer."""
     config = source.adapter_config or {}
     parts = urlsplit(source.url)
     if parts.scheme != "https" or not parts.path.rstrip("/").endswith("/wp-json/wp/v2/posts") or parts.query:
         raise ValueError("WordPress posts endpoint missing from source URL")
     query = {"categories": ",".join(str(int(value)) for value in config["categories"]), "after": f"{core.TARGET_YEAR}-01-01T00:00:00",
              "per_page": 100, "_fields": "id,date,link,title,content,categories"}
+    if core.ARCHIVE:
+        query["before"] = f"{core.TARGET_YEAR + 1}-01-01T00:00:00"
+    if config.get("search"):
+        query["search"] = config["search"]
     if config.get("exclude_categories"):
         query["categories_exclude"] = ",".join(str(int(value)) for value in config["exclude_categories"])
     posts, page, pages, total = [], 1, 1, 0
@@ -481,10 +487,13 @@ def undpnotices_links(client, source, soup, evidence):
     UNDP's job portal). The site's search by reference prefix (adapter_config.ref_prefix,
     e.g. UNDP-BIH) lists the country office's notices of the year; open rows whose process
     is IC - Individual contractor are kept, and each notice page adds country and duration.
-    Its robots.txt disallows crawlers; the owner approved one daily search (2026-10-03)."""
+    Its robots.txt disallows crawlers; the owner approved one daily search (2026-10-03).
+    An archive backfill searches its year's posting dates and keeps the ended notices instead,
+    pausing adapter_config.request_delay seconds before each notice page (owner approval 2026-10-03)."""
     config = source.adapter_config or {}
     prefix = config["ref_prefix"]
-    response = core.request(client, "post", source.url, data={"cur_notice_id": prefix})
+    year = {"date_from1": f"{core.TARGET_YEAR}-01-01", "date_to1": f"{core.TARGET_YEAR}-12-31"} if core.ARCHIVE else {}
+    response = core.request(client, "post", source.url, data={"cur_notice_id": prefix, **year})
     response.raise_for_status()
     if urlsplit(str(response.url)).hostname != urlsplit(source.url).hostname or len(response.content) > 5_000_000:
         raise ValueError("UNDP notice search response unusable")
@@ -500,9 +509,10 @@ def undpnotices_links(client, source, soup, evidence):
         published, deadline = notice_date(cells.get("Posted", "")), notice_date(cells.get("Deadline", ""))
         if not published or not deadline:
             raise ValueError("UNDP notice dates changed format")
-        if not cells.get("Process", "").startswith("IC") or deadline < today:
+        if not cells.get("Process", "").startswith("IC") or (deadline >= today if core.ARCHIVE else deadline < today):
             continue
         url = local_url(source.url, row["href"])
+        core.time.sleep(float(config.get("request_delay", 0)))
         body, detail = core.fetch(client, url)
         if detail is None or cells["Ref No"] not in body:
             raise ValueError("UNDP notice page changed")

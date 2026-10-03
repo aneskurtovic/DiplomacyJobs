@@ -4,6 +4,7 @@ import json
 import re
 import ssl
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from datetime import date, datetime, timedelta
@@ -27,6 +28,8 @@ BROWSER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.
 # Intermediate certificates that some servers fail to send, fetched from their AIA links and verified by scripts/cert_chain.py.
 INTERMEDIATES = Path(__file__).resolve().parent.parent / "data" / "intermediates"
 TARGET_YEAR = 2026
+# True while an archive backfill (archive_source) reads a past year; adapters that skip ended adverts then keep them.
+ARCHIVE = False
 MAX_DETAIL_LINKS = 100
 MAX_LISTING_PAGES = 10
 # Cities with the spellings sources use (one-word Banjaluka, ASCII Brcko and Bihac).
@@ -87,6 +90,8 @@ class Candidate:
     employer_name: str = ""
     application_url: str = ""
     external_id: str = ""
+    # Passes every publication check except an open deadline: a past advert the employer page may list.
+    qualified: bool = False
 
 
 def canonicalize(url):
@@ -650,7 +655,8 @@ TALEO_DATE = re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}|\d{1,2}/[A-Z][a-z]{2}/\d{
 
 
 def rai_links(source, soup):
-    """Regional Anti-Corruption Initiative (Sarajevo). Current calls appear as info boxes above a Year/Title/Type/Status table; open vacancy or consultancy rows of that table also count, closed and cancelled ones do not."""
+    """Regional Anti-Corruption Initiative (Sarajevo). Current calls appear as info boxes above a Year/Title/Type/Status table; open vacancy or consultancy rows of that table also count, closed and cancelled ones do not.
+    An archive backfill also keeps the table's closed rows of its year; a cancelled procedure never ran."""
     table = next((table for table in soup.find_all("table") if table.find("tr") and "Status" in [cell.get_text(" ", strip=True) for cell in table.find("tr").find_all(["th", "td"])]), None)
     if table is None:
         raise ValueError("RAI tenders and vacancies table missing")
@@ -668,7 +674,9 @@ def rai_links(source, soup):
         if not link:
             continue
         kind, status = cells[2].get_text(" ", strip=True), cells[3].get_text(" ", strip=True)
-        if re.search(r"vacanc|consultan|open call|\bintern(?!ational)", kind, re.I) and not re.search(r"closed|cancel|complet|selected|finished", status, re.I):
+        ended = bool(re.search(r"closed|cancel|complet|selected|finished", status, re.I))
+        past = ARCHIVE and cells[0].get_text(" ", strip=True) == str(TARGET_YEAR) and not re.search(r"cancel", status, re.I)
+        if re.search(r"vacanc|consultan|open call|\bintern(?!ational)", kind, re.I) and (not ended or past):
             result.append((canonicalize(urljoin(source.url, link["href"])), link.get_text(" ", strip=True)[:400]))
     return [(url, title) for url, title in dict.fromkeys(result) if trusted_host(urlsplit(url).hostname or "", "rai-see.org")]
 
@@ -1149,7 +1157,8 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     outside = bool(OUTSIDE.search(location_evidence))
     fresh = bool(deadline and deadline >= today) or bool(not deadline and (source.adapter_config or {}).get("active_undated_listing"))
     closed = "unfortunately, this position has been closed" in text.lower()
-    eligible = job_like and in_country and not outside and not excluded and fresh and not closed
+    qualified = job_like and in_country and not outside and not excluded
+    eligible = qualified and fresh and not closed
     eligibility = "Državljani i stalni rezidenti BiH ne ispunjavaju uslove za ovu međunarodnu poziciju." if source.adapter == "osce" and "nationals and permanent residents of the duty station are not eligible" in text.lower() else ""
     # Each failed check is named, so a reviewer sees what to verify.
     reasons = [label for failed, label in (
@@ -1181,7 +1190,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, config.get("opportunity_type") or opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed)
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, config.get("opportunity_type") or opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed, qualified=qualified)
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
@@ -1209,6 +1218,22 @@ def open_client(source):
         return curl_requests.Session(impersonate="chrome", timeout=20, allow_redirects=True)
     agent = BROWSER_USER_AGENT if config.get("browser_user_agent") else USER_AGENT
     return httpx.Client(headers={"User-Agent": agent}, timeout=20, follow_redirects=True, verify=tls_context(source))
+
+
+def build_candidate(client, source, url, title, evidence, delay=0):
+    """One lead as a Candidate: card/API evidence as listed, otherwise the fetched detail page."""
+    if source.adapter in CARD_EVIDENCE:
+        return make_candidate(source, url, title, evidence[url], None)
+    time.sleep(delay)
+    text, detail_soup = fetch(client, url, keep=("footer",)) if source.adapter in AGGREGATOR_ADAPTERS else fetch(client, url)
+    listed = evidence.get(url, "")
+    # A source whose adverts are bare PDFs (EUFOR) may opt in to the server's file date as the publication date.
+    if detail_soup is None and (source.adapter_config or {}).get("pdf_date_as_published") and (uploaded := file_date(client, url)):
+        listed = f"{listed} Published {uploaded.isoformat()}.".strip()
+    if source.adapter in AGGREGATOR_ADAPTERS:
+        from .aggregators import make_candidate as aggregator_candidate
+        return aggregator_candidate(client, source, url, detail_soup)
+    return make_candidate(source, url, title, text, detail_soup, listed)
 
 
 def ingest_source(source_id):
@@ -1253,20 +1278,7 @@ def ingest_source(source_id):
             delay = float((source.adapter_config or {}).get("request_delay", 0))
             for url, title in links:
                 try:
-                    if source.adapter in CARD_EVIDENCE:
-                        candidate = make_candidate(source, url, title, evidence[url], None)
-                    else:
-                        time.sleep(delay)
-                        text, detail_soup = fetch(client, url, keep=("footer",)) if source.adapter in AGGREGATOR_ADAPTERS else fetch(client, url)
-                        listed = evidence.get(url, "")
-                        # A source whose adverts are bare PDFs (EUFOR) may opt in to the server's file date as the publication date.
-                        if detail_soup is None and (source.adapter_config or {}).get("pdf_date_as_published") and (uploaded := file_date(client, url)):
-                            listed = f"{listed} Published {uploaded.isoformat()}.".strip()
-                        if source.adapter in AGGREGATOR_ADAPTERS:
-                            from .aggregators import make_candidate as aggregator_candidate
-                            candidate = aggregator_candidate(client, source, url, detail_soup)
-                        else:
-                            candidate = make_candidate(source, url, title, text, detail_soup, listed)
+                    candidate = build_candidate(client, source, url, title, evidence, delay)
                     skip_if_new = candidate.excluded or candidate.withdrawn or bool(candidate.deadline and candidate.deadline < timezone.localdate())
                     # Expired, withdrawn and excluded leads are not worth a review entry; known jobs always refresh, even when their deadline moved into 2027.
                     if source.jobs.filter(canonical_url=candidate.url).exists() or (candidate.in_scope_year and not skip_if_new):
@@ -1356,6 +1368,68 @@ def ingest_source(source_id):
         run.finished_at = timezone.now()
         run.save()
     return run
+
+
+@contextmanager
+def past_year(year):
+    """Point the adapters at a past year. They read TARGET_YEAR and ARCHIVE when called; the scrape lock keeps one run per process."""
+    global TARGET_YEAR, ARCHIVE
+    saved = TARGET_YEAR, ARCHIVE
+    TARGET_YEAR, ARCHIVE = year, True
+    try:
+        yield
+    finally:
+        TARGET_YEAR, ARCHIVE = saved
+
+
+def archive_source(source_id, year):
+    """Backfill a source's ended adverts of one year as closed jobs (closed_reason "archive"); returns the jobs created.
+
+    Only sources whose adapter_config has a "history" object take part; its keys override the daily settings for this
+    run (GIZ adds mreza-mira.net's archive category). An advert still open is left to the daily scrape and a known URL
+    is never touched. A past advert that passes every publication check except its deadline gets published_at, so its
+    employer page lists it; the rest are kept closed with their reason for an admin to check.
+    """
+    source = Source.objects.select_related("organization").get(pk=source_id)
+    history = (source.adapter_config or {}).get("history")
+    if not source.enabled or history is None:
+        raise ValueError(f"Source {source.pk} has no history settings")
+    source.adapter_config = {**source.adapter_config, **history}
+    today, now = timezone.localdate(), timezone.now()
+    known = set(source.jobs.values_list("canonical_url", flat=True))
+    candidates = []
+    with past_year(year), open_client(source) as client:
+        soup = BeautifulSoup("", "html.parser") if source.adapter in FEED_ADAPTERS else fetch(client, source.url)[1]
+        if soup is None:
+            raise ValueError("Source listing must be HTML")
+        evidence = {}
+        links = [(url, title) for url, title in discover_links(client, source, soup, evidence) if listing_link_in_scope(url, title) and len(url) <= 1000]
+        if len(links) > MAX_DETAIL_LINKS:
+            raise ValueError(f"More than {MAX_DETAIL_LINKS} possible {year} vacancy links; narrow the source adapter")
+        delay = float(source.adapter_config.get("request_delay", 0))
+        for url, title in links:
+            if url in known:
+                continue
+            candidate = build_candidate(client, source, url, title, evidence, delay)
+            ended = candidate.withdrawn or (candidate.deadline < today if candidate.deadline else year < today.year)
+            if candidate.in_scope_year and ended and not candidate.excluded and candidate.url not in known:
+                known.add(candidate.url)
+                candidates.append(candidate)
+    created = []
+    with transaction.atomic():
+        for candidate in candidates:
+            public = candidate.qualified and candidate.year_proven
+            reason = "" if public else "; ".join(filter(None, [candidate.reason, "" if candidate.year_proven else "Godina objave nije potvrđena"]))
+            job = Job.objects.create(
+                source=source, canonical_url=candidate.url, title=candidate.title, city=candidate.city, deadline=candidate.deadline,
+                source_published_at=candidate.source_published_at, opportunity_type=candidate.opportunity_type, scope=candidate.scope,
+                location_evidence=candidate.location_evidence, eligibility=candidate.eligibility, status="closed", closed_reason="archive",
+                published_at=now if public else None, content_hash=candidate.content_hash, raw_text=candidate.text, last_checked_at=now,
+                field_evidence={"location": candidate.location_evidence, "review_reason": reason, "archive_year": year})
+            if changed := requirements.apply(job):
+                job.save(update_fields=changed)
+            created.append(job)
+    return created
 
 
 def expire_jobs():

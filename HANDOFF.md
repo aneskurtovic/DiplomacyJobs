@@ -5,10 +5,10 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 ## Current state (verified 2026-10-03, local SQLite)
 
 - **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
-- **Tests:** 242 discovered locally: 241 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Tests:** 248 discovered locally: 247 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 59 sources, **52 enabled**.
 - **Coverage on `/sources/`** (87 rows): **52 complete** (47 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 42 empty), **0 partial**, **3 unavailable** (Romania, UK, UNICEF), **33 no local recruitment list**, 0 awaiting integration, 0 unchecked.
-- **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 9 closed. Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
+- **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 187 closed (178 of them backfilled from source archives, see below). Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
 
 ## Owner decisions (2026-10-03)
 
@@ -125,6 +125,16 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - A page is indexed and in the sitemap only when it lists a current or past job (`views.public_organizations`); others get `noindex`.
 - Job page: "Drugi oglasi istog poslodavca" (up to 3, by employer key) and "Slične pozicije" (up to 3, other employers, `board/related.py`). Both sections are left out when empty. Similarity is rule-based: shared title stems (6 letters, advertising noise removed) score 3, job-family words 1, shared fields of study 2 each (max 2), and the same type and education level 1 each. A shared work word is required and the threshold is 4. On the 23 current jobs only the three EU4People/IDC programme jobs get suggestions; fields alone matched unrelated posts and were dropped as a sufficient signal.
 - Checked in Chromium (dark theme) on the UNICEF page and job 19; no sideways scroll at the tested width. Phone widths were not re-measured (the resize tool failed).
+
+## Archive backfill of 2025 and ended 2026 adverts (2026-10-03)
+
+- Owner request: past adverts on the employer pages. The daily scrape drops an advert that is already expired when first seen, so before this only jobs caught while open were stored.
+- All 52 enabled sources were probed for 2025 and 2026 (discovery only, nothing written). Recruitment portals (Oracle, Workday, Taleo, Avature, CSOD, SuccessFactors, BambooHR, Lanteria, PeopleSoft, ERA, UN Careers, Canada), Impactpool and the current-list pages (OSCE, OHR, RCC, EUFOR, UNCT, Ireland, Denmark, Japan, Malaysia, Pakistan) show open adverts only. ReliefWeb keeps expired jobs only in its API, which needs an approved app name; the owner declined (2026-10-03). Italy's concluded list has nothing for 2025 and its 2026 advert was already stored. Slovenia's full MFA list runs past the page limit and a Sarajevo advert is rare, so it was left out. Germany's sitemap would need a lower article floor and its last adverts are from 2020/2022.
+- `manage.py scrape_jobs --history YEAR [--source ID]` (`ingest.archive_source`) runs only sources whose `adapter_config` has a `history` object (12 in the registry); its keys override the daily settings for the run. It stores ended adverts of that year as `closed`/`archive` (migration 0036), never touches a known URL, and leaves open adverts to the daily scrape. An advert that passes every publication check except its deadline gets `published_at`, so the employer page lists it; the others keep their reason in `field_evidence.review_reason`.
+- Adapter changes in archive mode: RAI keeps the table's closed rows of the year (not cancelled ones); WordPress reads only that year and takes `search` (GIZ's history adds mreza-mira.net's Arhiva with `search=GIZ`, 15 posts instead of 1,145); UNDP notices searches the year's posting dates and keeps ended IC notices, 3 s apart (owner approved the ~150 page fetches, 2026-10-03).
+- Past jobs on employer pages are now ordered by deadline, newest first, since backfilled jobs were first seen long after they ended.
+- Run locally: 2026 — 65 archived, 63 listed (UNDP 57, EEAS 4, Spain 1, RAI 1); 2025 — 113 archived, 109 listed (UNDP 95, EEAS 8, GIZ 3, RYCO 2, RAI 1). Not listed: Swiss Political Advisor 2025 (no publication date in the PDF), RAI Organisational Expert, Director of Secretariat, Research and Mentorship Coordinator and the HR review call (titles fail the job-advert check), and a second RYCO copy of the Finance and Administration advert. Database backup: `backups/db-before-archive-backfill-20261003-213720.sqlite3`.
+- The server database needs the same: `migrate`, `import_registry`, then `scrape_jobs --history 2026` and `--history 2025`.
 
 ## Next steps
 
