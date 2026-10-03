@@ -24,7 +24,7 @@ class RecruitmentCoverageTests(TestCase):
         self.assertContains(response, "Pronalazak izvora:")
         self.assertNotContains(response, 'data-label="Otvoreni oglasi">0')
         filtered = self.client.get("/sources/", {"status": "not_found"})
-        self.assertEqual([row["organization"].name for row in filtered.context["rows"]], ["No list found"])
+        self.assertEqual([row["organization"].name for group in filtered.context["groups"] for row in group["rows"]], ["No list found"])
         self.assertFalse(Job.objects.exists())
 
     def test_missing_old_or_future_discovery_evidence_stays_pending(self):
@@ -39,7 +39,7 @@ class RecruitmentCoverageTests(TestCase):
     def test_access_failure_without_source_is_unavailable_and_not_empty(self):
         self.audited("Blocked mission", "blocked")
         response = self.client.get("/sources/", {"status": "unavailable"})
-        self.assertEqual(len(response.context["rows"]), 1)
+        self.assertEqual(response.context["shown"], 1)
         self.assertEqual(response.context["totals"]["empty"], 0)
         self.assertContains(response, "Blocked mission")
 

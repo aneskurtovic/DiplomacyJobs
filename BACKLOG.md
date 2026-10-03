@@ -19,7 +19,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
-- [ ] Design system Phase 3 ([proposal](docs/design/design-system.html), Rollout section): grouped `/sources/` with stat-card filters and a coverage bar, dark theme QA pass, forced-colours borders on pills and deadline chips, employer monograms (optional `Organization.short_name`), per-job Open Graph images, and a five-person mobile usability check.
+- [ ] Run the five-person mobile usability check ([script](docs/design/usability-check.md)); it needs real participants, ideally on the deployed site.
 
 ## P2 — Job pages and enrichment
 
@@ -32,6 +32,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## Done
 
+- [x] Design system Phase 3 (2026-10-03): `/sources/` grouped by state with the four stat cards as filters, a coverage bar and a name search; dark theme on (follows the OS) after a contrast check of every page; forced-colours borders; employer monograms from `Organization.short_name`; a 1200×630 Open Graph image per published job (`/jobs/<id>/share.png`, Pillow). The usability check is still open.
 - [x] Design system Phase 2 (2026-10-03): search bar with a "Filteri" disclosure, removable filter chips and sort links; trust strip under the hero; job card v2 (whole card links to the job page, deadline column with an urgency countdown, at most three tags); `{% deadline job %}` tag shared by the card, the job summary and the sticky apply bar under 960px; restyled evidence quotes; self-hosted Public Sans and IBM Plex Mono.
 - [x] Design system Phase 1 (2026-10-03): design tokens (`board/static/board/tokens.css`) adopted in site.css; two-row mobile header fixes the horizontal overflow at 320–390px; `:focus-visible` outline; input borders at 3.66:1; violet review status on `/sources/`; SVG icons instead of emoji/glyphs. Dark mode is defined but off.
 - [x] English interface at `/en/`, and Bosnian/English advert versions imported from the local `/translate-jobs` skill (2026-10-03).

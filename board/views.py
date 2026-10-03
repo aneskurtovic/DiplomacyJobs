@@ -4,6 +4,7 @@ from datetime import timedelta
 from urllib.parse import urlencode, urlsplit
 from django import forms
 from django.contrib import messages
+from django.core.cache import cache
 from django.core.mail import mail_admins
 from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Count, F, Q
@@ -14,9 +15,9 @@ from django.urls import reverse, translate_url
 from django.utils import timezone, translation
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
-from . import requirements
+from . import requirements, share_image
 from .models import Job, Organization, Report, Source
-from .text import fold
+from .text import fold, monogram, plural
 from .dedup import employer_key, unique_visible_ids
 
 STALE_AFTER = timedelta(hours=48)
@@ -97,6 +98,10 @@ def jobs(request):
     # Page links keep only the active filters and sort.
     page_query = "&".join(part for part in (feed_query, urlencode({"sort": sort}) if sort else "") if part)
     known = {employer_key(org.name): org for org in Organization.objects.all()}
+    for job in page:
+        # A syndicated job takes the monogram of its employer when the registry knows it, not the aggregator's.
+        organization = known.get(employer_key(job.employer_name)) or (None if job.is_aggregated else job.source.organization)
+        job.monogram = monogram(job.employer_name, organization.short_name if organization else "")
     employers = {}
     for job in visible.select_related("source__organization").defer("raw_text"):
         key = employer_key(job.employer_name)
@@ -182,6 +187,21 @@ def job_detail(request, pk, slug=None):
     if not current:
         job.days_left = None  # no countdown on a job that is no longer open
     return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job)})
+
+
+def job_share_image(request, pk):
+    """The Open Graph image of a published job: rendered once per text and language, then cached."""
+    job = get_object_or_404(Job.objects.select_related("source__organization"), pk=pk, status="published")
+    language = translation.get_language()
+    fingerprint = hashlib.sha256("|".join((language, job.title, job.employer_name, str(job.deadline), str(job.open_until_filled), job.city)).encode()).hexdigest()[:16]
+    key = f"share-image:{job.pk}:{fingerprint}"
+    png = cache.get(key)
+    if png is None:
+        png = share_image.render(job)
+        cache.set(key, png, 60 * 60 * 24)
+    response = HttpResponse(png, content_type="image/png")
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
 
 
 class ReportForm(forms.Form):
@@ -280,12 +300,64 @@ def sources(request):
             totals[status] += 1
             url = source.url if source else organization.website or organization.recruitment_evidence_url
             rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else "", "audit_current": audit_current})
+    # ?status= takes one of the four cards (a bucket) or one exact state, which the "show all" links use.
     selected = request.GET.get("status", "all")
-    if selected not in (*totals, "all"):
+    if selected not in (*totals, *COVERAGE_BUCKETS, "all"):
         selected = "all"
-    visible_rows = rows if selected == "all" else [row for row in rows if row["status"] == selected]
+    search = request.GET.get("q", "").strip()[:100]
+    states = COVERAGE_BUCKETS.get(selected) or ((selected,) if selected in totals else tuple(totals))
+    shown_rows = [row for row in rows if row["status"] in states and (not search or fold(search) in fold(row["organization"].name))]
+    # The full list trims each group; a card, a state or a search shows every row.
+    trim = SOURCE_GROUP_PREVIEW if selected == "all" and not search else None
+    groups = []
+    for state, label in source_groups():
+        group_rows = [row for row in shown_rows if row["status"] == state]
+        if state == "available":
+            group_rows.sort(key=lambda row: -row["count"])
+        if group_rows:
+            more_query = urlencode({"status": state, **({"q": search} if search else {})})
+            groups.append({"state": state, "label": label, "rows": group_rows[:trim], "total": len(group_rows), "hidden": len(group_rows[trim:]) if trim else 0, "more_query": more_query})
+    buckets = coverage_buckets(totals, selected)
+    for bucket in buckets:
+        # A selected card links back to the full list; the search is kept either way.
+        bucket["query"] = urlencode({**({} if bucket["current"] else {"status": bucket["key"]}), **({"q": search} if search else {})})
     latest = Source.objects.filter(last_success_at__isnull=False).order_by("-last_success_at").values_list("last_success_at", flat=True).first()
-    return render(request, "board/sources.html", {"rows": visible_rows, "total": len(rows), "organizations_total": organizations.count(), "shown": len(visible_rows), "totals": totals, "selected": selected, "open_jobs": published.count(), "latest": latest})
+    heading = next((bucket["title"] for bucket in buckets if bucket["key"] == selected), None) or dict(source_groups()).get(selected) or gettext("Izvori u registru")
+    return render(request, "board/sources.html", {"groups": groups, "buckets": buckets, "heading": heading, "total": len(rows), "organizations_total": organizations.count(), "shown": len(shown_rows), "totals": totals, "selected": selected, "search": search, "open_jobs": published.count(), "latest": latest})
+
+
+# The four cards on /sources/ group the eight row states; each card is also a filter.
+COVERAGE_BUCKETS = {"covered": ("available", "review", "empty"), "partial": ("partial",), "unavailable": ("unavailable",), "untracked": ("integration", "pending", "not_found")}
+SOURCE_GROUP_PREVIEW = 5
+
+
+def source_groups():
+    """Row groups in page order: sources with jobs first, then the rest of each card."""
+    return [("available", gettext("S otvorenim oglasima")), ("review", gettext("S oglasima na provjeri")), ("empty", gettext("Bez otvorenih oglasa")), ("partial", gettext("Djelimično praćeni")), ("unavailable", gettext("Nedostupni")), ("integration", gettext("Čeka integraciju")), ("pending", gettext("Izvor nije provjeren")), ("not_found", gettext("Izvor nije pronađen"))]
+
+
+def coverage_buckets(totals, selected):
+    """The four cards and the coverage bar: label, count and a one-line breakdown."""
+    covered = [plural_count(totals["available"], ["%(n)s s oglasima"] * 3, ["%(n)s with jobs"] * 2)]
+    if totals["review"]:
+        covered.append(plural_count(totals["review"], ["%(n)s na provjeri"] * 3, ["%(n)s in review"] * 2))
+    covered.append(plural_count(totals["empty"], ["%(n)s bez oglasa"] * 3, ["%(n)s without jobs"] * 2))
+    untracked = [part for part in (plural_count(totals["integration"], ["%(n)s čeka integraciju"] * 3, ["%(n)s awaiting integration"] * 2) if totals["integration"] else "", plural_count(totals["pending"], ["%(n)s nije provjeren", "%(n)s nisu provjerena", "%(n)s nije provjereno"], ["%(n)s not checked"] * 2) if totals["pending"] else "", plural_count(totals["not_found"], ["%(n)s bez lokalne liste"] * 3, ["%(n)s with no local list"] * 2)) if part]
+    cards = [
+        ("covered", gettext("Praćeni"), gettext("Praćeni izvori"), " · ".join(covered)),
+        ("partial", gettext("Djelimični"), gettext("Djelimično praćeni izvori"), gettext("Lista na izvoru nije potpuna")),
+        ("unavailable", gettext("Nedostupni"), gettext("Nedostupni izvori"), gettext("Provjera trenutno nije uspjela")),
+        ("untracked", gettext("Nisu praćeni"), gettext("Izvori koje ne pratimo"), " · ".join(untracked)),
+    ]
+    buckets = []
+    for key, label, title, detail in cards:
+        count = sum(totals[state] for state in COVERAGE_BUCKETS[key])
+        buckets.append({"key": key, "label": label, "title": title, "detail": detail, "count": count, "current": selected == key or selected in COVERAGE_BUCKETS[key]})
+    return buckets
+
+
+def plural_count(count, bs_forms, en_forms):
+    return plural(count, bs_forms, en_forms) % {"n": count}
 
 
 def absolute(request, path):

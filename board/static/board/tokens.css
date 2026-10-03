@@ -11,8 +11,8 @@
  * The brand blue #0f4c81 and the slate text colours are kept from site.css so
  * adoption is a find-and-replace, not a rebrand.
  *
- * Dark mode is opt-in: it follows the OS only on <html data-theme="auto">.
- * base.html leaves it off until the dark theme has had a QA pass on the real pages.
+ * Dark mode follows the OS on <html data-theme="auto">, which base.html sets
+ * since the Phase 3 QA pass (2026-10-03). Other values keep the light theme.
  */
 
 :root {
@@ -183,6 +183,7 @@
 /* Dark theme: alias tokens remap; components never change. */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="auto"] {
+    color-scheme: dark;
     --color-bg: #0e1a26;
     --color-bg-subtle: #122030;
     --color-surface: #15232f;

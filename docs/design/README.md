@@ -14,4 +14,12 @@ Phase 1 of the rollout (the launch blockers) was done on 2026-10-03:
 4. On `/sources/`, "review" and "unavailable" shared the same amber pill. Review is now violet.
 5. The 📍, ↗ and ◎ glyphs are now SVG icons (`templates/board/_icons.html`).
 
-Phase 2 was done on 2026-10-03: the search bar with a Filters disclosure and removable chips, a trust strip, job card v2 with the shared deadline component, the job page summary grid and mobile apply bar, and self-hosted fonts. Phase 3 (sources grouping, dark theme, monograms, share images) awaits owner review.
+Phase 2 was done on 2026-10-03: the search bar with a Filters disclosure and removable chips, a trust strip, job card v2 with the shared deadline component, the job page summary grid and mobile apply bar, and self-hosted fonts.
+
+Phase 3 was done on 2026-10-03, except the usability check, which needs real participants ([script](usability-check.md)):
+
+1. `/sources/` is grouped by state, with sources that have jobs first. The four stat cards are the status filters, a stacked bar sums up coverage, groups longer than five rows link to their full list, and a name search ignores case and diacritics.
+2. Dark mode is on: `base.html` sets `data-theme="auto"`, so the site follows the OS. Every text element on the job list, a job page, `/sources/` and `/report/` was checked in Chromium at WCAG AA in both themes; none failed.
+3. Under `forced-colors: active`, pills, deadline chips, tags, chips and monograms get a border, and the coverage bar uses system colours. This was reviewed in code, not in Windows High Contrast mode.
+4. Job cards show an employer monogram (`Organization.short_name`, set in the registry; otherwise an acronym or initials from the name). Hidden under 760px.
+5. Each published, current job has an Open Graph image at `/jobs/<id>/share.png` (1200×630, title, employer, deadline and place), drawn with Pillow and cached for a day.

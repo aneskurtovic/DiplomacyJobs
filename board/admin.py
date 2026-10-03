@@ -14,9 +14,9 @@ from .text import bs_plural
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ("name", "kind", "country", "city", "verified_at", "recruitment_status", "recruitment_checked_at")
+    list_display = ("name", "short_name", "kind", "country", "city", "verified_at", "recruitment_status", "recruitment_checked_at")
     list_filter = ("kind", "city", "recruitment_status")
-    search_fields = ("name", "country")
+    search_fields = ("name", "short_name", "country")
 
 
 @admin.register(Source)

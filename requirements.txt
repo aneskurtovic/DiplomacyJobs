@@ -6,3 +6,4 @@ curl_cffi>=0.16,<0.17
 beautifulsoup4>=4.13,<5
 pypdf>=5,<7
 whitenoise>=6.8,<7
+pillow>=11,<12

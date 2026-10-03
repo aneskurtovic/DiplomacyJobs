@@ -1,6 +1,7 @@
 [
   {
     "name": "Ambasada Japana u Bosni i Hercegovini",
+    "short_name": "JP",
     "kind": "embassy",
     "country": "JAPAN",
     "city": "Sarajevo",
@@ -25,6 +26,7 @@
   },
   {
     "name": "Ambasada Sjedinjenih Američkih Država u BiH",
+    "short_name": "US",
     "kind": "embassy",
     "country": "United States of America",
     "city": "Sarajevo",
@@ -47,6 +49,7 @@
   },
   {
     "name": "Apostolic Nunciature (Embassy of the Holy See/Vatican) in Bosnia and Herzegovina",
+    "short_name": "VA",
     "kind": "embassy",
     "country": "HOLY SEE",
     "city": "Sarajevo",
@@ -62,6 +65,7 @@
   },
   {
     "name": "Britanska ambasada u Sarajevu",
+    "short_name": "UK",
     "kind": "embassy",
     "country": "UK",
     "city": "Sarajevo",
@@ -80,6 +84,7 @@
   },
   {
     "name": "Consulate General of the Republic of Croatia in Banja Luka",
+    "short_name": "HR",
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Banja Luka",
@@ -95,6 +100,7 @@
   },
   {
     "name": "Consulate General of the Republic of Croatia in Mostar",
+    "short_name": "HR",
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Mostar",
@@ -110,6 +116,7 @@
   },
   {
     "name": "Consulate General of the Republic of Croatia in Tuzla",
+    "short_name": "HR",
     "kind": "consulate",
     "country": "CROATIA",
     "city": "Tuzla",
@@ -125,6 +132,7 @@
   },
   {
     "name": "Consulate General of the United Arab Emirates in Sarajevo",
+    "short_name": "AE",
     "kind": "consulate",
     "country": "UAE",
     "city": "Sarajevo",
@@ -153,6 +161,7 @@
   },
   {
     "name": "Consulate of Republic of Türkiye in Banja Luka",
+    "short_name": "TR",
     "kind": "consulate",
     "country": "TÜRKIYE- Consulate in Banja Luka",
     "city": "Banja Luka",
@@ -168,6 +177,7 @@
   },
   {
     "name": "Consulate of Republic of Türkiye in Mostar",
+    "short_name": "TR",
     "kind": "consulate",
     "country": "TÜRKIYE- Consulate in Mostar",
     "city": "Mostar",
@@ -196,6 +206,7 @@
   },
   {
     "name": "Delegacija Evropske unije i Ured specijalnog predstavnika EU u BiH",
+    "short_name": "EU",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -215,6 +226,7 @@
   },
   {
     "name": "Embassy of Hungary",
+    "short_name": "HU",
     "kind": "embassy",
     "country": "HUNGARY",
     "city": "Sarajevo",
@@ -230,6 +242,7 @@
   },
   {
     "name": "Embassy of Malaysia",
+    "short_name": "MY",
     "kind": "embassy",
     "country": "MALAYSIA",
     "city": "Sarajevo",
@@ -253,6 +266,7 @@
   },
   {
     "name": "Embassy of Romania",
+    "short_name": "RO",
     "kind": "embassy",
     "country": "ROMANIA",
     "city": "Sarajevo",
@@ -268,6 +282,7 @@
   },
   {
     "name": "Embassy of the Federal Republic of Germany",
+    "short_name": "DE",
     "kind": "embassy",
     "country": "GERMANY",
     "city": "Sarajevo",
@@ -298,6 +313,7 @@
   },
   {
     "name": "Embassy of the Federative Republic of Brazil",
+    "short_name": "BR",
     "kind": "embassy",
     "country": "BRAZIL",
     "city": "Sarajevo",
@@ -325,6 +341,7 @@
   },
   {
     "name": "Embassy of the French Republic",
+    "short_name": "FR",
     "kind": "embassy",
     "country": "FRANCE",
     "city": "Sarajevo",
@@ -340,6 +357,7 @@
   },
   {
     "name": "Embassy of the Hellenic Republic",
+    "short_name": "GR",
     "kind": "embassy",
     "country": "GREECE",
     "city": "Sarajevo",
@@ -372,6 +390,7 @@
   },
   {
     "name": "Embassy of the Islamic Republic of Iran",
+    "short_name": "IR",
     "kind": "embassy",
     "country": "IRAN",
     "city": "Sarajevo",
@@ -387,6 +406,7 @@
   },
   {
     "name": "Embassy of the Islamic Republic of Pakistan",
+    "short_name": "PK",
     "kind": "embassy",
     "country": "PAKISTAN",
     "city": "Sarajevo",
@@ -410,6 +430,7 @@
   },
   {
     "name": "Embassy of the Kingdom of Denmark",
+    "short_name": "DK",
     "kind": "embassy",
     "country": "DENMARK",
     "city": "Sarajevo",
@@ -432,6 +453,7 @@
   },
   {
     "name": "Embassy of the Kingdom of Norway",
+    "short_name": "NO",
     "kind": "embassy",
     "country": "NORWAY",
     "city": "Sarajevo",
@@ -447,6 +469,7 @@
   },
   {
     "name": "Embassy of the Kingdom of Saudi Arabia",
+    "short_name": "SA",
     "kind": "embassy",
     "country": "SAUDI ARABIA",
     "city": "Sarajevo",
@@ -462,6 +485,7 @@
   },
   {
     "name": "Embassy of the Kingdom of Spain",
+    "short_name": "ES",
     "kind": "embassy",
     "country": "SPAIN",
     "city": "Sarajevo",
@@ -489,6 +513,7 @@
   },
   {
     "name": "Embassy of the Kingdom of the Netherlands",
+    "short_name": "NL",
     "kind": "embassy",
     "country": "NETHERLANDS",
     "city": "Sarajevo",
@@ -504,6 +529,7 @@
   },
   {
     "name": "Embassy of the People's Democratic Republic of Algeria",
+    "short_name": "DZ",
     "kind": "embassy",
     "country": "ALGERIA",
     "city": "Sarajevo",
@@ -519,6 +545,7 @@
   },
   {
     "name": "Embassy of the People's Republic of China",
+    "short_name": "CN",
     "kind": "embassy",
     "country": "People's Republic of CHINA",
     "city": "Sarajevo",
@@ -534,6 +561,7 @@
   },
   {
     "name": "Embassy of the Republic of Albania",
+    "short_name": "AL",
     "kind": "embassy",
     "country": "ALBANIA",
     "city": "Sarajevo",
@@ -549,6 +577,7 @@
   },
   {
     "name": "Embassy of the Republic of Croatia",
+    "short_name": "HR",
     "kind": "embassy",
     "country": "CROATIA",
     "city": "Sarajevo",
@@ -564,6 +593,7 @@
   },
   {
     "name": "Embassy of the Republic of Indonesia",
+    "short_name": "ID",
     "kind": "embassy",
     "country": "INDONESIA",
     "city": "Sarajevo",
@@ -596,6 +626,7 @@
   },
   {
     "name": "Embassy of the Republic of Ireland to Bosnia and Herzegovina",
+    "short_name": "IE",
     "kind": "embassy",
     "country": "IRELAND",
     "city": "Sarajevo",
@@ -623,6 +654,7 @@
   },
   {
     "name": "Embassy of the Republic of Italy",
+    "short_name": "IT",
     "kind": "embassy",
     "country": "ITALY",
     "city": "Sarajevo",
@@ -642,6 +674,7 @@
   },
   {
     "name": "Embassy of the Republic of North Macedonia",
+    "short_name": "MK",
     "kind": "embassy",
     "country": "SJEVERNA MAKEDONIJA",
     "city": "Sarajevo",
@@ -657,6 +690,7 @@
   },
   {
     "name": "Embassy of the Republic of Poland",
+    "short_name": "PL",
     "kind": "embassy",
     "country": "POLAND",
     "city": "Sarajevo",
@@ -672,6 +706,7 @@
   },
   {
     "name": "Embassy of the Republic of Serbia",
+    "short_name": "RS",
     "kind": "embassy",
     "country": "SERBIА",
     "city": "Sarajevo",
@@ -687,6 +722,7 @@
   },
   {
     "name": "Embassy of the Republic of Slovenia",
+    "short_name": "SI",
     "kind": "embassy",
     "country": "SLOVENIA",
     "city": "Sarajevo",
@@ -714,6 +750,7 @@
   },
   {
     "name": "Embassy of the Republic of Türkiye to Bosnia and Herzegovina",
+    "short_name": "TR",
     "kind": "embassy",
     "country": "TÜRKIYE",
     "city": "Sarajevo",
@@ -742,6 +779,7 @@
   },
   {
     "name": "Embassy of the Russian Federation",
+    "short_name": "RU",
     "kind": "embassy",
     "country": "RUSSIA",
     "city": "Sarajevo",
@@ -757,6 +795,7 @@
   },
   {
     "name": "Embassy of the Slovak Republic",
+    "short_name": "SK",
     "kind": "embassy",
     "country": "SLOVAKIA",
     "city": "Sarajevo",
@@ -772,6 +811,7 @@
   },
   {
     "name": "Embassy of the Sovereign Military Order of Malta",
+    "short_name": "SMOM",
     "kind": "embassy",
     "country": "Sovereign Order of Malta",
     "city": "Sarajevo",
@@ -787,6 +827,7 @@
   },
   {
     "name": "Embassy of the State of Kuwait in Bosnia and Herzegovina",
+    "short_name": "KW",
     "kind": "embassy",
     "country": "KUWAIT",
     "city": "Sarajevo",
@@ -802,6 +843,7 @@
   },
   {
     "name": "Embassy of the State of Libya",
+    "short_name": "LY",
     "kind": "embassy",
     "country": "Libya",
     "city": "Sarajevo",
@@ -817,6 +859,7 @@
   },
   {
     "name": "Embassy of the State of Palestine to Bosnia and Herzegovina",
+    "short_name": "PS",
     "kind": "embassy",
     "country": "PALESTINE",
     "city": "Sarajevo",
@@ -832,6 +875,7 @@
   },
   {
     "name": "Embassy of the State of Qatar",
+    "short_name": "QA",
     "kind": "embassy",
     "country": "QATAR",
     "city": "Sarajevo",
@@ -847,6 +891,7 @@
   },
   {
     "name": "Embassy of the Swiss Confederation",
+    "short_name": "CH",
     "kind": "embassy",
     "country": "SWITZERLAND",
     "city": "Sarajevo",
@@ -870,6 +915,7 @@
   },
   {
     "name": "Embassy of Ukraine",
+    "short_name": "UA",
     "kind": "embassy",
     "country": "UKRAINE",
     "city": "Sarajevo",
@@ -893,6 +939,7 @@
   },
   {
     "name": "Evropska banka za obnovu i razvoj (EBRD)",
+    "short_name": "EBRD",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -915,6 +962,7 @@
   },
   {
     "name": "EUFOR (Operacija EU Althea)",
+    "short_name": "EUFOR",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -938,6 +986,7 @@
   },
   {
     "name": "General Honorary Consulate of Republic of Albania in Sarajevo",
+    "short_name": "AL",
     "kind": "honorary",
     "country": "ALBANIA",
     "city": "Sarajevo",
@@ -953,6 +1002,7 @@
   },
   {
     "name": "Honorary Consulate of Canada in Sarajevo",
+    "short_name": "CA",
     "kind": "honorary",
     "country": "CANADA",
     "city": "Sarajevo",
@@ -979,6 +1029,7 @@
   },
   {
     "name": "Honorary Consulate of Republic of Cyprus in Sarajevo",
+    "short_name": "CY",
     "kind": "honorary",
     "country": "CYPRUS",
     "city": "Sarajevo",
@@ -994,6 +1045,7 @@
   },
   {
     "name": "Honorary Consulate of the Democratic Republic of the Congo",
+    "short_name": "CD",
     "kind": "honorary",
     "country": "CONGO DR, Honorary Consulate",
     "city": "Brčko",
@@ -1009,6 +1061,7 @@
   },
   {
     "name": "Honorary Consulate of the People's Republic of Bangladesh in Banja Luka",
+    "short_name": "BD",
     "kind": "honorary",
     "country": "BANGLADESH",
     "city": "Banja Luka",
@@ -1024,6 +1077,7 @@
   },
   {
     "name": "Kingdom of Sweden",
+    "short_name": "SE",
     "kind": "embassy",
     "country": "SWEDEN",
     "city": "Sarajevo",
@@ -1051,6 +1105,7 @@
   },
   {
     "name": "Misija OSCE-a u Bosni i Hercegovini",
+    "short_name": "OSCE",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1084,6 +1139,7 @@
   },
   {
     "name": "People's Republic of Bangladesh Honorary General Consulate in Sarajevo",
+    "short_name": "BD",
     "kind": "honorary",
     "country": "BANGLADESH",
     "city": "Sarajevo",
@@ -1099,6 +1155,7 @@
   },
   {
     "name": "Regionalno vijeće za saradnju (RCC)",
+    "short_name": "RCC",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1121,6 +1178,7 @@
   },
   {
     "name": "SERBIA - Consulate General in Banja Luka",
+    "short_name": "RS",
     "kind": "consulate",
     "country": "SERBIA",
     "city": "Banja Luka",
@@ -1136,6 +1194,7 @@
   },
   {
     "name": "Ujedinjene nacije u Bosni i Hercegovini",
+    "short_name": "UN",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1166,6 +1225,7 @@
   },
   {
     "name": "UNICEF u Bosni i Hercegovini",
+    "short_name": "UNICEF",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1189,6 +1249,7 @@
   },
   {
     "name": "UNDP u Bosni i Hercegovini",
+    "short_name": "UNDP",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1223,6 +1284,7 @@
   },
   {
     "name": "IOM u Bosni i Hercegovini",
+    "short_name": "IOM",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1245,6 +1307,7 @@
   },
   {
     "name": "UNFPA u Bosni i Hercegovini",
+    "short_name": "UNFPA",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1267,6 +1330,7 @@
   },
   {
     "name": "UN Women u Bosni i Hercegovini",
+    "short_name": "UNW",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1289,6 +1353,7 @@
   },
   {
     "name": "UNHCR u Bosni i Hercegovini",
+    "short_name": "UNHCR",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1311,6 +1376,7 @@
   },
   {
     "name": "Međunarodni monetarni fond (MMF) – Ured stalnog predstavnika u BiH",
+    "short_name": "MMF",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1333,6 +1399,7 @@
   },
   {
     "name": "Svjetska zdravstvena organizacija (WHO) – Ured u BiH",
+    "short_name": "WHO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1356,6 +1423,7 @@
   },
   {
     "name": "Međunarodna komisija za nestale osobe (ICMP)",
+    "short_name": "ICMP",
     "kind": "international",
     "country": "",
     "city": "",
@@ -1378,6 +1446,7 @@
   },
   {
     "name": "UNESCO – Antena ured u Sarajevu",
+    "short_name": "UNESCO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1400,6 +1469,7 @@
   },
   {
     "name": "Organizacija UN-a za hranu i poljoprivredu (FAO) – Projektni ured u Sarajevu",
+    "short_name": "FAO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1423,6 +1493,7 @@
   },
   {
     "name": "Međunarodna organizacija rada (ILO) – projekti u BiH",
+    "short_name": "ILO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1445,6 +1516,7 @@
   },
   {
     "name": "Međunarodni centar za razvoj migracionih politika (ICMPD) – Ured u Sarajevu",
+    "short_name": "ICMPD",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1467,6 +1539,7 @@
   },
   {
     "name": "Štab NATO-a u Sarajevu (NHQSa)",
+    "short_name": "NATO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1489,6 +1562,7 @@
   },
   {
     "name": "Regionalna antikorupcijska inicijativa (RAI) – Sekretarijat",
+    "short_name": "RAI",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1511,6 +1585,7 @@
   },
   {
     "name": "Regionalna kancelarija za saradnju mladih (RYCO) – Lokalni ured u Sarajevu",
+    "short_name": "RYCO",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1556,6 +1631,7 @@
   },
   {
     "name": "Ured visokog predstavnika (OHR)",
+    "short_name": "OHR",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1578,6 +1654,7 @@
   },
   {
     "name": "Vijeće Evrope – Ured u Sarajevu",
+    "short_name": "CoE",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1600,6 +1677,7 @@
   },
   {
     "name": "UN Sekretarijat (uredi u Bosni i Hercegovini)",
+    "short_name": "UN",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1622,6 +1700,7 @@
   },
   {
     "name": "Grupa Svjetske banke (World Bank, IFC)",
+    "short_name": "WBG",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1644,6 +1723,7 @@
   },
   {
     "name": "ReliefWeb",
+    "short_name": "RW",
     "kind": "aggregator",
     "country": "",
     "city": "",
@@ -1663,6 +1743,7 @@
   },
   {
     "name": "Impactpool",
+    "short_name": "IP",
     "kind": "aggregator",
     "country": "",
     "city": "",
@@ -1682,6 +1763,7 @@
   },
   {
     "name": "Save the Children u Bosni i Hercegovini",
+    "short_name": "SC",
     "kind": "ngo",
     "country": "",
     "city": "Sarajevo",
@@ -1704,6 +1786,7 @@
   },
   {
     "name": "Catholic Relief Services u Bosni i Hercegovini",
+    "short_name": "CRS",
     "kind": "ngo",
     "country": "",
     "city": "Sarajevo",
@@ -1726,6 +1809,7 @@
   },
   {
     "name": "UNOPS u Bosni i Hercegovini",
+    "short_name": "UNOPS",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1749,6 +1833,7 @@
   },
   {
     "name": "Evropska investicijska banka (EIB) – Ured u Sarajevu",
+    "short_name": "EIB",
     "kind": "international",
     "country": "",
     "city": "Sarajevo",
@@ -1772,6 +1857,7 @@
   },
   {
     "name": "Embassy of the Republic of Austria",
+    "short_name": "AT",
     "kind": "embassy",
     "country": "AUSTRIA",
     "city": "Sarajevo",
@@ -1787,6 +1873,7 @@
   },
   {
     "name": "GIZ – Ured u Sarajevu",
+    "short_name": "GIZ",
     "kind": "agency",
     "country": "GERMANY",
     "city": "Sarajevo",

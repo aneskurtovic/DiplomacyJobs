@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 17:17+0200\n"
+"POT-Creation-Date: 2026-10-03 17:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,6 +244,18 @@ msgstr "Part time"
 msgid "Način rada"
 msgstr "Work arrangement"
 
+msgid "Do popune mjesta"
+msgstr "Until filled"
+
+msgid "Nije naveden"
+msgstr "Not stated"
+
+msgid "Rok prijave"
+msgstr "Application deadline"
+
+msgid "Bosna i Hercegovina"
+msgstr "Bosnia and Herzegovina"
+
 msgid "Ističe danas"
 msgstr "Closes today"
 
@@ -380,14 +392,59 @@ msgstr "You sent several reports in a short time. Please try again in an hour."
 msgid "Hvala! Prijava je zaprimljena i pregledat ćemo je."
 msgstr "Thank you! Your report was received and we will review it."
 
-msgid "Rok prijave"
-msgstr "Application deadline"
+msgid "Izvori u registru"
+msgstr "Sources in the registry"
 
-msgid "Do popune mjesta"
-msgstr "Until filled"
+msgid "S otvorenim oglasima"
+msgstr "With open jobs"
 
-msgid "Nije naveden"
-msgstr "Not stated"
+msgid "S oglasima na provjeri"
+msgstr "With jobs under review"
+
+msgid "Bez otvorenih oglasa"
+msgstr "No open jobs"
+
+msgid "Djelimično praćeni"
+msgstr "Partly followed"
+
+msgid "Nedostupni"
+msgstr "Unavailable"
+
+msgid "Čeka integraciju"
+msgstr "Awaiting integration"
+
+msgid "Izvor nije provjeren"
+msgstr "Source not checked"
+
+msgid "Izvor nije pronađen"
+msgstr "No source found"
+
+msgid "Praćeni"
+msgstr "Tracked"
+
+msgid "Praćeni izvori"
+msgstr "Tracked sources"
+
+msgid "Djelimični"
+msgstr "Partial"
+
+msgid "Djelimično praćeni izvori"
+msgstr "Partly tracked sources"
+
+msgid "Lista na izvoru nije potpuna"
+msgstr "The source's list is incomplete"
+
+msgid "Nedostupni izvori"
+msgstr "Unavailable sources"
+
+msgid "Provjera trenutno nije uspjela"
+msgstr "The check is currently failing"
+
+msgid "Nisu praćeni"
+msgstr "Not tracked"
+
+msgid "Izvori koje ne pratimo"
+msgstr "Sources we do not track"
 
 msgid "Ne popunjavajte ovo polje"
 msgstr "Leave this field empty"
@@ -433,9 +490,6 @@ msgstr ""
 
 msgid "Prijavi problem"
 msgstr "Report a problem"
-
-msgid "Bosna i Hercegovina"
-msgstr "Bosnia and Herzegovina"
 
 msgid "Rok:"
 msgstr "Deadline:"
@@ -768,71 +822,12 @@ msgstr "on the board"
 msgid "Pregled pokrivenosti"
 msgstr "Coverage overview"
 
-msgid "Potpuno praćeni"
-msgstr "Fully followed"
-
-msgid "Sa provjerenog izvora pratimo aktivne oglase"
-msgstr "We follow current adverts from a verified source"
-
-msgid "Djelimično praćeni"
-msgstr "Partly followed"
-
-msgid "Prikaz oglasa na izvoru nije potpun"
-msgstr "The source does not show all its adverts"
-
-msgid "Još nisu praćeni"
-msgstr "Not yet followed"
-
 #, python-format
-msgid ""
-"%(pending)s čeka provjeru · %(integration)s čeka integraciju · %(not_found)s "
-"bez pronađene liste"
-msgstr ""
-"%(pending)s awaiting a check · %(integration)s awaiting integration · "
-"%(not_found)s with no list found"
+msgid "od %(total)s izvora"
+msgstr "of %(total)s sources"
 
-msgid "Nedostupni"
-msgstr "Unavailable"
-
-msgid "Provjera izvora trenutno nije uspjela"
-msgstr "The source check is currently failing"
-
-msgid "Kako čitati status izvora"
-msgstr "How to read the source status"
-
-msgid "Dostupan · broj"
-msgstr "Available · number"
-
-msgid ""
-"Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu "
-"pronašli."
-msgstr ""
-"The source was checked successfully. We show the open adverts we found on it."
-
-msgid "Dostupan · 0"
-msgstr "Available · 0"
-
-msgid ""
-"Na potpuno praćenom izvoru nema potvrđenih otvorenih oglasa. Kandidati na "
-"provjeri prikazani su posebno."
-msgstr ""
-"A fully followed source has no confirmed open adverts. Candidates under "
-"review are shown separately."
-
-msgid "Djelimično ili nepoznato"
-msgstr "Partial or unknown"
-
-msgid ""
-"Pronađena stranica može čekati integraciju. Ako lista nije pronađena ili je "
-"nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa."
-msgstr ""
-"A page we found may be awaiting integration. If no list was found or it is "
-"unavailable, the number of jobs is unknown. An empty cell does not mean zero "
-"adverts."
-
-#, python-format
-msgid "Izvori u registru (%(total)s)"
-msgstr "Sources in the registry (%(total)s)"
+msgid "Filtriraj po statusu"
+msgstr "Filter by status"
 
 #, python-format
 msgid ""
@@ -842,32 +837,18 @@ msgstr ""
 "%(organizations_total)s organisations: embassies, consulates and "
 "international organisations in BiH"
 
-msgid "Filtriraj po statusu"
-msgstr "Filter by status"
+msgid "Pretraga izvora"
+msgstr "Source search"
 
-msgid "Svi"
-msgstr "All"
+msgid "Traži organizaciju"
+msgstr "Search organisations"
 
-msgid "S oglasima"
-msgstr "With jobs"
+#, python-format
+msgid "Rezultati za „%(search)s“."
+msgstr "Results for “%(search)s”."
 
-msgid "Bez oglasa"
-msgstr "No jobs"
-
-msgid "Na provjeri"
-msgstr "Under review"
-
-msgid "Djelimični"
-msgstr "Partial"
-
-msgid "Izvor nije provjeren"
-msgstr "Source not checked"
-
-msgid "Čeka integraciju"
-msgstr "Awaiting integration"
-
-msgid "Izvor nije pronađen"
-msgstr "No source found"
+msgid "Prikaži sve izvore"
+msgstr "Show all sources"
 
 msgid "Izvor"
 msgstr "Source"
@@ -917,6 +898,13 @@ msgstr "Jobs:"
 msgid "Pronalazak izvora:"
 msgstr "Source discovery:"
 
+#, python-format
+msgid "Prikaži sve (%(total)s)"
+msgstr "Show all (%(total)s)"
+
+msgid "Nijedna organizacija ne odgovara pretrazi."
+msgstr "No organisation matches your search."
+
 msgid "Nema izvora s odabranim statusom."
 msgstr "No sources with the selected status."
 
@@ -935,12 +923,65 @@ msgstr ""
 "awaiting integration, and partial, unavailable and unchecked sources may "
 "have adverts we have not found yet."
 
+msgid "Kako čitati status izvora"
+msgstr "How to read the source status"
+
+msgid "Dostupan · broj"
+msgstr "Available · number"
+
+msgid ""
+"Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu "
+"pronašli."
+msgstr ""
+"The source was checked successfully. We show the open adverts we found on it."
+
+msgid "Dostupan · 0"
+msgstr "Available · 0"
+
+msgid ""
+"Na potpuno praćenom izvoru nema potvrđenih otvorenih oglasa. Kandidati na "
+"provjeri prikazani su posebno."
+msgstr ""
+"A fully followed source has no confirmed open adverts. Candidates under "
+"review are shown separately."
+
+msgid "Djelimično ili nepoznato"
+msgstr "Partial or unknown"
+
+msgid ""
+"Pronađena stranica može čekati integraciju. Ako lista nije pronađena ili je "
+"nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa."
+msgstr ""
+"A page we found may be awaiting integration. If no list was found or it is "
+"unavailable, the number of jobs is unknown. An empty cell does not mean zero "
+"adverts."
+
+#~ msgid "Sa provjerenog izvora pratimo aktivne oglase"
+#~ msgstr "We follow current adverts from a verified source"
+
+#, python-format
+#~ msgid ""
+#~ "%(pending)s čeka provjeru · %(integration)s čeka integraciju · "
+#~ "%(not_found)s bez pronađene liste"
+#~ msgstr ""
+#~ "%(pending)s awaiting a check · %(integration)s awaiting integration · "
+#~ "%(not_found)s with no list found"
+
+#~ msgid "Svi"
+#~ msgstr "All"
+
+#~ msgid "S oglasima"
+#~ msgstr "With jobs"
+
+#~ msgid "Bez oglasa"
+#~ msgstr "No jobs"
+
+#~ msgid "Na provjeri"
+#~ msgstr "Under review"
+
 #, python-format
 #~ msgid "Ističe za %(days)s dana"
 #~ msgstr "Closes in %(days)s days"
-
-#~ msgid "Prikaži poslove"
-#~ msgstr "Show jobs"
 
 #~ msgid "Provjereno:"
 #~ msgstr "Checked:"

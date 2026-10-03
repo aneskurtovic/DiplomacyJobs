@@ -73,7 +73,10 @@ h1{font-size:2em;margin-block:.67em}
 /* Job card v2: the title link covers the card; the external link sits above it. */
 .job-card{position:relative;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:24px;margin-bottom:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 24px;transition:border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out)}
 .job-card:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-2)}
-.job-main{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.job-main{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:8px}
+/* Employer monogram: the registry short name or initials, decorative (the employer line names it). Hidden on phones. */
+.monogram{flex:none;width:44px;height:44px;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--color-brand-subtle);color:var(--color-brand);font-size:13px;font-weight:700;letter-spacing:.02em;line-height:1;overflow:hidden}
+.monogram-long{font-size:9.5px;letter-spacing:0}
 .job-card h3{font-size:20px;line-height:1.35;margin:0}
 .job-link::after{content:'';position:absolute;inset:0;border-radius:inherit}
 .job-card:hover .job-link{text-decoration:underline;text-underline-offset:3px}
@@ -109,26 +112,35 @@ h1{font-size:2em;margin-block:.67em}
 .coverage-intro h1{margin:0;font-size:36px;line-height:1.2;font-weight:700;letter-spacing:-.015em}
 .coverage-intro>p:not(.eyebrow):not(.last-check){margin:14px 0 0;font-size:18px;line-height:1.55;color:var(--color-text-secondary)}
 .last-check{font:13px/1.5 var(--font-mono);color:var(--color-text-muted);margin:14px 0 0}
-.coverage-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:36px 0}
-.coverage-stat{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:20px 24px;display:flex;flex-direction:column;gap:8px;min-height:156px}
-.coverage-stat.warning{border-color:var(--color-notice-border);background:var(--color-status-unavailable-bg)}
-.coverage-stat strong{font-size:36px;line-height:1.2;letter-spacing:-.02em}
-.coverage-stat>span:last-child{font-size:14px;line-height:1.4;color:var(--color-text-secondary)}
-.stat-label{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
-.status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
-.status-green{color:var(--color-status-covered-fg)}.status-blue{color:var(--color-status-partial-fg)}.status-gray{color:var(--color-text-muted)}.status-amber{color:var(--color-status-unavailable-fg)}
-.status-legend{background:var(--color-bg-subtle);border-radius:var(--radius-md);padding:24px 28px}
-.status-legend h2{margin:0 0 14px;font-size:17px}
+/* Coverage summary: a stacked bar, then the four cards, which double as the status filters. */
+.coverage-summary{margin:32px 0 0}
+.coverage-bar{display:flex;gap:2px;height:10px;border-radius:var(--radius-pill);overflow:hidden}
+.coverage-bar i{display:block;flex-basis:0;min-width:4px}
+.bar-covered{background:var(--color-status-covered-fg)}.bar-partial{background:var(--color-status-partial-fg)}.bar-unavailable{background:var(--color-status-unavailable-fg)}.bar-untracked{background:var(--color-border-strong)}
+.coverage-legend{display:flex;flex-wrap:wrap;gap:4px 20px;margin:10px 0 0;font-size:13px;color:var(--color-text-muted);font-variant-numeric:tabular-nums}
+.coverage-legend span{display:inline-flex;align-items:center;gap:6px}
+.coverage-legend i{width:10px;height:10px;border-radius:2px}
+.coverage-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0 0}
+.coverage-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:16px 20px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text-secondary);font-size:14px;line-height:1.4;text-decoration:none;transition:border-color var(--duration-fast) var(--ease-out)}
+.coverage-card:hover{border-color:var(--color-border-control);color:var(--color-text-secondary)}
+.coverage-card strong{font-size:31px;line-height:1.1;letter-spacing:-.02em;color:var(--color-text);font-variant-numeric:tabular-nums}
+.coverage-card[aria-current]{border-color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-text)}
+.status-legend{margin-top:32px;background:var(--color-bg-subtle);border-radius:var(--radius-md);padding:0 24px}
+.status-legend summary{cursor:pointer;padding:16px 0;font-weight:600;color:var(--color-text)}
+.status-legend[open]{padding-bottom:24px}
 .legend-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .legend-grid p{margin:0;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;color:var(--color-text-body)}
 .legend-grid strong{color:var(--color-text)}
-.coverage-table-section{margin-top:42px}
+.coverage-table-section{margin-top:40px}
 .table-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:16px}
 .table-heading h2{margin:0;font-size:22px}
 .table-heading p{color:var(--color-text-muted);margin:6px 0 0;font-size:14px}
-.status-filters{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.status-filters a{border:1px solid var(--color-border-control);border-radius:var(--radius-pill);padding:9px 12px;text-decoration:none;color:var(--color-text);font-size:12px;font-weight:600;white-space:nowrap}
-.status-filters a.selected{background:var(--color-text);color:var(--color-text-inverse);border-color:var(--color-text)}
+.source-search{display:flex;gap:8px;width:360px;max-width:100%}
+.source-search .search-field{flex:1}
+.source-search input{width:100%;min-height:40px;padding:0 12px 0 38px;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit}
+.source-search button{min-height:40px;padding:0 16px;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit;font-weight:600;cursor:pointer}
+.source-search button:hover{background:var(--color-bg-subtle)}
+.source-filter-note{margin:-4px 0 16px;font-size:14px;color:var(--color-text-secondary)}
 .source-table-wrap{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow-x:auto}
 .source-table{width:100%;border-collapse:collapse;text-align:left;min-width:860px}
 .source-table th{padding:13px 20px;background:var(--color-surface-sunken);border-bottom:1px solid var(--color-border);color:var(--color-text-muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
@@ -142,23 +154,28 @@ h1{font-size:2em;margin-block:.67em}
 .checked-at{white-space:nowrap;font-size:12px!important}
 .status-pill{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-pill);padding:5px 10px;font-size:12px;font-weight:600;white-space:nowrap}
 .status-pill:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
-.status-pill.good,.status-pill.empty{color:var(--color-status-covered-fg);background:var(--color-status-covered-bg)}
+.status-pill.covered{color:var(--color-status-covered-fg);background:var(--color-status-covered-bg)}
 .status-pill.partial{color:var(--color-status-partial-fg);background:var(--color-status-partial-bg)}
 .status-pill.review{color:var(--color-status-review-fg);background:var(--color-status-review-bg)}
 .status-pill.unavailable{color:var(--color-status-unavailable-fg);background:var(--color-status-unavailable-bg)}
-.status-pill.pending,.status-pill.integration{color:var(--color-status-untracked-fg);background:var(--color-status-untracked-bg)}
+.status-pill.untracked{color:var(--color-status-untracked-fg);background:var(--color-status-untracked-bg)}
+.source-table .group-row th{padding:10px 20px;background:var(--color-bg-subtle);border-top:1px solid var(--color-border);color:var(--color-text);text-align:left}
+.source-table .group-row span{color:var(--color-text-muted);font-weight:500}
+.source-table tbody:first-of-type .group-row th{border-top:0}
+.more-row td{text-align:center;padding:12px 20px}
+.more-row a{font-weight:600}
 .source-audit{margin-top:10px;font-size:12px;line-height:1.6;color:var(--color-text-muted)}
 .source-audit summary{cursor:pointer;color:var(--color-brand)}
 .source-audit p{margin:8px 0;max-width:520px}
 .no-rows{text-align:center;padding:36px!important}
 .table-footnote{font-size:13px;color:var(--color-text-muted);margin:14px 0 0}
-@media(max-width:1050px){.coverage-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.table-heading{display:block}.status-filters{justify-content:flex-start;margin-top:18px}}
-@media(max-width:760px){.wrap{padding-left:18px;padding-right:18px}.header-inner{height:auto;flex-wrap:wrap;gap:0 12px;padding-top:8px}.brand{font-size:17px;gap:8px;min-height:44px}.brand-mark{width:28px;height:28px}.site-nav{order:2;width:100%;height:44px;gap:0;margin-left:-8px}.site-nav a{padding:2px 8px 0}.coverage-intro{padding-top:36px}.coverage-stats,.legend-grid{grid-template-columns:1fr}.coverage-stats{margin:28px 0}.coverage-stat{min-height:0}.status-legend{padding:20px}.coverage-intro h1{font-size:30px}}
+@media(max-width:1050px){.coverage-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.table-heading{display:block}.source-search{margin-top:16px}}
+@media(max-width:760px){.wrap{padding-left:18px;padding-right:18px}.header-inner{height:auto;flex-wrap:wrap;gap:0 12px;padding-top:8px}.brand{font-size:17px;gap:8px;min-height:44px}.brand-mark{width:28px;height:28px}.site-nav{order:2;width:100%;height:44px;gap:0;margin-left:-8px}.site-nav a{padding:2px 8px 0}.coverage-intro{padding-top:36px}.legend-grid{grid-template-columns:1fr}.coverage-card{padding:14px 16px}.coverage-card strong{font-size:25px}.status-legend{padding:0 16px}.coverage-intro h1{font-size:30px}}
 
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{border-radius:var(--radius-pill);padding:2px 9px;font-size:12px;font-weight:600}
 .badge.new{color:var(--color-brand);background:var(--color-brand-subtle)}
-@media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid var(--color-border)}.source-table td{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:4px 0;border:0;text-align:right}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:var(--color-text-muted);font-family:var(--font-sans);font-size:13px;font-weight:600}}
+@media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid var(--color-border)}.source-table td{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:4px 0;border:0;text-align:right}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:var(--color-text-muted);font-family:var(--font-sans);font-size:13px;font-weight:600}.source-table tr.group-row,.source-table tr.more-row{padding:0}.source-table .group-row th{display:block;padding:10px 16px}.source-table .more-row td{justify-content:center;padding:12px 16px}}
 
 /* Job pages, requirement tags and problem reports. */
 .job-link{color:inherit;text-decoration:none}
@@ -238,4 +255,15 @@ h1{font-size:2em;margin-block:.67em}
 .translation-note{font-size:13px!important;color:var(--color-text-muted)!important;margin:0 0 12px;padding:8px 12px;background:var(--color-surface-sunken);border-radius:var(--radius-sm)}
 
 /* Phones: a one-line hero, search on its own row, and the card's side column as a footer row. */
-@media(max-width:760px){.hero{padding:20px 0 0}.hero .eyebrow,.hero>p:not(.trust-strip){display:none}.hero h1{font-size:28px;line-height:1.15;margin:0}.trust-strip{margin-top:8px!important;font-size:13px!important;gap:4px 16px}.search-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}.search-field{grid-column:1/-1}.filter-panel{grid-template-columns:1fr;padding:12px 0 4px}.results-heading{margin:20px 0 12px}.results-heading h2{font-size:20px}.job-card{padding:16px}.job-side{flex:1 1 100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;border-top:1px solid var(--color-border);padding-top:12px}.deadline-card{display:flex;align-items:center;gap:8px;text-align:left}.deadline-card .deadline-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.button-secondary{min-height:40px}}
+@media(max-width:760px){.hero{padding:20px 0 0}.monogram{display:none}.hero .eyebrow,.hero>p:not(.trust-strip){display:none}.hero h1{font-size:28px;line-height:1.15;margin:0}.trust-strip{margin-top:8px!important;font-size:13px!important;gap:4px 16px}.search-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}.search-field{grid-column:1/-1}.filter-panel{grid-template-columns:1fr;padding:12px 0 4px}.results-heading{margin:20px 0 12px}.results-heading h2{font-size:20px}.job-card{padding:16px}.job-side{flex:1 1 100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;border-top:1px solid var(--color-border);padding-top:12px}.deadline-card{display:flex;align-items:center;gap:8px;text-align:left}.deadline-card .deadline-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.button-secondary{min-height:40px}}
+
+/* Windows High Contrast and other forced-colour modes drop background colours, so anything told apart by its fill gets a border or a system colour. */
+@media (forced-colors: active){
+.status-pill,.deadline-countdown,.badge,.monogram,.chip,.filter-count,.tags li{border:1px solid CanvasText}
+.deadline-countdown.today{border-width:2px}
+.language-switch .current-language{border-bottom:3px solid Highlight}
+.coverage-card[aria-current]{border:3px solid Highlight}
+.coverage-bar i,.coverage-legend i,.live-dot{forced-color-adjust:none;background:CanvasText}
+.coverage-bar .bar-untracked,.coverage-legend .bar-untracked{background:GrayText}
+.apply,.search-bar button{border:2px solid ButtonText}
+}

@@ -1,8 +1,9 @@
 {% load static i18n %}<!doctype html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}" data-theme="auto">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>{% block title %}{% translate "Poslovi u diplomatiji i međunarodnim organizacijama u BiH" %} · DiplomacyJobs{% endblock %}</title>
   {% translate "Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." as description %}
   {% block robots %}{% endblock %}
@@ -14,6 +15,7 @@
   <meta property="og:title" content="{% block og_title %}{% translate "Poslovi u diplomatiji i međunarodnim organizacijama u BiH" %}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ description }}{% endblock %}">
   <meta property="og:url" content="{{ public_base }}{{ request.path }}">
+  {% block og_image %}{% endblock %}
   <meta property="og:locale" content="{% if LANGUAGE_CODE == 'en' %}en_GB{% else %}bs_BA{% endif %}">
   <link rel="preload" href="{% static 'board/fonts/public-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'board/tokens.css' %}">

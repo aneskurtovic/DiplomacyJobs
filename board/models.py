@@ -12,6 +12,8 @@ class Organization(models.Model):
     TYPE_CHOICES = [("aggregator", _("Agregator poslova")), ("embassy", _("Ambasada")), ("consulate", _("Konzulat")), ("honorary", _("Počasni konzulat")), ("international", _("Međunarodna organizacija")), ("ngo", _("Međunarodna nevladina organizacija")), ("agency", _("Razvojna agencija"))]
     RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
+    # Shown as the employer monogram on job cards ("OSCE", "UNDP", a country code for missions).
+    short_name = models.CharField(max_length=8, blank=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)
     country = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)

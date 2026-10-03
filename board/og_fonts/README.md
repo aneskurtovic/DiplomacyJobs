@@ -1,0 +1,1 @@
+Public Sans Regular and Bold as full TTF files (2026-10-03, from github.com/uswds/public-sans), used only by `board/share_image.py` to draw Open Graph images. Pillow has no font fallback, so it needs one file with every Bosnian letter; the web fonts in `static/board/fonts/` are split into latin and latin-ext subsets. SIL Open Font License 1.1 (OFL.txt).

@@ -5,7 +5,7 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 ## Current state (verified 2026-10-03, local SQLite)
 
 - **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
-- **Tests:** 216 discovered locally: 215 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Tests:** 228 discovered locally: 227 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 57 sources, **50 enabled**.
 - **Coverage on `/sources/`** (87 rows): **50 complete** (45 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 40 empty), **0 partial**, **8 unavailable** (Malaysia, Pakistan, Qatar, Romania, Russia, Kuwait, UK, UNICEF), **30 no local recruitment list**, 0 awaiting integration, 0 unchecked.
 - **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 9 closed. Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
@@ -92,12 +92,23 @@ Each site was retried with the Windows trust store, certifi and Chrome TLS imper
 - Fonts are self-hosted in `board/static/board/fonts/` (OFL); Google Fonts is no longer loaded.
 - Checked in Chromium: no sideways scroll at 320, 360 or 390px on `/`, `/en/`, a filtered list and a job page. Tests: 219, all pass (one PostgreSQL-only skip).
 
+## Design system Phase 3 (2026-10-03)
+
+- `/sources/`: rows are grouped by state (with jobs, in review, without jobs, partial, unavailable, awaiting integration, not checked, not found). The four stat cards (Praćeni, Djelimični, Nedostupni, Nisu praćeni) are the filters (`?status=covered|partial|unavailable|untracked`); exact states still work (`?status=empty`) and are what each group's "Prikaži sve (n)" link uses. The full list shows five rows per group. A stacked coverage bar, a name search (`?q=`, case- and diacritic-insensitive) and the status legend in a `<details>` replace the nine filter pills. At 1280px the page is 3,135px long (measured), down from about 9,500px.
+- Dark mode is on (`<html data-theme="auto">`, `color-scheme`). An automated WCAG AA text-contrast check on `/`, a filtered list, two job pages, `/sources/` and `/report/` found no failures in either theme. No sideways scroll at 320, 360 or 800px.
+- Forced colours: borders on pills, deadline chips, tags, chips and monograms, and system colours for the coverage bar. Not tried in Windows High Contrast mode itself.
+- Monograms: new `Organization.short_name` (migration 0034), filled in `data/source_registry.json` (acronyms for organisations, ISO country codes for missions) and imported by `import_registry`. Syndicated jobs use their employer's registry entry when it exists, otherwise an acronym or initials from the name (`text.monogram`). Applied locally: `import_registry` run after backup `backups/db-before-short-names-*.sqlite3`.
+- Share images: `/jobs/<id>/share.png` (and `/en/…`) draws a 1200×630 PNG with Pillow (new dependency, `pillow==11.3.0`) from full Public Sans TTFs in `board/og_fonts/`. Only current jobs get the `og:image` tags. Images are cached for a day in the Django cache (local memory per process).
+- Usability check: not run; it needs five real participants. Script: [docs/design/usability-check.md](docs/design/usability-check.md).
+- The Design canvas Rollout board was not updated or republished.
+- Tests: 228, all pass locally (one PostgreSQL-only skip); migration drift is clean.
+
 ## Next steps
 
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
 2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
 3. Remaining blocked sites (BACKLOG P0) stay blocked by policy; recheck them with the 90-day audit renewals.
-4. **Design Phase 3** (after owner review), from [the proposal](docs/design/design-system.html), Rollout section: grouped `/sources/`, dark theme QA, forced-colours borders, employer monograms, share images, a mobile usability check. Changing interface copy needs `makemessages`/`compilemessages` (see README).
+4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile, ideally after deployment: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp once the site has a public URL (`PUBLIC_BASE_URL` must be set for absolute `og:image` links).
 
 ## Design system files
 

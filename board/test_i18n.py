@@ -70,7 +70,7 @@ class EnglishInterfaceTests(TestCase):
 
     def test_english_board_and_job_page(self):
         board = self.client.get("/en/")
-        self.assertContains(board, '<html lang="en">', html=False)
+        self.assertContains(board, '<html lang="en" data-theme="auto">', html=False)
         self.assertContains(board, "Current jobs")
         self.assertContains(board, "<strong>1</strong> open job", html=False)
         self.assertContains(board, "10 days left")
@@ -84,7 +84,7 @@ class EnglishInterfaceTests(TestCase):
 
     def test_bosnian_stays_unprefixed_and_both_link_each_other(self):
         board = self.client.get("/", HTTP_ACCEPT_LANGUAGE="en")
-        self.assertContains(board, '<html lang="bs">', html=False)
+        self.assertContains(board, '<html lang="bs" data-theme="auto">', html=False)
         self.assertContains(board, "Aktuelni oglasi")
         self.assertContains(board, '<link rel="alternate" hreflang="en" href="http://testserver/en/">', html=False)
         self.assertContains(board, 'href="/en/" hreflang="en"', html=False)

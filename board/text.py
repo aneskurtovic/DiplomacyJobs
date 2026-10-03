@@ -1,3 +1,4 @@
+import re
 import unicodedata
 
 
@@ -23,3 +24,18 @@ def fold(text):
     """Case- and diacritic-insensitive form for search: "Švicarska", "svicarska" and "ŠVICARSKA" agree. Đ has no decomposition, and dj is its usual ASCII spelling."""
     text = unicodedata.normalize("NFKD", text.casefold().replace("đ", "d"))
     return "".join(char for char in text if not unicodedata.combining(char)).replace("dj", "d")
+
+
+MONOGRAM_SKIP = {"u", "i", "za", "of", "the", "in", "and", "to", "for", "bih", "ambasada", "embassy", "konzulat", "consulate", "general", "generalni", "republic", "republike", "republika", "ured", "office"}
+
+
+def monogram(name, short_name=""):
+    """Up to five letters for the employer badge: the registry short name, an acronym in the name ("UNICEF - United Nations…"), or two initials."""
+    if short_name:
+        return short_name
+    acronym = next((word for word in re.findall(r"\b[A-ZČĆŠĐŽ]{2,6}\b", name) if word != "BIH"), "")
+    if acronym:
+        return acronym
+    words = [word for word in re.findall(r"\w+", name) if word.casefold() not in MONOGRAM_SKIP]
+    # One remaining word ("Ambasada Italije") gives its first two letters, not a lone initial.
+    return (words[0][:2] if len(words) == 1 else "".join(word[0] for word in words[:2])).upper()
