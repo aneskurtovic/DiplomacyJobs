@@ -4,10 +4,10 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 
 ## Current state (verified 2026-10-03, local SQLite)
 
-- **Commits:** `8ec1cc8` is the last pushed commit; [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on it (Linux/Python 3.12, SQLite and PostgreSQL 16). Later local commits, including the new adapters and migration 0028 (`be69b0a`), are **not pushed and have no CI run yet**.
-- **Tests:** 173 discovered locally: 172 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
-- **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 54 sources, **47 enabled**.
-- **Coverage on `/sources/`** (87 rows): **43 complete** (38 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 9 with published jobs, 34 empty), **4 partial** (Sweden, RYCO, Brazil, Canada), **17 unavailable** (15 unresolved audit cases plus UK and UNICEF), **23 no local recruitment list**, 0 awaiting integration, 0 unchecked.
+- **Commits:** `8ec1cc8` is the last pushed commit; [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on it (Linux/Python 3.12, SQLite and PostgreSQL 16). Later local commits (new adapters, migrations 0028–0029, registry changes) are **not pushed and have no CI run yet**; the owner asked to push later.
+- **Tests:** 176 discovered locally: 175 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 55 sources, **47 enabled**.
+- **Coverage on `/sources/`** (87 rows): **47 complete** (42 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 9 with published jobs, 38 empty), **0 partial**, **17 unavailable** (15 unresolved audit cases plus UK and UNICEF), **23 no local recruitment list**, 0 awaiting integration, 0 unchecked.
 - **Jobs:** 15 published (all visible on the board), 0 in review, 9 closed. Content review done 2026-10-03 (see below).
 
 ## Owner decisions (2026-10-03)
@@ -15,7 +15,8 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 - A full reconciliation against the BiH Ministry of Foreign Affairs directory is **not** needed. The registry is the set of employers we choose to monitor.
 - GIZ may come in through a third-party board (mreza-mira.net). More generally, aggregators and local boards are acceptable sources; the direct employer is preferred and syndicated jobs are attributed.
 - INGOs and development agencies hiring in BiH are in scope (Save the Children and CRS are enabled).
-- Next work, in this order: review published jobs (done 2026-10-03), then coverage (recheck the 2026-10-02 dead-end leads (done 2026-10-03), GIZ (done 2026-10-03), UNDP consultant notices, the four partial sources, the 15 inaccessible sites).
+- Next work, in this order: review published jobs (done 2026-10-03), then coverage (recheck the 2026-10-02 dead-end leads (done 2026-10-03), GIZ (done 2026-10-03), UNDP consultant notices (blocked, needs a decision below), the four partial sources (done 2026-10-03), the 15 inaccessible sites).
+- **Open decision:** UNDP's procurement-notices site (procurement-notices.undp.org), the only official channel for its individual-consultant notices, has a robots.txt with `Disallow: /` for all crawlers. unjobs.org, which syndicates them, also disallows all crawlers and adds a Cloudflare challenge; ReliefWeb and Impactpool do not carry them. The source is not built until the owner decides whether to read the official site despite its robots.txt (a daily, low-volume, BiH-filtered fetch) or to accept the gap.
 
 ## Content review (2026-10-03)
 
@@ -43,12 +44,18 @@ The five leads that found nothing on 2026-10-02 were rechecked live; three are n
 - Live run: success, no GIZ advert in 2026. Run against 2025, it found the two known GIZ adverts (internship, Technical Advisor) with correct dates and city. The deadline parser now also reads "application documents by …" and "ističe …".
 - The site answers HTTP 406 to a bare `Mozilla/5.0` user agent but accepts the project's bot user agent; robots.txt allows crawling.
 
+## Partial sources completed (2026-10-03)
+
+- **Sweden:** the news list is paginated (`?page=2` …, about 30 items in all); the earlier "latest five only" note was wrong. Generic lists can now page through (`page_item_selector`, `second_page`); all pages are read until the first empty one.
+- **RYCO:** replaced the first-page category scrape by RYCO's WordPress REST API (`wordpress` adapter): every 2026 post in Vacancies (136) carrying the Local Branch Office Sarajevo category (110), which is the location evidence. The old source is disabled with `superseded_by`. Against 2025 it finds exactly the three Sarajevo vacancies.
+- **Brazil:** an open process whose advert is a scanned PDF no longer fails the source. It becomes a review item carrying the process year the embassy names ("Processo seletivo 2026"); a stated recruitment year without a date can never publish itself (`RECRUITMENT_YEAR`). gov.br sends no file date, and the CMS page dates are reused from 2023, so neither is used.
+- **Canada:** the Sarajevo office is a consulate under the Budapest embassy; Global Affairs Canada advertises every locally engaged position on the LES portal, which the adapter reads in full. There is no separate channel, so the source is complete.
+
 ## Next steps
 
-1. **UNDP consultant notices** from UNDP's procurement-notices system, BiH only.
-2. **Partial sources:** Sweden and RYCO full listings, Brazil scanned PDFs, Canada honorary-consulate notices.
-3. **The 15 inaccessible sites** (listed in BACKLOG). Some may only be reachable from the server network.
-4. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Push and CI are not deployment proof.
+1. **Owner decision on UNDP consultant notices** (see Owner decisions).
+2. **The 15 inaccessible sites** (listed in BACKLOG). Some may only be reachable from the server network.
+3. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Push and CI are not deployment proof.
 
 ## Working notes
 

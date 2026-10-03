@@ -176,7 +176,13 @@ def brazil_links(client, source, soup, evidence):
         url = local_url(source.url, advert["href"])
         body, _ = core.fetch(client, url)
         if len(body.strip()) < 150 and not closed:
-            raise ValueError("Brazil open vacancy PDF needs OCR; no readable text")
+            # A scanned advert has no text to read dates from; the CMS page dates are reused from 2023.
+            # It becomes a review lead with the process year the embassy names; a reviewer reads the PDF.
+            year = re.search(r"\b(20\d{2})\b", text(link))
+            if not year:
+                raise ValueError("Brazil scanned vacancy PDF has no process year")
+            result.append(put(evidence, url, "Oglas za posao — Ambasada Brazila", f"Location: Sarajevo. Recruitment year: {year[1]}. Skenirani PDF bez čitljivog teksta; rok i uslove pročitati u PDF-u. {text(article)}"))
+            continue
         # Never use the CMS's 2023 creation date as the 2026 call date.
         published = core.parse_published(body)
         if not published:
@@ -416,17 +422,18 @@ def sitemap_links(client, source, soup, evidence):
 
 
 def wordpress_links(client, source, soup, evidence):
-    """Third-party WordPress job board (mreza-mira.net, where GIZ advertises BiH
-    posts). The REST API lists every post of the year in the board's job
-    categories, without its archive category (expired posts move there); posts
-    whose title matches adapter_config.title_pattern are kept and attributed to
-    this source's employer."""
+    """WordPress site's REST API: every post of the year in adapter_config.categories,
+    minus exclude_categories. A post is kept when it carries all require_categories
+    and its title matches the optional title_pattern. Used for a third-party board
+    filtered to one employer (mreza-mira.net for GIZ; expired posts move to its
+    archive category) and for an employer's own site (RYCO, whose Sarajevo office
+    category is the location evidence, given as adapter_config.location)."""
     config = source.adapter_config or {}
     parts = urlsplit(source.url)
     if parts.scheme != "https" or not parts.path.rstrip("/").endswith("/wp-json/wp/v2/posts") or parts.query:
         raise ValueError("WordPress posts endpoint missing from source URL")
     query = {"categories": ",".join(str(int(value)) for value in config["categories"]), "after": f"{core.TARGET_YEAR}-01-01T00:00:00",
-             "per_page": 100, "_fields": "id,date,link,title,content"}
+             "per_page": 100, "_fields": "id,date,link,title,content,categories"}
     if config.get("exclude_categories"):
         query["categories_exclude"] = ",".join(str(int(value)) for value in config["exclude_categories"])
     posts, page, pages, total = [], 1, 1, 0
@@ -448,16 +455,17 @@ def wordpress_links(client, source, soup, evidence):
         page += 1
     if len(posts) != total:
         raise ValueError(f"WordPress API listed {len(posts)} of {total} posts")
-    pattern, result = re.compile(config["title_pattern"], re.I), []
+    pattern, required, result = re.compile(config.get("title_pattern", ""), re.I), {int(value) for value in config.get("require_categories", [])}, []
     for post in posts:
         title = BeautifulSoup(post["title"]["rendered"], "html.parser").get_text(" ", strip=True)
-        if not pattern.search(title):
+        if not pattern.search(title) or not required <= set(post.get("categories") or []):
             continue
         url = core.canonicalize(post["link"])
         if urlsplit(url).hostname != parts.hostname:
             raise ValueError("WordPress post link outside the board")
         body = BeautifulSoup(post["content"]["rendered"], "html.parser").get_text(" ", strip=True)
-        result.append(put(evidence, url, title, f"Employer: {source.organization.name}. Advertised on {parts.hostname}. {body}", core.parse_date(post["date"][:10]), core.parse_deadline(body)))
+        context = (f"Location: {config['location']}. " if config.get("location") else "") + f"Employer: {source.organization.name}. " + (f"Advertised on {config['portal_name']}. " if config.get("portal_name") else "")
+        result.append(put(evidence, url, title, context + body, core.parse_date(post["date"][:10]), core.parse_deadline(body)))
     return result
 
 

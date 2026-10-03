@@ -99,10 +99,22 @@ class RecruitmentIntegrationTests(TestCase):
         self.assertEqual(fetch.call_count, 3)
 
     @patch("board.recruitment.core.fetch")
-    def test_brazil_open_scanned_notice_fails_with_ocr_reason(self, fetch):
+    def test_brazil_open_scanned_notice_becomes_review_lead(self, fetch):
+        source = self.source("brazil", "https://www.gov.br/mre/embaixada-sarajevo")
+        fetch.side_effect = [("", soup('<div id="content"><a href="/mre/embaixada-sarajevo/bhs">BHS</a></div>')), ("", soup('<div id="content-core"><a href="/mre/embaixada-sarajevo/notice.pdf">kompletnu obavijest</a></div>')), ("", None)]
+        evidence = {}
+        url, title = brazil_links(None, source, soup('<div id="content"><a href="/mre/embaixada-sarajevo/process">Processo seletivo 2026 - Oglas za posao ABERTO</a></div>'), evidence)[0]
+        candidate = make_candidate(source, url, title, evidence[url], None)
+        # The stated process year keeps it; without dates it can never publish itself.
+        self.assertTrue(candidate.in_scope_year)
+        self.assertFalse(candidate.year_proven or candidate.eligible)
+        self.assertEqual((candidate.city, candidate.source_published_at, candidate.deadline), ("Sarajevo", None, None))
+
+    @patch("board.recruitment.core.fetch")
+    def test_brazil_open_scanned_notice_without_year_fails(self, fetch):
         source = self.source("brazil", "https://www.gov.br/mre/2026")
         fetch.side_effect = [("", soup('<div id="content"><a href="/mre/2026/bhs">BHS</a></div>')), ("", soup('<div id="content-core"><a href="/mre/2026/notice.pdf">kompletnu obavijest</a></div>')), ("", None)]
-        with self.assertRaisesMessage(ValueError, "needs OCR"):
+        with self.assertRaisesMessage(ValueError, "no process year"):
             brazil_links(None, source, soup('<div id="content"><a href="/mre/2026/process">Oglas za posao ABERTO</a></div>'), {})
 
     def test_slovenia_does_not_import_election_observers_or_foreign_embassy(self):

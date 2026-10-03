@@ -46,6 +46,7 @@ DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|t
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)(?:(?!contract|ugovor|appointment|angažman)[^\d.;]){0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
+RECRUITMENT_YEAR = re.compile(r"\bRecruitment year: (20\d{2})\b")
 PUBLISHED = re.compile(r"\b(?:published|date of publication|issue date|data pubblicazione|datum objave|objavljeno)\D{0,20}(" + DATE_TEXT + r")", re.I)
 MONTHS = {"january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6, "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12, "januara": 1, "februara": 2, "marta": 3, "aprila": 4, "maja": 5, "juna": 6, "jula": 7, "augusta": 8, "septembra": 9, "oktobra": 10, "novembra": 11, "decembra": 12}
 MONTHS.update({name[:3]: number for name, number in list(MONTHS.items())[:12]})
@@ -994,14 +995,18 @@ def discover_links(client, source, soup, evidence=None):
         links = listing_links(source, soup)
     if source.adapter == "eeas" and not soup.select(PAGINATED["eeas"]):
         raise ValueError("EEAS vacancy cards missing")
-    if source.adapter in PAGINATED and soup.select(PAGINATED[source.adapter]):
-        for page in range(1, MAX_LISTING_PAGES + 1):
+    config = source.adapter_config or {}
+    # A generic list opts in with the selector of one list item and the number its second page carries (?page=2 when page 1 has no parameter).
+    item_selector = PAGINATED.get(source.adapter) or (config.get("page_item_selector") if source.adapter == "generic" else None)
+    if item_selector and soup.select(item_selector):
+        second = int(config.get("second_page", 1))
+        for page in range(second, second + MAX_LISTING_PAGES):
             parts = urlsplit(source.url)
             query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "page"] + [("page", str(page))]
             _, page_soup = fetch(client, urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), "")))
-            if page_soup is None or not page_soup.select(PAGINATED[source.adapter]):
+            if page_soup is None or not page_soup.select(item_selector):
                 return list(dict.fromkeys(links))
-            page_links = eeas_page_links(source, page_soup) if source.adapter == "eeas" else unct_page_links(source, page_soup, evidence)
+            page_links = eeas_page_links(source, page_soup) if source.adapter == "eeas" else unct_page_links(source, page_soup, evidence) if source.adapter == "unct" else listing_links(source, page_soup)
             if page_links and set(page_links) <= set(links):
                 # Some listings repeat the last page past the end.
                 return list(dict.fromkeys(links))
@@ -1151,6 +1156,10 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     elif deadline:
         # A late-2026 posting may close in 2027; without a publication date it still goes to review.
         in_scope_year = deadline.year >= TARGET_YEAR
+        year_proven = False
+    elif stated_year := RECRUITMENT_YEAR.search(text):
+        # An adapter's "Recruitment year" (an employer-named process year, no date) qualifies only for review.
+        in_scope_year = int(stated_year.group(1)) == TARGET_YEAR
         year_proven = False
     else:
         in_scope_year = False

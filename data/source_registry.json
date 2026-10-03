@@ -311,11 +311,10 @@
         "adapter": "brazil",
         "status": "verified",
         "enabled": true,
-        "notes": "2026-10-03: Djelimično praćenje: folder, BHS stranica i PDF; trenutni proces je zatvoren. PDF je skeniran; otvoren dokument bez čitljivog teksta izaziva grešku i zahtijeva OCR/provjeru.",
+        "notes": "Folder procesa selekcije 2026, BHS stranica i PDF oglasa. Potpun izvor od 2026-10-03: skenirani otvoreni oglas bez čitljivog teksta postaje stavka za provjeru (godina iz naziva procesa, rok čita administrator iz PDF-a) umjesto greške izvora. Datumi CMS stranice (2023) se ne koriste. Provjereno 2026-10-03: proces 2026 zatvoren.",
         "adapter_config": {
           "allow_empty": true,
-          "impersonate": true,
-          "partial_listing": true
+          "impersonate": true
         }
       }
     ],
@@ -941,17 +940,16 @@
         "adapter": "canadales",
         "status": "verified",
         "enabled": true,
-        "notes": "2026-10-03: Djelimično praćenje globalnog LES portala: javni podaci i registri misija, zaseban dokaz mjesta rada i poslodavca. Sarajevo počasni konzulat nije naveden u portalu; njegovi zasebni oglasi nisu potpuno pokriveni. Nema potvrđenog lokalnog oglasa.",
+        "notes": "Global Affairs Canada objavljuje sva lokalno angažovana radna mjesta (LES) na globalnom portalu staffing-les.international.gc.ca; konzulat u Sarajevu (Maglajska 1, sarajevo@international.gc.ca) potpada pod ambasadu u Budimpešti i nema zaseban kanal zapošljavanja. Adapter čita cijeli inventar portala; posao s mjestom rada u BiH koji ne pripada ovom konzulatu izaziva grešku umjesto tihog preskakanja. Potpun izvor od 2026-10-03; nema oglasa za BiH.",
         "adapter_config": {
-          "allow_empty": true,
-          "partial_listing": true
+          "allow_empty": true
         }
       }
     ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://staffing-les.international.gc.ca/en/",
-    "recruitment_notes": "Djelimično praćenje globalnog LES portala: javni podaci i registri misija, zaseban dokaz mjesta rada i poslodavca. Sarajevo počasni konzulat nije naveden u portalu; njegovi zasebni oglasi nisu potpuno pokriveni. Nema potvrđenog lokalnog oglasa."
+    "recruitment_notes": "Global Affairs Canada objavljuje sva lokalno angažovana radna mjesta (LES) na globalnom portalu staffing-les.international.gc.ca; konzulat u Sarajevu (Maglajska 1, sarajevo@international.gc.ca) potpada pod ambasadu u Budimpešti i nema zaseban kanal zapošljavanja. Adapter čita cijeli inventar portala; posao s mjestom rada u BiH koji ne pripada ovom konzulatu izaziva grešku umjesto tihog preskakanja. Potpun izvor od 2026-10-03; nema oglasa za BiH."
   },
   {
     "name": "Honorary Consulate of Republic of Cyprus in Sarajevo",
@@ -1018,9 +1016,10 @@
           "content_selector": ".article-page",
           "published_selector": ".article__info__date",
           "allow_empty": true,
-          "partial_listing": true
+          "page_item_selector": "li.article-list-block__list__item",
+          "second_page": 2
         },
-        "notes": "Lista prikazuje samo posljednjih 5 vijesti, pa je izvor djelimičan: oglas može nestati s liste dok je još otvoren. Datum objave je ispod naslova. Provjereno 2026-10-02: nema oglasa (format potvrđen na ambasadi u Jerevanu)."
+        "notes": "Lista vijesti je paginirana (?page=2 …, 5 vijesti po stranici, cijela arhiva oko 30 vijesti); čitaju se sve stranice do prve prazne, pa je izvor potpun (ranija bilješka o samo 5 vijesti bila je pogrešna). Datum objave je ispod naslova. Provjereno 2026-10-03: 6 stranica, nema oglasa."
       }
     ]
   },
@@ -1486,16 +1485,34 @@
         "url": "https://www.rycowb.org/category/procurements-and-vacancies/",
         "adapter": "generic",
         "status": "verified",
-        "enabled": true,
+        "enabled": false,
         "adapter_config": {
           "link_selector": "article h2.entry-title a",
           "any_title": true,
           "partial_listing": true,
           "allow_empty": true,
           "content_selector": "article",
-          "published_selector": "meta[property='article:published_time']"
+          "published_selector": "meta[property='article:published_time']",
+          "superseded_by": "https://www.rycowb.org/wp-json/wp/v2/posts"
         },
-        "notes": "Prva stranica kategorije (10 najnovijih objava, tenderi se isključuju), pa je izvor djelimičan. Lokacija se čita iz članka i njegovih kategorija (npr. Local Branch Office Sarajevo). Provjereno 2026-10-02: aktivni oglas samo za sjedište; posljednji oglas za Sarajevo iz decembra 2025."
+        "notes": "Zamijenjeno 2026-10-03 WordPress API izvorom (potpuna kategorija oglasa). Ranije: prva stranica kategorije (10 najnovijih objava), djelimičan izvor."
+      },
+      {
+        "url": "https://www.rycowb.org/wp-json/wp/v2/posts",
+        "adapter": "wordpress",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "categories": [
+            136
+          ],
+          "require_categories": [
+            110
+          ],
+          "location": "Sarajevo, Bosnia and Herzegovina"
+        },
+        "notes": "RYCO-ov WordPress REST API: sve objave iz 2026. u kategoriji Vacancies (136); zadržavaju se one označene kategorijom Local Branch Office Sarajevo (110). Oglasi sjedišta (Tirana) i drugih ureda nose druge kategorije. Provjereno 2026-10-03: 2026. bez oglasa za Sarajevo; posljednji 18.11.2025 (Finance and Administration Assistant)."
       }
     ]
   },

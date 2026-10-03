@@ -65,10 +65,6 @@ class SourceDocument(models.Model):
         indexes = [models.Index(fields=["fetched_at"]), models.Index(fields=["source", "url", "-fetched_at"], name="sourcedoc_latest")]
 
 
-# Single-employer sources read from a third-party board; their adverts are not the employer's own page.
-THIRD_PARTY_BOARDS = {"wordpress"}
-
-
 class Job(models.Model):
     STATUS = [("review", "Na provjeri"), ("published", "Objavljeno"), ("closed", "Zatvoreno")]
     CLOSED_REASON = [("deadline", "Istekao rok"), ("missing", "Nestao sa izvora"), ("stale", "Bez roka, zastario"), ("withdrawn", "Povučen na izvoru"), ("manual", "Zatvoren ručno")]
@@ -111,11 +107,11 @@ class Job(models.Model):
 
     @property
     def via(self):
-        """The portal a syndicated job came through: an aggregator, or a third-party board filtered to one employer."""
+        """The portal a syndicated job came through: an aggregator, or a third-party board (adapter_config.portal_name) filtered to one employer."""
         from .dedup import AGGREGATORS
         if self.source.adapter in AGGREGATORS:
             return self.source.organization.name
-        return (self.source.adapter_config or {}).get("portal_name", "") if self.source.adapter in THIRD_PARTY_BOARDS else ""
+        return (self.source.adapter_config or {}).get("portal_name", "")
 
     @property
     def is_aggregated(self):

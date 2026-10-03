@@ -128,11 +128,42 @@ class WordPressBoardTests(TestCase):
         self.assertIn("Oglas / prijava", page)
         self.assertNotIn("Službeni oglas<", page)
 
+    def test_required_office_category_is_the_location(self):
+        posts = [
+            {"id": 1, "date": "2026-10-01T09:00:00", "link": "https://www.rycowb.org/sarajevo-assistant/", "title": {"rendered": "Exciting Opportunity: Finance Assistant"}, "categories": [104, 110, 136],
+             "content": {"rendered": "<p>Local Branch Office. Deadline: 15 October 2026</p>"}},
+            {"id": 2, "date": "2026-09-30T09:00:00", "link": "https://www.rycowb.org/rel-manager/", "title": {"rendered": "Exciting Opportunity: REL Manager"}, "categories": [104, 136],
+             "content": {"rendered": "<p>Head Office in Tirana. Deadline: 20 October 2026</p>"}},
+        ]
+        transport = httpx.MockTransport(lambda request: httpx.Response(200, json=posts, headers={"x-wp-total": "2", "x-wp-totalpages": "1"}, request=request))
+        config = {"allow_empty": True, "categories": [136], "require_categories": [110], "location": "Sarajevo, Bosnia and Herzegovina"}
+        source = Source(organization=Organization.objects.create(name="RYCO", kind="international"), adapter="wordpress", url="https://www.rycowb.org/wp-json/wp/v2/posts", adapter_config=config)
+        with patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 3)), httpx.Client(transport=transport) as client:
+            evidence = {}
+            links = wordpress_links(client, source, None, evidence)
+            candidate = make_candidate(source, *links[0], evidence[links[0][0]], None)
+        self.assertEqual([url for url, _ in links], ["https://www.rycowb.org/sarajevo-assistant"])
+        self.assertEqual((candidate.city, candidate.deadline), ("Sarajevo", date(2026, 10, 15)))
+        self.assertTrue(candidate.eligible)
+
     def test_short_listing_fails(self):
         source = Source(organization=Organization.objects.create(name="GIZ", kind="agency"), adapter="wordpress", url="https://www.mreza-mira.net/wp-json/wp/v2/posts", adapter_config={"categories": [9], "title_pattern": "GIZ"})
         transport = httpx.MockTransport(lambda request: httpx.Response(200, json=[], headers={"x-wp-total": "5", "x-wp-totalpages": "1"}, request=request))
         with httpx.Client(transport=transport) as client, self.assertRaisesMessage(ValueError, "listed 0 of 5"):
             wordpress_links(client, source, None, {})
+
+
+class GenericPaginationTests(TestCase):
+    def test_pages_read_until_an_empty_page(self):
+        def news(*titles):
+            return BeautifulSoup('<ul>' + "".join(f'<li class="item"><a href="/en/sarajevo/news2/{title.lower().replace(" ", "-")}/">{title}</a></li>' for title in titles) + '</ul>', "html.parser")
+        pages = {"page=2": news("Embassy closed", "Job vacancy: Driver"), "page=3": news()}
+        source = Source(organization=Organization.objects.create(name="Sweden"), adapter="generic", url="https://www.swedenabroad.se/en/sarajevo/news2/",
+                        adapter_config={"path_contains": "/news2/", "page_item_selector": "li.item", "second_page": 2})
+        with patch("board.ingest.fetch", side_effect=lambda client, url: ("", pages[url.split("?")[1]])) as fetch:
+            links = discover_links(None, source, news("Embassy closed", "New fees"))
+        self.assertEqual(links, [("https://www.swedenabroad.se/en/sarajevo/news2/job-vacancy:-driver", "Job vacancy: Driver")])
+        self.assertEqual([call.args[1].split("?")[1] for call in fetch.call_args_list], ["page=2", "page=3"])
 
 
 class UnopsAvatureTests(TestCase):
