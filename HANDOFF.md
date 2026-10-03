@@ -4,8 +4,8 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 
 ## Current state (verified 2026-10-03, local SQLite)
 
-- **Commit:** `2028a85` on `main`, pushed. [CI run 37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) passed on Linux/Python 3.12: 181 tests on SQLite (one PostgreSQL-only skip) and 181 on PostgreSQL 16, including migrations 0028–0031.
-- **Tests:** 181 discovered locally: 180 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
+- **Tests:** 216 discovered locally: 215 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 57 sources, **50 enabled**.
 - **Coverage on `/sources/`** (87 rows): **50 complete** (45 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 40 empty), **0 partial**, **8 unavailable** (Malaysia, Pakistan, Qatar, Romania, Russia, Kuwait, UK, UNICEF), **30 no local recruitment list**, 0 awaiting integration, 0 unchecked.
 - **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 9 closed. Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
@@ -65,10 +65,19 @@ Each site was retried with the Windows trust store, certifi and Chrome TLS imper
 - **UNDP:** new `undpnotices` adapter. One POST to procurement-notices.undp.org/search.cfm with `cur_notice_id=UNDP-BIH` returns every UNDP BiH notice of the year (169: 65 IC, the rest RFQ/RFP/ITB). Open "IC - Individual contractor" rows are kept; each notice page adds country and duration. `adapter_config.opportunity_type` marks them as consultancies (titles such as "GEF8-Flora Expert …" do not say so). First run: 8 open notices, all published.
 - **Indonesia:** new `kemlu` adapter on the portal's public `/contentMenu` API (the call the JavaScript site makes, with array slugs `slug[]=sarajevo&slug[]=<section>`). Each section reports `meta.filtered`, which every scan must reach, so the list is provably complete. It reads the embassy's dedicated Karir (Career) section in full and News for career titles. News holds 195 items (`meta.total` 200), so the earlier 200-item response was complete after all; a 2023 dry run finds the "CAREER OPPERTUNITY" post. No advert in 2026.
 
+## Job pages, requirements, reports and languages (2026-10-03)
+
+- Every published job has a page (`/jobs/<id>/<slug>/`) with requirements read from its text by rules in `board/requirements.py`, each shown with the quote it came from. The board filters by education, experience and field of study. Locally, 23 of the 32 stored jobs have requirements; UNDP procurement notices have none, because theirs are in the attached ToR documents.
+- Requirement extraction skips degrees listed under "Desirable qualifications" (EUFOR's Purchasing Administrator requires a junior college, which has no level, so it shows no minimum). The asset/required check for languages and the driving licence was broken in the first commit (a word boundary stored as a control character); it is fixed and tested.
+- Visitor problem reports: `/report/` and on each job page, listed in admin under *Prijave*. Not e-mailed yet: neither `ADMINS` nor an e-mail backend is configured.
+- English interface at `/en/` (owner request); Bosnian stays at `/`.
+- Advert translations come from the local `/translate-jobs` skill (owner decision: Claude Code subscription, no API key) through `export_translations`/`import_translations`. One job is translated locally (EUFOR Purchasing Administrator, id 6); the other 22 public jobs are pending. Database backups: `backups/db-before-requirements-*.sqlite3`, `backups/db-before-first-translation-*.sqlite3`.
+
 ## Next steps
 
-1. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
-2. Remaining blocked sites (BACKLOG P0) stay blocked by policy; recheck them with the 90-day audit renewals.
+1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
+2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
+3. Remaining blocked sites (BACKLOG P0) stay blocked by policy; recheck them with the 90-day audit renewals.
 
 ## Working notes
 

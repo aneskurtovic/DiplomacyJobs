@@ -65,6 +65,20 @@ Each scan reads the job's requirements from its text with rules in `board/requir
 
 Visitors report problems from a job page or from the footer (`/report/`). Reports appear in admin under *Prijave*, inline on the job, and as a job list filter. Spam controls are a honeypot field and 5 reports per client per hour. The client is identified by a keyed hash of the address; behind the host proxy that address is the last `X-Forwarded-For` hop. When `ADMINS` and an e-mail backend are configured, each report is also e-mailed. Neither is configured yet.
 
+### English interface and advert translations
+
+The public site is in Bosnian at `/` and in English at `/en/`, with a BS/EN switch and `hreflang` links; the sitemap lists both. Admin, the Atom feed and health URLs stay Bosnian. Interface strings are marked with `{% translate %}`/`gettext`, and Bosnian is the source language. After changing them, run `manage.py makemessages -l en --no-location --ignore=.venv --ignore=.venv311`, translate the new entries in `locale/en/LC_MESSAGES/django.po`, then run `manage.py compilemessages -l en --ignore=.venv --ignore=.venv311`. Both need GNU gettext; Git for Windows includes it. Commit the `.mo` file, since the Docker image has no gettext. A test fails when an entry is untranslated or the `.mo` is stale.
+
+Adverts get a Bosnian and an English version (title, summary, duties, requirements, how to apply), so foreign-language adverts can be read in both languages. These are written in a local Claude Code session with the project skill `/translate-jobs`, not by the app; there is no API key. The skill runs:
+
+```powershell
+.venv311\Scripts\python.exe manage.py export_translations --limit 10 > batch.jsonl
+# the skill writes out.jsonl
+.venv311\Scripts\python.exe manage.py import_translations out.jsonl --translator "claude-code <model>"
+```
+
+The import accepts only the expected fields and lengths. It rejects a version if the advert changed since export, or if it contains an e-mail address or URL that does not appear in the advert. A version is tied to the job's `content_hash`; when the source changes, the job page hides it until the job is translated again. The page labels it as automatic and keeps the scraped facts separate. Admin can clear a translation, or turn translation off for a job. `detect_language` stores each advert's main language in `requirements["language"]`. On the server, run the export and import with `docker compose exec web python manage.py …` and copy the files.
+
 Optional local enrichment uses JSON Lines:
 
 ```powershell

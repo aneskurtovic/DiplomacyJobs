@@ -6,43 +6,47 @@ one line, so sentences, bullets and labels such as "Experience:" are the only st
 """
 import re
 
-VERSION = 1
+from django.utils.translation import gettext, gettext_lazy as _
 
-EDUCATION_LEVELS = [("secondary", "Srednja škola"), ("bachelor", "Fakultet (bachelor)"), ("master", "Master"), ("phd", "Doktorat")]
+from .text import plural
+
+VERSION = 3
+
+EDUCATION_LEVELS = [("secondary", _("Srednja škola")), ("bachelor", _("Fakultet (bachelor)")), ("master", _("Master")), ("phd", _("Doktorat"))]
 LEVEL_RANK = {value: rank for rank, (value, _) in enumerate(EDUCATION_LEVELS)}
 
 FIELDS = [
-    ("law", "Pravo", r"\blaw\b|\blegal (?:studies|sciences?)\b|\bjurisprudence|\bLL\.?M\b|\bpravn\w+|\bpravo\b"),
-    ("economics", "Ekonomija, finansije i biznis", r"\beconomics?\b|\bfinanc\w*|\baccount(?:ing|ancy)\b|\bbusiness\b|\bcommerce\b|\bMBA\b|\bekonom\w+|\bfinansij\w+|\bfinancij\w+|\bračunovod\w+"),
-    ("public_admin", "Javna uprava i menadžment", r"\bpublic (?:administration|policy|management|affairs)\b|\bmanagement (?:studies|sciences?)\b|\badministrative sciences?\b|\bjavn\w* uprav\w*|\bjavn\w* politik\w*|\bmenadžment\w*"),
-    ("political", "Političke nauke i međunarodni odnosi", r"\bpolitical sciences?\b|\binternational (?:relations|affairs|studies)\b|\bdiplomacy\b|\beuropean (?:studies|integration)\b|\bpolit\w* nau\w*|\bpolitolog\w*|\bmeđunarodn\w* odnos\w*|\bdiplomatij\w*"),
-    ("social", "Društvene nauke", r"\bsocial sciences?\b|\bsociology\b|\bpsychology\b|\bsocial (?:work|policy)\b|\banthropology\b|\bdruštven\w* nau\w*|\bsociolog\w*|\bpsiholog\w*|\bsocijaln\w* rad\w*"),
-    ("human_rights", "Ljudska prava i rodne studije", r"\bhuman rights\b|\bgender\b|\bljudsk\w* prav\w*|\brodn\w* studij\w*"),
-    ("engineering", "Inženjerstvo i arhitektura", r"\bengineering\b|\barchitecture\b|\binženjer\w*|\bgrađevin\w*|\belektrotehn\w*|\bmašin\w*|\barhitekt\w*"),
-    ("it", "Informatika i IT", r"\bcomputer sciences?\b|\binformation (?:technology|systems)\b|\binformatics\b|\bsoftware\b|\btelecommunications?\b|\binformati\w+|\bračunarst\w*"),
-    ("statistics", "Statistika i matematika", r"\bstatistics?\b|\bmathematics\b|\bdemography\b|\bdata science\b|\bstatisti\w+|\bmatemati\w+"),
-    ("communications", "Komunikacije i novinarstvo", r"\bcommunications?\b|\bjournalism\b|\bmedia\b|\bpublic relations\b|\bmarketing\b|\bnovinar\w*|\bkomunikolog\w*|\bkomunikacij\w*"),
-    ("languages", "Jezici i prevođenje", r"\blinguistics?\b|\bphilology\b|\btranslation\b|\binterpret(?:ing|ation)\b|\bliterature\b|\bfilolog\w*|\bprevođ\w*|\banglist\w*|\bgermanist\w*"),
-    ("health", "Medicina i zdravstvo", r"\bmedicine\b|\bmedical\b|\bpublic health\b|\bhealth\b|\bnursing\b|\bpharmac\w+|\bmedicin\w+|\bzdravstv\w*"),
-    ("environment", "Okoliš, poljoprivreda i prirodne nauke", r"\benvironment\w*|\becology\b|\bbiology\b|\bforestry\b|\bagricultur\w*|\bnatural sciences?\b|\bclimate\b|\bgeography\b|\bchemistry\b|\bokoliš\w*|\bšumarst\w*|\bpoljoprivred\w*|\bbiolog\w*|\bekolog\w*"),
-    ("pedagogy", "Pedagogija i obrazovanje", r"\beducation(?:al)? sciences?\b|\bpedagog\w*|\bteaching\b"),
-    ("security", "Sigurnost i kriminologija", r"\bsecurity studies\b|\bmilitary\b|\bcriminology\b|\bkriminal\w*|\bsigurnosn\w* studij\w*"),
-    ("logistics", "Logistika", r"\blogistics?\b|\bsupply chain\b|\blogisti\w+"),
+    ("law", _("Pravo"), r"\blaw\b|\blegal (?:studies|sciences?)\b|\bjurisprudence|\bLL\.?M\b|\bpravn\w+|\bpravo\b"),
+    ("economics", _("Ekonomija, finansije i biznis"), r"\beconomics?\b|\bfinanc\w*|\baccount(?:ing|ancy)\b|\bbusiness\b|\bcommerce\b|\bMBA\b|\bekonom\w+|\bfinansij\w+|\bfinancij\w+|\bračunovod\w+"),
+    ("public_admin", _("Javna uprava i menadžment"), r"\bpublic (?:administration|policy|management|affairs)\b|\bmanagement (?:studies|sciences?)\b|\badministrative sciences?\b|\bjavn\w* uprav\w*|\bjavn\w* politik\w*|\bmenadžment\w*"),
+    ("political", _("Političke nauke i međunarodni odnosi"), r"\bpolitical sciences?\b|\binternational (?:relations|affairs|studies)\b|\bdiplomacy\b|\beuropean (?:studies|integration)\b|\bpolit\w* nau\w*|\bpolitolog\w*|\bmeđunarodn\w* odnos\w*|\bdiplomatij\w*"),
+    ("social", _("Društvene nauke"), r"\bsocial sciences?\b|\bsociology\b|\bpsychology\b|\bsocial (?:work|policy)\b|\banthropology\b|\bdruštven\w* nau\w*|\bsociolog\w*|\bpsiholog\w*|\bsocijaln\w* rad\w*"),
+    ("human_rights", _("Ljudska prava i rodne studije"), r"\bhuman rights\b|\bgender\b|\bljudsk\w* prav\w*|\brodn\w* studij\w*"),
+    ("engineering", _("Inženjerstvo i arhitektura"), r"\bengineering\b|\barchitecture\b|\binženjer\w*|\bgrađevin\w*|\belektrotehn\w*|\bmašin\w*|\barhitekt\w*"),
+    ("it", _("Informatika i IT"), r"\bcomputer sciences?\b|\binformation (?:technology|systems)\b|\binformatics\b|\bsoftware\b|\btelecommunications?\b|\binformati\w+|\bračunarst\w*"),
+    ("statistics", _("Statistika i matematika"), r"\bstatistics?\b|\bmathematics\b|\bdemography\b|\bdata science\b|\bstatisti\w+|\bmatemati\w+"),
+    ("communications", _("Komunikacije i novinarstvo"), r"\bcommunications?\b|\bjournalism\b|\bmedia\b|\bpublic relations\b|\bmarketing\b|\bnovinar\w*|\bkomunikolog\w*|\bkomunikacij\w*"),
+    ("languages", _("Jezici i prevođenje"), r"\blinguistics?\b|\bphilology\b|\btranslation\b|\binterpret(?:ing|ation)\b|\bliterature\b|\bfilolog\w*|\bprevođ\w*|\banglist\w*|\bgermanist\w*"),
+    ("health", _("Medicina i zdravstvo"), r"\bmedicine\b|\bmedical\b|\bpublic health\b|\bhealth\b|\bnursing\b|\bpharmac\w+|\bmedicin\w+|\bzdravstv\w*"),
+    ("environment", _("Okoliš, poljoprivreda i prirodne nauke"), r"\benvironment\w*|\becology\b|\bbiology\b|\bforestry\b|\bagricultur\w*|\bnatural sciences?\b|\bclimate\b|\bgeography\b|\bchemistry\b|\bokoliš\w*|\bšumarst\w*|\bpoljoprivred\w*|\bbiolog\w*|\bekolog\w*"),
+    ("pedagogy", _("Pedagogija i obrazovanje"), r"\beducation(?:al)? sciences?\b|\bpedagog\w*|\bteaching\b"),
+    ("security", _("Sigurnost i kriminologija"), r"\bsecurity studies\b|\bmilitary\b|\bcriminology\b|\bkriminal\w*|\bsigurnosn\w* studij\w*"),
+    ("logistics", _("Logistika"), r"\blogistics?\b|\bsupply chain\b|\blogisti\w+"),
 ]
-FIELD_LABELS = {slug: label for slug, label, _ in FIELDS}
+FIELD_LABELS = {slug: label for slug, label, pattern in FIELDS}
 
 LANGUAGES = [
-    ("en", "Engleski", r"\benglish\b|\bengle\w*"),
-    ("bcs", "Bosanski/hrvatski/srpski", r"\bbosnian\b|\bcroatian\b|\bserbian\b|\blocal languages?\b|\bnational languages?\b|\bofficial languages? of (?:bosnia|bih)|\bB/C/S\b|\bBCS\b|\bbosansk\w*|\bhrvatsk\w* jezik\w*|\bsrpsk\w* jezik\w*|\blokaln\w* jezik\w*|\bjezik\w* naroda\b"),
-    ("de", "Njemački", r"\bgerman\b|\bnjemač\w*"),
-    ("fr", "Francuski", r"\bfrench\b|\bfrancusk\w*"),
-    ("it", "Italijanski", r"\bitalian\b|\btalijansk\w*|\bitalijansk\w*"),
-    ("es", "Španski", r"\bspanish\b|\bšpansk\w*|\bšpanjolsk\w*"),
-    ("tr", "Turski", r"\bturkish\b|\bturs\w* jezik\w*"),
-    ("ru", "Ruski", r"\brussian\b|\brusk\w* jezik\w*"),
-    ("ar", "Arapski", r"\barabic\b|\barapsk\w*"),
+    ("en", _("Engleski"), r"\benglish\b|\bengle\w*"),
+    ("bcs", _("Bosanski/hrvatski/srpski"), r"\bbosnian\b|\bcroatian\b|\bserbian\b|\blocal languages?\b|\bnational languages?\b|\bofficial languages? of (?:bosnia|bih)|\bB/C/S\b|\bBCS\b|\bbosansk\w*|\bhrvatsk\w* jezik\w*|\bsrpsk\w* jezik\w*|\blokaln\w* jezik\w*|\bjezik\w* naroda\b"),
+    ("de", _("Njemački"), r"\bgerman\b|\bnjemač\w*"),
+    ("fr", _("Francuski"), r"\bfrench\b|\bfrancusk\w*"),
+    ("it", _("Italijanski"), r"\bitalian\b|\btalijansk\w*|\bitalijansk\w*"),
+    ("es", _("Španski"), r"\bspanish\b|\bšpansk\w*|\bšpanjolsk\w*"),
+    ("tr", _("Turski"), r"\bturkish\b|\bturs\w* jezik\w*"),
+    ("ru", _("Ruski"), r"\brussian\b|\brusk\w* jezik\w*"),
+    ("ar", _("Arapski"), r"\barabic\b|\barapsk\w*"),
 ]
-LANGUAGE_LABELS = {code: label for code, label, _ in LANGUAGES}
+LANGUAGE_LABELS = {code: label for code, label, pattern in LANGUAGES}
 
 WORD_NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "twelve": 12, "fifteen": 15,
                 "jedna": 1, "jednu": 1, "jedne": 1, "dvije": 2, "dve": 2, "dva": 2, "tri": 3, "četiri": 4, "pet": 5, "šest": 6, "sedam": 7, "osam": 8, "devet": 9, "deset": 10}
@@ -109,11 +113,24 @@ def number(token):
     return int(token) if token.isdecimal() else WORD_NUMBERS.get(token)
 
 
+# Section headings: a degree listed under "Desirable qualifications" is an asset, not the minimum.
+DESIRABLE_HEADING = re.compile(r"\b(?:desirable|desired|preferred|additional) (?:qualifications|requirements|skills)\b|\bdesirables?\s*:|\bassets?\s*:|\bpoželjn\w* (?:kvalifikacij\w*|uslov\w*|uvjet\w*)|\bpoželjno\s*:|\bprednost\w*\s*:", re.I)
+REQUIRED_HEADING = re.compile(r"\b(?:essential|required|minimum|mandatory) (?:qualifications|requirements|skills)\b|\b(?:mandatory|requirements|qualifications)\s*:|\b(?:attributes|competencies|remarks|employment conditions|duties|responsibilities)\b|\bobavezn\w* (?:kvalifikacij\w*|uslov\w*|uvjet\w*)", re.I)
+
+
+def in_desirable_section(text, position):
+    """Whether the nearest section heading before this position introduces desirable qualifications."""
+    desirable = [match.end() for match in DESIRABLE_HEADING.finditer(text, 0, position)]
+    if not desirable:
+        return False
+    return not REQUIRED_HEADING.search(text, desirable[-1], position)
+
+
 def education(text, spans):
     found, quotes, field_hits = set(), [], {}
     for start, end in spans:
         piece = text[start:end]
-        if not EDUCATION_CUE.search(piece):
+        if not EDUCATION_CUE.search(piece) or in_desirable_section(text, start):
             continue
         levels = {level for level, pattern in LEVEL_PATTERNS.items() if pattern.search(piece)}
         if not levels:
@@ -127,7 +144,7 @@ def education(text, spans):
             if stop := STOP_AFTER_EDUCATION.search(after):
                 after = after[:stop.start()]
             window = f"{before} {match.group()} {after}"
-            for slug, _, pattern in FIELDS:
+            for slug, label, pattern in FIELDS:
                 if re.search(pattern, window, re.I):
                     field_hits.setdefault(slug, quote(text, start, end))
     if not found:
@@ -176,7 +193,7 @@ def languages(text, spans):
         if not LANGUAGE_CUE.search(piece):
             continue
         hits = []
-        for code, _, pattern in LANGUAGES:
+        for code, label, pattern in LANGUAGES:
             if match := re.search(pattern, piece, re.I):
                 hits.append((code, match))
         if not hits:
@@ -198,7 +215,7 @@ def languages(text, spans):
 def qualified_as_asset(piece, match):
     """Whether "an asset", "desirable" or similar qualifies this mention: only in the words right after it, and only before a "required"."""
     after = re.split(r"[;.]\s|\s[▪•●]\s", piece[match.start():match.end() + 100], maxsplit=1)[0]
-    asset, required = ASSET.search(after), re.search(r"(?:required|mandatory|must|essential|obavez\w*|neophod\w*|potreb\w*)", after, re.I)
+    asset, required = ASSET.search(after), re.search(r"\b(?:required|mandatory|must|essential|obavez\w*|neophod\w*|potreb\w*)\b", after, re.I)
     return bool(asset and not (required and required.start() < asset.start()))
 
 
@@ -231,7 +248,10 @@ def extract(title, text):
     """The requirements stated in a vacancy, each with its source quote. Unclear facts are omitted."""
     text = text or ""
     spans = sentences(text)
+    from .translation import detect_language
     result = {"version": VERSION}
+    if language := detect_language(f"{title} {text}"):
+        result["language"] = language
     edu, field_hits = education(text, spans)
     if edu:
         result["education"] = edu
@@ -291,18 +311,18 @@ def apply(job):
 
 
 def tags(job):
-    """Short labels for a job card, most useful first."""
+    """Short labels for a job card, most useful first, in the interface language."""
     found = job.requirements or {}
     labels = []
     if job.education_level:
-        labels.append(dict(EDUCATION_LEVELS)[job.education_level])
+        labels.append(str(dict(EDUCATION_LEVELS)[job.education_level]))
     if job.experience_years is not None:
-        labels.append("Bez iskustva" if job.experience_years == 0 else f"{job.experience_years}+ god. iskustva")
-    labels += [FIELD_LABELS[slug] for slug in job.fields_of_study[:2] if slug in FIELD_LABELS]
+        labels.append(gettext("Bez iskustva") if job.experience_years == 0 else gettext("%(years)s+ god. iskustva") % {"years": job.experience_years})
+    labels += [str(FIELD_LABELS[slug]) for slug in job.fields_of_study[:2] if slug in FIELD_LABELS]
     if found.get("driving_license", {}).get("required"):
-        labels.append("Vozačka dozvola")
+        labels.append(gettext("Vozačka dozvola"))
     if remote := found.get("remote", {}).get("value"):
-        labels.append("Rad na daljinu" if remote == "remote" else "Hibridni rad")
+        labels.append(gettext("Rad na daljinu") if remote == "remote" else gettext("Hibridni rad"))
     return labels
 
 
@@ -312,24 +332,25 @@ def details(job):
     rows = []
     if job.education_level:
         levels = found.get("education", {}).get("levels", [])
-        value = dict(EDUCATION_LEVELS)[job.education_level]
-        higher = [dict(EDUCATION_LEVELS)[level] for level in levels if LEVEL_RANK[level] > LEVEL_RANK[job.education_level]]
+        value = str(dict(EDUCATION_LEVELS)[job.education_level])
+        higher = [str(dict(EDUCATION_LEVELS)[level]) for level in levels if LEVEL_RANK[level] > LEVEL_RANK[job.education_level]]
         if higher:
-            value += f" (oglas spominje i: {', '.join(higher).lower()})"
-        rows.append(("Minimalno obrazovanje", value, found.get("education", {}).get("quote", "")))
+            value += " " + gettext("(oglas spominje i: %(levels)s)") % {"levels": ", ".join(higher).lower()}
+        rows.append((gettext("Minimalno obrazovanje"), value, found.get("education", {}).get("quote", "")))
     if job.fields_of_study:
-        rows.append(("Oblast studija", ", ".join(FIELD_LABELS.get(slug, slug) for slug in job.fields_of_study), found.get("fields_quote", "")))
+        rows.append((gettext("Oblast studija"), ", ".join(str(FIELD_LABELS.get(slug, slug)) for slug in job.fields_of_study), found.get("fields_quote", "")))
     if job.experience_years is not None:
-        value = "Nije potrebno" if job.experience_years == 0 else f"Najmanje {job.experience_years} {bs_years(job.experience_years)}"
-        rows.append(("Radno iskustvo", value, found.get("experience", {}).get("quote", "")))
+        years = job.experience_years
+        value = gettext("Nije potrebno") if years == 0 else gettext("Najmanje %(count)s %(years)s") % {"count": years, "years": plural(years, ("godina", "godine", "godina"), ("year", "years"))}
+        rows.append((gettext("Radno iskustvo"), value, found.get("experience", {}).get("quote", "")))
     if langs := found.get("languages"):
-        parts = [LANGUAGE_LABELS[code] for code in langs.get("required", [])]
-        parts += [f"{LANGUAGE_LABELS[code]} (prednost)" for code in langs.get("desirable", [])]
-        rows.append(("Jezici", ", ".join(parts), langs.get("quote", "")))
+        parts = [str(LANGUAGE_LABELS[code]) for code in langs.get("required", [])]
+        parts += [gettext("%(language)s (prednost)") % {"language": LANGUAGE_LABELS[code]} for code in langs.get("desirable", [])]
+        rows.append((gettext("Jezici"), ", ".join(parts), langs.get("quote", "")))
     if driving := found.get("driving_license"):
-        rows.append(("Vozačka dozvola", "Obavezna" if driving["required"] else "Prednost", driving["quote"]))
+        rows.append((gettext("Vozačka dozvola"), gettext("Obavezna") if driving["required"] else gettext("Prednost"), driving["quote"]))
     if citizenship := found.get("citizenship"):
-        rows.append(("Državljanstvo", "Samo državljani BiH (ili osobe s prebivalištem)" if citizenship["value"] == "bih" else "Samo državljani EU", citizenship["quote"]))
+        rows.append((gettext("Državljanstvo"), gettext("Samo državljani BiH (ili osobe s prebivalištem)") if citizenship["value"] == "bih" else gettext("Samo državljani EU"), citizenship["quote"]))
     return rows
 
 
@@ -338,18 +359,13 @@ def terms(job):
     found = job.requirements or {}
     rows = []
     if grade := found.get("grade"):
-        rows.append(("Razred / nivo", grade["text"], ""))
+        rows.append((gettext("Razred / nivo"), grade["text"], ""))
     if duration := found.get("duration"):
-        rows.append(("Trajanje", duration["text"], duration["quote"]))
+        rows.append((gettext("Trajanje"), duration["text"], duration["quote"]))
     if pay := found.get("salary"):
-        rows.append(("Plata / naknada", pay["text"], pay["quote"]))
+        rows.append((gettext("Plata / naknada"), pay["text"], pay["quote"]))
     if work := found.get("work_time"):
-        rows.append(("Radno vrijeme", "Puno radno vrijeme" if work["value"] == "full" else "Nepuno radno vrijeme", work["quote"]))
+        rows.append((gettext("Radno vrijeme"), gettext("Puno radno vrijeme") if work["value"] == "full" else gettext("Nepuno radno vrijeme"), work["quote"]))
     if remote := found.get("remote"):
-        rows.append(("Način rada", "Rad na daljinu" if remote["value"] == "remote" else "Hibridni rad", remote["quote"]))
+        rows.append((gettext("Način rada"), gettext("Rad na daljinu") if remote["value"] == "remote" else gettext("Hibridni rad"), remote["quote"]))
     return rows
-
-
-def bs_years(count):
-    from .text import bs_plural
-    return bs_plural(count, "godina", "godine", "godina")

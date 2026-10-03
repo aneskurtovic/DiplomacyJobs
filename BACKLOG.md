@@ -24,9 +24,13 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Configure `ADMINS` and an e-mail backend on the server so visitor reports are e-mailed, not only listed in admin.
 - [ ] Requirements for UNDP consultancy notices live in the attached ToR documents, not in the notice text; read those to fill education and experience.
 - [ ] Optionally extend `export_enrichment`/`import_enrichment` to propose requirement fields, with the same quote checks.
+- [ ] Translate the remaining public jobs with `/translate-jobs`; decide whether translation runs after every scrape or on demand.
+- [ ] "Junior college" / "viša škola" has no education level between secondary school and a bachelor's degree; consider adding one.
+- [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
 
 ## Done
 
+- [x] English interface at `/en/`, and Bosnian/English advert versions imported from the local `/translate-jobs` skill (2026-10-03).
 - [x] Job pages (`/jobs/<id>/<slug>/`) with rule-based requirements (education, field, experience, languages, licence, citizenship, terms), quotes and admin overrides; board filters by education, experience and field; visitor problem reports with admin queue (2026-10-03).
 - [x] Django models, admin, public jobs and `/sources/` pages, Atom feed, scheduler command, run history, optional AI enrichment interface.
 - [x] `DesignProposal.html` applied to `/sources/` and the jobs page using real database values.

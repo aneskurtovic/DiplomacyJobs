@@ -11,6 +11,14 @@ def bs_plural(count, one, few, many):
     return many
 
 
+def plural(count, bs_forms, en_forms):
+    """Count agreement in the active interface language: Bosnian has three forms, English two."""
+    from django.utils.translation import get_language
+    if (get_language() or "bs").startswith("en"):
+        return en_forms[0] if abs(int(count)) == 1 else en_forms[1]
+    return bs_plural(count, *bs_forms)
+
+
 def fold(text):
     """Case- and diacritic-insensitive form for search: "Švicarska", "svicarska" and "ŠVICARSKA" agree. Đ has no decomposition, and dj is its usual ASCII spelling."""
     text = unicodedata.normalize("NFKD", text.casefold().replace("đ", "d"))

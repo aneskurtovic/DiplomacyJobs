@@ -1,20 +1,20 @@
-{% load static %}<!doctype html>
-<html lang="bs">
+{% load static i18n %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{% block title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH · DiplomacyJobs{% endblock %}</title>
-  {% with description="Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." %}
+  <title>{% block title %}{% translate "Poslovi u diplomatiji i međunarodnim organizacijama u BiH" %} · DiplomacyJobs{% endblock %}</title>
+  {% translate "Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." as description %}
   {% block robots %}{% endblock %}
   <meta name="description" content="{% block description %}{{ description }}{% endblock %}">
   <link rel="canonical" href="{{ public_base }}{{ request.path }}">
-  <meta property="og:type" content="website">
+  {% for link in language_links %}<link rel="alternate" hreflang="{{ link.code }}" href="{{ public_base }}{{ link.url }}">
+  {% endfor %}<meta property="og:type" content="website">
   <meta property="og:site_name" content="DiplomacyJobs">
-  <meta property="og:title" content="{% block og_title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{% translate "Poslovi u diplomatiji i međunarodnim organizacijama u BiH" %}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ description }}{% endblock %}">
   <meta property="og:url" content="{{ public_base }}{{ request.path }}">
-  <meta property="og:locale" content="bs_BA">
-  {% endwith %}
+  <meta property="og:locale" content="{% if LANGUAGE_CODE == 'en' %}en_GB{% else %}bs_BA{% endif %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,16 +22,18 @@
   <link rel="alternate" type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="{% block feed_href %}/feed/{% endblock %}">
 </head>
 <body>
+  {% url 'jobs' as jobs_url %}{% url 'sources' as sources_url %}
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="brand" href="/" aria-label="DiplomacyJobs početna stranica"><span class="brand-mark" aria-hidden="true">◎</span><span>DiplomacyJobs</span></a>
-      <nav class="site-nav" aria-label="Glavna navigacija">
-        <a href="/"{% if request.path == '/' %} class="active" aria-current="page"{% endif %}>Oglasi</a>
-        <a href="/sources/"{% if request.path == '/sources/' %} class="active" aria-current="page"{% endif %}>Izvori</a>
+      <a class="brand" href="{{ jobs_url }}" aria-label="{% translate 'DiplomacyJobs početna stranica' %}"><span class="brand-mark" aria-hidden="true">◎</span><span>DiplomacyJobs</span></a>
+      <nav class="site-nav" aria-label="{% translate 'Glavna navigacija' %}">
+        <a href="{{ jobs_url }}"{% if request.path == jobs_url %} class="active" aria-current="page"{% endif %}>{% translate "Oglasi" %}</a>
+        <a href="{{ sources_url }}"{% if request.path == sources_url %} class="active" aria-current="page"{% endif %}>{% translate "Izvori" %}</a>
+        {% if language_links %}<span class="language-switch">{% for link in language_links %}{% if link.current %}<span class="current-language" aria-current="true">{{ link.code|upper }}</span>{% else %}<a href="{{ link.url }}" hreflang="{{ link.code }}" lang="{{ link.code }}" title="{{ link.name }}">{{ link.code|upper }}</a>{% endif %}{% endfor %}</span>{% endif %}
       </nav>
     </div>
   </header>
   <main class="wrap">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
-  <footer class="wrap footer">Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije. · <a href="/report/?page={{ request.get_full_path|urlencode }}">Prijavi problem</a></footer>
+  <footer class="wrap footer">{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %} · <a href="{% url 'report' %}?page={{ request.get_full_path|urlencode }}">{% translate "Prijavi problem" %}</a></footer>
 </body>
 </html>

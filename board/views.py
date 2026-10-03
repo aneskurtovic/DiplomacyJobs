@@ -10,8 +10,10 @@ from django.db.models import Count, F, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
-from django.utils import timezone
+from django.urls import reverse, translate_url
+from django.utils import timezone, translation
 from django.utils.html import escape
+from django.utils.translation import gettext, gettext_lazy as _
 from . import requirements
 from .models import Job, Organization, Report, Source
 from .text import fold
@@ -72,7 +74,7 @@ def filter_jobs(query, params):
     return query, {"search": search, "employer": employer, "city": city, "kind": kind, "scope": scope, "education": education, "experience": experience, "field": field}
 
 
-EXPERIENCE_CHOICES = {"0": "Bez iskustva", "2": "Do 2 godine", "5": "Do 5 godina", "10": "Do 10 godina"}
+EXPERIENCE_CHOICES = {"0": _("Bez iskustva"), "2": _("Do 2 godine"), "5": _("Do 5 godina"), "10": _("Do 10 godina")}
 FILTER_PARAMS = (("q", "search"), ("employer", "employer"), ("city", "city"), ("type", "kind"), ("scope", "scope"), ("edu", "education"), ("exp", "experience"), ("field", "field"))
 REQUIREMENT_FILTERS = ("education", "experience", "field")
 
@@ -106,6 +108,9 @@ def annotate(job, today):
     job.days_left = (job.deadline - today).days if job.deadline else None
     job.is_new = job.first_seen_at >= timezone.now() - timedelta(days=3)
     job.tags = requirements.tags(job)
+    found = translation_for(job)
+    # A foreign-language title gets its translation underneath; an advert already in the interface language does not.
+    job.translated_title = found["title"] if found and found["is_translation"] and fold(found["title"]) != fold(job.title) else ""
 
 
 def fields_in(query):
@@ -120,19 +125,19 @@ def job_detail(request, pk, slug=None):
     if job.status == "closed":
         return render(request, "board/job_gone.html", {"job": job}, status=410)
     if job.status != "published":
-        raise Http404("Nema tog oglasa")
+        raise Http404(gettext("Nema tog oglasa"))
     if slug != job.slug:
         return redirect(job.get_absolute_url(), permanent=True)
     annotate(job, timezone.localdate())
     # Published but expired, hidden as a duplicate, or from a disabled source: still readable, marked as not current.
     current = visible_jobs().filter(pk=job.pk).exists()
-    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job)})
+    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job)})
 
 
 class ReportForm(forms.Form):
-    reason = forms.ChoiceField(label="Šta nije u redu?", choices=Report.REASONS, widget=forms.RadioSelect)
-    message = forms.CharField(label="Opis (neobavezno)", required=False, max_length=2000, widget=forms.Textarea(attrs={"rows": 4, "placeholder": "Npr. rok je produžen, link vodi na pogrešnu stranicu …"}))
-    email = forms.EmailField(label="Vaš e-mail (neobavezno, samo ako želite odgovor)", required=False)
+    reason = forms.ChoiceField(label=_("Šta nije u redu?"), choices=Report.REASONS, widget=forms.RadioSelect)
+    message = forms.CharField(label=_("Opis (neobavezno)"), required=False, max_length=2000, widget=forms.Textarea(attrs={"rows": 4, "placeholder": _("Npr. rok je produžen, link vodi na pogrešnu stranicu …")}))
+    email = forms.EmailField(label=_("Vaš e-mail (neobavezno, samo ako želite odgovor)"), required=False)
     # Hidden from people; a bot that fills every field is ignored.
     website = forms.CharField(required=False, widget=forms.TextInput(attrs={"tabindex": "-1", "autocomplete": "off"}))
 
@@ -147,7 +152,7 @@ class ReportForm(forms.Form):
     def clean(self):
         data = super().clean()
         if data.get("reason") == "other" and not (data.get("message") or "").strip():
-            self.add_error("message", "Opišite ukratko problem.")
+            self.add_error("message", gettext("Opišite ukratko problem."))
         return data
 
 
@@ -170,23 +175,23 @@ def client_hash(request):
 def report(request, pk=None):
     """Report a problem with a published job (pk) or with the site."""
     job = get_object_or_404(Job.objects.select_related("source__organization"), pk=pk, status="published") if pk is not None else None
-    back = job.get_absolute_url() if job else "/"
+    back = job.get_absolute_url() if job else reverse("jobs")
     page = (request.POST.get("page") or request.GET.get("page") or "")[:500]
     page = page if page.startswith("/") and not page.startswith("//") else ""
     if request.method == "POST":
         form = ReportForm(request.POST, job=job)
         if form.is_valid():
             if form.cleaned_data["website"]:
-                messages.success(request, "Hvala, prijava je zaprimljena.")
+                messages.success(request, gettext("Hvala, prijava je zaprimljena."))
                 return redirect(back)
             key = client_hash(request)
             if Report.objects.filter(client_hash=key, created_at__gte=timezone.now() - timedelta(hours=1)).count() >= REPORTS_PER_HOUR:
-                form.add_error(None, "Poslali ste više prijava u kratkom roku. Pokušajte ponovo za sat vremena.")
+                form.add_error(None, gettext("Poslali ste više prijava u kratkom roku. Pokušajte ponovo za sat vremena."))
             else:
                 item = Report.objects.create(job=job, reason=form.cleaned_data["reason"], message=form.cleaned_data["message"].strip(), email=form.cleaned_data["email"], page_url=page, client_hash=key)
                 # Sent only when ADMINS and an e-mail backend are configured; the admin list is the record either way.
                 mail_admins(f"Nova prijava: {item.get_reason_display()}", f"{item}\n\n{item.message}\n\n{absolute(request, f'/admin/board/report/{item.pk}/change/')}", fail_silently=True)
-                messages.success(request, "Hvala! Prijava je zaprimljena i pregledat ćemo je.")
+                messages.success(request, gettext("Hvala! Prijava je zaprimljena i pregledat ćemo je."))
                 return redirect(back if job or not page else page)
     else:
         form = ReportForm(job=job)
@@ -242,13 +247,36 @@ def public_base(request):
     return {"public_base": settings.PUBLIC_BASE_URL or f"{request.scheme}://{request.get_host()}"}
 
 
+def languages(request):
+    """The current page in each interface language, for the switcher and hreflang links. Pages outside the language URLs (admin, feed) get none."""
+    match = getattr(request, "resolver_match", None)
+    if match is None or match.url_name not in LANGUAGE_PAGES:
+        return {"language_links": []}
+    current = translation.get_language()
+    path = request.get_full_path()
+    return {"language_links": [{"code": code, "name": name, "url": translate_url(path, code), "current": code == current} for code, name in settings.LANGUAGES]}
+
+
+LANGUAGE_PAGES = {"jobs", "job", "job_short", "job_report", "report", "sources"}
+
+
+def translation_for(job):
+    """The advert's machine translation in the interface language, if one exists for its current text."""
+    from .translation import current_translation
+    return current_translation(job, translation.get_language())
+
+
 def robots(request):
     lines = ["User-agent: *", "Disallow: /admin/", "Disallow: /health/", f"Sitemap: {absolute(request, '/sitemap.xml')}"]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain")
 
 
 def sitemap(request):
-    paths = ["/", "/sources/", *(job.get_absolute_url() for job in visible_jobs().only("pk", "title").order_by("pk"))]
+    paths = []
+    jobs = list(visible_jobs().only("pk", "title").order_by("pk"))
+    for code, _name in settings.LANGUAGES:
+        with translation.override(code):
+            paths += [reverse("jobs"), reverse("sources"), *(job.get_absolute_url() for job in jobs)]
     urls = "".join(f"<url><loc>{escape(absolute(request, path))}</loc><changefreq>daily</changefreq></url>" for path in paths)
     return HttpResponse(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', content_type="application/xml")
 

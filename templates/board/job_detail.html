@@ -1,46 +1,55 @@
-{% extends 'board/base.html' %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
-{% block description %}{{ job.title }} – {{ job.employer_name }}, {{ job.city|default:'Bosna i Hercegovina' }}. Rok: {% if job.deadline %}{{ job.deadline|date:'d.m.Y.' }}{% elif job.open_until_filled %}do popune mjesta{% else %}nije naveden{% endif %}.{% if job.tags %} Uslovi: {{ job.tags|join:', ' }}.{% endif %}{% endblock %}
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
+{% block description %}{% if translation %}{{ translation.title }}{% else %}{{ job.title }}{% endif %} – {{ job.employer_name }}, {% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}. {% translate "Rok:" %} {% if job.deadline %}{{ job.deadline|date:'d.m.Y.' }}{% elif job.open_until_filled %}{% translate "do popune mjesta" %}{% else %}{% translate "nije naveden" %}{% endif %}.{% if job.tags %} {% translate "Uslovi:" %} {{ job.tags|join:', ' }}.{% endif %}{% endblock %}
 {% block og_title %}{{ job.title }} – {{ job.employer_name }}{% endblock %}
 {% block robots %}{% if not current %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block content %}
-<nav class="crumbs" aria-label="Putanja"><a href="/">← Svi oglasi</a></nav>
+<nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'jobs' %}">← {% translate "Svi oglasi" %}</a></nav>
 <article class="job-page">
   <header class="job-header">
-    <div class="card-kicker">{{ job.employer_name }}{% if job.is_aggregated %} &middot; putem {{ job.via }}{% endif %} · {{ job.get_opportunity_type_display }}{% if job.scope %} · {{ job.get_scope_display }}{% endif %}</div>
+    <div class="card-kicker">{{ job.employer_name }}{% if job.is_aggregated %} &middot; {% blocktranslate with portal=job.via %}putem {{ portal }}{% endblocktranslate %}{% endif %} · {{ job.get_opportunity_type_display }}{% if job.scope %} · {{ job.get_scope_display }}{% endif %}</div>
     <h1>{{ job.title }}</h1>
-    {% if current and job.is_new or current and job.days_left is not None and job.days_left <= 7 %}<div class="badges">{% if job.is_new %}<span class="badge new">Novo</span>{% endif %}{% if job.days_left == 0 %}<span class="badge urgent">Ističe danas</span>{% elif job.days_left == 1 %}<span class="badge urgent">Ističe sutra</span>{% elif job.days_left is not None and job.days_left <= 7 %}<span class="badge soon">Ističe za {{ job.days_left }} dana</span>{% endif %}</div>{% endif %}
-    {% if job.tags %}<ul class="tags" aria-label="Uslovi iz oglasa">{% for tag in job.tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
+    {% if job.translated_title %}<p class="translated-title" lang="{{ LANGUAGE_CODE }}"><span class="visually-hidden">{% translate "Prijevod naslova:" %} </span>{{ job.translated_title }}</p>{% endif %}
+    {% if current and job.is_new or current and job.days_left is not None and job.days_left <= 7 %}<div class="badges">{% if job.is_new %}<span class="badge new">{% translate "Novo" %}</span>{% endif %}{% if job.days_left == 0 %}<span class="badge urgent">{% translate "Ističe danas" %}</span>{% elif job.days_left == 1 %}<span class="badge urgent">{% translate "Ističe sutra" %}</span>{% elif job.days_left is not None and job.days_left <= 7 %}<span class="badge soon">{% blocktranslate with days=job.days_left %}Ističe za {{ days }} dana{% endblocktranslate %}</span>{% endif %}</div>{% endif %}
+    {% if job.tags %}<ul class="tags" aria-label="{% translate 'Uslovi iz oglasa' %}">{% for tag in job.tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
   </header>
-  {% if not current %}<p class="notice">Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas povučen). Provjerite stanje na službenoj stranici.</p>{% endif %}
+  {% if not current %}<p class="notice">{% translate "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas povučen). Provjerite stanje na službenoj stranici." %}</p>{% endif %}
   <div class="job-layout">
     <div class="job-body">
+      {% if translation %}<section aria-labelledby="opis" class="advert-text" lang="{{ LANGUAGE_CODE }}">
+        <h2 id="opis">{% translate "O poslu" %}</h2>
+        <p class="translation-note">{% if translation.is_translation and translation.source_name %}{% blocktranslate with language=translation.source_name %}Automatski prijevod sa {{ language }} jezika.{% endblocktranslate %}{% else %}{% translate "Automatski sažetak oglasa." %}{% endif %} {% translate "Mjerodavan je službeni oglas." %}</p>
+        {% if translation.summary %}<p>{{ translation.summary }}</p>{% endif %}
+        {% if translation.responsibilities %}<h3>{% translate "Zadaci" %}</h3><ul>{% for item in translation.responsibilities %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+        {% if translation.requirements %}<h3>{% translate "Traži se" %}</h3><ul>{% for item in translation.requirements %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+        {% if translation.how_to_apply %}<h3>{% translate "Kako se prijaviti" %}</h3><p>{{ translation.how_to_apply }}</p>{% endif %}
+      </section>{% endif %}
       <section aria-labelledby="uslovi">
-        <h2 id="uslovi">Uslovi</h2>
-        {% if details %}<dl class="facts">{% for label, value, quote in details %}<div><dt>{{ label }}</dt><dd>{{ value }}{% if quote %}<details class="evidence"><summary>Iz oglasa</summary><q lang="">{{ quote }}</q></details>{% endif %}</dd></div>{% endfor %}</dl>
-        {% else %}<p class="muted">Iz teksta oglasa nismo mogli pouzdano izdvojiti uslove (obrazovanje, iskustvo, jezike).{% if job.opportunity_type == "consultancy" %} Kod konsultantskih poziva uslovi su često u priloženom opisu zadatka (ToR).{% endif %} Pogledajte službeni oglas.</p>{% endif %}
+        <h2 id="uslovi">{% if translation %}{% translate "Uslovi ukratko" %}{% else %}{% translate "Uslovi" %}{% endif %}</h2>
+        {% if details %}<dl class="facts">{% for label, value, quote in details %}<div><dt>{{ label }}</dt><dd>{{ value }}{% if quote %}<details class="evidence"><summary>{% translate "Iz oglasa" %}</summary><q lang="">{{ quote }}</q></details>{% endif %}</dd></div>{% endfor %}</dl>
+        {% else %}<p class="muted">{% translate "Iz teksta oglasa nismo mogli pouzdano izdvojiti uslove (obrazovanje, iskustvo, jezike)." %}{% if job.opportunity_type == "consultancy" %} {% translate "Kod konsultantskih poziva uslovi su često u priloženom opisu zadatka (ToR)." %}{% endif %} {% translate "Pogledajte službeni oglas." %}</p>{% endif %}
       </section>
       {% if terms %}<section aria-labelledby="ugovor">
-        <h2 id="ugovor">Ugovor i rad</h2>
-        <dl class="facts">{% for label, value, quote in terms %}<div><dt>{{ label }}</dt><dd>{{ value }}{% if quote %}<details class="evidence"><summary>Iz oglasa</summary><q lang="">{{ quote }}</q></details>{% endif %}</dd></div>{% endfor %}</dl>
+        <h2 id="ugovor">{% translate "Ugovor i rad" %}</h2>
+        <dl class="facts">{% for label, value, quote in terms %}<div><dt>{{ label }}</dt><dd>{{ value }}{% if quote %}<details class="evidence"><summary>{% translate "Iz oglasa" %}</summary><q lang="">{{ quote }}</q></details>{% endif %}</dd></div>{% endfor %}</dl>
       </section>{% endif %}
       {% if job.eligibility %}<p class="eligibility">{{ job.eligibility }}</p>{% endif %}
-      <p class="disclaimer">Uslovi su izdvojeni automatski iz teksta oglasa i mogu biti nepotpuni. Mjerodavan je službeni oglas. Ako nešto nije tačno, <a href="#prijava">javite nam</a>.</p>
+      <p class="disclaimer">{% blocktranslate %}Uslovi su izdvojeni automatski iz teksta oglasa i mogu biti nepotpuni. Mjerodavan je službeni oglas. Ako nešto nije tačno, <a href="#prijava">javite nam</a>.{% endblocktranslate %}</p>
     </div>
-    <aside class="job-aside" aria-label="Osnovni podaci">
+    <aside class="job-aside" aria-label="{% translate 'Osnovni podaci' %}">
       <dl class="summary">
-        <div><dt>Lokacija</dt><dd>{{ job.city|default:'Bosna i Hercegovina' }}</dd></div>
-        <div><dt>Rok prijave</dt><dd>{% if job.deadline %}<time datetime="{{ job.deadline|date:'Y-m-d' }}">{{ job.deadline|date:'d.m.Y.' }}</time>{% elif job.open_until_filled %}Do popune mjesta{% else %}Nije naveden{% endif %}</dd></div>
-        {% if job.source_published_at %}<div><dt>Objavljeno</dt><dd><time datetime="{{ job.source_published_at|date:'Y-m-d' }}">{{ job.source_published_at|date:'d.m.Y.' }}</time></dd></div>{% endif %}
-        <div><dt>Poslodavac</dt><dd>{{ job.employer_name }}</dd></div>
-        <div><dt>Vrsta</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
-        <div><dt>Provjereno</dt><dd>{{ job.last_checked_at|date:'d.m.Y.'|default:'Nije dostupno' }}</dd></div>
+        <div><dt>{% translate "Lokacija" %}</dt><dd>{% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}</dd></div>
+        <div><dt>{% translate "Rok prijave" %}</dt><dd>{% if job.deadline %}<time datetime="{{ job.deadline|date:'Y-m-d' }}">{{ job.deadline|date:'d.m.Y.' }}</time>{% elif job.open_until_filled %}{% translate "Do popune mjesta" %}{% else %}{% translate "Nije naveden" %}{% endif %}</dd></div>
+        {% if job.source_published_at %}<div><dt>{% translate "Objavljeno" %}</dt><dd><time datetime="{{ job.source_published_at|date:'Y-m-d' }}">{{ job.source_published_at|date:'d.m.Y.' }}</time></dd></div>{% endif %}
+        <div><dt>{% translate "Poslodavac" %}</dt><dd>{{ job.employer_name }}</dd></div>
+        <div><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
+        <div><dt>{% translate "Provjereno" %}</dt><dd>{% if job.last_checked_at %}{{ job.last_checked_at|date:'d.m.Y.' }}{% else %}{% translate "Nije dostupno" %}{% endif %}</dd></div>
       </dl>
-      <a class="apply apply-block" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}Oglas / prijava{% else %}Službeni oglas i prijava{% endif %} <span aria-hidden="true">↗</span><span class="visually-hidden"> (otvara se u novom prozoru)</span></a>
-      {% if job.is_aggregated %}<p class="aside-note">Oglas smo pronašli putem portala {{ job.via }}.</p>{% endif %}
+      <a class="apply apply-block" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}{% translate "Oglas / prijava" %}{% else %}{% translate "Službeni oglas i prijava" %}{% endif %} <span aria-hidden="true">↗</span><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>
+      {% if job.is_aggregated %}<p class="aside-note">{% blocktranslate with portal=job.via %}Oglas smo pronašli putem portala {{ portal }}.{% endblocktranslate %}</p>{% endif %}
     </aside>
   </div>
   <details class="report-box" id="prijava"{% if form.errors %} open{% endif %}>
-    <summary>Prijavi problem s ovim oglasom</summary>
+    <summary>{% translate "Prijavi problem s ovim oglasom" %}</summary>
     {% include 'board/_report_form.html' %}
   </details>
 </article>

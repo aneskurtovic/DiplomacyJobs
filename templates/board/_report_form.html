@@ -1,10 +1,10 @@
-<form class="report-form" method="post" action="{% if job %}/jobs/{{ job.pk }}/report/{% else %}/report/{% endif %}">{% csrf_token %}
+{% load i18n %}<form class="report-form" method="post" action="{% if job %}{% url 'job_report' job.pk %}{% else %}{% url 'report' %}{% endif %}">{% csrf_token %}
   {% if form.non_field_errors %}<div class="form-errors" role="alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
   <input type="hidden" name="page" value="{% if page %}{{ page }}{% else %}{{ request.get_full_path }}{% endif %}">
   <fieldset><legend>{{ form.reason.label }}</legend>{% for choice in form.reason %}<label class="choice">{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}{% for error in form.reason.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</fieldset>
   <label>{{ form.message.label }}{{ form.message }}{% for error in form.message.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</label>
   <label>{{ form.email.label }}{{ form.email }}{% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</label>
-  <label class="trap" aria-hidden="true">Ne popunjavajte ovo polje{{ form.website }}</label>
-  <p class="form-help">Prijave čita urednik stranice. E-mail koristimo samo za odgovor na ovu prijavu.</p>
-  <button type="submit">Pošalji prijavu</button>
+  <label class="trap" aria-hidden="true">{% translate "Ne popunjavajte ovo polje" %}{{ form.website }}</label>
+  <p class="form-help">{% translate "Prijave čita urednik stranice. E-mail koristimo samo za odgovor na ovu prijavu." %}</p>
+  <button type="submit">{% translate "Pošalji prijavu" %}</button>
 </form>

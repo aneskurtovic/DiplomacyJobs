@@ -1,0 +1,896 @@
+# English interface of DiplomacyJobs. Bosnian is the source language.
+# Update with: manage.py makemessages -l en, then compilemessages (needs GNU gettext).
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-03 13:02+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Agregator poslova"
+msgstr "Job aggregator"
+
+msgid "Ambasada"
+msgstr "Embassy"
+
+msgid "Konzulat"
+msgstr "Consulate"
+
+msgid "Počasni konzulat"
+msgstr "Honorary consulate"
+
+msgid "Međunarodna organizacija"
+msgstr "International organisation"
+
+msgid "Međunarodna nevladina organizacija"
+msgstr "International NGO"
+
+msgid "Razvojna agencija"
+msgstr "Development agency"
+
+msgid "Zaposlenje"
+msgstr "Employment"
+
+msgid "Plaćena praksa"
+msgstr "Paid internship"
+
+msgid "Individualni konsultantski angažman"
+msgstr "Individual consultancy"
+
+msgid "Nacionalna pozicija"
+msgstr "National position"
+
+msgid "Međunarodna pozicija"
+msgstr "International position"
+
+msgid "Oglas je istekao ili je mjesto popunjeno"
+msgstr "The advert has expired or the post is filled"
+
+msgid "Netačni podaci (rok, lokacija, uslovi)"
+msgstr "Wrong details (deadline, location, requirements)"
+
+msgid "Link ne radi"
+msgstr "The link does not work"
+
+msgid "Posao nije u Bosni i Hercegovini"
+msgstr "The job is not in Bosnia and Herzegovina"
+
+msgid "Oglas je duplikat"
+msgstr "The advert is a duplicate"
+
+msgid "Sumnjiv ili lažan oglas"
+msgstr "Suspicious or fake advert"
+
+msgid "Nedostaje oglas ili poslodavac"
+msgstr "A job or employer is missing"
+
+msgid "Greška na stranici"
+msgstr "Error on the site"
+
+msgid "Drugo"
+msgstr "Other"
+
+msgid "Srednja škola"
+msgstr "Secondary school"
+
+msgid "Fakultet (bachelor)"
+msgstr "University degree (bachelor)"
+
+msgid "Master"
+msgstr "Master's degree"
+
+msgid "Doktorat"
+msgstr "Doctorate"
+
+msgid "Pravo"
+msgstr "Law"
+
+msgid "Ekonomija, finansije i biznis"
+msgstr "Economics, finance and business"
+
+msgid "Javna uprava i menadžment"
+msgstr "Public administration and management"
+
+msgid "Političke nauke i međunarodni odnosi"
+msgstr "Political science and international relations"
+
+msgid "Društvene nauke"
+msgstr "Social sciences"
+
+msgid "Ljudska prava i rodne studije"
+msgstr "Human rights and gender studies"
+
+msgid "Inženjerstvo i arhitektura"
+msgstr "Engineering and architecture"
+
+msgid "Informatika i IT"
+msgstr "Computer science and IT"
+
+msgid "Statistika i matematika"
+msgstr "Statistics and mathematics"
+
+msgid "Komunikacije i novinarstvo"
+msgstr "Communications and journalism"
+
+msgid "Jezici i prevođenje"
+msgstr "Languages and translation"
+
+msgid "Medicina i zdravstvo"
+msgstr "Medicine and health"
+
+msgid "Okoliš, poljoprivreda i prirodne nauke"
+msgstr "Environment, agriculture and natural sciences"
+
+msgid "Pedagogija i obrazovanje"
+msgstr "Education and pedagogy"
+
+msgid "Sigurnost i kriminologija"
+msgstr "Security and criminology"
+
+msgid "Logistika"
+msgstr "Logistics"
+
+msgid "Engleski"
+msgstr "English"
+
+msgid "Bosanski/hrvatski/srpski"
+msgstr "Bosnian/Croatian/Serbian"
+
+msgid "Njemački"
+msgstr "German"
+
+msgid "Francuski"
+msgstr "French"
+
+msgid "Italijanski"
+msgstr "Italian"
+
+msgid "Španski"
+msgstr "Spanish"
+
+msgid "Turski"
+msgstr "Turkish"
+
+msgid "Ruski"
+msgstr "Russian"
+
+msgid "Arapski"
+msgstr "Arabic"
+
+msgid "Bez iskustva"
+msgstr "No experience"
+
+#, python-format
+msgid "%(years)s+ god. iskustva"
+msgstr "%(years)s+ yrs experience"
+
+msgid "Vozačka dozvola"
+msgstr "Driving licence"
+
+msgid "Rad na daljinu"
+msgstr "Remote work"
+
+msgid "Hibridni rad"
+msgstr "Hybrid work"
+
+#, python-format
+msgid "(oglas spominje i: %(levels)s)"
+msgstr "(the advert also mentions: %(levels)s)"
+
+msgid "Minimalno obrazovanje"
+msgstr "Minimum education"
+
+msgid "Oblast studija"
+msgstr "Field of study"
+
+msgid "Nije potrebno"
+msgstr "Not required"
+
+#, python-format
+msgid "Najmanje %(count)s %(years)s"
+msgstr "At least %(count)s %(years)s"
+
+msgid "Radno iskustvo"
+msgstr "Work experience"
+
+#, python-format
+msgid "%(language)s (prednost)"
+msgstr "%(language)s (an asset)"
+
+msgid "Jezici"
+msgstr "Languages"
+
+msgid "Obavezna"
+msgstr "Required"
+
+msgid "Prednost"
+msgstr "An asset"
+
+msgid "Državljanstvo"
+msgstr "Citizenship"
+
+msgid "Samo državljani BiH (ili osobe s prebivalištem)"
+msgstr "BiH citizens (or residents) only"
+
+msgid "Samo državljani EU"
+msgstr "EU citizens only"
+
+msgid "Razred / nivo"
+msgstr "Grade / level"
+
+msgid "Trajanje"
+msgstr "Duration"
+
+msgid "Plata / naknada"
+msgstr "Salary / fee"
+
+msgid "Radno vrijeme"
+msgstr "Working time"
+
+msgid "Puno radno vrijeme"
+msgstr "Full time"
+
+msgid "Nepuno radno vrijeme"
+msgstr "Part time"
+
+msgid "Način rada"
+msgstr "Work arrangement"
+
+msgid "bosanskog"
+msgstr "Bosnian"
+
+msgid "engleskog"
+msgstr "English"
+
+msgid "italijanskog"
+msgstr "Italian"
+
+msgid "njemačkog"
+msgstr "German"
+
+msgid "francuskog"
+msgstr "French"
+
+msgid "španskog"
+msgstr "Spanish"
+
+msgid "portugalskog"
+msgstr "Portuguese"
+
+msgid "turskog"
+msgstr "Turkish"
+
+msgid "slovenskog"
+msgstr "Slovenian"
+
+msgid "indonezijskog"
+msgstr "Indonesian"
+
+msgid "grčkog"
+msgstr "Greek"
+
+msgid "ruskog"
+msgstr "Russian"
+
+msgid "arapskog"
+msgstr "Arabic"
+
+msgid "japanskog"
+msgstr "Japanese"
+
+msgid "holandskog"
+msgstr "Dutch"
+
+msgid "poljskog"
+msgstr "Polish"
+
+msgid "mađarskog"
+msgstr "Hungarian"
+
+msgid "češkog"
+msgstr "Czech"
+
+msgid "švedskog"
+msgstr "Swedish"
+
+msgid "Do 2 godine"
+msgstr "Up to 2 years"
+
+msgid "Do 5 godina"
+msgstr "Up to 5 years"
+
+msgid "Do 10 godina"
+msgstr "Up to 10 years"
+
+msgid "Nema tog oglasa"
+msgstr "No such job"
+
+msgid "Šta nije u redu?"
+msgstr "What is wrong?"
+
+msgid "Opis (neobavezno)"
+msgstr "Description (optional)"
+
+msgid "Npr. rok je produžen, link vodi na pogrešnu stranicu …"
+msgstr "E.g. the deadline was extended, the link leads to the wrong page …"
+
+msgid "Vaš e-mail (neobavezno, samo ako želite odgovor)"
+msgstr "Your e-mail (optional, only if you want a reply)"
+
+msgid "Opišite ukratko problem."
+msgstr "Please describe the problem briefly."
+
+msgid "Hvala, prijava je zaprimljena."
+msgstr "Thank you, your report was received."
+
+msgid ""
+"Poslali ste više prijava u kratkom roku. Pokušajte ponovo za sat vremena."
+msgstr "You sent several reports in a short time. Please try again in an hour."
+
+msgid "Hvala! Prijava je zaprimljena i pregledat ćemo je."
+msgstr "Thank you! Your report was received and we will review it."
+
+msgid "Ne popunjavajte ovo polje"
+msgstr "Leave this field empty"
+
+msgid ""
+"Prijave čita urednik stranice. E-mail koristimo samo za odgovor na ovu "
+"prijavu."
+msgstr ""
+"Reports are read by the site editor. We use your e-mail only to reply to "
+"this report."
+
+msgid "Pošalji prijavu"
+msgstr "Send report"
+
+msgid "Poslovi u diplomatiji i međunarodnim organizacijama u BiH"
+msgstr "Jobs in diplomacy and international organisations in BiH"
+
+msgid ""
+"Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u "
+"Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca."
+msgstr ""
+"Verified job adverts from embassies and international organisations in "
+"Bosnia and Herzegovina, taken from the employers' official websites."
+
+msgid "DiplomacyJobs početna stranica"
+msgstr "DiplomacyJobs home page"
+
+msgid "Glavna navigacija"
+msgstr "Main navigation"
+
+msgid "Oglasi"
+msgstr "Jobs"
+
+msgid "Izvori"
+msgstr "Sources"
+
+msgid ""
+"Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod "
+"organizacije."
+msgstr ""
+"Adverts link to their official sources. Always check the requirements and "
+"deadline with the organisation."
+
+msgid "Prijavi problem"
+msgstr "Report a problem"
+
+msgid "Bosna i Hercegovina"
+msgstr "Bosnia and Herzegovina"
+
+msgid "Rok:"
+msgstr "Deadline:"
+
+msgid "do popune mjesta"
+msgstr "until filled"
+
+msgid "nije naveden"
+msgstr "not stated"
+
+msgid "Uslovi:"
+msgstr "Requirements:"
+
+msgid "Putanja"
+msgstr "Breadcrumb"
+
+msgid "Svi oglasi"
+msgstr "All jobs"
+
+#, python-format
+msgid "putem %(portal)s"
+msgstr "via %(portal)s"
+
+msgid "Prijevod naslova:"
+msgstr "Title translation:"
+
+msgid "Novo"
+msgstr "New"
+
+msgid "Ističe danas"
+msgstr "Closes today"
+
+msgid "Ističe sutra"
+msgstr "Closes tomorrow"
+
+#, python-format
+msgid "Ističe za %(days)s dana"
+msgstr "Closes in %(days)s days"
+
+msgid "Uslovi iz oglasa"
+msgstr "Requirements from the advert"
+
+msgid ""
+"Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas "
+"povučen). Provjerite stanje na službenoj stranici."
+msgstr ""
+"This job is no longer among current adverts (the deadline has passed or it "
+"was withdrawn). Check the official page for its status."
+
+msgid "O poslu"
+msgstr "About the job"
+
+#, python-format
+msgid "Automatski prijevod sa %(language)s jezika."
+msgstr "Machine translation from %(language)s."
+
+msgid "Automatski sažetak oglasa."
+msgstr "Automatic summary of the advert."
+
+msgid "Mjerodavan je službeni oglas."
+msgstr "The official advert is authoritative."
+
+msgid "Zadaci"
+msgstr "Duties"
+
+msgid "Traži se"
+msgstr "Requirements"
+
+msgid "Kako se prijaviti"
+msgstr "How to apply"
+
+msgid "Uslovi ukratko"
+msgstr "Requirements at a glance"
+
+msgid "Uslovi"
+msgstr "Requirements"
+
+msgid "Iz oglasa"
+msgstr "From the advert"
+
+msgid ""
+"Iz teksta oglasa nismo mogli pouzdano izdvojiti uslove (obrazovanje, "
+"iskustvo, jezike)."
+msgstr ""
+"We could not reliably read the requirements (education, experience, "
+"languages) from the advert text."
+
+msgid ""
+"Kod konsultantskih poziva uslovi su često u priloženom opisu zadatka (ToR)."
+msgstr ""
+"For consultancies, the requirements are often in the attached terms of "
+"reference (ToR)."
+
+msgid "Pogledajte službeni oglas."
+msgstr "See the official advert."
+
+msgid "Ugovor i rad"
+msgstr "Contract and work"
+
+msgid ""
+"Uslovi su izdvojeni automatski iz teksta oglasa i mogu biti nepotpuni. "
+"Mjerodavan je službeni oglas. Ako nešto nije tačno, <a href=\"#prijava"
+"\">javite nam</a>."
+msgstr ""
+"The requirements were read automatically from the advert text and may be "
+"incomplete. The official advert is authoritative. If something is wrong, <a "
+"href=\"#prijava\">let us know</a>."
+
+msgid "Osnovni podaci"
+msgstr "Key facts"
+
+msgid "Lokacija"
+msgstr "Location"
+
+msgid "Rok prijave"
+msgstr "Application deadline"
+
+msgid "Do popune mjesta"
+msgstr "Until filled"
+
+msgid "Nije naveden"
+msgstr "Not stated"
+
+msgid "Objavljeno"
+msgstr "Published"
+
+msgid "Poslodavac"
+msgstr "Employer"
+
+msgid "Vrsta"
+msgstr "Type"
+
+msgid "Provjereno"
+msgstr "Checked"
+
+msgid "Nije dostupno"
+msgstr "Not available"
+
+msgid "Oglas / prijava"
+msgstr "Advert / apply"
+
+msgid "Službeni oglas i prijava"
+msgstr "Official advert and application"
+
+msgid "(otvara se u novom prozoru)"
+msgstr "(opens in a new window)"
+
+#, python-format
+msgid "Oglas smo pronašli putem portala %(portal)s."
+msgstr "We found this advert via %(portal)s."
+
+msgid "Prijavi problem s ovim oglasom"
+msgstr "Report a problem with this job"
+
+msgid "Oglas više nije aktivan"
+msgstr "Job no longer active"
+
+msgid "Ovaj oglas više nije aktivan."
+msgstr "This job is no longer active."
+
+msgid "Rok je istekao ili je oglas uklonjen sa službene stranice poslodavca."
+msgstr ""
+"The deadline has passed or the advert was removed from the employer's "
+"website."
+
+msgid "Pogledaj aktuelne oglase"
+msgstr "See current jobs"
+
+msgid "PRILIKE U BOSNI I HERCEGOVINI"
+msgstr "OPPORTUNITIES IN BOSNIA AND HERZEGOVINA"
+
+msgid "Poslovi u diplomatiji i međunarodnim organizacijama."
+msgstr "Jobs in diplomacy and international organisations."
+
+msgid ""
+"Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici "
+"poslodavca."
+msgstr ""
+"Verified adverts in one place. You apply on the employer's official website."
+
+msgid "Pretraga"
+msgstr "Search"
+
+msgid "Naziv posla ili organizacije"
+msgstr "Job title or organisation"
+
+msgid "Organizacija"
+msgstr "Organisation"
+
+msgid "Sve organizacije"
+msgstr "All organisations"
+
+msgid "Grad"
+msgstr "City"
+
+msgid "Svi gradovi"
+msgstr "All cities"
+
+msgid "Vrsta angažmana"
+msgstr "Type of engagement"
+
+msgid "Sve vrste"
+msgstr "All types"
+
+msgid "Pozicija"
+msgstr "Position"
+
+msgid "Sve pozicije"
+msgstr "All positions"
+
+msgid "Nacionalne (lokalno zapošljavanje)"
+msgstr "National (local hire)"
+
+msgid "Međunarodne"
+msgstr "International"
+
+msgid "Moje obrazovanje"
+msgstr "My education"
+
+msgid "Bilo koje"
+msgstr "Any"
+
+msgid "Traženo iskustvo"
+msgstr "Experience required"
+
+msgid "Sve oblasti"
+msgstr "All fields"
+
+msgid "Redoslijed"
+msgstr "Sort by"
+
+msgid "Najnoviji prvo"
+msgstr "Newest first"
+
+msgid "Rok uskoro"
+msgstr "Deadline soon"
+
+msgid "Prikaži poslove"
+msgstr "Show jobs"
+
+msgid "Aktuelni oglasi"
+msgstr "Current jobs"
+
+msgid "Poništi filtere"
+msgstr "Clear filters"
+
+msgid "Prati ove rezultate"
+msgstr "Follow these results"
+
+msgid "Prati nove oglase"
+msgstr "Follow new jobs"
+
+msgid ""
+"Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je "
+"taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
+msgstr ""
+"The education, experience and field filters show only adverts that clearly "
+"state that requirement. We read requirements automatically from the advert "
+"text."
+
+msgid "Lokacija:"
+msgstr "Location:"
+
+msgid "Provjereno:"
+msgstr "Checked:"
+
+msgid "Detalji i uslovi"
+msgstr "Details and requirements"
+
+msgid "Službeni oglas"
+msgstr "Official advert"
+
+msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
+msgstr "No jobs currently match your search."
+
+#, python-format
+msgid ""
+"Provjerite ponovo kasnije ili pogledajte <a href=\"%(sources_url)s\">koje "
+"izvore pratimo</a>."
+msgstr ""
+"Check again later or see <a href=\"%(sources_url)s\">which sources we "
+"follow</a>."
+
+msgid "Stranice"
+msgstr "Pages"
+
+msgid "Prethodna"
+msgstr "Previous"
+
+#, python-format
+msgid "Stranica %(number)s od %(total)s"
+msgstr "Page %(number)s of %(total)s"
+
+msgid "Sljedeća"
+msgstr "Next"
+
+msgid "Nazad na oglas"
+msgstr "Back to the job"
+
+msgid "Oglas:"
+msgstr "Job:"
+
+msgid ""
+"Primijetili ste grešku na stranici, oglas koji nedostaje ili poslodavca "
+"kojeg ne pratimo? Javite nam."
+msgstr ""
+"Noticed an error on the site, a missing job or an employer we do not follow? "
+"Let us know."
+
+msgid "Izvori i pokrivenost"
+msgstr "Sources and coverage"
+
+msgid ""
+"Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put "
+"provjereni."
+msgstr ""
+"Which official job sources we follow, their status and when they were last "
+"checked."
+
+msgid "TRANSPARENTNOST IZVORA"
+msgstr "SOURCE TRANSPARENCY"
+
+msgid ""
+"Oglase preuzimamo sa službenih stranica poslodavaca. Ovdje možete vidjeti "
+"koje izvore pratimo i šta znamo o posljednjoj provjeri. Prikupljamo samo "
+"oglase iz 2026."
+msgstr ""
+"We take adverts from employers' official websites. Here you can see which "
+"sources we follow and what we know from the last check. We collect only 2026 "
+"adverts."
+
+msgid "Posljednja uspješna provjera:"
+msgstr "Last successful check:"
+
+msgid "još nije obavljena"
+msgstr "not done yet"
+
+msgid "na portalu"
+msgstr "on the board"
+
+msgid "Pregled pokrivenosti"
+msgstr "Coverage overview"
+
+msgid "Potpuno praćeni"
+msgstr "Fully followed"
+
+msgid "Sa provjerenog izvora pratimo aktivne oglase"
+msgstr "We follow current adverts from a verified source"
+
+msgid "Djelimično praćeni"
+msgstr "Partly followed"
+
+msgid "Prikaz oglasa na izvoru nije potpun"
+msgstr "The source does not show all its adverts"
+
+msgid "Još nisu praćeni"
+msgstr "Not yet followed"
+
+#, python-format
+msgid ""
+"%(pending)s čeka provjeru · %(integration)s čeka integraciju · %(not_found)s "
+"bez pronađene liste"
+msgstr ""
+"%(pending)s awaiting a check · %(integration)s awaiting integration · "
+"%(not_found)s with no list found"
+
+msgid "Nedostupni"
+msgstr "Unavailable"
+
+msgid "Provjera izvora trenutno nije uspjela"
+msgstr "The source check is currently failing"
+
+msgid "Kako čitati status izvora"
+msgstr "How to read the source status"
+
+msgid "Dostupan · broj"
+msgstr "Available · number"
+
+msgid ""
+"Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu "
+"pronašli."
+msgstr ""
+"The source was checked successfully. We show the open adverts we found on it."
+
+msgid "Dostupan · 0"
+msgstr "Available · 0"
+
+msgid ""
+"Na potpuno praćenom izvoru nema potvrđenih otvorenih oglasa. Kandidati na "
+"provjeri prikazani su posebno."
+msgstr ""
+"A fully followed source has no confirmed open adverts. Candidates under "
+"review are shown separately."
+
+msgid "Djelimično ili nepoznato"
+msgstr "Partial or unknown"
+
+msgid ""
+"Pronađena stranica može čekati integraciju. Ako lista nije pronađena ili je "
+"nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa."
+msgstr ""
+"A page we found may be awaiting integration. If no list was found or it is "
+"unavailable, the number of jobs is unknown. An empty cell does not mean zero "
+"adverts."
+
+#, python-format
+msgid "Izvori u registru (%(total)s)"
+msgstr "Sources in the registry (%(total)s)"
+
+#, python-format
+msgid ""
+"%(organizations_total)s organizacija: ambasade, konzulati i međunarodne "
+"organizacije u BiH"
+msgstr ""
+"%(organizations_total)s organisations: embassies, consulates and "
+"international organisations in BiH"
+
+msgid "Filtriraj po statusu"
+msgstr "Filter by status"
+
+msgid "Svi"
+msgstr "All"
+
+msgid "S oglasima"
+msgstr "With jobs"
+
+msgid "Bez oglasa"
+msgstr "No jobs"
+
+msgid "Na provjeri"
+msgstr "Under review"
+
+msgid "Djelimični"
+msgstr "Partial"
+
+msgid "Izvor nije provjeren"
+msgstr "Source not checked"
+
+msgid "Čeka integraciju"
+msgstr "Awaiting integration"
+
+msgid "Izvor nije pronađen"
+msgstr "No source found"
+
+msgid "Izvor"
+msgstr "Source"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Otvoreni oglasi"
+msgstr "Open jobs"
+
+msgid "Provjere"
+msgstr "Checks"
+
+msgid "Službena stranica"
+msgstr "Official website"
+
+msgid "Šta je provjereno"
+msgstr "What was checked"
+
+msgid "Dokaz provjere"
+msgstr "Evidence"
+
+msgid "Provjeru pronalaska izvora treba obnoviti."
+msgstr "The source discovery check needs renewing."
+
+msgid "Dostupan"
+msgstr "Available"
+
+msgid "Bez potvrđenih oglasa"
+msgstr "No confirmed jobs"
+
+msgid "Oglasi na provjeri"
+msgstr "Jobs under review"
+
+msgid "Djelimično praćen"
+msgstr "Partly followed"
+
+msgid "Nedostupan"
+msgstr "Unavailable"
+
+msgid "Broj nije potvrđen"
+msgstr "Number not confirmed"
+
+msgid "Oglasi:"
+msgstr "Jobs:"
+
+msgid "Pronalazak izvora:"
+msgstr "Source discovery:"
+
+msgid "Nema izvora s odabranim statusom."
+msgstr "No sources with the selected status."
+
+#, python-format
+msgid "Prikazano %(shown)s od %(total)s izvora."
+msgstr "Showing %(shown)s of %(total)s sources."
+
+msgid ""
+"Pronalazak izvora provjeravamo zasebno od preuzimanja oglasa i obnavljamo "
+"najkasnije nakon 90 dana. Organizacije bez pronađene liste, izvori koji "
+"čekaju integraciju te djelimični, nedostupni i neprovjereni izvori mogu "
+"imati oglase koje još nismo otkrili."
+msgstr ""
+"We check source discovery separately from collecting adverts and renew it "
+"within 90 days at the latest. Organisations with no list found, sources "
+"awaiting integration, and partial, unavailable and unchecked sources may "
+"have adverts we have not found yet."

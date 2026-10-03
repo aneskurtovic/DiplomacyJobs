@@ -1,13 +1,15 @@
 from django.db import models
 from django.utils import timezone
+from django.urls import reverse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 
 from .requirements import EDUCATION_LEVELS
 from .text import fold
 
 
 class Organization(models.Model):
-    TYPE_CHOICES = [("aggregator", "Agregator poslova"), ("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija"), ("ngo", "Međunarodna nevladina organizacija"), ("agency", "Razvojna agencija")]
+    TYPE_CHOICES = [("aggregator", _("Agregator poslova")), ("embassy", _("Ambasada")), ("consulate", _("Konzulat")), ("honorary", _("Počasni konzulat")), ("international", _("Međunarodna organizacija")), ("ngo", _("Međunarodna nevladina organizacija")), ("agency", _("Razvojna agencija"))]
     RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)
@@ -72,7 +74,7 @@ class SourceDocument(models.Model):
 class Job(models.Model):
     STATUS = [("review", "Na provjeri"), ("published", "Objavljeno"), ("closed", "Zatvoreno")]
     CLOSED_REASON = [("deadline", "Istekao rok"), ("missing", "Nestao sa izvora"), ("stale", "Bez roka, zastario"), ("withdrawn", "Povučen na izvoru"), ("manual", "Zatvoren ručno")]
-    TYPE = [("employment", "Zaposlenje"), ("paid_internship", "Plaćena praksa"), ("consultancy", "Individualni konsultantski angažman")]
+    TYPE = [("employment", _("Zaposlenje")), ("paid_internship", _("Plaćena praksa")), ("consultancy", _("Individualni konsultantski angažman"))]
     source = models.ForeignKey(Source, on_delete=models.PROTECT, related_name="jobs")
     external_id = models.CharField(max_length=250, blank=True)
     canonical_url = models.URLField(max_length=1000)
@@ -80,7 +82,7 @@ class Job(models.Model):
     title = models.CharField(max_length=400)
     city = models.CharField(max_length=100, blank=True)
     opportunity_type = models.CharField(max_length=30, choices=TYPE, default="employment")
-    scope = models.CharField(max_length=20, choices=[("national", "Nacionalna pozicija"), ("international", "Međunarodna pozicija")], blank=True)
+    scope = models.CharField(max_length=20, choices=[("national", _("Nacionalna pozicija")), ("international", _("Međunarodna pozicija"))], blank=True)
     deadline = models.DateField(null=True, blank=True)
     open_until_filled = models.BooleanField(default=False)
     location_evidence = models.TextField(blank=True)
@@ -102,6 +104,8 @@ class Job(models.Model):
     education_level = models.CharField("minimalno obrazovanje", max_length=20, choices=EDUCATION_LEVELS, blank=True)
     experience_years = models.PositiveSmallIntegerField("godine iskustva", null=True, blank=True)
     fields_of_study = models.JSONField("oblasti studija", default=list, blank=True)
+    # Bosnian and English versions written by translation.translate for the text with content_hash; {"disabled": true} opts a job out.
+    translations = models.JSONField(default=dict, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["source", "canonical_url"], name="unique_source_job_url")]
@@ -131,12 +135,12 @@ class Job(models.Model):
         return slugify(fold(self.title))[:80].strip("-") or "oglas"
 
     def get_absolute_url(self):
-        return f"/jobs/{self.pk}/{self.slug}/"
+        return reverse("job", args=[self.pk, self.slug])
 
 
 class Report(models.Model):
     """A problem a visitor reported, about one job or about the site."""
-    REASONS = [("expired", "Oglas je istekao ili je mjesto popunjeno"), ("wrong_info", "Netačni podaci (rok, lokacija, uslovi)"), ("broken_link", "Link ne radi"), ("not_bih", "Posao nije u Bosni i Hercegovini"), ("duplicate", "Oglas je duplikat"), ("suspicious", "Sumnjiv ili lažan oglas"), ("missing", "Nedostaje oglas ili poslodavac"), ("site", "Greška na stranici"), ("other", "Drugo")]
+    REASONS = [("expired", _("Oglas je istekao ili je mjesto popunjeno")), ("wrong_info", _("Netačni podaci (rok, lokacija, uslovi)")), ("broken_link", _("Link ne radi")), ("not_bih", _("Posao nije u Bosni i Hercegovini")), ("duplicate", _("Oglas je duplikat")), ("suspicious", _("Sumnjiv ili lažan oglas")), ("missing", _("Nedostaje oglas ili poslodavac")), ("site", _("Greška na stranici")), ("other", _("Drugo"))]
     STATUS = [("new", "Novo"), ("resolved", "Riješeno"), ("dismissed", "Odbačeno")]
     job = models.ForeignKey(Job, on_delete=models.SET_NULL, null=True, blank=True, related_name="reports")
     reason = models.CharField("razlog", max_length=20, choices=REASONS)

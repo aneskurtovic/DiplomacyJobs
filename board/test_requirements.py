@@ -66,13 +66,26 @@ class ExtractionTests(TestCase):
 
     def test_unstated_facts_are_omitted(self):
         found = extract("GEF8-Flora Expert", "Introduction Country: Bosnia and Herzegovina Assignment Duration: October 2026 - December 2026 Proposal should be submitted directly in the portal no later than indicated deadline. Documents must be submitted in English.")
-        self.assertEqual(set(found) - {"version"}, {"duration"})
+        self.assertEqual(set(found) - {"version", "language"}, {"duration"})
         self.assertEqual(found["duration"]["text"], "October 2026 - December 2026")
 
     def test_numbers_that_are_not_experience(self):
         text = "Experience in at least three relevant processes in the last five years. The roster is valid for three years. Salary: Not Specified."
         self.assertNotIn("experience", extract("Expert", text))
         self.assertNotIn("salary", extract("Expert", text))
+
+    def test_required_before_an_asset_stays_required(self):
+        found = extract("Assistant", "Languages: Fluency in English is required and German would be an advantage.")
+        self.assertEqual(found["languages"]["required"], ["en"])
+        self.assertEqual(found["languages"]["desirable"], ["de"])
+
+    def test_degree_under_desirable_heading_is_not_the_minimum(self):
+        text = ("A. ESSENTIAL QUALIFICATIONS: 1. Professional Experience: Minimum 4 years progressively responsible experience in procurement. "
+                "2. Education / Training: Junior college education in Economy or Finance. B. DESIRABLE QUALIFICATIONS: 1. Professional Experience: "
+                "Previous experience with SAP. 2. Education / Training: University degree up to 3 years, in Finance or Economics.")
+        found = extract("Purchasing Administrator", text)
+        self.assertNotIn("education", found)
+        self.assertEqual(found["experience"]["years"], 4)
 
     def test_asset_language_and_eu_citizenship(self):
         found = extract("Head of Communications", "GENERAL CONDITIONS Citizenship – Citizen of a Member State of the European Union (EU) and enjoying full rights as a citizen. Language Skills – The candidates must be fully fluent in written and oral English language. Language - Proficiency in local language(s) will be considered an advantage.")

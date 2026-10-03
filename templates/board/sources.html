@@ -1,56 +1,56 @@
-{% extends 'board/base.html' %}{% load board_extras %}
-{% block title %}Izvori i pokrivenost · DiplomacyJobs{% endblock %}
-{% block description %}Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put provjereni.{% endblock %}
-{% block og_description %}Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put provjereni.{% endblock %}
-{% block og_title %}Izvori i pokrivenost{% endblock %}
+{% extends 'board/base.html' %}{% load board_extras i18n %}
+{% block title %}{% translate "Izvori i pokrivenost" %} · DiplomacyJobs{% endblock %}
+{% block description %}{% translate "Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put provjereni." %}{% endblock %}
+{% block og_description %}{% translate "Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put provjereni." %}{% endblock %}
+{% block og_title %}{% translate "Izvori i pokrivenost" %}{% endblock %}
 {% block content %}
 <section class="coverage-intro">
-  <p class="eyebrow">TRANSPARENTNOST IZVORA</p>
-  <h1>Izvori i pokrivenost</h1>
-  <p>Oglase preuzimamo sa službenih stranica poslodavaca. Ovdje možete vidjeti koje izvore pratimo i šta znamo o posljednjoj provjeri. Prikupljamo samo oglase iz 2026.</p>
-  <p class="last-check">Posljednja uspješna provjera: {% if latest %}{{ latest|date:'d.m.Y. H:i' }}{% else %}još nije obavljena{% endif %} · {{ open_jobs }} {{ open_jobs|bs_plural:"otvoren oglas,otvorena oglasa,otvorenih oglasa" }} na portalu</p>
+  <p class="eyebrow">{% translate "TRANSPARENTNOST IZVORA" %}</p>
+  <h1>{% translate "Izvori i pokrivenost" %}</h1>
+  <p>{% translate "Oglase preuzimamo sa službenih stranica poslodavaca. Ovdje možete vidjeti koje izvore pratimo i šta znamo o posljednjoj provjeri. Prikupljamo samo oglase iz 2026." %}</p>
+  <p class="last-check">{% translate "Posljednja uspješna provjera:" %} {% if latest %}{{ latest|date:'d.m.Y. H:i' }}{% else %}{% translate "još nije obavljena" %}{% endif %} · {{ open_jobs }} {{ open_jobs|bs_plural:"otvoren oglas,otvorena oglasa,otvorenih oglasa|open job,open jobs" }} {% translate "na portalu" %}</p>
 </section>
 
-<section class="coverage-stats" aria-label="Pregled pokrivenosti">
-  <div class="coverage-stat"><span class="stat-label status-green"><span class="status-dot"></span>Potpuno praćeni</span><strong>{{ totals.available|add:totals.empty|add:totals.review }}</strong><span>Sa provjerenog izvora pratimo aktivne oglase</span></div>
-  <div class="coverage-stat"><span class="stat-label status-blue"><span class="status-dot"></span>Djelimično praćeni</span><strong>{{ totals.partial }}</strong><span>Prikaz oglasa na izvoru nije potpun</span></div>
-  <div class="coverage-stat"><span class="stat-label status-gray"><span class="status-dot"></span>Još nisu praćeni</span><strong>{{ totals.pending|add:totals.not_found|add:totals.integration }}</strong><span>{{ totals.pending }} čeka provjeru · {{ totals.integration }} čeka integraciju · {{ totals.not_found }} bez pronađene liste</span></div>
-  <div class="coverage-stat warning"><span class="stat-label status-amber"><span class="status-dot"></span>Nedostupni</span><strong>{{ totals.unavailable }}</strong><span>Provjera izvora trenutno nije uspjela</span></div>
+<section class="coverage-stats" aria-label="{% translate 'Pregled pokrivenosti' %}">
+  <div class="coverage-stat"><span class="stat-label status-green"><span class="status-dot"></span>{% translate "Potpuno praćeni" %}</span><strong>{{ totals.available|add:totals.empty|add:totals.review }}</strong><span>{% translate "Sa provjerenog izvora pratimo aktivne oglase" %}</span></div>
+  <div class="coverage-stat"><span class="stat-label status-blue"><span class="status-dot"></span>{% translate "Djelimično praćeni" %}</span><strong>{{ totals.partial }}</strong><span>{% translate "Prikaz oglasa na izvoru nije potpun" %}</span></div>
+  <div class="coverage-stat"><span class="stat-label status-gray"><span class="status-dot"></span>{% translate "Još nisu praćeni" %}</span><strong>{{ totals.pending|add:totals.not_found|add:totals.integration }}</strong><span>{% blocktranslate with pending=totals.pending integration=totals.integration not_found=totals.not_found %}{{ pending }} čeka provjeru · {{ integration }} čeka integraciju · {{ not_found }} bez pronađene liste{% endblocktranslate %}</span></div>
+  <div class="coverage-stat warning"><span class="stat-label status-amber"><span class="status-dot"></span>{% translate "Nedostupni" %}</span><strong>{{ totals.unavailable }}</strong><span>{% translate "Provjera izvora trenutno nije uspjela" %}</span></div>
 </section>
 
 <section class="status-legend" aria-labelledby="legend-heading">
-  <h2 id="legend-heading">Kako čitati status izvora</h2>
+  <h2 id="legend-heading">{% translate "Kako čitati status izvora" %}</h2>
   <div class="legend-grid">
-    <p><strong>Dostupan · broj</strong><span>Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu pronašli.</span></p>
-    <p><strong>Dostupan · 0</strong><span>Na potpuno praćenom izvoru nema potvrđenih otvorenih oglasa. Kandidati na provjeri prikazani su posebno.</span></p>
-    <p><strong>Djelimično ili nepoznato</strong><span>Pronađena stranica može čekati integraciju. Ako lista nije pronađena ili je nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa.</span></p>
+    <p><strong>{% translate "Dostupan · broj" %}</strong><span>{% translate "Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu pronašli." %}</span></p>
+    <p><strong>{% translate "Dostupan · 0" %}</strong><span>{% translate "Na potpuno praćenom izvoru nema potvrđenih otvorenih oglasa. Kandidati na provjeri prikazani su posebno." %}</span></p>
+    <p><strong>{% translate "Djelimično ili nepoznato" %}</strong><span>{% translate "Pronađena stranica može čekati integraciju. Ako lista nije pronađena ili je nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa." %}</span></p>
   </div>
 </section>
 
 <section class="coverage-table-section" aria-labelledby="sources-heading">
-  <div class="table-heading"><div><h2 id="sources-heading">Izvori u registru ({{ total }})</h2><p>{{ organizations_total }} organizacija: ambasade, konzulati i međunarodne organizacije u BiH</p></div>
-    <nav class="status-filters" aria-label="Filtriraj po statusu">
-      <a href="/sources/"{% if selected == 'all' %} class="selected" aria-current="page"{% endif %}>Svi</a>
-      <a href="?status=available"{% if selected == 'available' %} class="selected" aria-current="page"{% endif %}>S oglasima ({{ totals.available }})</a>
-      <a href="?status=empty"{% if selected == 'empty' %} class="selected" aria-current="page"{% endif %}>Bez oglasa ({{ totals.empty }})</a>
-      <a href="?status=review"{% if selected == 'review' %} class="selected" aria-current="page"{% endif %}>Na provjeri ({{ totals.review }})</a>
-      <a href="?status=partial"{% if selected == 'partial' %} class="selected" aria-current="page"{% endif %}>Djelimični ({{ totals.partial }})</a>
-      <a href="?status=unavailable"{% if selected == 'unavailable' %} class="selected" aria-current="page"{% endif %}>Nedostupni ({{ totals.unavailable }})</a>
-      <a href="?status=pending"{% if selected == 'pending' %} class="selected" aria-current="page"{% endif %}>Izvor nije provjeren ({{ totals.pending }})</a>
-      <a href="?status=integration"{% if selected == 'integration' %} class="selected" aria-current="page"{% endif %}>Čeka integraciju ({{ totals.integration }})</a>
-      <a href="?status=not_found"{% if selected == 'not_found' %} class="selected" aria-current="page"{% endif %}>Izvor nije pronađen ({{ totals.not_found }})</a>
+  <div class="table-heading"><div><h2 id="sources-heading">{% blocktranslate %}Izvori u registru ({{ total }}){% endblocktranslate %}</h2><p>{% blocktranslate %}{{ organizations_total }} organizacija: ambasade, konzulati i međunarodne organizacije u BiH{% endblocktranslate %}</p></div>
+    <nav class="status-filters" aria-label="{% translate 'Filtriraj po statusu' %}">
+      <a href="{% url 'sources' %}"{% if selected == 'all' %} class="selected" aria-current="page"{% endif %}>{% translate "Svi" %}</a>
+      <a href="?status=available"{% if selected == 'available' %} class="selected" aria-current="page"{% endif %}>{% translate "S oglasima" %} ({{ totals.available }})</a>
+      <a href="?status=empty"{% if selected == 'empty' %} class="selected" aria-current="page"{% endif %}>{% translate "Bez oglasa" %} ({{ totals.empty }})</a>
+      <a href="?status=review"{% if selected == 'review' %} class="selected" aria-current="page"{% endif %}>{% translate "Na provjeri" %} ({{ totals.review }})</a>
+      <a href="?status=partial"{% if selected == 'partial' %} class="selected" aria-current="page"{% endif %}>{% translate "Djelimični" %} ({{ totals.partial }})</a>
+      <a href="?status=unavailable"{% if selected == 'unavailable' %} class="selected" aria-current="page"{% endif %}>{% translate "Nedostupni" %} ({{ totals.unavailable }})</a>
+      <a href="?status=pending"{% if selected == 'pending' %} class="selected" aria-current="page"{% endif %}>{% translate "Izvor nije provjeren" %} ({{ totals.pending }})</a>
+      <a href="?status=integration"{% if selected == 'integration' %} class="selected" aria-current="page"{% endif %}>{% translate "Čeka integraciju" %} ({{ totals.integration }})</a>
+      <a href="?status=not_found"{% if selected == 'not_found' %} class="selected" aria-current="page"{% endif %}>{% translate "Izvor nije pronađen" %} ({{ totals.not_found }})</a>
     </nav>
   </div>
   <div class="source-table-wrap"><table class="source-table">
-    <thead><tr><th>Izvor</th><th>Vrsta</th><th>Status</th><th class="numeric">Otvoreni oglasi</th><th>Provjere</th></tr></thead>
+    <thead><tr><th>{% translate "Izvor" %}</th><th>{% translate "Vrsta" %}</th><th>{% translate "Status" %}</th><th class="numeric">{% translate "Otvoreni oglasi" %}</th><th>{% translate "Provjere" %}</th></tr></thead>
     <tbody>{% for row in rows %}<tr>
-      <td><strong>{{ row.organization.name }}</strong>{% if row.url %}<a class="source-domain" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{{ row.domain|default:'Službena stranica' }} ↗</a>{% endif %}{% if row.organization.recruitment_checked_at %}<details class="source-audit"><summary>Šta je provjereno</summary><p>{{ row.organization.recruitment_notes }}</p><a href="{{ row.organization.recruitment_evidence_url }}" target="_blank" rel="noopener noreferrer">Dokaz provjere ↗</a>{% if not row.audit_current %}<p>Provjeru pronalaska izvora treba obnoviti.</p>{% endif %}</details>{% endif %}</td>
-      <td data-label="Vrsta">{{ row.organization.get_kind_display }}{% if row.organization.city %}<small>{{ row.organization.city }}</small>{% endif %}</td>
-      <td data-label="Status">{% if row.status == 'available' %}<span class="status-pill good">Dostupan</span>{% elif row.status == 'empty' %}<span class="status-pill empty">Bez potvrđenih oglasa</span>{% elif row.status == 'review' %}<span class="status-pill review">Oglasi na provjeri</span>{% elif row.status == 'partial' %}<span class="status-pill partial">Djelimično praćen</span>{% elif row.status == 'unavailable' %}<span class="status-pill unavailable">Nedostupan</span>{% elif row.status == 'integration' %}<span class="status-pill integration">Čeka integraciju</span>{% elif row.status == 'not_found' %}<span class="status-pill pending">Izvor nije pronađen</span>{% else %}<span class="status-pill pending">Izvor nije provjeren</span>{% endif %}</td>
-      <td class="numeric" data-label="Otvoreni oglasi">{% if row.status == 'available' or row.status == 'empty' %}{{ row.count }}{% elif row.status == 'partial' and row.count %}{{ row.count }}+{% else %}<span title="Broj nije potvrđen">—</span>{% endif %}</td>
-      <td class="checked-at" data-label="Provjere">{% if row.source and row.source.last_success_at %}<span>Oglasi: {{ row.source.last_success_at|date:'d.m.Y. H:i' }}</span>{% endif %}{% if row.organization.recruitment_checked_at %}<small>Pronalazak izvora: {{ row.organization.recruitment_checked_at|date:'d.m.Y.' }}</small>{% elif not row.source or not row.source.last_success_at %}—{% endif %}</td>
-    </tr>{% empty %}<tr><td colspan="5" class="no-rows">Nema izvora s odabranim statusom.</td></tr>{% endfor %}</tbody>
+      <td><strong>{{ row.organization.name }}</strong>{% if row.url %}<a class="source-domain" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{% if row.domain %}{{ row.domain }}{% else %}{% translate "Službena stranica" %}{% endif %} ↗</a>{% endif %}{% if row.organization.recruitment_checked_at %}<details class="source-audit"><summary>{% translate "Šta je provjereno" %}</summary><p>{{ row.organization.recruitment_notes }}</p><a href="{{ row.organization.recruitment_evidence_url }}" target="_blank" rel="noopener noreferrer">{% translate "Dokaz provjere" %} ↗</a>{% if not row.audit_current %}<p>{% translate "Provjeru pronalaska izvora treba obnoviti." %}</p>{% endif %}</details>{% endif %}</td>
+      <td data-label="{% translate 'Vrsta' %}">{{ row.organization.get_kind_display }}{% if row.organization.city %}<small>{{ row.organization.city }}</small>{% endif %}</td>
+      <td data-label="{% translate 'Status' %}">{% if row.status == 'available' %}<span class="status-pill good">{% translate "Dostupan" %}</span>{% elif row.status == 'empty' %}<span class="status-pill empty">{% translate "Bez potvrđenih oglasa" %}</span>{% elif row.status == 'review' %}<span class="status-pill review">{% translate "Oglasi na provjeri" %}</span>{% elif row.status == 'partial' %}<span class="status-pill partial">{% translate "Djelimično praćen" %}</span>{% elif row.status == 'unavailable' %}<span class="status-pill unavailable">{% translate "Nedostupan" %}</span>{% elif row.status == 'integration' %}<span class="status-pill integration">{% translate "Čeka integraciju" %}</span>{% elif row.status == 'not_found' %}<span class="status-pill pending">{% translate "Izvor nije pronađen" %}</span>{% else %}<span class="status-pill pending">{% translate "Izvor nije provjeren" %}</span>{% endif %}</td>
+      <td class="numeric" data-label="{% translate 'Otvoreni oglasi' %}">{% if row.status == 'available' or row.status == 'empty' %}{{ row.count }}{% elif row.status == 'partial' and row.count %}{{ row.count }}+{% else %}<span title="{% translate 'Broj nije potvrđen' %}">—</span>{% endif %}</td>
+      <td class="checked-at" data-label="{% translate 'Provjere' %}">{% if row.source and row.source.last_success_at %}<span>{% translate "Oglasi:" %} {{ row.source.last_success_at|date:'d.m.Y. H:i' }}</span>{% endif %}{% if row.organization.recruitment_checked_at %}<small>{% translate "Pronalazak izvora:" %} {{ row.organization.recruitment_checked_at|date:'d.m.Y.' }}</small>{% elif not row.source or not row.source.last_success_at %}—{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="5" class="no-rows">{% translate "Nema izvora s odabranim statusom." %}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="table-footnote">Prikazano {{ shown }} od {{ total }} izvora. Pronalazak izvora provjeravamo zasebno od preuzimanja oglasa i obnavljamo najkasnije nakon 90 dana. Organizacije bez pronađene liste, izvori koji čekaju integraciju te djelimični, nedostupni i neprovjereni izvori mogu imati oglase koje još nismo otkrili.</p>
+  <p class="table-footnote">{% blocktranslate %}Prikazano {{ shown }} od {{ total }} izvora.{% endblocktranslate %} {% translate "Pronalazak izvora provjeravamo zasebno od preuzimanja oglasa i obnavljamo najkasnije nakon 90 dana. Organizacije bez pronađene liste, izvori koji čekaju integraciju te djelimični, nedostupni i neprovjereni izvori mogu imati oglase koje još nismo otkrili." %}</p>
 </section>
 {% endblock %}

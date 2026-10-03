@@ -150,3 +150,18 @@ h1{font-size:2em;margin-block:.67em}
 .gone h1{font-size:26px;margin-top:0}
 @media(max-width:900px){.job-layout{grid-template-columns:1fr}.job-aside{position:static}}
 @media(max-width:760px){.card-actions{margin-top:16px;flex-direction:row-reverse;justify-content:flex-end;align-items:center}.card-actions .apply{margin-top:0}.facts>div{grid-template-columns:1fr;gap:4px}}
+
+/* Interface language switch and advert translations. */
+.language-switch{display:flex;align-items:center;gap:2px;margin-left:8px;font-size:13px;font-weight:700;letter-spacing:.04em}
+.language-switch a,.language-switch .current-language{height:auto;padding:5px 8px;border:1px solid transparent;border-radius:6px;border-bottom-width:1px}
+.language-switch a{color:#52606d;text-decoration:none}
+.language-switch a:hover{color:#13202d;border-color:#dce1e6}
+.language-switch .current-language{color:#13202d;border-color:#13202d}
+.translated-title{margin:-8px 0 12px;color:#3e4c59;font-size:15px}
+.job-header .translated-title{margin:-4px 0 14px;font-size:18px}
+.advert-text{margin-bottom:28px}
+.advert-text h3{font-size:16px;margin:20px 0 8px}
+.advert-text p,.advert-text li{font-size:15px;line-height:1.6;color:#253441}
+.advert-text ul{margin:0;padding-left:20px}
+.translation-note{font-size:13px!important;color:#52606d!important;margin:0 0 12px;padding:8px 12px;background:#f4f6f8;border-radius:7px}
+@media(max-width:760px){.language-switch{margin-left:0}}

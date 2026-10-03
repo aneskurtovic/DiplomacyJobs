@@ -68,6 +68,20 @@ def close_jobs(modeladmin, request, queryset):
     log_bulk(request, closed, "Zatvoreno skupnom akcijom.")
 
 
+@admin.action(description="Ukloni prijevod (ponovo ga izvozi export_translations)")
+def retranslate_jobs(modeladmin, request, queryset):
+    pks = list(queryset.values_list("pk", flat=True))
+    Job.objects.filter(pk__in=pks).update(translations={})
+    log_bulk(request, pks, "Prijevod uklonjen; bit će ponovo preveden.")
+
+
+@admin.action(description="Ne prikazuj i ne prevodi automatski prijevod")
+def disable_translation(modeladmin, request, queryset):
+    pks = list(queryset.values_list("pk", flat=True))
+    Job.objects.filter(pk__in=pks).update(translations={"disabled": True})
+    log_bulk(request, pks, "Automatski prijevod isključen.")
+
+
 @admin.action(description="Obnovi provjeru oglasa bez roka")
 def renew_jobs(modeladmin, request, queryset):
     renewed = list(queryset.filter(deadline__isnull=True).values_list("pk", flat=True))
@@ -92,7 +106,7 @@ class JobForm(forms.ModelForm):
 
     class Meta:
         model = Job
-        exclude = ("requirements",)
+        exclude = ("requirements", "translations")
 
 
 class ReportInline(admin.TabularInline):
@@ -124,8 +138,23 @@ class JobAdmin(admin.ModelAdmin):
     list_display = ("title", "organization", "city", "deadline", "source_published_at", "status", "review_reason", "open_reports", "official_link", "last_checked_at")
     list_filter = ("status", DeadlineFilter, OpenReportFilter, "closed_reason", "opportunity_type", "education_level", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
-    actions = (publish_jobs, close_jobs, renew_jobs)
-    readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "extracted_requirements", "missing_scans")
+    actions = (publish_jobs, close_jobs, renew_jobs, retranslate_jobs, disable_translation)
+    readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "extracted_requirements", "machine_translation", "missing_scans")
+
+    @admin.display(description="Automatski prijevod")
+    def machine_translation(self, obj):
+        """The versions imported with import_translations and shown on the public page; clear or disable them with the list actions."""
+        found = obj.translations or {}
+        if found.get("disabled"):
+            return "Isključen za ovaj oglas."
+        if not found:
+            return "Još nije preveden."
+        stale = " (zastario: tekst izvora se promijenio, čeka novi prijevod)" if found.get("content_hash") != obj.content_hash else ""
+        parts = [format_html("<p>Izvorni jezik: {} · prevodilac: {} · {}{}</p>", found.get("source_language", "?"), found.get("translator", "?"), found.get("translated_at", "")[:16], stale)]
+        for code in ("bs", "en"):
+            version = found.get(code) or {}
+            parts.append(format_html("<p><strong>{}: {}</strong><br>{}</p>", code.upper(), version.get("title", ""), version.get("summary", "")))
+        return format_html_join("", "{}", ((part,) for part in parts))
     inlines = (ReportInline,)
 
     @admin.display(description="Prijave", ordering="open_report_count")
