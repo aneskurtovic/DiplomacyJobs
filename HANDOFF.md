@@ -86,6 +86,15 @@ Each site was retried with the Windows trust store, certifi and Chrome TLS imper
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
 2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
 3. Remaining blocked sites (BACKLOG P0) stay blocked by policy; recheck them with the 90-day audit renewals.
+4. **Design Phase 2** (after owner review), from [the proposal](docs/design/design-system.html), Rollout section: filter bar with removable chips, job card v2 with a shared deadline tag, mobile sticky apply bar (with `scroll-padding-bottom`), trust strip, self-hosted Public Sans. The Phase 1 commits (`cdf071e`) show how tokens and templates fit together. Changing interface copy needs `makemessages`/`compilemessages` (see README).
+
+## Design system files
+
+- `docs/design/design-system.html`: the full proposal (audit, principles, tokens, components, screens, rollout). Open it locally in a browser; it reads `board/static/board/tokens.css`.
+- `board/static/board/tokens.css`: the live tokens; `site.css` uses only its alias tokens.
+- `docs/design/canvas/project/`: source of the 9-board Design canvas at https://claude.ai/artifact/2sbsjQcyQhKx6VimewJzoN (private to the owner): `canvas.json` (index and layout) plus Overview (`Main`), Audit, Foundations, Components, Rollout, JobList, JobListMobile, JobPageMobile and Sources `.dc.html` boards. To change the canvas, edit these files and republish them to that URL, then commit.
+- `docs/design/before/`: screenshots of the site before Phase 1.
+- The proposal applied skills from the Designer Skills pack. To use them as skills in a local Claude Code session, run `/plugin marketplace add Owl-Listener/designer-skills`, then install design-systems, ui-design, visual-critique, prototyping-testing, interaction-design and ux-strategy from `/plugin`.
 
 ## Working notes
 
