@@ -20,5 +20,7 @@ urlpatterns += i18n_patterns(
     path("jobs/<int:pk>/<slug:slug>/", views.job_detail, name="job"),
     path("report/", views.report, name="report"),
     path("sources/", views.sources, name="sources"),
+    path("sources/<int:pk>/", views.organization, name="organization_short"),
+    path("sources/<int:pk>/<slug:slug>/", views.organization, name="organization"),
     prefix_default_language=False,
 )

@@ -13,7 +13,7 @@
 <nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'jobs' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% translate "Svi oglasi" %}</a></nav>
 <article class="job-page">
   <header class="job-header">
-    <p class="job-employer"><span>{{ job.employer_name }}</span>{% if job.is_aggregated %} <span class="via">· {% blocktranslate with portal=job.via %}putem {{ portal }}{% endblocktranslate %}</span>{% endif %}{% if current and job.is_new %} <span class="badge new">{% translate "Novo" %}</span>{% endif %}</p>
+    <p class="job-employer">{% if job.employer_org %}<a class="employer-link" href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_name }}</a>{% else %}<span>{{ job.employer_name }}</span>{% endif %}{% if job.is_aggregated %} <span class="via">· {% blocktranslate with portal=job.via %}putem {{ portal }}{% endblocktranslate %}</span>{% endif %}{% if current and job.is_new %} <span class="badge new">{% translate "Novo" %}</span>{% endif %}</p>
     <h1>{{ job.title }}</h1>
     {% if job.translated_title %}<p class="translated-title" lang="{{ LANGUAGE_CODE }}"><span class="visually-hidden">{% translate "Prijevod naslova:" %} </span>{{ job.translated_title }}</p>{% endif %}
     <dl class="key-facts">
@@ -52,7 +52,7 @@
         <div><dt>{% translate "Lokacija" %}</dt><dd>{% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}</dd></div>
         <div><dt>{% translate "Rok prijave" %}</dt><dd>{% deadline job "summary" %}</dd></div>
         {% if job.source_published_at %}<div><dt>{% translate "Objavljeno" %}</dt><dd><time datetime="{{ job.source_published_at|date:'Y-m-d' }}">{{ job.source_published_at|date:'d.m.Y.' }}</time></dd></div>{% endif %}
-        <div><dt>{% translate "Poslodavac" %}</dt><dd>{{ job.employer_name }}</dd></div>
+        <div><dt>{% translate "Poslodavac" %}</dt><dd>{% if job.employer_org %}<a href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_name }}</a>{% else %}{{ job.employer_name }}{% endif %}</dd></div>
         <div><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
         <div><dt>{% translate "Provjereno" %}</dt><dd>{% if job.last_checked_at %}{{ job.last_checked_at|date:'d.m.Y.' }}{% else %}{% translate "Nije dostupno" %}{% endif %}</dd></div>
       </dl>
@@ -60,6 +60,15 @@
       {% if job.is_aggregated %}<p class="aside-note">{% blocktranslate with portal=job.via %}Oglas smo pronašli putem portala {{ portal }}.{% endblocktranslate %}</p>{% endif %}
     </aside>
   </div>
+  {% if employer_jobs %}<section class="related-jobs" aria-labelledby="isti-poslodavac">
+    <div class="related-heading"><h2 id="isti-poslodavac">{% translate "Drugi oglasi istog poslodavca" %}</h2>{% if job.employer_org %}<a href="{{ job.employer_org.get_absolute_url }}">{% if employer_jobs_total > employer_jobs|length %}{% blocktranslate with total=employer_jobs_total %}Svi oglasi poslodavca ({{ total }}){% endblocktranslate %}{% else %}{% translate "O poslodavcu" %}{% endif %} →</a>{% endif %}</div>
+    {% for job in employer_jobs %}{% include 'board/_job_card.html' %}{% endfor %}
+  </section>{% endif %}
+  {% if similar_jobs %}<section class="related-jobs" aria-labelledby="slicni-oglasi">
+    <div class="related-heading"><h2 id="slicni-oglasi">{% translate "Slične pozicije" %}</h2></div>
+    <p class="related-note">{% translate "Kod drugih poslodavaca, prema riječima iz naziva, oblasti studija, vrsti angažmana i obrazovanju." %}</p>
+    {% for job in similar_jobs %}{% include 'board/_job_card.html' %}{% endfor %}
+  </section>{% endif %}
   {% if current %}<div class="apply-bar">{% deadline job "bar" %}<a class="apply" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}{% translate "Oglas / prijava" %}{% else %}{% translate "Službeni oglas" %}{% endif %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a></div>{% endif %}
   <details class="report-box" id="prijava"{% if form.errors %} open{% endif %}>
     <summary>{% translate "Prijavi problem s ovim oglasom" %}</summary>

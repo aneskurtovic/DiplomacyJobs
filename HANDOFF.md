@@ -5,7 +5,7 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 ## Current state (verified 2026-10-03, local SQLite)
 
 - **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
-- **Tests:** 232 discovered locally: 231 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Tests:** 242 discovered locally: 241 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 59 sources, **52 enabled**.
 - **Coverage on `/sources/`** (87 rows): **52 complete** (47 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 42 empty), **0 partial**, **3 unavailable** (Romania, UK, UNICEF), **33 no local recruitment list**, 0 awaiting integration, 0 unchecked.
 - **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 9 closed. Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
@@ -116,6 +116,15 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - **UNICEF: still blocked.** After a cool-down the listing answered under impersonation, but the second detail page, 5 s later, was challenged (HTTP 202), then the listing too. `adapter_config.request_delay` (a pause before each detail page) was added and stays in the registry config; retry from the server IP.
 - **UK:** unchanged (FCDO "Quick Check").
 - **Kuwait: no local recruitment list.** The owner checked by hand: the embassy in BiH has no website and the Kuwaiti MFA publishes no vacancies. mofa.gov.kw still sends a Cloudflare challenge to automated clients.
+
+## Employer pages and related jobs (2026-10-03)
+
+- `/sources/<id>/<slug>/` (and `/en/…`; `/sources/<id>/` redirects) per organization: source status with the recruitment audit note and evidence link, current jobs, then past jobs (20 per page, plain text because closed jobs answer 410). Linked from `/sources/`, the employer line of job cards and the job page.
+- A job belongs to its registry employer, also when it came through an aggregator (`related.owner`); an unknown employer's job stays on the aggregator's page.
+- Past jobs need `Job.published_at` (migration 0035, set by `Job.save` and the bulk publish action). The migration backfills published jobs, and closed jobs closed by the source with no review reason. A job closed by a reviewer (`manual`) or never published is not listed. A past aggregator copy of an own job is left out.
+- A page is indexed and in the sitemap only when it lists a current or past job (`views.public_organizations`); others get `noindex`.
+- Job page: "Drugi oglasi istog poslodavca" (up to 3, by employer key) and "Slične pozicije" (up to 3, other employers, `board/related.py`). Both sections are left out when empty. Similarity is rule-based: shared title stems (6 letters, advertising noise removed) score 3, job-family words 1, shared fields of study 2 each (max 2), and the same type and education level 1 each. A shared work word is required and the threshold is 4. On the 23 current jobs only the three EU4People/IDC programme jobs get suggestions; fields alone matched unrelated posts and were dropped as a sufficient signal.
+- Checked in Chromium (dark theme) on the UNICEF page and job 19; no sideways scroll at the tested width. Phone widths were not re-measured (the resize tool failed).
 
 ## Next steps
 

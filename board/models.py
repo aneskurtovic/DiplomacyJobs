@@ -30,6 +30,13 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def slug(self):
+        return slugify(fold(self.name))[:80].strip("-") or "organizacija"
+
+    def get_absolute_url(self):
+        return reverse("organization", args=[self.pk, self.slug])
+
 
 class Source(models.Model):
     STATUS = [("discovered", "Otkriven"), ("verified", "Provjeren"), ("unsupported", "Čeka integraciju"), ("blocked", "Nedostupan"), ("none", "Izvor nije pronađen"), ("failing", "Greška")]
@@ -96,6 +103,8 @@ class Job(models.Model):
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
     missing_scans = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS, default="review")
+    # When the job first became public; the employer page lists past jobs only if they were once on the board.
+    published_at = models.DateTimeField(null=True, blank=True)
     closed_reason = models.CharField(max_length=20, choices=CLOSED_REASON, blank=True)
     content_hash = models.CharField(max_length=64, blank=True)
     raw_text = models.TextField(blank=True)
@@ -115,6 +124,13 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if self.status == "published" and not self.published_at:
+            self.published_at = timezone.now()
+            if kwargs.get("update_fields") is not None:
+                kwargs["update_fields"] = {*kwargs["update_fields"], "published_at"}
+        super().save(*args, **kwargs)
 
     @property
     def employer_name(self):

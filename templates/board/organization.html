@@ -1,0 +1,37 @@
+{% extends 'board/base.html' %}{% load board_extras i18n %}
+{% block title %}{{ organization.name }} · {% translate "Oglasi i izvor" %} · DiplomacyJobs{% endblock %}
+{% block description %}{{ organization.name }}: {% translate "aktuelni i raniji oglasi te status službenog izvora oglasa." %}{% endblock %}
+{% block og_description %}{{ organization.name }}: {% translate "aktuelni i raniji oglasi te status službenog izvora oglasa." %}{% endblock %}
+{% block og_title %}{{ organization.name }}{% endblock %}
+{% block robots %}{% if not indexed %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
+{% block content %}
+<nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'sources' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% translate "Izvori i pokrivenost" %}</a></nav>
+<header class="org-header">
+  <span class="monogram monogram-large{% if monogram|length >= 5 %} monogram-long{% endif %}" aria-hidden="true">{{ monogram }}</span>
+  <div>
+    <p class="eyebrow">{{ organization.get_kind_display|upper }}{% if organization.city %} · {{ organization.city|upper }}{% endif %}</p>
+    <h1>{{ organization.name }}</h1>
+    {% if organization.website %}<a class="org-website" href="{{ organization.website }}" target="_blank" rel="noopener noreferrer">{% translate "Službena stranica" %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>{% endif %}
+  </div>
+</header>
+
+<section class="org-coverage" aria-labelledby="izvor">
+  <h2 id="izvor">{% translate "Izvor oglasa" %}</h2>
+  <dl class="facts">
+    {% for row in rows %}<div><dt>{% include 'board/_status_pill.html' with status=row.status %}</dt><dd>{% if row.url %}<a class="source-domain" href="{{ row.url }}" target="_blank" rel="noopener noreferrer">{% if row.domain %}{{ row.domain }}{% else %}{% translate "Službena stranica" %}{% endif %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg></a>{% endif %}{% if row.source and row.source.last_success_at %}<small class="checked-at">{% translate "Oglasi provjereni:" %} {{ row.source.last_success_at|date:'d.m.Y. H:i' }}</small>{% endif %}</dd></div>{% endfor %}
+    {% if organization.recruitment_checked_at %}<div><dt>{% translate "Pronalazak izvora" %}</dt><dd><p class="org-audit">{{ organization.recruitment_notes }}</p>{% if organization.recruitment_evidence_url %}<a href="{{ organization.recruitment_evidence_url }}" target="_blank" rel="noopener noreferrer">{% translate "Dokaz provjere" %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg></a>{% endif %}<small class="checked-at">{% translate "Provjereno:" %} {{ organization.recruitment_checked_at|date:'d.m.Y.' }}</small>{% if not audit_current %}<small>{% translate "Provjeru pronalaska izvora treba obnoviti." %}</small>{% endif %}</dd></div>{% endif %}
+  </dl>
+</section>
+
+<section aria-labelledby="aktuelni">
+  <div class="results-heading"><h2 id="aktuelni">{% translate "Aktuelni oglasi" %} <span class="results-count">· {{ current_jobs|length }}</span></h2></div>
+  {% for job in current_jobs %}{% include 'board/_job_card.html' with page_organization=organization %}{% empty %}<p class="empty-line">{% translate "Trenutno nema otvorenih oglasa ove organizacije." %}</p>{% endfor %}
+</section>
+
+{% if past_page.paginator.count %}<section aria-labelledby="raniji">
+  <div class="results-heading"><h2 id="raniji">{% translate "Raniji oglasi" %} <span class="results-count">· {{ past_page.paginator.count }}</span></h2></div>
+  <p class="related-note">{% translate "Oglasi kojima je istekao rok ili su uklonjeni sa službene stranice. Prijave više nisu moguće." %}</p>
+  <ul class="past-jobs">{% for job in past_page %}<li><span class="past-title">{{ job.title }}</span><span class="past-meta">{% if job.employer_name != organization.name %}{{ job.employer_name }} · {% endif %}{{ job.get_opportunity_type_display }}{% if job.deadline %} · {% translate "Rok:" %} <time datetime="{{ job.deadline|date:'Y-m-d' }}">{{ job.deadline|date:'d.m.Y.' }}</time>{% endif %}</span></li>{% endfor %}</ul>
+  {% if past_page.has_other_pages %}<nav class="pagination" aria-label="{% translate 'Stranice' %}">{% if past_page.has_previous %}<a href="?page={{ past_page.previous_page_number }}#raniji">← {% translate "Prethodna" %}</a>{% endif %}<span>{% blocktranslate with number=past_page.number total=past_page.paginator.num_pages %}Stranica {{ number }} od {{ total }}{% endblocktranslate %}</span>{% if past_page.has_next %}<a href="?page={{ past_page.next_page_number }}#raniji">{% translate "Sljedeća" %} →</a>{% endif %}</nav>{% endif %}
+</section>{% endif %}
+{% endblock %}

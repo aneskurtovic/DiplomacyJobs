@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce, Now
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from . import requirements
@@ -50,7 +51,7 @@ def publish_jobs(modeladmin, request, queryset):
     # A job whose scan raised a review reason is published one at a time from its own page, never in bulk.
     flagged = [(pk, title, evidence["review_reason"]) for pk, title, evidence in publishable.values_list("pk", "title", "field_evidence") if (evidence or {}).get("review_reason")]
     published = list(publishable.exclude(pk__in=[pk for pk, _, _ in flagged]).values_list("pk", flat=True))
-    Job.objects.filter(pk__in=published).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
+    Job.objects.filter(pk__in=published).update(status="published", closed_reason="", last_reviewed_at=timezone.now(), published_at=Coalesce("published_at", Now()))
     log_bulk(request, published, "Objavljeno skupnom akcijom.")
     if flagged:
         names = "; ".join(f"{title} ({reason})" for _, title, reason in flagged[:5]) + (" …" if len(flagged) > 5 else "")

@@ -15,10 +15,10 @@ from django.urls import reverse, translate_url
 from django.utils import timezone, translation
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
-from . import requirements, share_image
+from . import related, requirements, share_image
 from .models import Job, Organization, Report, Source
 from .text import fold, monogram, plural
-from .dedup import employer_key, unique_visible_ids
+from .dedup import employer_key, same_vacancy, unique_visible_ids
 
 STALE_AFTER = timedelta(hours=48)
 DISCOVERY_RECHECK_AFTER = timedelta(days=90)
@@ -97,11 +97,9 @@ def jobs(request):
     feed_query = urlencode({key: filters[name] for key, name in FILTER_PARAMS if filters[name]})
     # Page links keep only the active filters and sort.
     page_query = "&".join(part for part in (feed_query, urlencode({"sort": sort}) if sort else "") if part)
-    known = {employer_key(org.name): org for org in Organization.objects.all()}
+    known = registry()
     for job in page:
-        # A syndicated job takes the monogram of its employer when the registry knows it, not the aggregator's.
-        organization = known.get(employer_key(job.employer_name)) or (None if job.is_aggregated else job.source.organization)
-        job.monogram = monogram(job.employer_name, organization.short_name if organization else "")
+        card(job, known)
     employers = {}
     for job in visible.select_related("source__organization").defer("raw_text"):
         key = employer_key(job.employer_name)
@@ -166,6 +164,18 @@ def annotate(job, today):
     job.translated_title = found["title"] if found and found["is_translation"] and fold(found["title"]) != fold(job.title) else ""
 
 
+def registry():
+    """Registry organizations by employer key, to attribute a job (also an aggregator copy) to its employer."""
+    return {employer_key(org.name): org for org in Organization.objects.all()}
+
+
+def card(job, known):
+    """The employer link and monogram of a job card. A syndicated job takes its employer's monogram when the registry knows it, not the aggregator's."""
+    job.employer_org = related.employer_organization(job, known)
+    organization = job.employer_org or (None if job.is_aggregated else job.source.organization)
+    job.monogram = monogram(job.employer_name, organization.short_name if organization else "")
+
+
 def fields_in(query):
     """Fields of study that at least one visible job asks for, in taxonomy order."""
     present = {slug for fields in query.values_list("fields_of_study", flat=True) for slug in (fields or [])}
@@ -186,7 +196,16 @@ def job_detail(request, pk, slug=None):
     current = visible_jobs().filter(pk=job.pk).exists()
     if not current:
         job.days_left = None  # no countdown on a job that is no longer open
-    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job)})
+    known = registry()
+    job.employer_org = related.employer_organization(job, known)
+    candidates = list(visible_jobs().select_related("source__organization").defer("raw_text"))
+    # Both sections are left out of the page when they have nothing to show.
+    employer_jobs = related.same_employer(job, candidates, limit=None)
+    similar_jobs = related.similar(job, candidates)
+    for other in employer_jobs[:related.RELATED_LIMIT] + similar_jobs:
+        annotate(other, timezone.localdate())
+        card(other, known)
+    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job), "employer_jobs": employer_jobs[:related.RELATED_LIMIT], "employer_jobs_total": len(employer_jobs), "similar_jobs": similar_jobs})
 
 
 def job_share_image(request, pk):
@@ -271,35 +290,14 @@ def report(request, pk=None):
 def sources(request):
     organizations = Organization.objects.prefetch_related("sources").order_by("name")
     today = timezone.localdate()
-    # Undated leads stay in the review queue until expire_jobs closes them as stale after 60 days.
-    cutoff = timezone.now() - timedelta(days=60)
     published = visible_jobs()
-    counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
-    review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
+    counts, review_counts = source_counts(published, today)
     rows = []
     totals = {"available": 0, "empty": 0, "review": 0, "partial": 0, "unavailable": 0, "pending": 0, "not_found": 0, "integration": 0}
     for organization in organizations:
-        organization_sources = list(organization.sources.all())
-        active_urls = {source.url for source in organization_sources if source.enabled and source.adapter != "none"}
-        audit_current = bool(organization.recruitment_checked_at and today - DISCOVERY_RECHECK_AFTER <= organization.recruitment_checked_at <= today and organization.recruitment_evidence_url and organization.recruitment_notes)
-        for source in organization_sources or [None]:
-            # Keep history, but do not count an explicitly replaced disabled endpoint twice.
-            if source and not source.enabled and (source.adapter_config or {}).get("superseded_by") in active_urls:
-                continue
-            last_check_failed = bool(source and source.last_attempt_at and (not source.last_success_at or source.last_attempt_at > source.last_success_at))
-            # If the daily run stops, old counts must not keep reading as a healthy source.
-            stale = bool(source and source.enabled and source.last_success_at and source.last_success_at < timezone.now() - STALE_AFTER)
-            if source and (source.status in ("blocked", "failing") or last_check_failed or stale):
-                status = "unavailable"
-            elif source and source.enabled and source.status == "verified" and source.last_success_at:
-                status = "partial" if (source.adapter_config or {}).get("partial_listing") else "available" if counts.get(source.pk, 0) else "review" if review_counts.get(source.pk, 0) else "empty"
-            elif audit_current and organization.recruitment_status in ("not_found", "integration", "blocked"):
-                status = "unavailable" if organization.recruitment_status == "blocked" else organization.recruitment_status
-            else:
-                status = "pending"
-            totals[status] += 1
-            url = source.url if source else organization.website or organization.recruitment_evidence_url
-            rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else "", "audit_current": audit_current})
+        for row in coverage_rows(organization, counts, review_counts, today):
+            totals[row["status"]] += 1
+            rows.append(row)
     # ?status= takes one of the four cards (a bucket) or one exact state, which the "show all" links use.
     selected = request.GET.get("status", "all")
     if selected not in (*totals, *COVERAGE_BUCKETS, "all"):
@@ -324,6 +322,84 @@ def sources(request):
     latest = Source.objects.filter(last_success_at__isnull=False).order_by("-last_success_at").values_list("last_success_at", flat=True).first()
     heading = next((bucket["title"] for bucket in buckets if bucket["key"] == selected), None) or dict(source_groups()).get(selected) or gettext("Izvori u registru")
     return render(request, "board/sources.html", {"groups": groups, "buckets": buckets, "heading": heading, "total": len(rows), "organizations_total": organizations.count(), "shown": len(shown_rows), "totals": totals, "selected": selected, "search": search, "open_jobs": published.count(), "latest": latest})
+
+
+def organization(request, pk, slug=None):
+    """One organization: what we know about its recruitment source, its current jobs, then its past public jobs."""
+    organization = get_object_or_404(Organization.objects.prefetch_related("sources"), pk=pk)
+    if slug != organization.slug:
+        query = request.GET.urlencode()
+        return redirect(organization.get_absolute_url() + (f"?{query}" if query else ""), permanent=True)
+    today = timezone.localdate()
+    known = registry()
+    visible = visible_jobs()
+    current = [job for job in visible.select_related("source__organization").defer("raw_text").order_by("-first_seen_at", "-pk") if related.owner(job, known).pk == organization.pk]
+    for job in current:
+        annotate(job, today)
+        card(job, known)
+    past = past_jobs(organization, known, visible)
+    try:
+        past_page = Paginator(past, 20).page(request.GET.get("page") or 1)
+    except InvalidPage:
+        raise Http404("Nema te stranice")
+    counts, review_counts = source_counts(visible, today)
+    rows = coverage_rows(organization, counts, review_counts, today)
+    return render(request, "board/organization.html", {"organization": organization, "rows": rows, "current_jobs": current, "past_page": past_page, "indexed": bool(current or past), "monogram": monogram(organization.name, organization.short_name), "audit_current": rows[0]["audit_current"] if rows else False})
+
+
+def past_job_query(visible):
+    """Jobs that were on the board and have since expired or left their source. A reviewer's closure (duplicates, errors) is not history, and a job never published is not shown."""
+    past = (Q(status="closed") & ~Q(closed_reason="manual")) | Q(status="published", deadline__lt=timezone.localdate())
+    return Job.objects.filter(published_at__isnull=False).exclude(pk__in=visible.values("pk")).filter(past).select_related("source__organization").defer("raw_text")
+
+
+def past_jobs(organization, known, visible):
+    """The organization's past jobs, newest first; an aggregator copy of a vacancy its own source also had is the same job and is left out."""
+    rows = [job for job in past_job_query(visible).order_by("-first_seen_at", "-pk") if related.owner(job, known).pk == organization.pk]
+    direct = [job for job in rows if not job.is_aggregated]
+    return [job for job in rows if not (job.is_aggregated and any(same_vacancy(job, other) for other in direct))]
+
+
+def public_organizations():
+    """Organizations whose page lists at least one current or past job; only those pages are indexed and in the sitemap."""
+    known = registry()
+    visible = visible_jobs()
+    jobs = [*visible.select_related("source__organization").defer("raw_text"), *past_job_query(visible)]
+    return sorted({related.owner(job, known) for job in jobs}, key=lambda item: item.pk)
+
+
+def source_counts(published, today):
+    """Open jobs per source, and review candidates that still count (undated leads stay in review until expire_jobs closes them as stale after 60 days)."""
+    cutoff = timezone.now() - timedelta(days=60)
+    counts = dict(published.values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
+    review_counts = dict(Job.objects.filter(status="review", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True, first_seen_at__gte=cutoff)).values("source_id").annotate(total=Count("id")).values_list("source_id", "total"))
+    return counts, review_counts
+
+
+def coverage_rows(organization, counts, review_counts, today):
+    """One coverage row per source of the organization (one row without a source), with its state on /sources/."""
+    rows = []
+    organization_sources = list(organization.sources.all())
+    active_urls = {source.url for source in organization_sources if source.enabled and source.adapter != "none"}
+    audit_current = bool(organization.recruitment_checked_at and today - DISCOVERY_RECHECK_AFTER <= organization.recruitment_checked_at <= today and organization.recruitment_evidence_url and organization.recruitment_notes)
+    for source in organization_sources or [None]:
+        # Keep history, but do not count an explicitly replaced disabled endpoint twice.
+        if source and not source.enabled and (source.adapter_config or {}).get("superseded_by") in active_urls:
+            continue
+        last_check_failed = bool(source and source.last_attempt_at and (not source.last_success_at or source.last_attempt_at > source.last_success_at))
+        # If the daily run stops, old counts must not keep reading as a healthy source.
+        stale = bool(source and source.enabled and source.last_success_at and source.last_success_at < timezone.now() - STALE_AFTER)
+        if source and (source.status in ("blocked", "failing") or last_check_failed or stale):
+            status = "unavailable"
+        elif source and source.enabled and source.status == "verified" and source.last_success_at:
+            status = "partial" if (source.adapter_config or {}).get("partial_listing") else "available" if counts.get(source.pk, 0) else "review" if review_counts.get(source.pk, 0) else "empty"
+        elif audit_current and organization.recruitment_status in ("not_found", "integration", "blocked"):
+            status = "unavailable" if organization.recruitment_status == "blocked" else organization.recruitment_status
+        else:
+            status = "pending"
+        url = source.url if source else organization.website or organization.recruitment_evidence_url
+        rows.append({"organization": organization, "source": source, "status": status, "count": counts.get(source.pk, 0) if source else 0, "review_count": review_counts.get(source.pk, 0) if source else 0, "url": url, "domain": urlsplit(url).hostname if url else "", "audit_current": audit_current})
+    return rows
 
 
 # The four cards on /sources/ group the eight row states; each card is also a filter.
@@ -379,7 +455,7 @@ def languages(request):
     return {"language_links": [{"code": code, "name": name, "url": translate_url(path, code), "current": code == current} for code, name in settings.LANGUAGES]}
 
 
-LANGUAGE_PAGES = {"jobs", "job", "job_short", "job_report", "report", "sources"}
+LANGUAGE_PAGES = {"jobs", "job", "job_short", "job_report", "report", "sources", "organization", "organization_short"}
 
 
 def translation_for(job):
@@ -396,9 +472,10 @@ def robots(request):
 def sitemap(request):
     paths = []
     jobs = list(visible_jobs().only("pk", "title").order_by("pk"))
+    organizations = public_organizations()
     for code, _name in settings.LANGUAGES:
         with translation.override(code):
-            paths += [reverse("jobs"), reverse("sources"), *(job.get_absolute_url() for job in jobs)]
+            paths += [reverse("jobs"), reverse("sources"), *(job.get_absolute_url() for job in jobs), *(organization.get_absolute_url() for organization in organizations)]
     urls = "".join(f"<url><loc>{escape(absolute(request, path))}</loc><changefreq>daily</changefreq></url>" for path in paths)
     return HttpResponse(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', content_type="application/xml")
 

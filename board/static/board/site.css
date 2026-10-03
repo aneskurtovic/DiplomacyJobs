@@ -267,3 +267,33 @@ h1{font-size:2em;margin-block:.67em}
 .coverage-bar .bar-untracked,.coverage-legend .bar-untracked{background:GrayText}
 .apply,.search-bar button{border:2px solid ButtonText}
 }
+
+/* Employer pages and related jobs on the job page. The employer link sits above the card's stretched title link. */
+.job-employer .employer-link{position:relative;z-index:1;color:inherit;text-decoration:underline;text-decoration-color:var(--color-border-strong);text-underline-offset:3px}
+.job-employer .employer-link:hover{color:var(--color-brand);text-decoration-color:currentColor}
+.org-link{color:inherit;text-decoration:none}
+.org-link:hover{color:var(--color-brand);text-decoration:underline}
+.org-header{display:flex;align-items:flex-start;gap:20px;padding:24px 0 8px;max-width:860px}
+.org-header .eyebrow{margin:4px 0 0}
+.org-header h1{font-size:clamp(28px,3.4vw,40px);line-height:1.2;letter-spacing:-.02em;margin:6px 0 10px}
+.monogram-large{width:64px;height:64px;font-size:17px}
+.monogram-large.monogram-long{font-size:12px}
+.org-website{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px}
+.org-coverage{margin-top:28px;max-width:860px}
+.org-coverage h2{font-size:20px;margin:0 0 12px}
+.org-coverage dd{display:grid;gap:6px;justify-items:start}
+.org-coverage .source-domain{margin:0;font-size:13px}
+.org-coverage small{font-size:12px;color:var(--color-text-muted)}
+.org-audit{margin:0;font-size:14px;line-height:1.55;color:var(--color-text-body)}
+.empty-line{margin:0;padding:20px 24px;background:var(--color-bg-subtle);border-radius:var(--radius-md);color:var(--color-text-secondary)}
+.related-jobs{margin-top:48px}
+.related-heading{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 16px;margin-bottom:12px}
+.related-heading h2{margin:0;font-size:22px}
+.related-heading a{font-weight:600;font-size:14px}
+.related-note{margin:-4px 0 16px;font-size:14px;color:var(--color-text-muted)}
+.past-jobs{list-style:none;margin:0;padding:0;border:1px solid var(--color-border);border-radius:var(--radius-md)}
+.past-jobs li{display:grid;gap:4px;padding:14px 18px;border-bottom:1px solid var(--color-border)}
+.past-jobs li:last-child{border-bottom:0}
+.past-title{font-weight:600;color:var(--color-text-secondary)}
+.past-meta{font-size:13px;color:var(--color-text-muted)}
+@media(max-width:760px){.org-header .monogram{display:none}}

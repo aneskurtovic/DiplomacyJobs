@@ -1,11 +1,11 @@
 # English interface of DiplomacyJobs. Bosnian is the source language.
 # Update with: manage.py makemessages -l en, then compilemessages (needs GNU gettext).
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 17:33+0200\n"
+"POT-Creation-Date: 2026-10-03 21:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -446,6 +446,31 @@ msgstr "Not tracked"
 msgid "Izvori koje ne pratimo"
 msgstr "Sources we do not track"
 
+#, python-format
+msgid "putem %(portal)s"
+msgstr "via %(portal)s"
+
+msgid "Novo"
+msgstr "New"
+
+msgid "Prijevod naslova:"
+msgstr "Title translation:"
+
+msgid "Lokacija:"
+msgstr "Location:"
+
+msgid "Uslovi iz oglasa"
+msgstr "Requirements from the advert"
+
+msgid "Oglas / prijava"
+msgstr "Advert / apply"
+
+msgid "Službeni oglas"
+msgstr "Official advert"
+
+msgid "(otvara se u novom prozoru)"
+msgstr "(opens in a new window)"
+
 msgid "Ne popunjavajte ovo polje"
 msgstr "Leave this field empty"
 
@@ -458,6 +483,21 @@ msgstr ""
 
 msgid "Pošalji prijavu"
 msgstr "Send report"
+
+msgid "Dostupan"
+msgstr "Available"
+
+msgid "Bez potvrđenih oglasa"
+msgstr "No confirmed jobs"
+
+msgid "Oglasi na provjeri"
+msgstr "Jobs under review"
+
+msgid "Djelimično praćen"
+msgstr "Partly followed"
+
+msgid "Nedostupan"
+msgstr "Unavailable"
 
 msgid "Poslovi u diplomatiji i međunarodnim organizacijama u BiH"
 msgstr "Jobs in diplomacy and international organisations in BiH"
@@ -509,16 +549,6 @@ msgstr "Breadcrumb"
 msgid "Svi oglasi"
 msgstr "All jobs"
 
-#, python-format
-msgid "putem %(portal)s"
-msgstr "via %(portal)s"
-
-msgid "Novo"
-msgstr "New"
-
-msgid "Prijevod naslova:"
-msgstr "Title translation:"
-
 msgid "Lokacija"
 msgstr "Location"
 
@@ -527,9 +557,6 @@ msgstr "Type"
 
 msgid "Pozicija"
 msgstr "Position"
-
-msgid "Uslovi iz oglasa"
-msgstr "Requirements from the advert"
 
 msgid ""
 "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas "
@@ -612,21 +639,30 @@ msgstr "Checked"
 msgid "Nije dostupno"
 msgstr "Not available"
 
-msgid "Oglas / prijava"
-msgstr "Advert / apply"
-
 msgid "Službeni oglas i prijava"
 msgstr "Official advert and application"
-
-msgid "(otvara se u novom prozoru)"
-msgstr "(opens in a new window)"
 
 #, python-format
 msgid "Oglas smo pronašli putem portala %(portal)s."
 msgstr "We found this advert via %(portal)s."
 
-msgid "Službeni oglas"
-msgstr "Official advert"
+msgid "Drugi oglasi istog poslodavca"
+msgstr "More jobs from this employer"
+
+#, python-format
+msgid "Svi oglasi poslodavca (%(total)s)"
+msgstr "All jobs from this employer (%(total)s)"
+
+msgid "O poslodavcu"
+msgstr "About the employer"
+
+msgid "Slične pozicije"
+msgstr "Similar positions"
+
+msgid ""
+"Kod drugih poslodavaca, prema riječima iz naziva, oblasti studija, vrsti "
+"angažmana i obrazovanju."
+msgstr "At other employers, matched on title words, field of study, type of engagement and education."
 
 msgid "Prijavi problem s ovim oglasom"
 msgstr "Report a problem with this job"
@@ -748,9 +784,6 @@ msgstr "Follow these results"
 msgid "Prati nove oglase"
 msgstr "Follow new jobs"
 
-msgid "Lokacija:"
-msgstr "Location:"
-
 msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
 msgstr "No jobs currently match your search."
 
@@ -775,6 +808,47 @@ msgstr "Page %(number)s of %(total)s"
 msgid "Sljedeća"
 msgstr "Next"
 
+msgid "Oglasi i izvor"
+msgstr "Jobs and source"
+
+msgid "aktuelni i raniji oglasi te status službenog izvora oglasa."
+msgstr "current and past jobs, and the status of the official job source."
+
+msgid "Izvori i pokrivenost"
+msgstr "Sources and coverage"
+
+msgid "Službena stranica"
+msgstr "Official website"
+
+msgid "Izvor oglasa"
+msgstr "Job source"
+
+msgid "Oglasi provjereni:"
+msgstr "Jobs checked:"
+
+msgid "Pronalazak izvora"
+msgstr "Source discovery"
+
+msgid "Dokaz provjere"
+msgstr "Evidence"
+
+msgid "Provjereno:"
+msgstr "Checked:"
+
+msgid "Provjeru pronalaska izvora treba obnoviti."
+msgstr "The source discovery check needs renewing."
+
+msgid "Trenutno nema otvorenih oglasa ove organizacije."
+msgstr "This organization has no open jobs at the moment."
+
+msgid "Raniji oglasi"
+msgstr "Past jobs"
+
+msgid ""
+"Oglasi kojima je istekao rok ili su uklonjeni sa službene stranice. Prijave "
+"više nisu moguće."
+msgstr "Jobs whose deadline has passed or that were removed from the official website. Applications are no longer possible."
+
 msgid "Nazad na oglas"
 msgstr "Back to the job"
 
@@ -787,9 +861,6 @@ msgid ""
 msgstr ""
 "Noticed an error on the site, a missing job or an employer we do not follow? "
 "Let us know."
-
-msgid "Izvori i pokrivenost"
-msgstr "Sources and coverage"
 
 msgid ""
 "Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put "
@@ -862,32 +933,8 @@ msgstr "Open jobs"
 msgid "Provjere"
 msgstr "Checks"
 
-msgid "Službena stranica"
-msgstr "Official website"
-
 msgid "Šta je provjereno"
 msgstr "What was checked"
-
-msgid "Dokaz provjere"
-msgstr "Evidence"
-
-msgid "Provjeru pronalaska izvora treba obnoviti."
-msgstr "The source discovery check needs renewing."
-
-msgid "Dostupan"
-msgstr "Available"
-
-msgid "Bez potvrđenih oglasa"
-msgstr "No confirmed jobs"
-
-msgid "Oglasi na provjeri"
-msgstr "Jobs under review"
-
-msgid "Djelimično praćen"
-msgstr "Partly followed"
-
-msgid "Nedostupan"
-msgstr "Unavailable"
 
 msgid "Broj nije potvrđen"
 msgstr "Number not confirmed"
@@ -982,9 +1029,6 @@ msgstr ""
 #, python-format
 #~ msgid "Ističe za %(days)s dana"
 #~ msgstr "Closes in %(days)s days"
-
-#~ msgid "Provjereno:"
-#~ msgstr "Checked:"
 
 #~ msgid "Detalji i uslovi"
 #~ msgstr "Details and requirements"
