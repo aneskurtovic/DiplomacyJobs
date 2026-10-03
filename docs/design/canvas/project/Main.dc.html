@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DiplomacyJobs design system overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#0f4c81}a:hover{color:#0b3a63}
+</style>
+</helmet>
+<div style="font-family: 'Public Sans', system-ui, sans-serif; color: #253441; background: #ffffff; min-height: 100%">
+<div style="max-width: 1280px; margin: 0 auto; padding: 72px 2.5rem 80px; display: flex; flex-direction: column; gap: 56px">
+
+  <header style="display: flex; flex-direction: column; gap: 16px; max-width: 900px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f4c81"></rect><g fill="none" stroke="#ffffff" stroke-width="1.6"><circle cx="16" cy="16" r="8.5"></circle><path d="M7.5 16h17M16 7.5c-3.2 3.5-3.2 13.5 0 17M16 7.5c3.2 3.5 3.2 13.5 0 17"></path></g></svg>
+      <span style="font-weight: 700; font-size: 20px; color: #13202d; letter-spacing: -0.01em">DiplomacyJobs</span>
+    </div>
+    <p style="margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0f4c81">Design proposal · MVP · 3 Oct 2026</p>
+    <h1 style="margin: 0; font-size: 56px; line-height: 1.08; letter-spacing: -0.025em; color: #13202d">A calmer, deadline-first, evidence-led job board</h1>
+    <p style="margin: 0; font-size: 20px; line-height: 1.55; color: #3e4c59; max-width: 62ch">An audit of the public site, a token-based design system that keeps today's institutional blue, and redesigned job list, job page and sources screens. Phase 1 (the launch fixes) is already in the code.</p>
+  </header>
+
+  <section aria-label="Audit in numbers" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+    <div style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 6px">
+      <strong style="font-size: 40px; line-height: 1.1; color: #13202d; letter-spacing: -0.02em">123 → 0</strong>
+      <span style="font-size: 14px; color: #52606d">raw hex colours in site.css, now all design tokens</span>
+    </div>
+    <div style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 6px">
+      <strong style="font-size: 40px; line-height: 1.1; color: #13202d; letter-spacing: -0.02em">16 → 7</strong>
+      <span style="font-size: 14px; color: #52606d">font sizes in the proposed type scale</span>
+    </div>
+    <div style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 6px">
+      <strong style="font-size: 40px; line-height: 1.1; color: #13202d; letter-spacing: -0.02em">2.5 → 3.66</strong>
+      <span style="font-size: 14px; color: #52606d">input border contrast; 3:1 is the WCAG minimum</span>
+    </div>
+    <div style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 6px">
+      <strong style="font-size: 40px; line-height: 1.1; color: #13202d; letter-spacing: -0.02em">+35px → 0</strong>
+      <span style="font-size: 14px; color: #52606d">sideways overflow on phones, at 320–390px</span>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 24px">
+    <h2 style="margin: 0; font-size: 25px; color: #13202d">Design principles</h2>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+      <div style="border-top: 3px solid #0f4c81; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #0f4c81">01</span>
+        <h3 style="margin: 0; font-size: 20px; color: #13202d">Evidence beside every claim</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3e4c59">Each extracted fact can show the sentence it came from. Every count says when it was checked. Unknown stays "—", never 0.</p>
+      </div>
+      <div style="border-top: 3px solid #0f4c81; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #0f4c81">02</span>
+        <h3 style="margin: 0; font-size: 20px; color: #13202d">Deadline first</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3e4c59">"Can I still apply?" comes first. The deadline is the second-strongest element on a card, and the only one coloured for urgency.</p>
+      </div>
+      <div style="border-top: 3px solid #0f4c81; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #0f4c81">03</span>
+        <h3 style="margin: 0; font-size: 20px; color: #13202d">Calm on a phone</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3e4c59">The first screen shows results. Secondary filters sit behind one disclosure, and Apply stays within thumb reach.</p>
+      </div>
+      <div style="border-top: 3px solid #0f4c81; padding-top: 16px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #0f4c81">04</span>
+        <h3 style="margin: 0; font-size: 20px; color: #13202d">One meaning per colour</h3>
+        <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3e4c59">Blue is brand and links. Green means covered, red means ends today, amber ends soon, violet is in review and grey is not tracked. Colour always comes with a label.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <div style="background: #e7f2ec; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #1d6b45">Phase 1 · done</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #253441">Tokens adopted, two-row mobile header, focus ring, accessible input borders, violet review status, SVG icons.</p>
+    </div>
+    <div style="background: #f4f6f8; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #3e4c59">Phase 2 · launch week</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #253441">Filter bar with chips, job card v2 with a deadline component, mobile apply bar, trust strip, self-hosted fonts.</p>
+    </div>
+    <div style="background: #f4f6f8; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 8px">
+      <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #3e4c59">Phase 3 · after launch</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #253441">Grouped sources page, dark theme, employer monograms, share images, a five-person mobile usability check.</p>
+    </div>
+  </section>
+
+  <p style="margin: 0; font-size: 13px; color: #52606d">Method: Designer Skills pack (heuristic evaluation, visual critique, design tokens, colour system, type scale, component specs, search UX). Repository files: docs/design/design-system.html and board/static/board/tokens.css.</p>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

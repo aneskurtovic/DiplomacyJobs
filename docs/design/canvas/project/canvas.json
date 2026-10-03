@@ -1,0 +1,18 @@
+{"v":3,"createdOnFiles":{"v":1,"at":"2026-10-03T14:54:11Z"},"title":"DiplomacyJobs Design System","launch":{"view":"canvas"},"pages":[],
+"boards":{
+"Main.dc.html":{"x":0,"y":0,"w":1440,"h":1180,"title":"Overview","expand":"fill"},
+"Audit.dc.html":{"x":1520,"y":0,"w":1440,"h":2000,"title":"1 · Audit","expand":"fill"},
+"Foundations.dc.html":{"x":3040,"y":0,"w":1440,"h":2300,"title":"2 · Foundations","expand":"fill"},
+"Components.dc.html":{"x":4560,"y":0,"w":1440,"h":2700,"title":"3 · Components","expand":"fill"},
+"Rollout.dc.html":{"x":6080,"y":0,"w":1440,"h":1250,"title":"4 · Rollout","expand":"fill"},
+"JobList.dc.html":{"x":0,"y":3120,"w":1440,"h":1500,"title":"Job list · desktop","expand":"fill"},
+"JobListMobile.dc.html":{"x":1520,"y":3120,"w":390,"h":844,"title":"Job list · mobile"},
+"JobPageMobile.dc.html":{"x":1990,"y":3120,"w":390,"h":844,"title":"Job page · mobile"},
+"Sources.dc.html":{"x":2460,"y":3120,"w":1440,"h":1250,"title":"Sources · desktop","expand":"fill"}
+},
+"order":["Main.dc.html","Audit.dc.html","Foundations.dc.html","Components.dc.html","Rollout.dc.html","JobList.dc.html","JobListMobile.dc.html","JobPageMobile.dc.html","Sources.dc.html"],
+"notes":{
+"proposal":{"x":0,"y":-300,"text":"The proposal: audit, foundations, components, rollout","kind":"title1","maxW":7520},
+"screens":{"x":0,"y":2820,"text":"Proposed screens","kind":"title1","maxW":3900}
+},
+"designSystems":[]}
