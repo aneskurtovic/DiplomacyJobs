@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DiplomacyJobs Design System</title>
+<meta name="description" content="Design audit, design system and proposed screen changes for the DiplomacyJobs MVP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* ---------- Document chrome (uses the proposed tokens) ---------- */
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;font-family:var(--font-sans);font-size:var(--text-md);line-height:var(--leading-normal);color:var(--color-text-body);background:var(--color-bg);-webkit-font-smoothing:antialiased}
+a{color:var(--color-link)}a:hover{color:var(--color-link-hover)}
+:focus-visible{outline:none;box-shadow:var(--focus-ring);border-radius:var(--radius-sm)}
+h1,h2,h3,h4{color:var(--color-text);line-height:var(--leading-tight);letter-spacing:var(--tracking-tight);margin:0}
+.doc{max-width:1200px;margin:auto;padding:0 var(--gutter)}
+.doc-head{padding:var(--space-16) 0 var(--space-10);border-bottom:1px solid var(--color-border)}
+.kicker{font-size:var(--text-xs);font-weight:var(--weight-bold);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-brand);margin:0 0 var(--space-3)}
+.doc-head h1{font-size:clamp(var(--text-2xl),5vw,48px);max-width:18ch}
+.lede{font-size:var(--text-lg);line-height:var(--leading-normal);color:var(--color-text-secondary);max-width:60ch;margin:var(--space-4) 0 0}
+.doc-meta{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-6);margin-top:var(--space-6);font-size:var(--text-sm);color:var(--color-text-muted)}
+.toc{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--color-bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--color-border)}
+.toc ol{list-style:none;display:flex;gap:var(--space-1);margin:0 auto;padding:var(--space-2) var(--gutter);max-width:1200px;overflow-x:auto;scrollbar-width:none}
+.toc a{display:block;white-space:nowrap;padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);text-decoration:none;font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--color-text-secondary)}
+.toc a:hover{background:var(--color-bg-subtle);color:var(--color-text)}
+section.part{padding:var(--space-16) 0 var(--space-4);scroll-margin-top:56px}
+.part>h2{font-size:var(--text-xl);margin-bottom:var(--space-2)}
+.part>.intro{color:var(--color-text-secondary);max-width:70ch;margin:0 0 var(--space-8)}
+h3.sub{font-size:var(--text-lg);margin:var(--space-12) 0 var(--space-4)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-6)}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-6)}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.panel{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-6);background:var(--color-surface)}
+.panel h4{font-size:var(--text-md);margin-bottom:var(--space-2)}
+.panel p{margin:0;font-size:var(--text-sm);color:var(--color-text-secondary)}
+.note{font-size:var(--text-sm);color:var(--color-text-muted);margin:var(--space-3) 0 0}
+.stat-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin:var(--space-8) 0 0}
+.stat-row div{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-5)}
+.stat-row strong{display:block;font-size:var(--text-2xl);color:var(--color-text);letter-spacing:var(--tracking-tight);font-variant-numeric:tabular-nums}
+.stat-row span{font-size:var(--text-sm);color:var(--color-text-muted)}
+@media(max-width:760px){.stat-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+code{font-family:var(--font-mono);font-size:.86em;background:var(--color-bg-subtle);padding:1px 5px;border-radius:4px}
+
+/* Findings table */
+.findings{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
+.findings th{text-align:left;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--color-text-muted);padding:var(--space-3);border-bottom:1px solid var(--color-border-strong)}
+.findings td{padding:var(--space-4) var(--space-3);border-bottom:1px solid var(--color-border);vertical-align:top;color:var(--color-text-secondary)}
+.findings td:first-child{width:56px}
+.findings strong{color:var(--color-text);display:block;margin-bottom:2px}
+.findings .h{white-space:nowrap;color:var(--color-text-muted)}
+.sev{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;font-weight:var(--weight-bold);font-size:var(--text-sm)}
+.sev-4{background:var(--dj-red-700);color:#fff}.sev-3{background:var(--color-deadline-soon-bg);color:var(--color-deadline-soon-fg);box-shadow:inset 0 0 0 1px var(--dj-amber-200)}.sev-2{background:var(--color-bg-subtle);color:var(--color-text-secondary);box-shadow:inset 0 0 0 1px var(--color-border-strong)}
+@media(max-width:760px){.findings thead{display:none}.findings,.findings tbody,.findings tr,.findings td{display:block}.findings tr{padding:var(--space-3) 0;border-bottom:1px solid var(--color-border)}.findings td{border:0;padding:var(--space-1) 0}.findings td:first-child{width:auto}}
+
+.shots{display:grid;grid-template-columns:2fr 1fr 1fr;gap:var(--space-4);align-items:start}
+.shots figure{margin:0}
+.shots img{width:100%;height:auto;border:1px solid var(--color-border);border-radius:var(--radius-md);display:block;background:#fff}
+.shots figcaption{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)}
+@media(max-width:900px){.shots{grid-template-columns:1fr 1fr}.shots figure:first-child{grid-column:1/-1}}
+
+/* Principles */
+.principle{border-top:3px solid var(--color-brand);padding-top:var(--space-4)}
+.principle .num{font-size:var(--text-xs);font-weight:var(--weight-bold);color:var(--color-brand);letter-spacing:var(--tracking-wide)}
+.principle h4{font-size:var(--text-lg);margin:var(--space-1) 0 var(--space-2)}
+.principle p{margin:0;color:var(--color-text-secondary);font-size:var(--text-sm)}
+
+/* Swatches */
+.ramp{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--space-2);margin-bottom:var(--space-6)}
+.sw{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--color-border);font-size:11px}
+.sw i{display:block;height:56px}
+.sw span{display:block;padding:6px 8px;background:var(--color-surface);color:var(--color-text-secondary);line-height:1.35}
+.sw b{display:block;color:var(--color-text);font-weight:var(--weight-semibold)}
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-3)}
+.role{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:var(--text-sm)}
+.role .chip{flex:none;width:72px;height:36px;border-radius:var(--radius-sm);display:grid;place-items:center;font-weight:var(--weight-bold);font-size:13px}
+.role code{font-size:11px}
+.role small{display:block;color:var(--color-text-muted);font-size:12px}
+
+/* Type specimen */
+.type-row{display:grid;grid-template-columns:160px 1fr;gap:var(--space-6);align-items:baseline;padding:var(--space-4) 0;border-bottom:1px solid var(--color-border)}
+.type-row .spec{font-size:var(--text-xs);color:var(--color-text-muted);font-family:var(--font-mono);line-height:1.5}
+.type-row .spec b{display:block;font-family:var(--font-sans);color:var(--color-text);font-size:var(--text-sm)}
+@media(max-width:640px){.type-row{grid-template-columns:1fr;gap:var(--space-1)}}
+.space-row{display:flex;align-items:center;gap:var(--space-4);font-size:var(--text-sm);padding:6px 0}
+.space-row code{width:92px}
+.space-row i{display:block;height:16px;background:var(--color-brand);border-radius:2px;opacity:.85}
+.space-row span{color:var(--color-text-muted);font-size:var(--text-xs)}
+
+/* Spec cards for components */
+.spec-card{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:var(--space-6)}
+.spec-card .stage{padding:var(--space-8) var(--space-6);background:var(--color-bg-subtle);display:flex;flex-wrap:wrap;gap:var(--space-4);align-items:center}
+.spec-card .stage.block{display:block}
+.spec-card .doc-text{padding:var(--space-5) var(--space-6);display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);font-size:var(--text-sm);color:var(--color-text-secondary)}
+.spec-card .doc-text h4{font-size:var(--text-md);margin:0 0 var(--space-2);grid-column:1/-1}
+.spec-card ul{margin:0;padding-left:18px}
+.spec-card li{margin:2px 0}
+.spec-card .lbl{font-size:var(--text-xs);font-weight:var(--weight-bold);letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--color-text-muted);display:block;margin-bottom:var(--space-1)}
+@media(max-width:760px){.spec-card .doc-text{grid-template-columns:1fr}}
+
+/* ---------- PROPOSED UI COMPONENTS (prefix ui-) ---------- */
+.ui{font-family:var(--font-sans);color:var(--color-text-body);font-size:var(--text-md)}
+.ui-icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
+.ui-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);min-height:var(--control-height);padding:0 var(--space-5);border-radius:var(--radius-sm);font:inherit;font-weight:var(--weight-semibold);font-size:var(--text-md);text-decoration:none;cursor:pointer;border:1px solid transparent;transition:background var(--duration-fast) var(--ease-out),border-color var(--duration-fast) var(--ease-out)}
+.ui-btn--primary{background:var(--color-brand);color:var(--color-text-inverse)}
+.ui-btn--primary:hover{background:var(--color-brand-hover);color:var(--color-text-inverse)}
+.ui-btn--secondary{background:var(--color-surface);color:var(--color-brand);border-color:var(--color-border-control)}
+.ui-btn--secondary:hover{border-color:var(--color-brand);color:var(--color-brand-hover)}
+.ui-btn--ghost{background:transparent;color:var(--color-brand);padding:0 var(--space-3)}
+.ui-btn--ghost:hover{background:var(--color-brand-subtle)}
+.ui-btn--sm{min-height:36px;padding:0 var(--space-3);font-size:var(--text-sm)}
+.ui-btn--block{width:100%}
+.ui-btn.is-focus{box-shadow:var(--focus-ring)}
+
+.ui-pill{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-pill);padding:var(--pill-padding);font-size:var(--text-xs);font-weight:var(--weight-semibold);white-space:nowrap;line-height:1.5}
+.ui-pill--dot:before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+.ui-pill--covered{color:var(--color-status-covered-fg);background:var(--color-status-covered-bg)}
+.ui-pill--partial{color:var(--color-status-partial-fg);background:var(--color-status-partial-bg)}
+.ui-pill--review{color:var(--color-status-review-fg);background:var(--color-status-review-bg)}
+.ui-pill--unavailable{color:var(--color-status-unavailable-fg);background:var(--color-status-unavailable-bg)}
+.ui-pill--untracked{color:var(--color-status-untracked-fg);background:var(--color-status-untracked-bg)}
+.ui-pill--new{color:var(--color-brand);background:var(--color-brand-subtle)}
+
+.ui-tag{display:inline-flex;border:1px solid var(--color-border);background:var(--color-surface-sunken);color:var(--color-text-secondary);border-radius:var(--radius-pill);padding:2px 10px;font-size:var(--text-xs);font-weight:var(--weight-medium);white-space:nowrap}
+.ui-tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+
+/* Deadline indicator: the date is the anchor, the countdown carries urgency. */
+.ui-deadline{display:inline-grid;gap:2px;text-align:right;min-width:112px}
+.ui-deadline .lbl2{font-size:var(--text-xs);color:var(--color-text-muted);font-weight:var(--weight-medium)}
+.ui-deadline time{font-size:var(--text-md);font-weight:var(--weight-bold);color:var(--color-text);font-variant-numeric:tabular-nums}
+.ui-deadline .left{justify-self:end;font-size:var(--text-xs);font-weight:var(--weight-semibold);border-radius:var(--radius-pill);padding:2px 8px}
+.ui-deadline--today .left{background:var(--color-deadline-today-bg);color:var(--color-deadline-today-fg)}
+.ui-deadline--soon .left{background:var(--color-deadline-soon-bg);color:var(--color-deadline-soon-fg)}
+.ui-deadline--open .left{background:var(--color-deadline-open-bg);color:var(--color-deadline-open-fg)}
+
+/* Job card v2 */
+.ui-card{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:var(--space-4);padding:var(--card-padding);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);transition:border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out)}
+.ui-card:hover{border-color:var(--color-border-strong);box-shadow:var(--shadow-2)}
+.ui-card+.ui-card{margin-top:var(--space-3)}
+.ui-mono{width:44px;height:44px;border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--color-brand-subtle);color:var(--color-brand);font-weight:var(--weight-bold);font-size:13px;letter-spacing:.02em;overflow:hidden}
+.ui-mono--long{font-size:9.5px;letter-spacing:0}
+.ui-card__org{font-size:var(--text-sm);color:var(--color-text-secondary);margin:0;display:flex;flex-wrap:wrap;gap:0 var(--space-2);align-items:center}
+.ui-card__via{color:var(--color-text-muted)}
+.ui-card h3{font-size:var(--text-lg);line-height:var(--leading-snug);margin:2px 0 var(--space-2);letter-spacing:-.01em}
+.ui-card h3 a{color:var(--color-text);text-decoration:none}
+.ui-card h3 a:after{content:'';position:absolute;inset:0;border-radius:var(--radius-md)}
+.ui-card h3 a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.ui-card__tr{margin:-4px 0 var(--space-2);font-size:var(--text-sm);color:var(--color-text-secondary)}
+.ui-card__meta{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-4);font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3)}
+.ui-card__meta span{display:inline-flex;align-items:center;gap:6px}
+.ui-card__elig{display:flex;gap:6px;align-items:flex-start;font-size:var(--text-sm);color:var(--color-notice-fg);margin:var(--space-3) 0 0}
+.ui-card__side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:var(--space-4)}
+.ui-card__ext{position:relative;z-index:1}
+@media(max-width:640px){
+  .ui-card{grid-template-columns:minmax(0,1fr);gap:var(--space-2)}
+  .ui-card .ui-mono{display:none}
+  .ui-card__side{flex-direction:row;align-items:center;border-top:1px solid var(--color-border);padding-top:var(--space-3);margin-top:var(--space-1)}
+  .ui-deadline{text-align:left;grid-auto-flow:column;align-items:center;gap:var(--space-2)}
+  .ui-deadline .lbl2{display:none}
+}
+
+/* Search and filter bar */
+.ui-search{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1fr) auto auto;gap:var(--space-2);padding:var(--space-2);border:1px solid var(--color-border);border-radius:calc(var(--radius-md) + 2px);background:var(--color-surface);box-shadow:var(--shadow-1)}
+.ui-field{position:relative;display:flex;align-items:center}
+.ui-field .ui-icon{position:absolute;left:12px;color:var(--color-text-muted)}
+.ui-input,.ui-select{width:100%;min-height:var(--control-height);padding:0 var(--space-3);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit;font-size:var(--text-md)}
+.ui-field .ui-input{padding-left:38px}
+.ui-select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 17px) 50%,calc(100% - 12px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+.ui-input::placeholder{color:var(--color-text-muted)}
+.ui-count{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:var(--radius-pill);background:var(--color-brand);color:var(--color-text-inverse);font-size:11px;font-weight:var(--weight-bold)}
+.ui-more{margin-top:var(--space-2);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);padding:var(--space-4);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3)}
+.ui-more label{display:grid;gap:6px;font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--color-text)}
+.ui-more .hint{grid-column:1/-1;font-size:var(--text-xs);color:var(--color-text-muted);margin:0}
+.ui-applied{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin-top:var(--space-4)}
+.ui-chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 6px 0 12px;border-radius:var(--radius-pill);background:var(--color-brand-subtle);color:var(--color-brand);font-size:var(--text-sm);font-weight:var(--weight-semibold);border:1px solid color-mix(in srgb,var(--color-brand) 25%,transparent)}
+.ui-chip button{all:unset;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;cursor:pointer}
+.ui-chip button:hover{background:color-mix(in srgb,var(--color-brand) 15%,transparent)}
+.ui-clear{font-size:var(--text-sm);font-weight:var(--weight-semibold);margin-left:var(--space-1)}
+@media(max-width:900px){.ui-search{grid-template-columns:1fr 1fr}.ui-search .ui-field{grid-column:1/-1}.ui-more{grid-template-columns:1fr 1fr}}
+
+/* Results header */
+.ui-results-head{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin:var(--space-8) 0 var(--space-4);flex-wrap:wrap}
+.ui-results-head h2{font-size:var(--text-xl);margin:0}
+.ui-results-head h2 span{color:var(--color-text-muted);font-weight:var(--weight-medium)}
+.ui-results-head .tools{display:flex;align-items:center;gap:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)}
+.ui-results-head .ui-select{min-height:36px;width:auto;font-size:var(--text-sm)}
+
+/* Evidence quote */
+.ui-fact{display:grid;grid-template-columns:190px minmax(0,1fr);gap:var(--space-4);padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-border)}
+.ui-fact:last-child{border-bottom:0}
+.ui-fact dt{font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--color-text-secondary)}
+.ui-fact dd{margin:0;color:var(--color-text)}
+.ui-facts{margin:0;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface)}
+.ui-evidence{margin-top:var(--space-2);font-size:var(--text-sm)}
+.ui-evidence summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--color-link);font-weight:var(--weight-medium)}
+.ui-evidence summary::-webkit-details-marker{display:none}
+.ui-evidence blockquote{margin:var(--space-2) 0 0;padding:var(--space-2) var(--space-3);border-left:3px solid var(--color-brand);background:var(--color-surface-quote);color:var(--color-text-secondary);font-style:italic;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.ui-evidence blockquote cite{display:block;font-style:normal;font-size:var(--text-xs);color:var(--color-text-muted);margin-top:4px}
+@media(max-width:640px){.ui-fact{grid-template-columns:1fr;gap:2px;padding:var(--space-3) var(--space-4)}}
+
+/* Notices */
+.ui-notice{display:flex;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);font-size:var(--text-sm);border:1px solid var(--color-notice-border);background:var(--color-notice-bg);color:var(--color-notice-fg)}
+.ui-notice--info{border-color:var(--color-border);background:var(--color-surface-sunken);color:var(--color-text-secondary)}
+
+/* Trust strip */
+.ui-trust{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-6);align-items:center;font-size:var(--text-sm);color:var(--color-text-secondary);margin-top:var(--space-5)}
+.ui-trust span{display:inline-flex;align-items:center;gap:6px}
+.ui-trust strong{color:var(--color-text);font-variant-numeric:tabular-nums}
+.ui-live{width:8px;height:8px;border-radius:50%;background:var(--color-status-covered-fg);box-shadow:0 0 0 3px var(--color-status-covered-bg)}
+
+/* Header */
+.ui-header{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);height:var(--header-height);padding:0 var(--space-6);border-bottom:1px solid var(--color-border);background:var(--color-surface)}
+.ui-brand{display:flex;align-items:center;gap:10px;font-weight:var(--weight-bold);font-size:18px;color:var(--color-text);text-decoration:none;letter-spacing:-.01em}
+.ui-brand svg{width:30px;height:30px}
+.ui-nav{display:flex;align-items:center;gap:var(--space-1);height:100%}
+.ui-nav a{display:flex;align-items:center;height:100%;padding:0 var(--space-3);color:var(--color-text-secondary);text-decoration:none;font-weight:var(--weight-medium);font-size:15px;box-shadow:inset 0 -2px 0 transparent}
+.ui-nav a[aria-current]{color:var(--color-text);box-shadow:inset 0 -2px 0 var(--color-text)}
+.ui-lang{display:inline-flex;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);overflow:hidden;margin-left:var(--space-3)}
+.ui-lang a,.ui-lang span{display:grid;place-items:center;min-width:40px;height:32px;font-size:13px;font-weight:var(--weight-bold);text-decoration:none;color:var(--color-text-secondary)}
+.ui-lang span{background:var(--color-text);color:var(--color-bg)}
+
+/* Detail page bits */
+.ui-sticky{position:sticky;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-surface);border-top:1px solid var(--color-border);box-shadow:var(--shadow-sticky)}
+.ui-sticky .d{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.3}
+.ui-sticky .d b{display:block;font-size:var(--text-md);color:var(--color-text)}
+.ui-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--color-border);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;margin:var(--space-4) 0}
+.ui-summary div{background:var(--color-surface);padding:var(--space-3) var(--space-4)}
+.ui-summary dt{font-size:var(--text-xs);color:var(--color-text-muted)}
+.ui-summary dd{margin:2px 0 0;font-weight:var(--weight-semibold);color:var(--color-text);font-size:var(--text-sm)}
+
+/* Sources page bits */
+.ui-cov{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-3)}
+.ui-cov a{display:grid;gap:var(--space-1);padding:var(--space-4) var(--space-5);border:1px solid var(--color-border);border-radius:var(--radius-md);text-decoration:none;color:var(--color-text-secondary);font-size:var(--text-sm);background:var(--color-surface)}
+.ui-cov a[aria-current]{border-color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-text)}
+.ui-cov strong{font-size:var(--text-2xl);color:var(--color-text);letter-spacing:var(--tracking-tight);font-variant-numeric:tabular-nums;line-height:1.1}
+.ui-bar{display:flex;height:10px;border-radius:var(--radius-pill);overflow:hidden;margin:var(--space-5) 0 var(--space-2);gap:2px}
+.ui-bar i{display:block}
+.ui-legend{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-5);font-size:var(--text-xs);color:var(--color-text-muted)}
+.ui-legend span{display:inline-flex;align-items:center;gap:6px}
+.ui-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.ui-table{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
+.ui-table th{text-align:left;font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:var(--tracking-wide);color:var(--color-text-muted);padding:var(--space-3) var(--space-4);background:var(--color-surface-sunken);border-bottom:1px solid var(--color-border)}
+.ui-table td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);color:var(--color-text-secondary);vertical-align:middle}
+.ui-table td strong{display:block;color:var(--color-text);font-weight:var(--weight-semibold)}
+.ui-table td small{font-family:var(--font-mono);font-size:11px;color:var(--color-text-muted)}
+.ui-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:var(--weight-semibold);color:var(--color-text)}
+.ui-group td{background:var(--color-bg-subtle);font-weight:var(--weight-semibold);color:var(--color-text);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:var(--tracking-wide)}
+.ui-tablewrap{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface)}
+@media(max-width:760px){.ui-cov{grid-template-columns:1fr 1fr}}
+
+/* Device frames for screen mockups */
+.frame{border:1px solid var(--color-border-strong);border-radius:14px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-2)}
+.frame-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border)}
+.frame-bar i{width:10px;height:10px;border-radius:50%;background:var(--color-border-strong)}
+.frame-bar span{margin-left:10px;font-size:12px;color:var(--color-text-muted);font-family:var(--font-mono)}
+.frame-body{padding:0}
+.page{padding:var(--space-8) var(--space-8) var(--space-10)}
+.phone{width:390px;max-width:100%;border:1px solid var(--color-border-strong);border-radius:32px;overflow:hidden;background:var(--color-bg);box-shadow:var(--shadow-2);flex:none}
+.phone .ui-header{padding:0 var(--space-4);height:56px}
+.phone .page{padding:var(--space-5) var(--space-4) var(--space-6)}
+.phones{display:flex;gap:var(--space-8);flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.phone-cap{font-size:var(--text-sm);color:var(--color-text-muted);text-align:center;margin-top:var(--space-3);max-width:390px}
+.hero-h1{font-size:var(--text-3xl);letter-spacing:var(--tracking-tight);line-height:1.12;margin:var(--space-2) 0 var(--space-3);max-width:20ch}
+.hero-p{font-size:var(--text-lg);color:var(--color-text-secondary);margin:0;max-width:56ch;line-height:var(--leading-normal)}
+.phone .hero-h1{font-size:var(--text-2xl)}
+.phone .hero-p{font-size:var(--text-md)}
+.annot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--dj-red-700);color:#fff;font-size:12px;font-weight:700;vertical-align:middle;margin-left:6px;font-style:normal;letter-spacing:0}
+.annots{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-3) var(--space-6);margin-top:var(--space-6);font-size:var(--text-sm);color:var(--color-text-secondary)}
+.annots p{margin:0;display:flex;gap:var(--space-2)}
+.annots .annot{margin:0;flex:none}
+
+
+/* Phone mockups: force the mobile layout regardless of the viewing window. */
+.phone .ui-card{grid-template-columns:minmax(0,1fr);gap:var(--space-2);padding:var(--space-4)}
+.phone .ui-card .ui-mono{display:none}
+.phone .ui-card__side{flex-direction:row;align-items:center;border-top:1px solid var(--color-border);padding-top:var(--space-3);margin-top:var(--space-1)}
+.phone .ui-deadline{text-align:left;grid-auto-flow:column;align-items:center;gap:var(--space-2);min-width:0}
+.phone .ui-deadline .lbl2{display:none}
+.phone .ui-search{grid-template-columns:1fr 1fr}
+.phone .ui-search .ui-field{grid-column:1/-1}
+.phone .ui-fact{grid-template-columns:1fr;gap:2px;padding:var(--space-3) var(--space-4)}
+.phone .ui-results-head{flex-wrap:nowrap}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Roadmap */
+.phase{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--space-6);padding:var(--space-6) 0;border-top:1px solid var(--color-border)}
+.phase h4{font-size:var(--text-lg)}
+.phase .when{font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)}
+.phase ol{margin:0;padding-left:20px;color:var(--color-text-secondary);font-size:var(--text-sm)}
+.phase li{margin-bottom:var(--space-2)}
+.phase li b{color:var(--color-text)}
+@media(max-width:760px){.phase{grid-template-columns:1fr;gap:var(--space-2)}}
+.skills{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.skills code{background:var(--color-surface-sunken);border:1px solid var(--color-border);padding:4px 8px;border-radius:var(--radius-sm)}
+footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space-6);border-top:1px solid var(--color-border);font-size:var(--text-sm);color:var(--color-text-muted)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M7 7h4v4H8v2a2 2 0 0 0 2 2M14 7h4v4h-3v2a2 2 0 0 0 2 2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17v.01"/></symbol>
+  <symbol id="i-rss" viewBox="0 0 24 24"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8"/><circle cx="6" cy="18" r="1"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-seal" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="var(--color-brand)" stroke="none"/><circle cx="16" cy="16" r="8.5" fill="none" stroke="var(--color-text-inverse)" stroke-width="1.8"/><path d="M7.5 16h17M16 7.5c-3.2 3.5-3.2 13.5 0 17M16 7.5c3.2 3.5 3.2 13.5 0 17" fill="none" stroke="var(--color-text-inverse)" stroke-width="1.5"/></symbol>
+</svg>
+
+<header class="doc">
+  <div class="doc-head">
+    <p class="kicker">Design proposal · MVP · 3 Oct 2026</p>
+    <h1>DiplomacyJobs Design System</h1>
+    <p class="lede">An audit of the public site as it stands on <code>claude/great-cerf-a494ae</code>, a token-based design system that keeps today's institutional look, and redesigned job list, job page and sources screens. The aim is to make the site calmer on phones and put the deadline first. Every claim it makes should stay visibly backed by evidence.</p>
+    <div class="doc-meta"><span>Scope: <code>templates/board/*</code>, <code>board/static/board/site.css</code></span><span>Method: heuristic evaluation, visual critique, tokenization</span><span>Drop-in tokens: <a href="tokens.css">tokens.css</a></span></div>
+    <div class="stat-row" aria-label="Audit in numbers">
+      <div><strong>123</strong><span>raw hex values in site.css (23 distinct colours, no tokens)</span></div>
+      <div><strong>16</strong><span>distinct font sizes, from 12 to 36px; proposed: 7</span></div>
+      <div><strong>0</strong><span>focus styles; keyboard users get browser defaults only</span></div>
+      <div><strong>+35px</strong><span>horizontal overflow on every page at 390px wide</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Contents"><ol>
+  <li><a href="#audit">1 · Audit</a></li>
+  <li><a href="#principles">2 · Principles</a></li>
+  <li><a href="#foundations">3 · Foundations</a></li>
+  <li><a href="#components">4 · Components</a></li>
+  <li><a href="#screens">5 · Screens</a></li>
+  <li><a href="#roadmap">6 · Rollout</a></li>
+</ol></nav>
+
+<main class="doc">
+
+<!-- ============ 1. AUDIT ============ -->
+<section class="part" id="audit">
+  <h2>1 · What the site does today</h2>
+  <p class="intro">The foundation is strong. The site has honest coverage states, quoted evidence for every extracted requirement, accessible labels, a bilingual interface and no JavaScript dependency. The issues below are mostly about hierarchy and density, plus three real bugs. Screens were captured from a local run with 8 sample jobs and the real 87-organization registry.</p>
+
+  <div class="shots">
+    <figure><img src="before/jobs-desk.png" alt="Current job list at 1440px: large hero, nine-field filter panel, cards with two filled buttons each." loading="lazy"><figcaption>Job list, 1440px. Nine filters, and eight identical filled buttons compete with the titles.</figcaption></figure>
+    <figure><img src="before/jobs-mob.png" alt="Current job list on a phone: the first screen is entirely hero and filter fields." loading="lazy"><figcaption>Job list, 390px. The first screen shows no job.</figcaption></figure>
+    <figure><img src="before/detail-mob.png" alt="Current job page on a phone: deadline and apply button are below the requirements." loading="lazy"><figcaption>Job page, 390px. Deadline and Apply sit ~1,100px down.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">Findings, by severity</h3>
+  <table class="findings">
+    <thead><tr><th>Sev.</th><th>Finding and fix</th><th>Heuristic</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sev sev-4">4</span></td><td><strong>The whole site scrolls sideways on phones.</strong>At 390px, <code>.site-nav</code> plus the language switch are 425px wide, so every page overflows by 35px. Fix: let the header wrap, drop the nav gap to <code>--space-1</code>, and render BS/EN as a 2×40px segmented control.</td><td class="h">Consistency, platform conventions</td></tr>
+      <tr><td><span class="sev sev-3">3</span></td><td><strong>On mobile the first screen has no jobs.</strong>The hero plus nine stacked selects take ~1,250px before the first result. Fix: show the search field, City, Type and a <em>Filters (n)</em> disclosure. The six requirement filters move into the disclosure (<code>&lt;details&gt;</code>, no JS), and the hero shrinks to one line.</td><td class="h">Aesthetic &amp; minimalist; Hick's law</td></tr>
+      <tr><td><span class="sev sev-3">3</span></td><td><strong>Deadline, the deciding fact, is the quietest text on the card.</strong>It is 13px grey monospace, and urgency appears as a separate badge above it. Fix: a <em>Deadline</em> component in the card's right column shows the date in bold with a countdown pill coloured by urgency.</td><td class="h">Visibility of status; content priority</td></tr>
+      <tr><td><span class="sev sev-3">3</span></td><td><strong>The job page's Apply button and deadline are at the bottom on mobile.</strong>The aside follows the requirements. Fix: a two-up summary grid under the title, plus a sticky bottom bar with the deadline and <em>Službeni oglas ↗</em>.</td><td class="h">Recognition over recall; Fitts's law</td></tr>
+      <tr><td><span class="sev sev-3">3</span></td><td><strong>Applied filters are invisible once the panel scrolls away.</strong>"Poništi filtere" is the only way back, and it clears everything. Fix: removable chips for each active filter (plain links that drop one parameter), with "Clear all" next to them.</td><td class="h">User control &amp; freedom</td></tr>
+      <tr><td><span class="sev sev-3">3</span></td><td><strong>Two status colours collide on /sources/.</strong><code>.status-pill.review</code> and <code>.unavailable</code> share the amber background, and <em>pending</em> and <em>not found</em> share grey, so colour carries no meaning there. Fix: one hue per state (review becomes violet), and each pill keeps its text label.</td><td class="h">Consistency; don't rely on colour</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>Each card has two calls to action, both strong.</strong>A filled navy button on every card repeats eight times, which flattens the page and diverts people from the evidence page. Fix: the whole card links to the job page (stretched link). The external link becomes a secondary button.</td><td class="h">Aesthetic &amp; minimalist; Von Restorff</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>Kicker line overload.</strong>Employer · type · scope run together in 12px bold blue and wrap to three lines on mobile. Fix: the employer gets its own line in regular weight with a monogram, and type and scope move into the meta row with icons.</td><td class="h">Visual hierarchy</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>Input borders fail non-text contrast.</strong><code>#9aa5b1</code> on white is 2.5:1, below the WCAG 1.4.11 minimum of 3:1. Fix: <code>--color-border-control</code> <code>#7b8794</code> (3.66:1).</td><td class="h">Accessibility</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>No designed focus state.</strong>site.css has no <code>:focus</code> rule, and the language switch targets are about 28px high. Fix: a global <code>:focus-visible</code> ring token, and controls at least 40×32px (44px for primary).</td><td class="h">Accessibility; Fitts's law</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>The /sources/ table is 9,500px long.</strong>It lists 88 rows ungrouped, and 30 of them are "no list found". Nine filter pills duplicate the four stat cards. Fix: the stat cards become the filters, rows are grouped by state with covered sources first, and a stacked bar summarises coverage.</td><td class="h">Information density</td></tr>
+      <tr><td><span class="sev sev-2">2</span></td><td><strong>Trust signals live only on /sources/.</strong>The job list doesn't say how many sources are watched or when they were last checked. Fix: a trust strip under the hero, e.g. "50 sources tracked · checked today 06:00 · How we collect →".</td><td class="h">Visibility of status; match real world</td></tr>
+      <tr><td><span class="sev sev-1">1</span></td><td><strong>Emoji and glyph icons.</strong>📍 and ◎ render differently on each OS (colour emoji on iOS, missing on some Linux). Fix: a 12-icon inline SVG set in <code>currentColor</code>.</td><td class="h">Consistency</td></tr>
+      <tr><td><span class="sev sev-1">1</span></td><td><strong>Monospace for dates and meta.</strong>IBM Plex Mono for Bosnian prose ("Provjereno: …") reads as code. Fix: Public Sans with <code>tabular-nums</code>. Keep the mono font for source domains only.</td><td class="h">Typography</td></tr>
+      <tr><td><span class="sev sev-1">1</span></td><td><strong>"Novo" on almost every card.</strong>With a three-day window and daily scraping, the badge loses its signal. Fix: keep it, but as a quiet brand-tinted pill next to the employer rather than a row of its own.</td><td class="h">Von Restorff</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Severity: 4 must fix before launch · 3 major · 2 minor · 1 cosmetic (Nielsen scale).</p>
+</section>
+
+<!-- ============ 2. PRINCIPLES ============ -->
+<section class="part" id="principles">
+  <h2>2 · Design principles</h2>
+  <p class="intro">Four rules to settle future design arguments. They come from what the product already promises in PLAN.md: official sources, honest coverage and Bosnian first.</p>
+  <div class="grid-2">
+    <div class="principle"><span class="num">01</span><h4>Evidence beside every claim</h4><p>Every extracted fact can show the sentence it came from, and every count shows when it was checked. Unknown stays unknown: "—", never 0. The design gives evidence a consistent, quiet form (a quote block with a brand rule) so it's always one tap away and never clutter.</p></div>
+    <div class="principle"><span class="num">02</span><h4>Deadline first</h4><p>A job seeker's first question is "can I still apply?" The deadline is the second-strongest element on a card, after the title, and the only one with urgency colour. Nothing else on the card uses red or amber.</p></div>
+    <div class="principle"><span class="num">03</span><h4>Calm on a phone</h4><p>Most visitors in BiH will arrive on mobile from a shared link. The first screen shows results. Secondary controls go behind one disclosure, and the apply action stays within thumb reach.</p></div>
+    <div class="principle"><span class="num">04</span><h4>One meaning per colour</h4><p>Blue means the brand and links. Green means a source is covered, red means it ends today, amber means it ends soon or there is a warning, violet means in review, and grey means not tracked. Colour always comes with a text label.</p></div>
+  </div>
+</section>
+
+<!-- ============ 3. FOUNDATIONS ============ -->
+<section class="part" id="foundations">
+  <h2>3 · Foundations</h2>
+  <p class="intro">The tokens come in three tiers (global → alias → component), defined in <a href="tokens.css">tokens.css</a>. The brand blue <code>#0f4c81</code> and the slate text colours stay as they are, so adopting them is mostly replacing hex values with <code>var()</code>. Dark mode only remaps alias tokens. Switch your OS to dark mode to preview it on this page.</p>
+
+  <h3 class="sub">Colour: global palette</h3>
+  <div class="ramp">
+    <div class="sw"><i style="background:#eef4fa"></i><span><b>blue-50</b>#eef4fa</span></div>
+    <div class="sw"><i style="background:#dbe7f3"></i><span><b>blue-100</b>#dbe7f3</span></div>
+    <div class="sw"><i style="background:#b6cfe7"></i><span><b>blue-200</b>#b6cfe7</span></div>
+    <div class="sw"><i style="background:#4f88bf"></i><span><b>blue-400</b>#4f88bf</span></div>
+    <div class="sw"><i style="background:#1a5a96"></i><span><b>blue-600</b>#1a5a96</span></div>
+    <div class="sw"><i style="background:#0f4c81"></i><span><b>blue-700 ★</b>#0f4c81</span></div>
+    <div class="sw"><i style="background:#0b3a63"></i><span><b>blue-800</b>#0b3a63</span></div>
+    <div class="sw"><i style="background:#082b4a"></i><span><b>blue-900</b>#082b4a</span></div>
+  </div>
+  <div class="ramp">
+    <div class="sw"><i style="background:#fafbfc"></i><span><b>slate-25</b>#fafbfc</span></div>
+    <div class="sw"><i style="background:#f4f6f8"></i><span><b>slate-50</b>#f4f6f8</span></div>
+    <div class="sw"><i style="background:#eef1f4"></i><span><b>slate-100</b>#eef1f4</span></div>
+    <div class="sw"><i style="background:#dce1e6"></i><span><b>slate-200</b>#dce1e6</span></div>
+    <div class="sw"><i style="background:#c3cbd3"></i><span><b>slate-300</b>#c3cbd3</span></div>
+    <div class="sw"><i style="background:#7b8794"></i><span><b>slate-400</b>#7b8794 · new</span></div>
+    <div class="sw"><i style="background:#64707d"></i><span><b>slate-500</b>#64707d</span></div>
+    <div class="sw"><i style="background:#52606d"></i><span><b>slate-600</b>#52606d</span></div>
+    <div class="sw"><i style="background:#3e4c59"></i><span><b>slate-700</b>#3e4c59</span></div>
+    <div class="sw"><i style="background:#253441"></i><span><b>slate-800</b>#253441</span></div>
+    <div class="sw"><i style="background:#13202d"></i><span><b>slate-900</b>#13202d</span></div>
+  </div>
+  <div class="ramp">
+    <div class="sw"><i style="background:#1d6b45"></i><span><b>green-700</b>#1d6b45</span></div>
+    <div class="sw"><i style="background:#e7f2ec"></i><span><b>green-50</b>#e7f2ec</span></div>
+    <div class="sw"><i style="background:#8a4b00"></i><span><b>amber-700</b>#8a4b00</span></div>
+    <div class="sw"><i style="background:#6b3a00"></i><span><b>amber-800</b>#6b3a00</span></div>
+    <div class="sw"><i style="background:#fbf3e8"></i><span><b>amber-50</b>#fbf3e8</span></div>
+    <div class="sw"><i style="background:#a23b2a"></i><span><b>red-700</b>#a23b2a</span></div>
+    <div class="sw"><i style="background:#fbeae7"></i><span><b>red-50</b>#fbeae7</span></div>
+    <div class="sw"><i style="background:#5b3fa0"></i><span><b>violet-700</b>#5b3fa0 · new</span></div>
+    <div class="sw"><i style="background:#f1eefa"></i><span><b>violet-50</b>#f1eefa · new</span></div>
+  </div>
+
+  <h3 class="sub">Colour: semantic roles and contrast</h3>
+  <div class="roles">
+    <div class="role"><span class="chip" style="background:var(--color-surface);color:var(--color-text);box-shadow:inset 0 0 0 1px var(--color-border)">Aa</span><div><code>--color-text</code> on surface<small>16.5:1 · titles, values</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-surface);color:var(--color-text-muted);box-shadow:inset 0 0 0 1px var(--color-border)">Aa</span><div><code>--color-text-muted</code><small>6.46:1 · meta, captions</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-brand);color:var(--color-text-inverse)">Aa</span><div><code>--color-brand</code> / inverse<small>8.86:1 · primary button</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-border-control);color:var(--color-text-muted)">▢</span><div><code>--color-border-control</code><small>3.66:1 · inputs (was 2.5:1)</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-deadline-today-bg);color:var(--color-deadline-today-fg)">Danas</span><div><code>--color-deadline-today</code><small>6.57:1 · ends today/tomorrow</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-deadline-soon-bg);color:var(--color-deadline-soon-fg)">6 dana</span><div><code>--color-deadline-soon</code><small>8.56:1 · ends within 7 days</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-status-covered-bg);color:var(--color-status-covered-fg)">Praćen</span><div><code>--color-status-covered</code><small>5.65:1</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-status-partial-bg);color:var(--color-status-partial-fg)">Djelim.</span><div><code>--color-status-partial</code><small>7.75:1</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-status-review-bg);color:var(--color-status-review-fg)">Provjera</span><div><code>--color-status-review</code><small>6.89:1 · new hue</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-status-unavailable-bg);color:var(--color-status-unavailable-fg)">Nedost.</span><div><code>--color-status-unavailable</code><small>8.56:1</small></div></div>
+    <div class="role"><span class="chip" style="background:var(--color-status-untracked-bg);color:var(--color-status-untracked-fg)">—</span><div><code>--color-status-untracked</code><small>7.77:1</small></div></div>
+  </div>
+  <p class="note">All ratios are WCAG 2.2 values computed for the light theme. The dark theme pairs (e.g. <code>#7cb8f0</code> on <code>#15232f</code>, 7.6:1) are listed in tokens.css.</p>
+
+  <h3 class="sub">Typography</h3>
+  <p class="intro" style="margin-bottom:var(--space-4)">The scale is Public Sans throughout on a 1.25 major-third scale from 16px, so 7 sizes replace 16. Dates and counts use <code>font-variant-numeric: tabular-nums</code> instead of a monospace font. Self-host the two font files through WhiteNoise so the board renders the same when Google Fonts is blocked.</p>
+  <div>
+    <div class="type-row"><div class="spec"><b>Display / h1</b>--text-3xl · 39/1.12 · 700 · -0.02em</div><div style="font-size:var(--text-3xl);font-weight:700;color:var(--color-text);letter-spacing:-.02em;line-height:1.12">Poslovi u diplomatiji</div></div>
+    <div class="type-row"><div class="spec"><b>h1 mobile / h2 page</b>--text-2xl · 31/1.2 · 700</div><div style="font-size:var(--text-2xl);font-weight:700;color:var(--color-text);letter-spacing:-.02em;line-height:1.2">Izvori i pokrivenost</div></div>
+    <div class="type-row"><div class="spec"><b>Section h2</b>--text-xl · 25/1.2 · 700</div><div style="font-size:var(--text-xl);font-weight:700;color:var(--color-text);line-height:1.2">Aktuelni oglasi</div></div>
+    <div class="type-row"><div class="spec"><b>Card title / h3</b>--text-lg · 20/1.35 · 700</div><div style="font-size:var(--text-lg);font-weight:700;color:var(--color-text);line-height:1.35">Programme Monitoring &amp; Evaluation Analyst</div></div>
+    <div class="type-row"><div class="spec"><b>Body</b>--text-md · 16/1.55 · 400</div><div>Oglase preuzimamo sa službenih stranica poslodavaca. Prijava se podnosi na službenoj stranici.</div></div>
+    <div class="type-row"><div class="spec"><b>Meta / secondary</b>--text-sm · 14/1.5 · 400–600</div><div style="font-size:var(--text-sm);color:var(--color-text-muted)">Sarajevo · Zaposlenje · Provjereno 03.10.2026.</div></div>
+    <div class="type-row"><div class="spec"><b>Label / pill</b>--text-xs · 12/1.5 · 600 · caps +0.06em</div><div style="font-size:var(--text-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-brand)">Transparentnost izvora</div></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:var(--space-12)">
+    <div>
+      <h3 class="sub" style="margin-top:0">Spacing (4px base)</h3>
+      <div class="space-row"><code>--space-1</code><i style="width:4px"></i><span>4 · icon gaps</span></div>
+      <div class="space-row"><code>--space-2</code><i style="width:8px"></i><span>8 · pill groups, tight stacks</span></div>
+      <div class="space-row"><code>--space-3</code><i style="width:12px"></i><span>12 · card-to-card</span></div>
+      <div class="space-row"><code>--space-4</code><i style="width:16px"></i><span>16 · mobile gutter, inner gaps</span></div>
+      <div class="space-row"><code>--space-6</code><i style="width:24px"></i><span>24 · card padding</span></div>
+      <div class="space-row"><code>--space-8</code><i style="width:32px"></i><span>32 · desktop gutter, section gap</span></div>
+      <div class="space-row"><code>--space-12</code><i style="width:48px"></i><span>48 · between page sections</span></div>
+      <div class="space-row"><code>--space-16</code><i style="width:64px"></i><span>64 · hero padding</span></div>
+    </div>
+    <div>
+      <h3 class="sub" style="margin-top:0">Shape, elevation, motion</h3>
+      <div class="grid-3" style="gap:var(--space-3)">
+        <div class="panel" style="border-radius:var(--radius-sm);padding:var(--space-4)"><h4>radius-sm 6</h4><p>buttons, inputs</p></div>
+        <div class="panel" style="padding:var(--space-4)"><h4>radius-md 10</h4><p>cards, panels</p></div>
+        <div class="panel" style="border-radius:var(--radius-pill);padding:var(--space-4);text-align:center"><h4>pill</h4><p>tags, status</p></div>
+        <div class="panel" style="box-shadow:var(--shadow-1);padding:var(--space-4)"><h4>shadow-1</h4><p>search bar</p></div>
+        <div class="panel" style="box-shadow:var(--shadow-2);padding:var(--space-4)"><h4>shadow-2</h4><p>card hover</p></div>
+        <div class="panel" style="box-shadow:var(--shadow-sticky);padding:var(--space-4)"><h4>sticky</h4><p>mobile apply bar</p></div>
+      </div>
+      <p class="note">Motion: 120ms for hover and colour, 200ms for disclosure, both <code>--ease-out</code>, and zeroed under <code>prefers-reduced-motion</code>. Radius 7px is removed. Breakpoints go from four (640/760/900/1050) to two: <b>640</b> and <b>960</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. COMPONENTS ============ -->
+<section class="part" id="components">
+  <h2>4 · Components</h2>
+  <p class="intro">Each component maps to an existing template partial so it can land without restructuring views. Class names in the mockups use a <code>ui-</code> prefix only to keep them apart from this page's styles. In site.css they would replace the current names one-to-one (<code>.job-card</code>, <code>.status-pill</code>, …).</p>
+
+  <div class="spec-card ui">
+    <div class="stage">
+      <a class="ui-btn ui-btn--primary" href="#components">Službeni oglas i prijava <svg class="ui-icon"><use href="#i-ext"/></svg></a>
+      <a class="ui-btn ui-btn--secondary" href="#components">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a>
+      <a class="ui-btn ui-btn--ghost" href="#components"><svg class="ui-icon"><use href="#i-rss"/></svg> Prati rezultate</a>
+      <a class="ui-btn ui-btn--primary is-focus" href="#components">Focus ring</a>
+      <a class="ui-btn ui-btn--secondary ui-btn--sm" href="#components">Small</a>
+    </div>
+    <div class="doc-text"><h4>Button</h4><div><span class="lbl">Variants</span><ul><li><b>Primary</b>: one per view. Apply on the job page, Search in the filter bar.</li><li><b>Secondary</b>: the external link on cards.</li><li><b>Ghost</b>: feed, clear, tertiary actions.</li></ul></div><div><span class="lbl">Rules</span><ul><li>Min height 44px (36px for <code>sm</code>). The focus ring comes from a token.</li><li>External links always show the ↗ icon and a hidden "(otvara se u novom prozoru)".</li><li>Replaces <code>.apply</code>, <code>.filters button</code> and <code>.report-form button</code>.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage">
+      <span class="ui-deadline ui-deadline--today"><span class="lbl2">Rok prijave</span><time>03.10.2026.</time><span class="left">Ističe danas</span></span>
+      <span class="ui-deadline ui-deadline--soon"><span class="lbl2">Rok prijave</span><time>09.10.2026.</time><span class="left">Još 6 dana</span></span>
+      <span class="ui-deadline ui-deadline--open"><span class="lbl2">Rok prijave</span><time>28.10.2026.</time><span class="left">Još 25 dana</span></span>
+      <span class="ui-deadline ui-deadline--open"><span class="lbl2">Rok prijave</span><time style="font-size:var(--text-sm)">Do popune</time><span class="left">Bez roka</span></span>
+    </div>
+    <div class="doc-text"><h4>Deadline</h4><div><span class="lbl">Anatomy</span><ul><li>Label, the date (<code>&lt;time datetime&gt;</code>, bold, tabular), and a countdown pill.</li><li>States: <b>today/tomorrow</b> (red), <b>≤ 7 days</b> (amber), <b>open</b> (grey), and <b>rolling / not stated</b> (grey, no date).</li></ul></div><div><span class="lbl">Implementation</span><ul><li>Uses <code>job.days_left</code> as it is today, and replaces <code>.badge.urgent/.soon</code> and the "Rok:" meta span.</li><li>One template tag, <code>{% deadline job %}</code>, is reused by the card, the summary and the sticky bar.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage">
+      <span class="ui-pill ui-pill--dot ui-pill--covered">Dostupan</span>
+      <span class="ui-pill ui-pill--dot ui-pill--partial">Djelimično praćen</span>
+      <span class="ui-pill ui-pill--dot ui-pill--review">Oglasi na provjeri</span>
+      <span class="ui-pill ui-pill--dot ui-pill--unavailable">Nedostupan</span>
+      <span class="ui-pill ui-pill--dot ui-pill--untracked">Izvor nije pronađen</span>
+      <span class="ui-pill ui-pill--new">Novo</span>
+      <ul class="ui-tags"><li class="ui-tag">Fakultet (bachelor)</li><li class="ui-tag">5+ god. iskustva</li><li class="ui-tag">Vozačka dozvola</li><li class="ui-tag">+2</li></ul>
+    </div>
+    <div class="doc-text"><h4>Status pill and requirement tag</h4><div><span class="lbl">Status pill</span><ul><li>Five coverage states with a distinct hue each, plus a leading dot. The text label is always present.</li><li>"Bez potvrđenih oglasa" (covered, 0 jobs) uses <em>covered</em> with the count "0" in the table, so the fact that the source is watched stays visible.</li></ul></div><div><span class="lbl">Tag</span><ul><li>Neutral and outlined, and not interactive on cards. Show at most 3 on a card, then "+n". The job page shows them all.</li><li>Tags are facts read from the advert, so they never use status colours.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage block">
+      <article class="ui-card">
+        <span class="ui-mono ui-mono--long" aria-hidden="true">UNFPA</span>
+        <div>
+          <p class="ui-card__org">UNFPA u Bosni i Hercegovini <span class="ui-pill ui-pill--new">Novo</span></p>
+          <h3><a href="#components">Programme Monitoring &amp; Evaluation Analyst</a></h3>
+          <div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Zaposlenje</span><span><svg class="ui-icon"><use href="#i-globe"/></svg>Nacionalna pozicija</span></div>
+          <ul class="ui-tags"><li class="ui-tag">Master</li><li class="ui-tag">2+ god. iskustva</li><li class="ui-tag">Društvene nauke</li><li class="ui-tag">+1</li></ul>
+        </div>
+        <div class="ui-card__side">
+          <span class="ui-deadline ui-deadline--open"><span class="lbl2">Rok prijave</span><time>22.10.2026.</time><span class="left">Još 19 dana</span></span>
+          <a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#components">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a>
+        </div>
+      </article>
+      <article class="ui-card">
+        <span class="ui-mono" aria-hidden="true">EU</span>
+        <div>
+          <p class="ui-card__org">Delegacija EU i Ured specijalnog predstavnika EU u BiH</p>
+          <h3><a href="#components">Head of Communications</a></h3>
+          <div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Zaposlenje</span><span><svg class="ui-icon"><use href="#i-globe"/></svg>Međunarodna pozicija</span></div>
+          <ul class="ui-tags"><li class="ui-tag">Master</li><li class="ui-tag">10+ god. iskustva</li><li class="ui-tag">Komunikacije i novinarstvo</li></ul>
+          <p class="ui-card__elig"><svg class="ui-icon"><use href="#i-alert"/></svg>Samo za državljane EU.</p>
+        </div>
+        <div class="ui-card__side">
+          <span class="ui-deadline ui-deadline--soon"><span class="lbl2">Rok prijave</span><time>06.10.2026.</time><span class="left">Još 3 dana</span></span>
+          <a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#components">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a>
+        </div>
+      </article>
+    </div>
+    <div class="doc-text"><h4>Job card v2</h4><div><span class="lbl">Anatomy</span><ol style="margin:0;padding-left:18px"><li>Employer monogram, from the organization's short name, with an initials fallback. Names of 5 or more letters use the 9.5px <code>--long</code> size. Hidden on mobile.</li><li>Employer line in 14px regular. "putem ReliefWeb" follows in muted text, and the <em>Novo</em> pill sits here.</li><li>Title (h3), a stretched link to the job page. A translated title goes underneath.</li><li>Meta row with SVG icons: city, type, scope.</li><li>Up to 3 tags.</li><li>Eligibility as one amber line with an icon, not a filled block.</li><li>Side column: deadline on top, with the secondary external link below it.</li></ol></div><div><span class="lbl">Behaviour and a11y</span><ul><li>The whole card is clickable. The external button sits above the stretched link (<code>z-index:1</code>) and keeps its own target.</li><li>Hover raises the border to <code>--color-border-strong</code> and adds <code>--shadow-2</code>, with no movement.</li><li>Under 640px the side column becomes a footer row: deadline left, button right.</li><li>"Detalji i uslovi" is removed, since the title link covers it, and the external button keeps its visually hidden job title.</li><li>The "Provjereno" date moves to the job page. The trust strip says "checked today" once for the whole list.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage block">
+      <form class="ui-search" onsubmit="return false" role="search" aria-label="Pretraga oglasa">
+        <label class="ui-field"><span class="vh">Pretraga</span><svg class="ui-icon"><use href="#i-search"/></svg><input class="ui-input" placeholder="Naziv posla, organizacija ili ključna riječ" value="analyst"></label>
+        <select class="ui-select" aria-label="Grad"><option>Sarajevo</option></select>
+        <select class="ui-select" aria-label="Vrsta angažmana"><option>Sve vrste</option></select>
+        <button class="ui-btn ui-btn--secondary" type="button"><svg class="ui-icon"><use href="#i-filter"/></svg>Filteri <span class="ui-count">2</span></button>
+        <button class="ui-btn ui-btn--primary" type="button">Traži</button>
+      </form>
+      <div class="ui-more">
+        <label>Organizacija<select class="ui-select"><option>Sve organizacije</option></select></label>
+        <label>Pozicija<select class="ui-select"><option>Nacionalne</option></select></label>
+        <label>Moje obrazovanje<select class="ui-select"><option>Master</option></select></label>
+        <label>Traženo iskustvo<select class="ui-select"><option>Bilo koje</option></select></label>
+        <label>Oblast studija<select class="ui-select"><option>Sve oblasti</option></select></label>
+        <p class="hint">Obrazovanje, iskustvo i oblast prikazuju samo oglase u kojima je uslov jasno naveden.</p>
+      </div>
+      <div class="ui-applied" aria-label="Aktivni filteri">
+        <span class="ui-chip">„analyst“ <button aria-label="Ukloni pretragu"><svg class="ui-icon" style="width:14px;height:14px"><use href="#i-x"/></svg></button></span>
+        <span class="ui-chip">Sarajevo <button aria-label="Ukloni grad"><svg class="ui-icon" style="width:14px;height:14px"><use href="#i-x"/></svg></button></span>
+        <span class="ui-chip">Nacionalne <button aria-label="Ukloni poziciju"><svg class="ui-icon" style="width:14px;height:14px"><use href="#i-x"/></svg></button></span>
+        <span class="ui-chip">Master <button aria-label="Ukloni obrazovanje"><svg class="ui-icon" style="width:14px;height:14px"><use href="#i-x"/></svg></button></span>
+        <a class="ui-clear" href="#components">Poništi sve</a>
+      </div>
+    </div>
+    <div class="doc-text"><h4>Search and filter bar</h4><div><span class="lbl">Structure</span><ul><li>Primary row: search (2.2fr), City, Type, <em>Filters (n)</em> and Search. These are the three filters people use most, and Hick's law favours fewer choices up front.</li><li><em>Filters</em> is a <code>&lt;details&gt;</code> that holds organization, scope, education, experience and field. It opens by default when any of them is set. Sort moves to the results header.</li><li>Applied chips are plain <code>&lt;a&gt;</code> elements built from <code>page_query</code> minus one key, so they need no JavaScript.</li></ul></div><div><span class="lbl">Rules</span><ul><li>Placeholder text says what the search covers. The query persists in the field.</li><li>The badge on <em>Filters</em> counts only hidden active filters.</li><li>Zero results: repeat the query, offer to remove the last filter, and link to /sources/ (the existing copy stays).</li><li>On mobile the search field takes the full row, with City and Type side by side underneath and the two buttons below them.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage block">
+      <dl class="ui-facts">
+        <div class="ui-fact"><dt>Minimalno obrazovanje</dt><dd>Fakultet (bachelor) <span style="color:var(--color-text-muted)">· oglas spominje i master</span>
+          <details class="ui-evidence" open><summary><svg class="ui-icon"><use href="#i-quote"/></svg>Iz oglasa</summary><blockquote lang="en">University degree in public administration, law or economics.<cite>Službeni oglas · OSCE · provjereno 03.10.2026.</cite></blockquote></details></dd></div>
+        <div class="ui-fact"><dt>Radno iskustvo</dt><dd>Najmanje 7 godina<details class="ui-evidence"><summary><svg class="ui-icon"><use href="#i-quote"/></svg>Iz oglasa</summary><blockquote lang="en">Minimum 7 years of relevant experience.</blockquote></details></dd></div>
+      </dl>
+      <div style="display:grid;gap:var(--space-3);margin-top:var(--space-5)">
+        <p class="ui-notice"><svg class="ui-icon"><use href="#i-alert"/></svg><span>Ovaj oglas više nije među aktuelnim oglasima. Provjerite stanje na službenoj stranici.</span></p>
+        <p class="ui-notice ui-notice--info"><svg class="ui-icon"><use href="#i-globe"/></svg><span>Automatski prijevod sa engleskog jezika. Mjerodavan je službeni oglas.</span></p>
+      </div>
+    </div>
+    <div class="doc-text"><h4>Fact row, evidence and notices</h4><div><span class="lbl">Evidence</span><ul><li>This is the product's signature pattern, so it gets a distinct look: a quote icon in the summary, a brand left rule and italic source text set in the advert's <code>lang</code>.</li><li>An optional <code>cite</code> line names the source and check date.</li><li>It stays collapsed by default, and the same component serves both the requirements and the terms lists.</li></ul></div><div><span class="lbl">Notices</span><ul><li><b>Warning</b> (amber, bordered): expired job, eligibility limits.</li><li><b>Info</b> (neutral): translation notes, filter explanations.</li><li>Notices always carry an icon and text, never colour alone. Replaces <code>.notice</code>, <code>.eligibility</code> and <code>.translation-note</code>.</li></ul></div></div>
+  </div>
+
+  <div class="spec-card ui">
+    <div class="stage block" style="padding:0">
+      <header class="ui-header" style="border-radius:0">
+        <a class="ui-brand" href="#components"><svg viewBox="0 0 32 32"><use href="#i-seal"/></svg>DiplomacyJobs</a>
+        <nav class="ui-nav" aria-label="Glavna navigacija"><a href="#components" aria-current="page">Oglasi</a><a href="#components">Izvori</a><span class="ui-lang"><span aria-current="true">BS</span><a href="#components" lang="en">EN</a></span></nav>
+      </header>
+    </div>
+    <div class="doc-text"><h4>Header</h4><div><span class="lbl">Changes</span><ul><li>Height 64px (56px on mobile). The brand mark is an SVG globe seal instead of the ◎ glyph.</li><li>The language switch is a segmented control with a 40×32px target per language, and the current one is filled.</li><li>The active nav item uses an inset shadow, not a border, so its height doesn't shift.</li></ul></div><div><span class="lbl">Overflow fix</span><ul><li><code>.site-nav{gap:var(--space-1)}</code> with links padded at <code>0 12px</code>, and <code>.header-inner{flex-wrap:wrap}</code> as a safety net.</li><li>Tested width: 320px fits brand, two nav items and the switch.</li></ul></div></div>
+  </div>
+</section>
+
+<!-- ============ 5. SCREENS ============ -->
+<section class="part" id="screens">
+  <h2>5 · Proposed screens</h2>
+  <p class="intro">These are built entirely from the components above with realistic content. Red numbers point to changes from the audit.</p>
+
+  <h3 class="sub">Job list, desktop</h3>
+  <div class="frame ui">
+    <div class="frame-bar"><i></i><i></i><i></i><span>diplomacyjobs.ba/?city=Sarajevo</span></div>
+    <div class="frame-body">
+      <header class="ui-header">
+        <a class="ui-brand" href="#screens"><svg viewBox="0 0 32 32"><use href="#i-seal"/></svg>DiplomacyJobs</a>
+        <nav class="ui-nav"><a href="#screens" aria-current="page">Oglasi</a><a href="#screens">Izvori</a><span class="ui-lang"><span>BS</span><a href="#screens">EN</a></span></nav>
+      </header>
+      <div class="page">
+        <p class="kicker">Prilike u Bosni i Hercegovini</p>
+        <h1 class="hero-h1">Poslovi u diplomatiji i međunarodnim organizacijama</h1>
+        <p class="hero-p">Provjereni oglasi ambasada i međunarodnih organizacija na jednom mjestu. Prijava ide na službenu stranicu poslodavca.</p>
+        <div class="ui-trust"><span><i class="ui-live"></i><strong>23</strong>&nbsp;aktuelna oglasa</span><span><strong>50</strong>&nbsp;praćenih izvora</span><span>Provjereno danas u 06:00</span><a href="#screens">Kako prikupljamo oglase →</a><em class="annot">1</em></div>
+        <div style="margin-top:var(--space-8)">
+          <form class="ui-search" onsubmit="return false" role="search">
+            <label class="ui-field"><svg class="ui-icon"><use href="#i-search"/></svg><input class="ui-input" placeholder="Naziv posla, organizacija ili ključna riječ" aria-label="Pretraga"></label>
+            <select class="ui-select" aria-label="Grad"><option>Sarajevo</option></select>
+            <select class="ui-select" aria-label="Vrsta"><option>Sve vrste</option></select>
+            <button class="ui-btn ui-btn--secondary" type="button"><svg class="ui-icon"><use href="#i-filter"/></svg>Filteri</button>
+            <button class="ui-btn ui-btn--primary" type="button">Traži</button>
+          </form>
+          <div class="ui-applied"><span class="ui-chip">Sarajevo <button aria-label="Ukloni"><svg class="ui-icon" style="width:14px;height:14px"><use href="#i-x"/></svg></button></span><a class="ui-clear" href="#screens">Poništi sve</a><em class="annot">2</em></div>
+        </div>
+        <div class="ui-results-head"><h2>Aktuelni oglasi <span>· 18</span></h2><div class="tools"><label style="display:flex;align-items:center;gap:8px">Redoslijed <select class="ui-select"><option>Rok uskoro</option><option>Najnoviji prvo</option></select></label><a class="ui-btn ui-btn--ghost ui-btn--sm" href="#screens"><svg class="ui-icon"><use href="#i-rss"/></svg>Prati</a></div></div>
+        <article class="ui-card">
+          <span class="ui-mono" aria-hidden="true">UNW</span>
+          <div><p class="ui-card__org">UN Women u Bosni i Hercegovini</p><h3><a href="#screens">Family Law Consultant</a></h3><div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Konsultantski angažman</span></div><ul class="ui-tags"><li class="ui-tag">Pravo</li><li class="ui-tag">5+ god. iskustva</li></ul></div>
+          <div class="ui-card__side"><span class="ui-deadline ui-deadline--today"><span class="lbl2">Rok prijave</span><time>03.10.2026.</time><span class="left">Ističe danas</span></span><a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#screens">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+        </article>
+        <article class="ui-card">
+          <span class="ui-mono" aria-hidden="true">EU</span>
+          <div><p class="ui-card__org">Delegacija EU i Ured specijalnog predstavnika EU u BiH <span class="ui-pill ui-pill--new">Novo</span></p><h3><a href="#screens">Head of Communications</a></h3><div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Zaposlenje</span><span><svg class="ui-icon"><use href="#i-globe"/></svg>Međunarodna</span></div><ul class="ui-tags"><li class="ui-tag">Master</li><li class="ui-tag">10+ god. iskustva</li><li class="ui-tag">Komunikacije</li></ul><p class="ui-card__elig"><svg class="ui-icon"><use href="#i-alert"/></svg>Samo za državljane EU.</p></div>
+          <div class="ui-card__side"><span class="ui-deadline ui-deadline--soon"><span class="lbl2">Rok prijave</span><time>06.10.2026.</time><span class="left">Još 3 dana</span></span><a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#screens">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+        </article>
+        <article class="ui-card">
+          <span class="ui-mono ui-mono--long" aria-hidden="true">UNICEF</span>
+          <div><p class="ui-card__org">UNICEF <span class="ui-card__via">· putem Impactpool</span></p><h3><a href="#screens">EU4People Programme Consultant</a></h3><p class="ui-card__tr">Konsultant za program EU4People</p><div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Konsultantski angažman</span></div><ul class="ui-tags"><li class="ui-tag">Master</li><li class="ui-tag">Društvene nauke</li></ul></div>
+          <div class="ui-card__side"><span class="ui-deadline ui-deadline--open"><span class="lbl2">Rok prijave</span><time>15.10.2026.</time><span class="left">Još 12 dana</span></span><a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#screens">Oglas / prijava <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+        </article>
+        <p style="margin-top:var(--space-2)"><em class="annot">3</em></p>
+      </div>
+    </div>
+  </div>
+  <div class="annots">
+    <p><em class="annot">1</em>A trust strip carries the coverage numbers onto the home page. The figures come from the same query that /sources/ uses.</p>
+    <p><em class="annot">2</em>Each applied filter is a removable chip, and requirement filters wait behind <em>Filteri</em>.</p>
+    <p><em class="annot">3</em>Cards lead with the title and the deadline. The single secondary button replaces two strong ones, and the eligibility note is one line.</p>
+  </div>
+
+  <h3 class="sub">Mobile: job list and job page</h3>
+  <div class="phones ui">
+    <div>
+      <div class="phone">
+        <header class="ui-header"><a class="ui-brand" href="#screens" style="font-size:17px"><svg viewBox="0 0 32 32" style="width:26px;height:26px"><use href="#i-seal"/></svg>DiplomacyJobs</a><span class="ui-lang" style="margin:0"><span>BS</span><a href="#screens">EN</a></span></header>
+        <nav class="ui-nav" style="height:44px;padding:0 var(--space-2);border-bottom:1px solid var(--color-border)"><a href="#screens" aria-current="page">Oglasi</a><a href="#screens">Izvori</a></nav>
+        <div class="page">
+          <h1 class="hero-h1" style="margin-top:0">Poslovi u diplomatiji u BiH</h1>
+          <div class="ui-trust" style="margin-top:var(--space-2);font-size:13px"><span><i class="ui-live"></i><strong>23</strong>&nbsp;oglasa</span><span><strong>50</strong>&nbsp;izvora · danas 06:00</span></div>
+          <form class="ui-search" onsubmit="return false" style="margin-top:var(--space-4)">
+            <label class="ui-field"><svg class="ui-icon"><use href="#i-search"/></svg><input class="ui-input" placeholder="Posao ili organizacija" aria-label="Pretraga"></label>
+            <select class="ui-select" aria-label="Grad"><option>Svi gradovi</option></select>
+            <select class="ui-select" aria-label="Vrsta"><option>Sve vrste</option></select>
+            <button class="ui-btn ui-btn--secondary" type="button"><svg class="ui-icon"><use href="#i-filter"/></svg>Filteri</button>
+            <button class="ui-btn ui-btn--primary" type="button">Traži</button>
+          </form>
+          <div class="ui-results-head" style="margin:var(--space-5) 0 var(--space-3)"><h2 style="font-size:var(--text-lg)">23 oglasa</h2><select class="ui-select" aria-label="Redoslijed" style="min-height:36px;width:auto;font-size:var(--text-sm)"><option>Rok uskoro</option></select></div>
+          <article class="ui-card">
+            <span class="ui-mono" aria-hidden="true">UNW</span>
+            <div><p class="ui-card__org">UN Women u BiH</p><h3><a href="#screens">Family Law Consultant</a></h3><div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-brief"/></svg>Konsultant</span></div><ul class="ui-tags"><li class="ui-tag">Pravo</li><li class="ui-tag">5+ god.</li></ul></div>
+            <div class="ui-card__side"><span class="ui-deadline ui-deadline--today"><span class="lbl2">Rok</span><time>03.10.</time><span class="left">Danas</span></span><a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#screens">Oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+          </article>
+          <article class="ui-card">
+            <span class="ui-mono" aria-hidden="true">EU</span>
+            <div><p class="ui-card__org">Delegacija EU u BiH <span class="ui-pill ui-pill--new">Novo</span></p><h3><a href="#screens">Head of Communications</a></h3><div class="ui-card__meta"><span><svg class="ui-icon"><use href="#i-pin"/></svg>Sarajevo</span><span><svg class="ui-icon"><use href="#i-globe"/></svg>Međunarodna</span></div></div>
+            <div class="ui-card__side"><span class="ui-deadline ui-deadline--soon"><span class="lbl2">Rok</span><time>06.10.</time><span class="left">3 dana</span></span><a class="ui-btn ui-btn--secondary ui-btn--sm ui-card__ext" href="#screens">Oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+          </article>
+        </div>
+      </div>
+      <p class="phone-cap">The first job appears at about 470px, down from about 1,250px today. The nav moves to a second row, so the header fits at 320px.</p>
+    </div>
+    <div>
+      <div class="phone" style="display:flex;flex-direction:column">
+        <header class="ui-header"><a class="ui-brand" href="#screens" style="font-size:17px"><svg viewBox="0 0 32 32" style="width:26px;height:26px"><use href="#i-seal"/></svg>DiplomacyJobs</a><span class="ui-lang" style="margin:0"><span>BS</span><a href="#screens">EN</a></span></header>
+        <div class="page" style="flex:1">
+          <a href="#screens" style="display:inline-flex;align-items:center;gap:4px;font-size:var(--text-sm);font-weight:600;text-decoration:none"><svg class="ui-icon"><use href="#i-back"/></svg>Svi oglasi</a>
+          <p class="ui-card__org" style="margin-top:var(--space-4)">Misija OSCE-a u BiH <span class="ui-pill ui-pill--new">Novo</span></p>
+          <h1 style="font-size:var(--text-2xl);margin:var(--space-1) 0 0">Chief, General Services</h1>
+          <dl class="ui-summary">
+            <div><dt>Rok prijave</dt><dd>12.10.2026.<span style="display:block;color:var(--color-text-muted);font-weight:500">još 9 dana</span></dd></div>
+            <div><dt>Lokacija</dt><dd>Sarajevo</dd></div>
+            <div><dt>Vrsta</dt><dd>Zaposlenje</dd></div>
+            <div><dt>Pozicija</dt><dd>Međunarodna</dd></div>
+          </dl>
+          <h2 style="font-size:var(--text-lg);margin:var(--space-5) 0 var(--space-3)">Uslovi</h2>
+          <dl class="ui-facts">
+            <div class="ui-fact"><dt>Obrazovanje</dt><dd>Fakultet (bachelor)<details class="ui-evidence"><summary><svg class="ui-icon"><use href="#i-quote"/></svg>Iz oglasa</summary><blockquote lang="en">University degree in public administration, law or economics.</blockquote></details></dd></div>
+            <div class="ui-fact"><dt>Iskustvo</dt><dd>Najmanje 7 godina<details class="ui-evidence" open><summary><svg class="ui-icon"><use href="#i-quote"/></svg>Iz oglasa</summary><blockquote lang="en">Minimum 7 years of relevant experience.</blockquote></details></dd></div>
+            <div class="ui-fact"><dt>Jezici</dt><dd>Engleski, B/H/S</dd></div>
+          </dl>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin:var(--space-3) 0 0">Provjereno 03.10.2026. · <a href="#screens">Prijavi problem</a></p>
+        </div>
+        <div class="ui-sticky"><div class="d">Rok prijave<b>12.10.2026.</b></div><a class="ui-btn ui-btn--primary" href="#screens">Službeni oglas <svg class="ui-icon"><use href="#i-ext"/></svg></a></div>
+      </div>
+      <p class="phone-cap">A summary grid under the title shows the deadline straight away, and a sticky bar keeps Apply within thumb reach. The desktop layout keeps today's sticky aside.</p>
+    </div>
+  </div>
+
+  <h3 class="sub">Sources and coverage</h3>
+  <div class="frame ui">
+    <div class="frame-bar"><i></i><i></i><i></i><span>diplomacyjobs.ba/sources/?status=covered</span></div>
+    <div class="page">
+      <p class="kicker">Transparentnost izvora</p>
+      <h1 style="font-size:var(--text-2xl)">Izvori i pokrivenost</h1>
+      <p class="hero-p" style="font-size:var(--text-md);margin-top:var(--space-2)">Oglase preuzimamo sa službenih stranica poslodavaca. Prazno polje ne znači nula oglasa.</p>
+      <div class="ui-bar" role="img" aria-label="50 praćenih, 0 djelimičnih, 8 nedostupnih, 30 bez liste od 88"><i style="flex:50;background:var(--color-status-covered-fg)"></i><i style="flex:8;background:var(--dj-amber-200)"></i><i style="flex:30;background:var(--color-border-strong)"></i></div>
+      <div class="ui-legend"><span><i style="background:var(--color-status-covered-fg)"></i>Praćeni 50</span><span><i style="background:var(--dj-amber-200)"></i>Nedostupni 8</span><span><i style="background:var(--color-border-strong)"></i>Bez liste 30</span><span>Posljednja provjera 03.10.2026. 06:00</span></div>
+      <div class="ui-cov" style="margin-top:var(--space-6)">
+        <a href="#screens" aria-current="true"><span class="ui-pill ui-pill--dot ui-pill--covered" style="justify-self:start">Praćeni</span><strong>50</strong>10 s oglasima · 40 bez oglasa</a>
+        <a href="#screens"><span class="ui-pill ui-pill--dot ui-pill--partial" style="justify-self:start">Djelimični</span><strong>0</strong>Lista nije potpuna</a>
+        <a href="#screens"><span class="ui-pill ui-pill--dot ui-pill--unavailable" style="justify-self:start">Nedostupni</span><strong>8</strong>Provjera nije uspjela</a>
+        <a href="#screens"><span class="ui-pill ui-pill--dot ui-pill--untracked" style="justify-self:start">Nisu praćeni</span><strong>30</strong>Nema lokalne liste</a>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);margin:var(--space-8) 0 var(--space-3);flex-wrap:wrap"><h2 style="font-size:var(--text-lg)">Praćeni izvori <span style="color:var(--color-text-muted);font-weight:500">· 50</span></h2><label class="ui-field" style="width:280px;max-width:100%"><svg class="ui-icon"><use href="#i-search"/></svg><input class="ui-input" placeholder="Traži organizaciju" style="min-height:36px" aria-label="Traži organizaciju"></label></div>
+      <div class="ui-tablewrap"><table class="ui-table">
+        <thead><tr><th>Izvor</th><th>Vrsta</th><th>Status</th><th style="text-align:right">Oglasi</th><th>Provjereno</th></tr></thead>
+        <tbody>
+          <tr class="ui-group"><td colspan="5">S otvorenim oglasima · 10</td></tr>
+          <tr><td><strong>UNDP u Bosni i Hercegovini</strong><small>procurement-notices.undp.org ↗</small></td><td>Međunarodna org.</td><td><span class="ui-pill ui-pill--dot ui-pill--covered">Dostupan</span></td><td class="num">8</td><td>danas 06:02</td></tr>
+          <tr><td><strong>EUFOR (Operacija EU Althea)</strong><small>euforbih.org ↗</small></td><td>Međunarodna org.</td><td><span class="ui-pill ui-pill--dot ui-pill--covered">Dostupan</span></td><td class="num">2</td><td>danas 06:01</td></tr>
+          <tr class="ui-group"><td colspan="5">Bez otvorenih oglasa · 40</td></tr>
+          <tr><td><strong>Ambasada Japana u BiH</strong><small>bosnia.emb-japan.go.jp ↗</small></td><td>Ambasada</td><td><span class="ui-pill ui-pill--dot ui-pill--covered">Dostupan</span></td><td class="num">0</td><td>danas 06:03</td></tr>
+          <tr><td colspan="5" style="text-align:center;font-size:var(--text-sm)"><a href="#screens">Prikaži još 39</a></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+  <div class="annots">
+    <p><em class="annot">1</em>The stacked bar answers "how complete is this?" before anyone reads a number.</p>
+    <p><em class="annot">2</em>The four stat cards are now the filters, replacing nine pills. Sub-states such as "awaiting integration" stay inside each group.</p>
+    <p><em class="annot">3</em>Rows are grouped, sources with jobs come first, long groups are trimmed with a "show more" link and there is a name search. The page goes from about 9,500px to about 2,000px.</p>
+  </div>
+</section>
+
+<!-- ============ 6. ROADMAP ============ -->
+<section class="part" id="roadmap">
+  <h2>6 · Rollout</h2>
+  <p class="intro">The work is ordered so the launch blockers come first and each step can be shipped and reviewed on its own. Django view logic doesn't change. The work is in CSS and templates, plus one small template tag.</p>
+  <div class="phase"><div><h4>Phase 1</h4><p class="when">Before launch · ~1 day</p></div><ol>
+    <li><b>Fix mobile overflow</b> in <code>.site-nav</code> and the language switch (base.html, site.css).</li>
+    <li><b>Adopt tokens:</b> link <code>tokens.css</code> before site.css and replace the 123 hex values with alias tokens. Expect no visual change except the input border.</li>
+    <li><b>Accessibility:</b> add a global <code>:focus-visible</code> ring, set <code>--color-border-control</code> on inputs and enlarge the language switch targets.</li>
+    <li><b>Status colours:</b> make review violet and give each of pending and not-found its own label (sources.html).</li>
+    <li><b>Icons:</b> replace 📍, ↗ and ◎ with an inline SVG sprite partial (<code>templates/board/_icons.html</code>).</li>
+  </ol></div>
+  <div class="phase"><div><h4>Phase 2</h4><p class="when">Launch week · 2–3 days</p></div><ol>
+    <li><b>Filter bar:</b> a primary row plus a <code>&lt;details&gt;</code> for requirement filters, and applied chips built from <code>page_query</code> (jobs.html, a small helper in views.py).</li>
+    <li><b>Job card v2</b> with a <code>{% deadline job %}</code> inclusion tag (board_extras.py) that the card, the job page and the sticky bar share.</li>
+    <li><b>Job page:</b> a summary grid under the title, a sticky apply bar under 960px and the restyled evidence quotes (job_detail.html).</li>
+    <li><b>Trust strip</b> on the job list. Reuse the coverage totals from <code>views.sources</code> as a cached helper.</li>
+    <li>Self-host Public Sans (two woff2 weights) under <code>board/static/board/fonts/</code>.</li>
+  </ol></div>
+  <div class="phase"><div><h4>Phase 3</h4><p class="when">After launch</p></div><ol>
+    <li><b>Sources page:</b> stat cards as filters, grouped rows, a coverage bar and name search.</li>
+    <li><b>Dark theme:</b> it is already defined in the tokens, so only a QA pass on the real templates is needed.</li>
+    <li>Employer monograms. Add an optional <code>short_name</code> to Organization (e.g. "OSCE", "UNFPA").</li>
+    <li>An Open Graph share image per job (title, employer and deadline on a brand background), for links shared in Viber and WhatsApp groups.</li>
+    <li>Run a usability check with 5 job seekers on mobile using the tasks "find a job you qualify for in Sarajevo" and "apply before the deadline".</li>
+  </ol></div>
+</section>
+
+<footer class="doc-foot">
+  <p><b>Method.</b> This proposal used the Designer Skills pack (<a href="https://github.com/Owl-Listener/designer-skills">Owl-Listener/designer-skills</a>), installed as Claude Code plugins: design-systems, ui-design, visual-critique, prototyping-testing, interaction-design, ux-strategy. Skills applied:</p>
+  <div class="skills"><code>heuristic-evaluation</code><code>critique-information-density</code><code>critique-visual-hierarchy</code><code>critique-color</code><code>design-token</code><code>color-system</code><code>typography-scale</code><code>spacing-system</code><code>component-spec</code><code>search-ux</code><code>accessibility-audit</code><code>design-principles</code><code>fitts-law</code><code>hicks-law</code></div>
+  <p class="note">Screens audited on a local run of commit <code>231e46a</code> with the 87-organization registry and 8 sample jobs. "Before" screenshots are in <code>docs/design/before/</code>. The mobile screenshots are 425px wide in a 390px viewport because of the overflow bug.</p>
+</footer>
+</main>
+</body>
+</html>

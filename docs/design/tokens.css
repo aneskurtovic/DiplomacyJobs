@@ -1,0 +1,226 @@
+/*
+ * DiplomacyJobs design tokens (proposal, 2026-10-03).
+ *
+ * Three tiers, following design-systems:design-token:
+ *   1. Global   --dj-<hue>-<step>     raw values, never used by components directly
+ *   2. Alias    --color-<role>        semantic meaning (surface, text, border, status)
+ *   3. Component --<component>-<prop>  only where a component needs its own knob
+ *
+ * Every text/background pair listed in docs/design/design-system.html was checked
+ * against WCAG 2.2: body text >= 4.5:1, control borders >= 3:1 (1.4.11).
+ * The brand blue #0f4c81 and the slate text colours are kept from site.css so
+ * adoption is a find-and-replace, not a rebrand.
+ */
+
+:root {
+  /* ---------- 1. Global palette ---------- */
+  --dj-blue-50: #eef4fa;
+  --dj-blue-100: #dbe7f3;
+  --dj-blue-200: #b6cfe7;
+  --dj-blue-400: #4f88bf;
+  --dj-blue-600: #1a5a96;
+  --dj-blue-700: #0f4c81;   /* current brand */
+  --dj-blue-800: #0b3a63;
+  --dj-blue-900: #082b4a;
+
+  --dj-slate-0: #ffffff;
+  --dj-slate-25: #fafbfc;
+  --dj-slate-50: #f4f6f8;
+  --dj-slate-100: #eef1f4;
+  --dj-slate-200: #dce1e6;
+  --dj-slate-300: #c3cbd3;
+  --dj-slate-400: #7b8794;  /* 3.66:1 on white: replaces #9aa5b1 (2.5:1) for control borders */
+  --dj-slate-500: #64707d;
+  --dj-slate-600: #52606d;
+  --dj-slate-700: #3e4c59;
+  --dj-slate-800: #253441;
+  --dj-slate-900: #13202d;
+
+  --dj-green-50: #e7f2ec;
+  --dj-green-700: #1d6b45;
+  --dj-amber-50: #fbf3e8;
+  --dj-amber-200: #e8c79a;
+  --dj-amber-700: #8a4b00;
+  --dj-amber-800: #6b3a00;
+  --dj-red-50: #fbeae7;
+  --dj-red-700: #a23b2a;
+  --dj-violet-50: #f1eefa;
+  --dj-violet-700: #5b3fa0;
+
+  /* ---------- 2. Alias: colour roles ---------- */
+  --color-bg: var(--dj-slate-0);
+  --color-bg-subtle: var(--dj-slate-50);
+  --color-surface: var(--dj-slate-0);
+  --color-surface-sunken: var(--dj-slate-50);
+  --color-surface-quote: var(--dj-slate-25);
+
+  --color-text: var(--dj-slate-900);
+  --color-text-body: var(--dj-slate-800);
+  --color-text-secondary: var(--dj-slate-700);
+  --color-text-muted: var(--dj-slate-600);
+  --color-text-inverse: var(--dj-slate-0);
+
+  --color-border: var(--dj-slate-200);
+  --color-border-strong: var(--dj-slate-300);
+  --color-border-control: var(--dj-slate-400);
+
+  --color-brand: var(--dj-blue-700);
+  --color-brand-hover: var(--dj-blue-800);
+  --color-brand-subtle: var(--dj-blue-50);
+  --color-link: var(--dj-blue-700);
+  --color-link-hover: var(--dj-blue-800);
+  --color-focus: var(--dj-blue-600);
+
+  /* Deadline urgency: one meaning per hue. */
+  --color-deadline-today-fg: var(--dj-slate-0);
+  --color-deadline-today-bg: var(--dj-red-700);
+  --color-deadline-soon-fg: var(--dj-amber-800);
+  --color-deadline-soon-bg: var(--dj-amber-50);
+  --color-deadline-open-fg: var(--dj-slate-700);
+  --color-deadline-open-bg: var(--dj-slate-100);
+
+  /* Source coverage states. Each state gets its own hue; review and unavailable no longer share amber. */
+  --color-status-covered-fg: var(--dj-green-700);
+  --color-status-covered-bg: var(--dj-green-50);
+  --color-status-partial-fg: var(--dj-blue-700);
+  --color-status-partial-bg: var(--dj-blue-50);
+  --color-status-review-fg: var(--dj-violet-700);
+  --color-status-review-bg: var(--dj-violet-50);
+  --color-status-unavailable-fg: var(--dj-amber-800);
+  --color-status-unavailable-bg: var(--dj-amber-50);
+  --color-status-untracked-fg: var(--dj-slate-700);
+  --color-status-untracked-bg: var(--dj-slate-100);
+
+  /* Notices */
+  --color-notice-fg: var(--dj-amber-800);
+  --color-notice-bg: var(--dj-amber-50);
+  --color-notice-border: var(--dj-amber-200);
+  --color-success-fg: var(--dj-green-700);
+  --color-success-bg: var(--dj-green-50);
+  --color-error-fg: var(--dj-red-700);
+  --color-error-bg: var(--dj-red-50);
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace; /* source domains only */
+
+  /* Major-third scale (1.25) on a 16px base; 7 steps replace 16 ad-hoc sizes. */
+  --text-xs: 0.75rem;    /* 12  pills, table headers */
+  --text-sm: 0.875rem;   /* 14  meta, secondary */
+  --text-md: 1rem;       /* 16  body, controls */
+  --text-lg: 1.25rem;    /* 20  card title, h3 */
+  --text-xl: 1.5625rem;  /* 25  section h2 */
+  --text-2xl: 1.9375rem; /* 31  page h1 (mobile) */
+  --text-3xl: 2.4375rem; /* 39  page h1 (desktop) */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.06em;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --gutter: var(--space-8);
+  --content-max: 1200px;
+  --measure: 68ch;
+
+  /* ---------- Shape ---------- */
+  --radius-sm: 6px;    /* controls, buttons */
+  --radius-md: 10px;   /* cards, panels */
+  --radius-pill: 999px;
+  --border-width: 1px;
+
+  /* ---------- Elevation ---------- */
+  --shadow-1: 0 1px 2px rgb(19 32 45 / 0.06);
+  --shadow-2: 0 4px 14px rgb(19 32 45 / 0.08), 0 1px 3px rgb(19 32 45 / 0.06);
+  --shadow-sticky: 0 -4px 16px rgb(19 32 45 / 0.10);
+
+  /* ---------- Motion ---------- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---------- Sizing ---------- */
+  --control-height: 44px;   /* minimum touch target */
+  --header-height: 64px;
+  --focus-ring: 0 0 0 3px var(--dj-slate-0), 0 0 0 5px var(--color-focus);
+
+  /* ---------- 3. Component tokens ---------- */
+  --card-padding: var(--space-6);
+  --card-gap: var(--space-3);
+  --pill-padding: 3px 10px;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --gutter: var(--space-4);
+    --card-padding: var(--space-4);
+  }
+}
+
+/* Dark theme: alias tokens remap; components never change. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0e1a26;
+    --color-bg-subtle: #122030;
+    --color-surface: #15232f;
+    --color-surface-sunken: #0e1a26;
+    --color-surface-quote: #1b2b3a;
+    --color-text: #e7ecf1;
+    --color-text-body: #d3dbe3;
+    --color-text-secondary: #b8c5d2;
+    --color-text-muted: #9fb3c8;
+    --color-border: #2a3a49;
+    --color-border-strong: #3a4c5d;
+    --color-border-control: #6b7c8f;
+    --color-brand: #7cb8f0;
+    --color-brand-hover: #a6cff5;
+    --color-brand-subtle: #16304a;
+    --color-link: #7cb8f0;
+    --color-link-hover: #a6cff5;
+    --color-focus: #7cb8f0;
+    --color-text-inverse: #0e1a26;
+    --color-deadline-soon-fg: #f2c27b;
+    --color-deadline-soon-bg: #3a2a12;
+    --color-deadline-open-fg: #b8c5d2;
+    --color-deadline-open-bg: #1f2f3e;
+    --color-status-covered-fg: #7fd1a6;
+    --color-status-covered-bg: #143326;
+    --color-status-partial-fg: #7cb8f0;
+    --color-status-partial-bg: #16304a;
+    --color-status-review-fg: #b9a6f0;
+    --color-status-review-bg: #2a2245;
+    --color-status-unavailable-fg: #f2c27b;
+    --color-status-unavailable-bg: #3a2a12;
+    --color-status-untracked-fg: #b8c5d2;
+    --color-status-untracked-bg: #1f2f3e;
+    --color-notice-fg: #f2c27b;
+    --color-notice-bg: #3a2a12;
+    --color-notice-border: #5c4520;
+    --focus-ring: 0 0 0 3px #0e1a26, 0 0 0 5px var(--color-focus);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}

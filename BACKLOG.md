@@ -19,6 +19,8 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
+- [ ] Design system Phase 1 before launch ([proposal](docs/design/design-system.html)): fix the 35px horizontal overflow of the header at 390px, adopt `docs/design/tokens.css`, add `:focus-visible` styles, raise input border contrast to 3:1, and separate the review/unavailable status colours on `/sources/`. Phases 2–3 (filter bar, job card v2, mobile apply bar, sources grouping) follow after owner review.
+
 ## P2 — Job pages and enrichment
 
 - [ ] Configure `ADMINS` and an e-mail backend on the server so visitor reports are e-mailed, not only listed in admin.
