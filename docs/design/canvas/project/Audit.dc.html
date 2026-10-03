@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit findings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#0f4c81}a:hover{color:#0b3a63}
+</style>
+</helmet>
+<div style="font-family: 'Public Sans', system-ui, sans-serif; color: #253441; background: #ffffff; min-height: 100%">
+<div style="max-width: 1280px; margin: 0 auto; padding: 64px 2.5rem 80px; display: flex; flex-direction: column; gap: 32px">
+
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 900px">
+    <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0f4c81">1 · Audit</p>
+    <h1 style="margin: 0; font-size: 39px; line-height: 1.12; letter-spacing: -0.02em; color: #13202d">What the site does today</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3e4c59">The foundation is strong: honest coverage states, quoted evidence for every extracted requirement, a bilingual interface and no JavaScript dependency. The findings are mostly about hierarchy and density, plus a few real bugs. Screens were captured from a local run with the real 87-organization registry and 8 sample jobs.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: #52606d; margin-top: 4px">
+      <span>Severity, Nielsen scale:</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #a23b2a; color: #ffffff; font-size: 12px; font-weight: 700">4</span>must fix before launch</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 12px; font-weight: 700">3</span>major</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 12px; font-weight: 700">2</span>minor</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px"><span style="display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ffffff; color: #52606d; border: 1px solid #dce1e6; font-size: 12px; font-weight: 700">1</span>cosmetic</span>
+    </div>
+  </header>
+
+  <div style="border: 1px solid #dce1e6; border-radius: 10px; overflow: hidden">
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 12px 20px; background: #f4f6f8; border-bottom: 1px solid #dce1e6; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #52606d">
+      <span>Sev.</span><span>Finding and fix</span><span>Heuristic</span><span>Status</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #a23b2a; color: #ffffff; font-size: 13px; font-weight: 700">4</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">The whole site scrolled sideways on phones</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">At 390px the nav plus language switch were 425px wide. Under 760px the header now has two rows: brand and BS/EN, then the tabs. English job-card actions also wrap at 320px.</span></div>
+      <span style="font-size: 13px; color: #52606d">Consistency, platform conventions</span>
+      <span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec">Fixed in Phase 1</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 13px; font-weight: 700">3</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">On mobile the first screen has no jobs</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">The hero plus nine stacked selects take about 1,250px. Show search, City, Type and a Filters (n) disclosure; requirement filters move inside it, and the hero shrinks to one line.</span></div>
+      <span style="font-size: 13px; color: #52606d">Minimalist design; Hick's law</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 13px; font-weight: 700">3</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">The deadline is the quietest text on the card</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">It is 13px grey monospace, with urgency in a separate badge. A Deadline component in the card's right column shows the date in bold with a countdown coloured by urgency.</span></div>
+      <span style="font-size: 13px; color: #52606d">Visibility of status; content priority</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 13px; font-weight: 700">3</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Apply and deadline sit at the bottom of the job page on mobile</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">The aside follows the requirements, about 1,100px down. Add a two-up summary under the title and a sticky bottom bar with the deadline and "Službeni oglas".</span></div>
+      <span style="font-size: 13px; color: #52606d">Recognition over recall; Fitts's law</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 13px; font-weight: 700">3</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Applied filters are invisible once the panel scrolls away</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">"Poništi filtere" clears everything at once. Show a removable chip per active filter (a plain link without that one parameter) plus "Clear all".</span></div>
+      <span style="font-size: 13px; color: #52606d">User control and freedom</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fbf3e8; color: #6b3a00; border: 1px solid #e8c79a; font-size: 13px; font-weight: 700">3</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Two status colours collided on /sources/</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">"On review" and "unavailable" shared one amber. Review is now violet; integration, unchecked and not found share grey and differ by label.</span></div>
+      <span style="font-size: 13px; color: #52606d">Consistency; colour plus label</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec">Fixed in Phase 1</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Two strong calls to action on every card</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">Eight identical filled buttons flatten the list and pull people away from the evidence page. The whole card links to the job page; the external link becomes a secondary button.</span></div>
+      <span style="font-size: 13px; color: #52606d">Minimalist design; Von Restorff</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Overloaded kicker line</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">Employer, type and scope run together in 12px bold blue and wrap to three lines on mobile. The employer gets its own regular-weight line; type and scope move to the meta row with icons.</span></div>
+      <span style="font-size: 13px; color: #52606d">Visual hierarchy</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Input borders failed non-text contrast</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">#9aa5b1 on white was 2.5:1, under the 3:1 WCAG 1.4.11 minimum. Inputs now use the control border token, #7b8794 (3.66:1).</span></div>
+      <span style="font-size: 13px; color: #52606d">Accessibility</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec">Fixed in Phase 1</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">No designed focus state; small language targets</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">site.css had no focus rule, and BS/EN targets were about 28px. There is now a 2px brand-blue focus outline, and BS/EN is a 40×32px segmented control.</span></div>
+      <span style="font-size: 13px; color: #52606d">Accessibility; Fitts's law</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec">Fixed in Phase 1</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">The /sources/ table is about 9,500px long</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">88 ungrouped rows, 30 of them "no list found", and nine filter pills that repeat the four stat cards. Make the stat cards the filters, group rows by state and add a coverage bar.</span></div>
+      <span style="font-size: 13px; color: #52606d">Information density</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 3</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #f4f6f8; color: #3e4c59; border: 1px solid #c3cbd3; font-size: 13px; font-weight: 700">2</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Trust signals live only on /sources/</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">The job list never says how many sources are watched or when they were checked. Add a trust strip under the hero: sources tracked, last check, a link to how collection works.</span></div>
+      <span style="font-size: 13px; color: #52606d">Visibility of status</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #ffffff; color: #52606d; border: 1px solid #dce1e6; font-size: 13px; font-weight: 700">1</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Emoji and glyph icons</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">📍, ↗ and ◎ rendered differently on each system. They are now an inline SVG sprite in currentColor.</span></div>
+      <span style="font-size: 13px; color: #52606d">Consistency</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec">Fixed in Phase 1</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; border-bottom: 1px solid #dce1e6; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #ffffff; color: #52606d; border: 1px solid #dce1e6; font-size: 13px; font-weight: 700">1</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">Monospace for dates and meta</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">IBM Plex Mono makes Bosnian prose such as "Provjereno: …" read as code. Use Public Sans with tabular figures; keep mono only for source domains.</span></div>
+      <span style="font-size: 13px; color: #52606d">Typography</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) 220px 150px; gap: 16px; padding: 18px 20px; align-items: start">
+      <span style="display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #ffffff; color: #52606d; border: 1px solid #dce1e6; font-size: 13px; font-weight: 700">1</span>
+      <div style="display: flex; flex-direction: column; gap: 4px"><strong style="color: #13202d; font-size: 15px">"Novo" on almost every card</strong><span style="font-size: 14px; line-height: 1.5; color: #3e4c59">With a three-day window and daily scraping the badge loses its signal. Keep it as a quiet pill beside the employer instead of a row of its own.</span></div>
+      <span style="font-size: 13px; color: #52606d">Von Restorff</span>
+      <span style="justify-self: start; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Phase 2</span>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
