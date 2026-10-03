@@ -4,28 +4,36 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 
 ## Current state (verified 2026-10-03, local SQLite)
 
-- **Commit:** `8ec1cc8` on `main`, pushed. [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on Linux/Python 3.12 (SQLite and PostgreSQL 16).
+- **Commit:** last code commit `8ec1cc8` on `main`, pushed; later commits are documentation only and not yet pushed. [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on Linux/Python 3.12 (SQLite and PostgreSQL 16).
 - **Tests:** 165 discovered locally: 164 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 83 organizations (40 embassies, 7 consulates, 6 honorary consulates, 26 international organizations, 2 INGOs, 2 aggregators); 50 sources, **43 enabled**.
-- **Coverage on `/sources/`** (83 rows): **39 complete** (35 official mission/IGO sources plus 2 aggregators and 2 INGOs; 8 with published jobs, 30 empty, 1 with only review items), **4 partial** (Sweden, RYCO, Brazil, Canada), **17 unavailable** (15 unresolved audit cases plus UK and UNICEF), **23 no local recruitment list**, 0 awaiting integration, 0 unchecked.
-- **Jobs:** 13 published (all visible on the board), 8 in review, 3 closed.
+- **Coverage on `/sources/`** (83 rows): **39 complete** (35 official mission/IGO sources plus 2 aggregators and 2 INGOs; 9 with published jobs, 30 empty), **4 partial** (Sweden, RYCO, Brazil, Canada), **17 unavailable** (15 unresolved audit cases plus UK and UNICEF), **23 no local recruitment list**, 0 awaiting integration, 0 unchecked.
+- **Jobs:** 15 published (all visible on the board), 0 in review, 9 closed. Content review done 2026-10-03 (see below).
 
 ## Owner decisions (2026-10-03)
 
 - A full reconciliation against the BiH Ministry of Foreign Affairs directory is **not** needed. The registry is the set of employers we choose to monitor.
 - GIZ may come in through a third-party board (mreza-mira.net). More generally, aggregators and local boards are acceptable sources; the direct employer is preferred and syndicated jobs are attributed.
 - INGOs and development agencies hiring in BiH are in scope (Save the Children and CRS are enabled).
-- Next work, in this order: review published jobs, then coverage (recheck the 2026-10-02 dead-end leads, GIZ, UNDP consultant notices, the four partial sources, the 15 inaccessible sites).
+- Next work, in this order: review published jobs (done 2026-10-03), then coverage (recheck the 2026-10-02 dead-end leads, GIZ, UNDP consultant notices, the four partial sources, the 15 inaccessible sites).
+
+## Content review (2026-10-03)
+
+All 21 open jobs were checked against the publication rule; each change has an admin history entry ("Content review 2026-10-03"). Database backup: `backups/db-before-content-review-20261003-111411.sqlite3`.
+
+- **Kept published (13):** OSCE Chief General Services, EUSR Head of Communications, two EU twinning assistants, two EUFOR posts, US Embassy Electrical Engineer Supervisor, three UNDP posts, UNFPA PME Analyst, UN Women Family Law consultant, IDC Europe Programme Officer (regional remote role; BiH is an allowed place of work, EUR 30–40k).
+- **Corrected:** EUSR job gained an EU-citizens-only eligibility note; the two twinning assistant jobs (local hire, up to EUR 2,000 gross/month) were set to national scope.
+- **Published from review (2):** the two UNICEF EU4People consultancies (via Impactpool). jobs.unicef.org shows them advertised 01 Oct 2026, closing 15 Oct 2026.
+- **Closed as duplicates (6):** Impactpool copies of the OSCE, UNDP (3), UNFPA and UN Women jobs already held from the employer's own source (`closed_reason=manual`, `field_evidence.duplicate_of`). Their Impactpool deadlines were a day later than the employer's, so the employer record stays authoritative.
 
 ## Next steps
 
-1. **Content review.** Go through the 13 published and 8 review jobs against the publication rule in PLAN; publish, correct or close each one from its own admin page, and note the outcome here.
-2. **Recheck dead-end leads:** EIB, Austria, UNOPS, Germany, the Netherlands.
-3. **GIZ** via mreza-mira.net, filtered to GIZ.
-4. **UNDP consultant notices** from UNDP's procurement-notices system, BiH only.
-5. **Partial sources:** Sweden and RYCO full listings, Brazil scanned PDFs, Canada honorary-consulate notices.
-6. **The 15 inaccessible sites** (listed in BACKLOG). Some may only be reachable from the server network.
-7. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Push and CI are not deployment proof.
+1. **Recheck dead-end leads:** EIB, Austria, UNOPS, Germany, the Netherlands.
+2. **GIZ** via mreza-mira.net, filtered to GIZ.
+3. **UNDP consultant notices** from UNDP's procurement-notices system, BiH only.
+4. **Partial sources:** Sweden and RYCO full listings, Brazil scanned PDFs, Canada honorary-consulate notices.
+5. **The 15 inaccessible sites** (listed in BACKLOG). Some may only be reachable from the server network.
+6. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Push and CI are not deployment proof.
 
 ## Working notes
 
