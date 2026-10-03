@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rollout</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Public+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#0f4c81}a:hover{color:#0b3a63}
+</style>
+</helmet>
+<div style="font-family: 'Public Sans', system-ui, sans-serif; color: #253441; background: #ffffff; min-height: 100%">
+<div style="max-width: 1280px; margin: 0 auto; padding: 64px 2.5rem 80px; display: flex; flex-direction: column; gap: 32px">
+
+  <header style="display: flex; flex-direction: column; gap: 12px; max-width: 900px">
+    <p style="margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #0f4c81">4 · Rollout</p>
+    <h1 style="margin: 0; font-size: 39px; line-height: 1.12; letter-spacing: -0.02em; color: #13202d">Three phases, each shippable on its own</h1>
+    <p style="margin: 0; font-size: 17px; line-height: 1.55; color: #3e4c59">Django view logic stays as it is: the work is in CSS, templates and one small template tag. Launch blockers came first.</p>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start">
+    <section style="border: 1px solid #1d6b45; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 20px; color: #13202d">Phase 1</h2><span style="display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #1d6b45; background: #e7f2ec"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"></path></svg>Done 3 Oct</span></div>
+      <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5; color: #3e4c59">
+        <li>Two-row mobile header; no page scrolls sideways at 320–390px (WCAG 1.4.10)</li>
+        <li>tokens.css linked; no raw hex values left in site.css</li>
+        <li>2px focus outline (2.4.7); input borders 3.66:1 (1.4.11)</li>
+        <li>BS/EN as 40×32px segmented control (2.5.8)</li>
+        <li>Violet "review" status on /sources/</li>
+        <li>SVG icons replace 📍, ↗ and ◎</li>
+      </ul>
+    </section>
+    <section style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 20px; color: #13202d">Phase 2</h2><span style="border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">Launch week · 2–3 days</span></div>
+      <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5; color: #3e4c59">
+        <li>Filter bar: primary row plus a details panel; chips are whole links at least 36px tall</li>
+        <li>Job card v2 with a shared deadline tag</li>
+        <li>Job page: summary grid and a sticky apply bar under 960px, with scroll-padding-bottom so it never hides focus (2.4.11)</li>
+        <li>Trust strip on the job list</li>
+        <li>Public Sans self-hosted; tabular figures replace monospace meta</li>
+      </ul>
+    </section>
+    <section style="border: 1px solid #dce1e6; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 20px; color: #13202d">Phase 3</h2><span style="border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: #3e4c59; background: #eef1f4">After launch</span></div>
+      <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.5; color: #3e4c59">
+        <li>Sources: stat cards as filters, grouped rows, coverage bar, name search, compact table density</li>
+        <li>Dark theme QA, then data-theme="auto" on the page</li>
+        <li>Pills and deadline chips keep a border under forced-colors (Windows High Contrast)</li>
+        <li>Employer monograms from an optional short_name</li>
+        <li>Per-job share image for Viber and WhatsApp links</li>
+        <li>Mobile usability check with 5 job seekers</li>
+      </ul>
+    </section>
+  </div>
+
+  <section style="background: #f4f6f8; border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 17px; color: #13202d">Designer Skills applied</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">heuristic-evaluation</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">critique-information-density</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">critique-visual-hierarchy</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">critique-color</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">accessibility-audit</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">design-token</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">color-system</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">typography-scale</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">spacing-system</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">component-spec</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">search-ux</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">design-principles</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">fitts-law</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">hicks-law</span>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #ffffff; border: 1px solid #dce1e6">responsive-design</span>
+    </div>
+  </section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
