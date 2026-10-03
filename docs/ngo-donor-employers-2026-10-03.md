@@ -30,7 +30,8 @@ JICA careers URL return 404; fes.ba and savethechildren.taleo.net do not resolve
 - Done: Save the Children and CRS are enabled (`oracle`, `allow_empty`).
   Save the Children advertised two national BiH roles in 2026.
 - GIZ is the largest local employer here, but it advertises BiH national posts on
-  local boards rather than in a scrapable official listing.
+  local boards rather than in a scrapable official listing. Follow-up: the owner
+  approved a third-party board source for GIZ (mreza-mira.net); tracked in BACKLOG.
 - KAS, FES, TIKA and JICA rarely or never post local vacancies publicly.
 
 ## Related coverage gap found
