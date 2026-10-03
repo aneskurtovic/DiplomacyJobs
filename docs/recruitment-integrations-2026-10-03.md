@@ -1,6 +1,6 @@
 # Seven recruitment audit integrations
 
-Verified on **2026-10-03**, Europe/Sarajevo. These are local implementation and official-source scan results; deployment-network access and Linux CI for this change have not been checked.
+Verified on **2026-10-03**, Europe/Sarajevo. These are local implementation, official-source scan and Linux CI results. Integration commit **`7898c821e51fe7d09d61f38064c222c00aabe56d`** is pushed to `main`; deployment-network access has not been checked.
 
 All seven previously disabled audit leads now have adapters and passed their first local scrape. Five have complete listing coverage; two are deliberately partial. No current job was imported. All column values in the 15 existing job rows are identical in a database comparison with the pre-integration backup.
 
@@ -24,7 +24,7 @@ All TLS checks remain enabled. Türkiye, Brazil and Spain opt into the existing 
 - **15 stored job rows preserved exactly**; no new public or review job and no closure of an existing job. Backup: ignored `backups/before-seven-integrations-2026-10-03.sqlite3`.
 - Partial card/API feeds preserve unseen published jobs without replacing their structured evidence with an unverified detail fetch.
 - Migration **0025** registers the five new adapter choices. UAE reuses `rmk`; both Turkish sources share `turkey`.
-- Django checks and migration drift checks passed. **154 SQLite tests: 153 passed, one PostgreSQL-only skip**; 19 new adapter regression tests. The PostgreSQL/Linux gate was not run for this change.
+- Django checks and migration drift checks passed. **154 SQLite tests: 153 passed, one PostgreSQL-only skip**; 19 new adapter regression tests. Both Linux/Python 3.12 jobs passed in [CI run 37080609044](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37080609044): **PostgreSQL 16 passed all 154 tests with no skips; SQLite passed 153 with one skip**. System and migration drift checks passed on both.
 - Restarted the identified local launcher/child after verification. `/`, `/sources/?status=integration`, `/sources/?status=partial` and `/health/` returned HTTP 200. Local coverage: <http://127.0.0.1:8000/sources/>.
 
 ## Reproduction
