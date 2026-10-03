@@ -15,6 +15,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
 - [ ] Aggregator copies of vacancies already held from the employer's own source land in review ("year not proven") on every first sighting, although the board already hides them. Close or auto-resolve them at ingest so the review queue holds only real decisions.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.
+- [ ] CI notices (run 37116293201): actions/checkout@v4 and actions/setup-python@v5 target the deprecated Node.js 20; `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19. Update the action versions (needs a token with `workflow` scope).
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 

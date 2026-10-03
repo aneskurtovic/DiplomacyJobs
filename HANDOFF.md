@@ -4,7 +4,7 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 
 ## Current state (verified 2026-10-03, local SQLite)
 
-- **Commits:** `8ec1cc8` is the last pushed commit; [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on it (Linux/Python 3.12, SQLite and PostgreSQL 16). Later local commits (new adapters, migrations 0028–0029, registry changes) are **not pushed and have no CI run yet**; the owner asked to push later.
+- **Commit:** `2028a85` on `main`, pushed. [CI run 37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) passed on Linux/Python 3.12: 181 tests on SQLite (one PostgreSQL-only skip) and 181 on PostgreSQL 16, including migrations 0028–0031.
 - **Tests:** 181 discovered locally: 180 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 57 sources, **50 enabled**.
 - **Coverage on `/sources/`** (87 rows): **50 complete** (45 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 40 empty), **0 partial**, **8 unavailable** (Malaysia, Pakistan, Qatar, Romania, Russia, Kuwait, UK, UNICEF), **30 no local recruitment list**, 0 awaiting integration, 0 unchecked.
