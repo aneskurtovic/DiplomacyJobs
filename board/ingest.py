@@ -43,6 +43,8 @@ DATE_TEXT = r"\d{1,2}\.\s?\d{1,2}\.\s?\d{4}|\d{1,2}[/-]\d{1,2}[/-]\d{4}|\d{4}[-/
 DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|posting end date|apply by|rok\b(?: za prijavu)?|prijave do|application deadline|najkasnije do|no later than|scad\.?(?: presentazione domande)?)\D{0,45}(?:(?:(?<=UTC[−+-])\d{1,2}(?::\d{2})?|\d{1,2}:\d{2}(?:\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore))?|\d{1,2}(?:\.\d{2})?\s*(?:a\.?m\.?|p\.?m\.?|h|hrs|hours|sati|časova|ore)|\d{1,3}\s*(?:days?|dana|giorni))(?:\s*\(?\s*(?:UTC|GMT|CET|CEST)\s*(?:[−+-]\s?\d{1,2}(?::\d{2})?)?\)?)?(?![a-z])\D{0,20})?(" + DATE_TEXT + r")", re.I)
 # "Open until", "received by": only a date right after counts, since "open until filled. Start date …" names another date.
 DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|application documents by|applications? by|ističe)\s*(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
+# "Candidates should submit … by 7 December 2024": an application verb, then "by <date>" in the same sentence.
+SUBMIT_BY = re.compile(r"\b(?:submit\w*|send|apply)\b(?:[^.;]|\.(?=\S)){0,200}?\bby\s+(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)(?:(?!contract|ugovor|appointment|angažman)[^\d.;]){0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
@@ -103,7 +105,8 @@ def trusted_host(host, domain):
 
 
 def parse_date(value):
-    value = value.strip().rstrip(".")
+    # A leading weekday ("Thursday, 07 November 2024") adds nothing to the date.
+    value = re.sub(r"^(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday),?\s+", "", value.strip(), flags=re.I).rstrip(".")
     compact = re.sub(r"\s+", "", value)
     for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%d.%m.%Y", "%d/%m/%Y", "%d-%m-%Y"):
         try:
@@ -129,7 +132,7 @@ def parse_deadline(text):
     if extended := first_date(EXTENDED, text):
         return extended
     # The earliest stated deadline wins, whichever phrasing it uses.
-    found = [(match.start(), parsed) for pattern in (DEADLINE, DEADLINE_DIRECT) for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))]
+    found = [(match.start(), parsed) for pattern in (DEADLINE, DEADLINE_DIRECT, SUBMIT_BY) for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))]
     return min(found, key=lambda item: item[0])[1] if found else None
 
 
@@ -1000,6 +1003,12 @@ def discover_links(client, source, soup, evidence=None):
     item_selector = PAGINATED.get(source.adapter) or (config.get("page_item_selector") if source.adapter == "generic" else None)
     if item_selector and soup.select(item_selector):
         second = int(config.get("second_page", 1))
+
+        def older_page(page_soup):
+            # stop_at_older_page: a date-sorted list whose items show their dates ends where no item is from the target year or later.
+            return config.get("stop_at_older_page") and not any(re.search(rf"\b(?:{TARGET_YEAR}|{TARGET_YEAR + 1})\b", item.get_text(" ")) for item in page_soup.select(item_selector))
+        if older_page(soup):
+            return list(dict.fromkeys(links))
         for page in range(second, second + MAX_LISTING_PAGES):
             parts = urlsplit(source.url)
             query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "page"] + [("page", str(page))]
@@ -1011,6 +1020,8 @@ def discover_links(client, source, soup, evidence=None):
                 # Some listings repeat the last page past the end.
                 return list(dict.fromkeys(links))
             links += page_links
+            if older_page(page_soup):
+                return list(dict.fromkeys(links))
         raise ValueError(f"{source.adapter} listing exceeds {MAX_LISTING_PAGES} pages; check the BiH filter")
     return links
 

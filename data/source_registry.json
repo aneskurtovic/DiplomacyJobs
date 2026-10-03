@@ -55,10 +55,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639222889515670331",
-    "recruitment_notes": "Nije pronađena zasebna službena stranica za zapošljavanje nuncijature. Dohvat MFA dokaza nije uspio zbog TLS certifikata; provjera ostaje ograničena."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: MFA BiH zapis je dostupan (Windows trust store; certifi ne prihvata lanac mvp.gov.ba). Nuncijatura nema vlastitu web stranicu ni javni kanal zapošljavanja."
   },
   {
     "name": "Britanska ambasada u Sarajevu",
@@ -249,7 +249,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.kln.gov.my/web/bih_sarajevo/archives",
-    "recruitment_notes": "Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: kln.gov.my ne šalje međucertifikat (greška 'unable to get local issuer certificate' s Windows trust storeom, certifi i Chrome impersonacijom). To je konfiguracija servera; ne zaobilazi se. Ranije: Ispravljena pogrešna kin.gov.my adresa. Službena indeksirana arhiva sadrži oglas Caretaker od 01.06.2023, izvan 2026. Direktni dohvat arhive i job_vacancy nije uspio zbog TLS certifikata; potrebno provjeriti paginaciju i sadržaj."
   },
   {
     "name": "Embassy of Romania",
@@ -264,7 +264,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://sarajevo.mae.ro/",
-    "recruitment_notes": "Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: sarajevo.mae.ro i dalje vraća HTTP 503 'Verifying your browser' i uz Chrome impersonaciju (JavaScript provjera se ne rješava); cariera.mae.ro ne šalje međucertifikat. Ranije: Stranica ambasade vraća HTTP 503 provjeru preglednika. Centralni cariera.mae.ro ima TLS grešku; nije potvrđena lokalna lista za Sarajevo."
   },
   {
     "name": "Embassy of the Federal Republic of Germany",
@@ -350,16 +350,25 @@
     "sources": [
       {
         "url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
-        "adapter": "none",
-        "status": "blocked",
-        "enabled": false,
-        "notes": "2026-10-03: Službena indeksirana lista sadrži Sarajevo oglas iz novembra 2024, rok 07.12.2024, izvan 2026. Lista i detalj odbijaju direktni dohvat (HTTP 403). Potrebna provjera pristupa i paginacije."
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "impersonate": true,
+          "allow_empty": true,
+          "path_contains": "/bosnia-herzegovina-en/news/",
+          "content_selector": "#sitecontent .inside",
+          "published_selector": ".item_createdate",
+          "page_item_selector": "li.sectiontableentry1, li.sectiontableentry2",
+          "stop_at_older_page": true
+        },
+        "notes": "Vijesti ambasade (Elxis CMS), 15 po stranici, sortirane po datumu; čitaju se stranice dok ima vijesti iz 2026. Oglasi imaju naslove kao 'OGLAS ZA SLOBODNO RADNO MJESTO', 'VACANCY ANNOUNCEMENT' (2024), 'Call for Applications - Administrative Staff'. Stranica odbija ne-preglednički TLS otisak (HTTP 403), pa koristi Chrome TLS impersonaciju. Provjereno 2026-10-03: nema oglasa u 2026."
       }
     ],
-    "recruitment_status": "blocked",
+    "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
-    "recruitment_notes": "Službena indeksirana lista sadrži Sarajevo oglas iz novembra 2024, rok 07.12.2024, izvan 2026. Lista i detalj odbijaju direktni dohvat (HTTP 403). Potrebna provjera pristupa i paginacije."
+    "recruitment_notes": "Lista vijesti dostupna uz Chrome TLS impersonaciju (2026-10-03); izvor dodan. Posljednji oglas za Sarajevo: novembar 2024."
   },
   {
     "name": "Embassy of the Islamic Republic of Iran",
@@ -397,7 +406,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://mofa.gov.pk/vacancies",
-    "recruitment_notes": "Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: mofa.gov.pk ne šalje međucertifikat (sva tri klijenta); konfiguracija servera, ne zaobilazi se. Ranije: Službeni Sarajevo portal i centralne Vacancies stranice pronađeni. Direktni dohvat oba ima TLS grešku. Indeksirana centralna stranica sadrži pozicije u Pakistanu; nema potvrđenog BiH oglasa."
   },
   {
     "name": "Embassy of the Kingdom of Denmark",
@@ -563,10 +572,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://kemlu.go.id/sarajevo/en",
-    "recruitment_notes": "Službeni indeksirani portal potvrđuje ambasadu. Direktni HTTP 200 sadrži samo Portal Kemlu JavaScript ljusku, bez oglasa; to nije uspješna provjera prazne liste. Potrebno istražiti javni API ili prikaz u pregledniku."
+    "recruitment_evidence_url": "https://backpanel.kemlu.go.id/public-content-service/api/content/publication?portal=sarajevo&lang=en",
+    "recruitment_notes": "Ponovo provjereno 2026-10-03. Portal je JavaScript aplikacija, ali ima javni JSON API (public-content-service) s vijestima ambasade u Sarajevu; ambasada je 2023. objavila 'CAREER OPPERTUNITY'. API uvijek vraća 200 stavki bez paginacije, pa potpunost nije dokazana; integracija čeka dokaz potpune liste."
   },
   {
     "name": "Embassy of the Republic of Ireland to Bosnia and Herzegovina",
@@ -727,7 +736,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.kdmid.ru/docs/bosnia-and-herzegovina/russian-consular-offices/",
-    "recruitment_notes": "Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: uz Chrome impersonaciju sarajevo.mid.ru vraća samo JavaScript provjeru ('Please enable JavaScript', support ID); provjera se ne rješava. Ranije: Službeni ruski konzularni direktorij potvrđuje sarajevo.mid.ru. Dohvat lokalne stranice prekida vezu bez odgovora; aktuelno zapošljavanje nije provjereno."
   },
   {
     "name": "Embassy of the Slovak Republic",
@@ -739,10 +748,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://www.mzv.sk/sarajevo",
-    "recruitment_notes": "Službena stranica ambasade vraća Cloudflare HTTP 403. Indeksirani SlovakAid poziv za grantove nije individualni posao. Broj poslova nije potvrđen."
+    "recruitment_evidence_url": "https://www.mzv.sk/sk/web/sarajevo/aktualne",
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 uz Chrome TLS impersonaciju (stranica dostupna). Nema rubrike za zapošljavanje; vijesti 'Aktuálne' su uglavnom vijesti ministarstva, bez lokalnih oglasa. Cloudflare 403 vrijedi samo za ne-preglednički TLS otisak."
   },
   {
     "name": "Embassy of the Sovereign Military Order of Malta",
@@ -754,10 +763,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://bosniaherzegovinaembassy.orderofmalta.int/bs/",
-    "recruitment_notes": "Pronađena službena lokalna stranica ambasade; direktni dohvat zaustavlja Cloudflare HTTP 403. Nije potvrđena lista zapošljavanja; humanitarne/volonterske aktivnosti nisu plaćeni individualni poslovi ambasade."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 uz Chrome TLS impersonaciju (stranica dostupna). Stranica ambasade nema rubriku ni objave o zapošljavanju; humanitarne i volonterske aktivnosti nisu plaćeni poslovi ambasade."
   },
   {
     "name": "Embassy of the State of Kuwait in Bosnia and Herzegovina",
@@ -772,7 +781,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
-    "recruitment_notes": "Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: Cloudflare 'Just a moment' izazov i uz Chrome impersonaciju; ne rješava se. Ranije: Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the State of Libya",
@@ -817,7 +826,7 @@
     "recruitment_status": "blocked",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://sarajevo.embassy.qa/en/home",
-    "recruitment_notes": "Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: sarajevo.embassy.qa ne šalje međucertifikat (sva tri klijenta); konfiguracija servera, ne zaobilazi se. Ranije: Ispravljena pogrešna adresa qatarembassy.it (Italija). Službeni Sarajevo portal potvrđen u indeksu; direktni dohvat ima TLS grešku. Lista zapošljavanja nije potvrđena."
   },
   {
     "name": "Embassy of the Swiss Confederation",
@@ -855,15 +864,15 @@
       {
         "url": "https://mfa.gov.ua/vacancies",
         "adapter": "none",
-        "status": "blocked",
+        "status": "none",
         "enabled": false,
-        "notes": "2026-10-03: Pronađen centralni MFA portal za zapošljavanje, ali direktni dohvat vraća Cloudflare HTTP 403. Potrebno filtrirati BiH i provjeriti uslove; nisu potvrđeni aktuelni poslovi u Sarajevu."
+        "notes": "2026-10-03: Dostupno uz Chrome TLS impersonaciju. Centralna stranica zapošljava ukrajinske državne službenike za diplomatsku službu, ne lokalno osoblje u BiH; nije izvor za ovu ambasadu."
       }
     ],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://mfa.gov.ua/vacancies",
-    "recruitment_notes": "Pronađen centralni MFA portal za zapošljavanje, ali direktni dohvat vraća Cloudflare HTTP 403. Potrebno filtrirati BiH i provjeriti uslove; nisu potvrđeni aktuelni poslovi u Sarajevu."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 uz Chrome TLS impersonaciju (stranica dostupna). Centralna stranica 'Вакансії' zapošljava ukrajinske državne službenike u diplomatskoj službi (ispit iz državnog jezika); BiH se pojavljuje samo u listi zemalja. Nema lokalnih oglasa za ambasadu u Sarajevu."
   },
   {
     "name": "Evropska banka za obnovu i razvoj (EBRD)",
@@ -961,10 +970,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.gov.cy/mfa/en/bosnia-and-herzegovina/",
-    "recruitment_notes": "Službeni ciparski indeks potvrđuje počasnog konzula u Sarajevu; navedeni bblegal.ba pripada pravnoj firmi i nije potvrđena stranica konzulata za zapošljavanje. Direktni dohvat gov.cy vraća Azure WAF HTTP 403."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03 uz Chrome TLS impersonaciju (gov.cy dostupan). Počasni konzul u Sarajevu nema vlastitu stranicu; ministarstvo ne objavljuje lokalne oglase za počasni konzulat."
   },
   {
     "name": "Honorary Consulate of the Democratic Republic of the Congo",
@@ -976,10 +985,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://drcongo-emb.rs/en/category/news-en/embassy-news/",
-    "recruitment_notes": "Stariji službeni MFA BiH dokument navodi pocasnikoznulat-drkongo-bih.com, ali domena se ne razrješava (DNS). Službena ambasada u Beogradu spominje počasnog konzula BiH; nije pronađena dostupna lokalna lista."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: domena pocasnikoznulat-drkongo-bih.com se i dalje ne razrješava. Ambasada u Beogradu spominje počasnog konzula; nema lokalne stranice ni kanala zapošljavanja."
   },
   {
     "name": "Honorary Consulate of the People's Republic of Bangladesh in Banja Luka",
@@ -1066,10 +1075,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://hague.mofa.gov.bd/pages/static-pages/6952667335ce18e1c05a92e3",
-    "recruitment_notes": "Službeni indeks bangladeške ambasade u Haagu potvrđuje počasnog konzula u Sarajevu, bez zasebne web-adrese. Direktni dohvat ima TLS grešku; lokalna lista zapošljavanja nije potvrđena."
+    "recruitment_notes": "Ponovo provjereno 2026-10-03: stranica ambasade u Hagu dostupna (Windows trust store). Potvrđuje počasnog konzula u Sarajevu bez vlastite web stranice; nema javnog kanala zapošljavanja."
   },
   {
     "name": "Regionalno vijeće za saradnju (RCC)",

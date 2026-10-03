@@ -5,9 +5,9 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 ## Current state (verified 2026-10-03, local SQLite)
 
 - **Commits:** `8ec1cc8` is the last pushed commit; [CI run 37111397154](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37111397154) passed on it (Linux/Python 3.12, SQLite and PostgreSQL 16). Later local commits (new adapters, migrations 0028–0029, registry changes) are **not pushed and have no CI run yet**; the owner asked to push later.
-- **Tests:** 176 discovered locally: 175 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
-- **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 55 sources, **47 enabled**.
-- **Coverage on `/sources/`** (87 rows): **47 complete** (42 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 9 with published jobs, 38 empty), **0 partial**, **17 unavailable** (15 unresolved audit cases plus UK and UNICEF), **23 no local recruitment list**, 0 awaiting integration, 0 unchecked.
+- **Tests:** 177 discovered locally: 176 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
+- **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 55 sources, **48 enabled**.
+- **Coverage on `/sources/`** (87 rows): **48 complete** (43 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 9 with published jobs, 39 empty), **0 partial**, **8 unavailable** (Malaysia, Pakistan, Qatar, Romania, Russia, Kuwait, UK, UNICEF), **30 no local recruitment list**, **1 awaiting integration** (Indonesia), 0 unchecked.
 - **Jobs:** 15 published (all visible on the board), 0 in review, 9 closed. Content review done 2026-10-03 (see below).
 
 ## Owner decisions (2026-10-03)
@@ -15,7 +15,7 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 - A full reconciliation against the BiH Ministry of Foreign Affairs directory is **not** needed. The registry is the set of employers we choose to monitor.
 - GIZ may come in through a third-party board (mreza-mira.net). More generally, aggregators and local boards are acceptable sources; the direct employer is preferred and syndicated jobs are attributed.
 - INGOs and development agencies hiring in BiH are in scope (Save the Children and CRS are enabled).
-- Next work, in this order: review published jobs (done 2026-10-03), then coverage (recheck the 2026-10-02 dead-end leads (done 2026-10-03), GIZ (done 2026-10-03), UNDP consultant notices (blocked, needs a decision below), the four partial sources (done 2026-10-03), the 15 inaccessible sites).
+- Next work, in this order: review published jobs (done 2026-10-03), then coverage (recheck the 2026-10-02 dead-end leads (done 2026-10-03), GIZ (done 2026-10-03), UNDP consultant notices (blocked, needs a decision below), the four partial sources (done 2026-10-03), the 15 inaccessible sites (rechecked 2026-10-03)).
 - **Open decision:** UNDP's procurement-notices site (procurement-notices.undp.org), the only official channel for its individual-consultant notices, has a robots.txt with `Disallow: /` for all crawlers. unjobs.org, which syndicates them, also disallows all crawlers and adds a Cloudflare challenge; ReliefWeb and Impactpool do not carry them. The source is not built until the owner decides whether to read the official site despite its robots.txt (a daily, low-volume, BiH-filtered fetch) or to accept the gap.
 
 ## Content review (2026-10-03)
@@ -51,11 +51,20 @@ The five leads that found nothing on 2026-10-02 were rechecked live; three are n
 - **Brazil:** an open process whose advert is a scanned PDF no longer fails the source. It becomes a review item carrying the process year the embassy names ("Processo seletivo 2026"); a stated recruitment year without a date can never publish itself (`RECRUITMENT_YEAR`). gov.br sends no file date, and the CMS page dates are reused from 2023, so neither is used.
 - **Canada:** the Sarajevo office is a consulate under the Budapest embassy; Global Affairs Canada advertises every locally engaged position on the LES portal, which the adapter reads in full. There is no separate channel, so the source is complete.
 
+## The 15 inaccessible sites rechecked (2026-10-03)
+
+Each site was retried with the Windows trust store, certifi and Chrome TLS impersonation (verification always on, challenges never solved).
+
+- **Greece: now a source.** The news list answers Chrome impersonation; job adverts have clear titles ("OGLAS ZA SLOBODNO RADNO MJESTO", "VACANCY ANNOUNCEMENT"). Enabled on `generic` with pagination that stops at the first page without a 2026 item (`stop_at_older_page`). Against 2024 it finds the two known adverts with date, city and deadline. `parse_date` now accepts a leading weekday; the deadline parser reads "submit … by <date>".
+- **No local recruitment list (7):** Slovakia, Order of Malta and Ukraine (reachable with impersonation; Ukraine's central page recruits Ukrainian civil servants only), and the Holy See nunciature and the honorary consulates of Cyprus, DR Congo and Bangladesh (no own website or recruitment channel).
+- **Awaiting integration (1):** Indonesia. The portal has a public JSON API with the Sarajevo embassy's news (a "CAREER OPPERTUNITY" post in 2023), but it always returns 200 items without paging, so completeness is unproven.
+- **Still unavailable (6):** Malaysia, Pakistan and Qatar send incomplete certificate chains (a server fault that the deployment network will not change); Romania and Russia answer with JavaScript browser checks and Kuwait with a Cloudflare challenge, even under impersonation.
+
 ## Next steps
 
 1. **Owner decision on UNDP consultant notices** (see Owner decisions).
-2. **The 15 inaccessible sites** (listed in BACKLOG). Some may only be reachable from the server network.
-3. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Push and CI are not deployment proof.
+2. **Indonesia:** prove whether the kemlu API's 200 items are the complete Sarajevo list (for example by comparing with the site in a browser) before integrating.
+3. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
 
 ## Working notes
 

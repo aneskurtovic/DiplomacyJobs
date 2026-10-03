@@ -153,6 +153,18 @@ class WordPressBoardTests(TestCase):
             wordpress_links(client, source, None, {})
 
 
+class DeadlinePhrasingTests(TestCase):
+    def test_submission_phrasings(self):
+        from board.ingest import parse_date, parse_deadline
+        greek = "Applicants are invited to submit to the Embassy of Greece in Sarajevo, via e-mail (gremb.sjv@mfa.gr ) or by post (Obala Maka Dizdara 1, 71000 Sarajevo) by 7 December 2024, their application letter."
+        self.assertEqual(parse_deadline(greek), date(2024, 12, 7))
+        self.assertEqual(parse_deadline("Please send your application documents by 18.02.2025 by e-mail."), date(2025, 2, 18))
+        self.assertEqual(parse_deadline("Trajanje oglasa: 14 dana (ističe 18.02.2025.)"), date(2025, 2, 18))
+        # A verb in one sentence and a date in the next is not a deadline.
+        self.assertIsNone(parse_deadline("Please submit by post. Starting by 1 November 2026."))
+        self.assertEqual(parse_date("Thursday, 07 November 2024"), date(2024, 11, 7))
+
+
 class GenericPaginationTests(TestCase):
     def test_pages_read_until_an_empty_page(self):
         def news(*titles):
