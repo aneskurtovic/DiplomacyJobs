@@ -1086,10 +1086,33 @@ class AdminActionTests(TestCase):
         publish_jobs(admin, None, Job.objects.filter(title="Off"))
         self.assertEqual(Job.objects.get(title="Off").status, "review")
         admin.message_user.assert_called_once()
+        Job.objects.create(source=source, canonical_url="https://a.example/3", title="Tirana", field_evidence={"review_reason": "Lokacija u BiH nije pronađena"})
+        Job.objects.create(source=source, canonical_url="https://a.example/4", title="Clean", field_evidence={"review_reason": ""})
+        admin.reset_mock()
+        publish_jobs(admin, None, Job.objects.filter(title__in=["Tirana", "Clean"]))
+        self.assertEqual(dict(Job.objects.filter(title__in=["Tirana", "Clean"]).values_list("title", "status")), {"Tirana": "review", "Clean": "published"})
+        admin.message_user.assert_called_once()
+        self.assertIn("Lokacija u BiH nije pronađena", admin.message_user.call_args.args[1])
         close_jobs(admin, None, Job.objects.filter(title="Open"))
         job = Job.objects.get(title="Open")
         self.assertEqual((job.status, job.closed_reason), ("closed", "manual"))
         self.assertIsNotNone(job.last_reviewed_at)
+
+    def test_bulk_actions_are_recorded_in_admin_history(self):
+        from datetime import timedelta
+        from django.contrib.admin.models import LogEntry
+        from django.contrib.auth import get_user_model
+        from django.utils import timezone
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://a.example/jobs", enabled=True)
+        clean = Job.objects.create(source=source, canonical_url="https://a.example/1", title="Clean", deadline=timezone.localdate() + timedelta(days=3))
+        flagged = Job.objects.create(source=source, canonical_url="https://a.example/2", title="Tirana", deadline=timezone.localdate() + timedelta(days=3), field_evidence={"review_reason": "Lokacija u BiH nije pronađena"})
+        reviewer = get_user_model().objects.create_superuser("reviewer", "", "pw")
+        self.client.force_login(reviewer)
+        self.client.post("/admin/board/job/", {"action": "publish_jobs", "_selected_action": [clean.pk, flagged.pk]})
+        self.assertEqual(list(LogEntry.objects.values_list("object_id", "user_id", "change_message")), [(str(clean.pk), reviewer.pk, "Objavljeno skupnom akcijom.")])
+        self.client.post("/admin/board/job/", {"action": "close_jobs", "_selected_action": [flagged.pk]})
+        self.assertEqual(LogEntry.objects.filter(object_id=str(flagged.pk)).get().change_message, "Zatvoreno skupnom akcijom.")
 
 
 @override_settings(STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})

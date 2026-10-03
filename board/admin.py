@@ -2,6 +2,7 @@ import difflib
 import re
 
 from django.contrib import admin
+from django.contrib.admin.models import CHANGE, LogEntry
 from django.db.models import OuterRef, Subquery
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
@@ -33,11 +34,25 @@ class SourceAdmin(admin.ModelAdmin):
         return f"{obj.run_candidates} kandidata" if obj.run_success else f"Greška: {obj.run_error[:120]}"
 
 
+def log_bulk(request, pks, message):
+    """Record a bulk action in each job's admin history, which QuerySet.update() skips."""
+    if request is not None and pks:
+        LogEntry.objects.log_actions(request.user.pk, Job.objects.filter(pk__in=pks), CHANGE, change_message=message)
+
+
 @admin.action(description="Objavi odabrane oglase")
 def publish_jobs(modeladmin, request, queryset):
     expired = queryset.filter(deadline__lt=timezone.localdate()).count()
     disabled = queryset.filter(source__enabled=False).exclude(deadline__lt=timezone.localdate()).count()
-    queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate()).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
+    publishable = queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate())
+    # A job whose scan raised a review reason is published one at a time from its own page, never in bulk.
+    flagged = [(pk, title, evidence["review_reason"]) for pk, title, evidence in publishable.values_list("pk", "title", "field_evidence") if (evidence or {}).get("review_reason")]
+    published = list(publishable.exclude(pk__in=[pk for pk, _, _ in flagged]).values_list("pk", flat=True))
+    Job.objects.filter(pk__in=published).update(status="published", closed_reason="", last_reviewed_at=timezone.now())
+    log_bulk(request, published, "Objavljeno skupnom akcijom.")
+    if flagged:
+        names = "; ".join(f"{title} ({reason})" for _, title, reason in flagged[:5]) + (" …" if len(flagged) > 5 else "")
+        modeladmin.message_user(request, f"{len(flagged)} {bs_plural(len(flagged), 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer čeka pregled; otvorite oglas i objavite ga pojedinačno: {names}", level="warning")
     if expired:
         modeladmin.message_user(request, f"{expired} {bs_plural(expired, 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer je rok istekao.", level="warning")
     if disabled:
@@ -46,12 +61,16 @@ def publish_jobs(modeladmin, request, queryset):
 
 @admin.action(description="Zatvori odabrane oglase")
 def close_jobs(modeladmin, request, queryset):
-    queryset.update(status="closed", closed_reason="manual", last_reviewed_at=timezone.now())
+    closed = list(queryset.values_list("pk", flat=True))
+    Job.objects.filter(pk__in=closed).update(status="closed", closed_reason="manual", last_reviewed_at=timezone.now())
+    log_bulk(request, closed, "Zatvoreno skupnom akcijom.")
 
 
 @admin.action(description="Obnovi provjeru oglasa bez roka")
 def renew_jobs(modeladmin, request, queryset):
-    queryset.filter(deadline__isnull=True).update(last_reviewed_at=timezone.now())
+    renewed = list(queryset.filter(deadline__isnull=True).values_list("pk", flat=True))
+    Job.objects.filter(pk__in=renewed).update(last_reviewed_at=timezone.now())
+    log_bulk(request, renewed, "Provjera obnovljena skupnom akcijom.")
 
 
 class DeadlineFilter(admin.SimpleListFilter):
