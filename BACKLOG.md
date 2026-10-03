@@ -4,7 +4,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P0 — Coverage and content review (owner priority, 2026-10-03)
 
-- [ ] Still unavailable (2026-10-03 afternoon): Romania (JavaScript browser check on sarajevo.mae.ro and www.mae.ro; cariera.mae.ro is a login-only platform) and Kuwait (Cloudflare challenge). No challenge solving.
+- [ ] Still unavailable (2026-10-03 afternoon): Romania (JavaScript browser check on sarajevo.mae.ro and www.mae.ro; cariera.mae.ro is a login-only platform). No challenge solving. Kuwait: the owner checked by hand (no embassy website, no MFA vacancies); now "no local recruitment list".
 - [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Retry UNICEF from the server's IP once deployed; its jobs also arrive through the aggregators.
 - [x] Malaysia and Pakistan are sources (2026-10-03): their missing intermediates are fetched from the certificate's own AIA link and verified to a trusted root (`scripts/cert_chain.py`, `data/intermediates/`, `adapter_config.intermediates`). Qatar's site, now readable the same way, has no recruitment section; Russia's official Telegram channel has never posted a vacancy. Both are "no local recruitment list".
 

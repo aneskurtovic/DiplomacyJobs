@@ -869,10 +869,10 @@
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [],
-    "recruitment_status": "blocked",
+    "recruitment_status": "not_found",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://www.mofa.gov.kw/en/kuwait-missions/kuwaiti-diplomatic-missions-abroad/",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03: Cloudflare 'Just a moment' izazov i uz Chrome impersonaciju; ne rješava se. Ranije: Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja."
+    "recruitment_notes": "Vlasnik ručno provjerio 2026-10-03 (u pregledniku): ambasada Kuvajta u BiH trenutno nema web stranicu, a ni centralno ministarstvo vanjskih poslova Kuvajta (mofa.gov.kw) ne objavljuje oglase za posao. Automatski dohvat mofa.gov.kw i dalje zaustavlja Cloudflare izazov, koji se ne rješava. Ponovo provjereno 2026-10-03: Cloudflare 'Just a moment' izazov i uz Chrome impersonaciju; ne rješava se. Ranije: Službeni indeksirani direktorij sadrži Sarajevo misiju. Direktni dohvat zaustavlja Cloudflare HTTP 403; nije potvrđena lokalna lista zapošljavanja."
   },
   {
     "name": "Embassy of the State of Libya",

@@ -7,7 +7,7 @@ Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records curren
 - **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
 - **Tests:** 232 discovered locally: 231 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
 - **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 59 sources, **52 enabled**.
-- **Coverage on `/sources/`** (87 rows): **52 complete** (47 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 42 empty), **0 partial**, **4 unavailable** (Romania, Kuwait, UK, UNICEF), **32 no local recruitment list**, 0 awaiting integration, 0 unchecked.
+- **Coverage on `/sources/`** (87 rows): **52 complete** (47 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 42 empty), **0 partial**, **3 unavailable** (Romania, UK, UNICEF), **33 no local recruitment list**, 0 awaiting integration, 0 unchecked.
 - **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 9 closed. Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
 
 ## Owner decisions (2026-10-03)
@@ -114,13 +114,14 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - **Russia: no local recruitment list.** sarajevo.mid.ru still answers with a JavaScript check. The embassy's official Telegram channel (t.me/s/RusEmbBiH, about 4,800 posts since 2022) has no vacancy post for any Russian, Bosnian or Serbian job term (`scripts/telegram_probe.py`).
 - **Romania: still unavailable.** cariera.mae.ro (chain completed) is a login-only competition platform; www.mae.ro has the same 503 JavaScript check as the embassy site.
 - **UNICEF: still blocked.** After a cool-down the listing answered under impersonation, but the second detail page, 5 s later, was challenged (HTTP 202), then the listing too. `adapter_config.request_delay` (a pause before each detail page) was added and stays in the registry config; retry from the server IP.
-- **UK, Kuwait:** unchanged (FCDO "Quick Check", Cloudflare).
+- **UK:** unchanged (FCDO "Quick Check").
+- **Kuwait: no local recruitment list.** The owner checked by hand: the embassy in BiH has no website and the Kuwaiti MFA publishes no vacancies. mofa.gov.kw still sends a Cloudflare challenge to automated clients.
 
 ## Next steps
 
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
 2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
-3. Remaining blocked sites (Romania, Kuwait, UK, UNICEF) stay blocked by policy; retry UNICEF from the server IP and recheck the rest with the 90-day audit renewals. Rerun `scripts/cert_chain.py HOST --save` if a Malaysia or Pakistan run fails on TLS.
+3. Remaining blocked sites (Romania, UK, UNICEF) stay blocked by policy; retry UNICEF from the server IP and recheck the rest with the 90-day audit renewals. Rerun `scripts/cert_chain.py HOST --save` if a Malaysia or Pakistan run fails on TLS.
 4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile, ideally after deployment: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp once the site has a public URL (`PUBLIC_BASE_URL` must be set for absolute `og:image` links).
 
 ## Design system files
