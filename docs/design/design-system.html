@@ -773,13 +773,14 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
   <div class="phase"><div><h4>Phase 2</h4><p class="when">Launch week · 2–3 days</p></div><ol>
     <li><b>Filter bar:</b> a primary row plus a <code>&lt;details&gt;</code> for requirement filters, and applied chips built from <code>page_query</code> (jobs.html, a small helper in views.py).</li>
     <li><b>Job card v2</b> with a <code>{% deadline job %}</code> inclusion tag (board_extras.py) that the card, the job page and the sticky bar share.</li>
-    <li><b>Job page:</b> a summary grid under the title, a sticky apply bar under 960px and the restyled evidence quotes (job_detail.html).</li>
+    <li><b>Job page:</b> a summary grid under the title, a sticky apply bar under 960px and the restyled evidence quotes (job_detail.html). Give the page <code>scroll-padding-bottom</code> equal to the bar's height, so the bar never hides the focused element (WCAG 2.4.11).</li>
     <li><b>Trust strip</b> on the job list. Reuse the coverage totals from <code>views.sources</code> as a cached helper.</li>
     <li>Self-host Public Sans (two woff2 weights) under <code>board/static/board/fonts/</code>.</li>
   </ol></div>
   <div class="phase"><div><h4>Phase 3</h4><p class="when">After launch</p></div><ol>
     <li><b>Sources page:</b> stat cards as filters, grouped rows, a coverage bar and name search.</li>
     <li><b>Dark theme:</b> it is already defined in the tokens, so only a QA pass on the real templates is needed.</li>
+    <li><b>Forced colours:</b> under <code>@media (forced-colors: active)</code>, give status pills and deadline chips a 1px border, since their background colour disappears in Windows High Contrast mode.</li>
     <li>Employer monograms. Add an optional <code>short_name</code> to Organization (e.g. "OSCE", "UNFPA").</li>
     <li>An Open Graph share image per job (title, employer and deadline on a brand background), for links shared in Viber and WhatsApp groups.</li>
     <li>Run a usability check with 5 job seekers on mobile using the tasks "find a job you qualify for in Sarajevo" and "apply before the deadline".</li>
@@ -787,8 +788,8 @@ footer.doc-foot{margin:var(--space-16) 0 var(--space-10);padding-top:var(--space
 </section>
 
 <footer class="doc-foot">
-  <p><b>Method.</b> This proposal used the Designer Skills pack (<a href="https://github.com/Owl-Listener/designer-skills">Owl-Listener/designer-skills</a>), installed as Claude Code plugins: design-systems, ui-design, visual-critique, prototyping-testing, interaction-design, ux-strategy. Skills applied:</p>
-  <div class="skills"><code>heuristic-evaluation</code><code>critique-information-density</code><code>critique-visual-hierarchy</code><code>critique-color</code><code>design-token</code><code>color-system</code><code>typography-scale</code><code>spacing-system</code><code>component-spec</code><code>search-ux</code><code>accessibility-audit</code><code>design-principles</code><code>fitts-law</code><code>hicks-law</code></div>
+  <p><b>Method.</b> This proposal used the Designer Skills pack (<a href="https://github.com/Owl-Listener/designer-skills">Owl-Listener/designer-skills</a>), installed as Claude Code plugins: design-systems, ui-design, visual-critique, prototyping-testing, interaction-design, ux-strategy. The plugins load only in a new session, so their SKILL.md files were read directly and followed. Skills applied:</p>
+  <div class="skills"><code>heuristic-evaluation</code><code>critique-information-density</code><code>critique-visual-hierarchy</code><code>critique-color</code><code>design-token</code><code>color-system</code><code>typography-scale</code><code>spacing-system</code><code>component-spec</code><code>search-ux</code><code>accessibility-audit</code><code>design-principles</code><code>fitts-law</code><code>hicks-law</code><code>responsive-design</code></div>
   <p class="note">Screens audited on a local run of commit <code>231e46a</code> with the 87-organization registry and 8 sample jobs. "Before" screenshots are in <code>docs/design/before/</code>. The mobile screenshots are 425px wide in a 390px viewport because of the overflow bug.</p>
 </footer>
 </main>
