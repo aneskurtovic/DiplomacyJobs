@@ -4,8 +4,6 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P0 — Coverage and content review (owner priority, 2026-10-03)
 
-- [ ] **UNDP individual-consultant notices: owner decision needed.** The official procurement-notices site disallows all crawlers in robots.txt; unjobs.org also disallows and adds a Cloudflare challenge; ReliefWeb and Impactpool do not carry these notices. Build the source only if the owner accepts reading the official site despite robots.txt; otherwise record it as a known gap. Details in HANDOFF.
-- [ ] **Indonesia:** the kemlu public API lists the Sarajevo embassy's news but always returns 200 items; prove completeness before integrating.
 - [ ] Still unavailable: Malaysia, Pakistan, Qatar (incomplete certificate chains), Romania, Russia (JavaScript browser checks), Kuwait (Cloudflare challenge). No challenge solving, no TLS weakening.
 - [ ] Still blocked: UK (FCDO anti-bot check) and UNICEF's listing (AWS WAF JavaScript challenge; UNICEF jobs also arrive through the aggregators). UNICEF job detail pages on jobs.unicef.org were reachable on 2026-10-03.
 
@@ -34,6 +32,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [x] AI imports and manual corrections survive source updates; a source change after enrichment returns the job to review.
 - [x] Pagination links keep only active filters; missing pages return 404; indexed snapshot lookup; `PUBLIC_BASE_URL` for canonical, Open Graph, sitemap and robots URLs; admin run and snapshot filters.
 - [x] Accent-insensitive search on the board and feed.
+- [x] UNDP individual-consultant notices (`undpnotices`, owner approved reading despite robots.txt) and Indonesia (`kemlu` public API with section counts) enabled (2026-10-03).
 - [x] Rechecked the 15 inaccessible sites (2026-10-03): Greece enabled; 7 have no local recruitment list; Indonesia awaits proof of a complete API list; 6 remain unavailable. Details in HANDOFF.
 - [x] Completed the four partial sources (2026-10-03): Sweden (pagination), RYCO (WordPress API, Sarajevo category), Brazil (scanned adverts become review items), Canada (LES portal is GAC's only channel). Details in HANDOFF.
 - [x] GIZ via mreza-mira.net (owner-approved third-party board): `wordpress` adapter filtered to GIZ titles, attributed to the portal on the board (2026-10-03).

@@ -7,7 +7,7 @@ import ast
 import gzip
 import json
 import re
-from datetime import date
+from datetime import date, datetime
 from email.utils import parsedate_to_datetime
 from io import BytesIO
 from urllib.parse import parse_qsl, urljoin, urlsplit
@@ -469,4 +469,86 @@ def wordpress_links(client, source, soup, evidence):
     return result
 
 
-ADAPTERS = {"wordpress": wordpress_links, "turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}
+def notice_date(value):
+    try:
+        return datetime.strptime(value.split()[0], "%d-%b-%y").date()
+    except (ValueError, IndexError):
+        return None
+
+
+def undpnotices_links(client, source, soup, evidence):
+    """UNDP procurement notices (individual-consultant notices are published here, not on
+    UNDP's job portal). The site's search by reference prefix (adapter_config.ref_prefix,
+    e.g. UNDP-BIH) lists the country office's notices of the year; open rows whose process
+    is IC - Individual contractor are kept, and each notice page adds country and duration.
+    Its robots.txt disallows crawlers; the owner approved one daily search (2026-10-03)."""
+    config = source.adapter_config or {}
+    prefix = config["ref_prefix"]
+    response = core.request(client, "post", source.url, data={"cur_notice_id": prefix})
+    response.raise_for_status()
+    if urlsplit(str(response.url)).hostname != urlsplit(source.url).hostname or len(response.content) > 5_000_000:
+        raise ValueError("UNDP notice search response unusable")
+    page = BeautifulSoup(response.text, "html.parser")
+    rows = page.select("a.vacanciesTable__row")
+    if not page.select_one(".vacanciesTable__header") or not rows:
+        raise ValueError("UNDP notice search table missing or empty")
+    today, result = core.timezone.localdate(), []
+    for row in rows:
+        cells = {text(cell.select_one(".vacanciesTable__cell__label")): text(cell.select_one("span")) for cell in row.select(".vacanciesTable__cell") if cell.select_one(".vacanciesTable__cell__label") and cell.select_one("span")}
+        if not cells.get("Ref No", "").startswith(prefix):
+            raise ValueError("UNDP notice search returned another office")
+        published, deadline = notice_date(cells.get("Posted", "")), notice_date(cells.get("Deadline", ""))
+        if not published or not deadline:
+            raise ValueError("UNDP notice dates changed format")
+        if not cells.get("Process", "").startswith("IC") or deadline < today:
+            continue
+        url = local_url(source.url, row["href"])
+        body, detail = core.fetch(client, url)
+        if detail is None or cells["Ref No"] not in body:
+            raise ValueError("UNDP notice page changed")
+        start = body.find("Introduction")
+        result.append(put(evidence, url, cells["Title"], f"Location: {cells.get('UNDP Office/Country', '')}. Reference: {cells['Ref No']}. Individual contractor (consultancy). {body[start:] if start >= 0 else body}", published, deadline))
+    return result
+
+
+def kemlu_links(client, source, soup, evidence):
+    """Indonesian MFA portal (kemlu.go.id) public content API. The portal is a JavaScript
+    application; its /contentMenu call returns a section's publications with a count
+    (meta.filtered), which every scan must reach. adapter_config.sections maps a menu slug
+    to a title pattern: an empty pattern keeps every post (the embassy's Career section),
+    otherwise only matching titles are kept (career posts in News)."""
+    config = source.adapter_config or {}
+    portal, host = config["portal"], urlsplit(source.url).hostname
+    result = []
+    for section, title_pattern in config["sections"].items():
+        posts, filtered = [], None
+        for page in range(1, core.MAX_LISTING_PAGES + 1):
+            params = [("slug[]", portal), ("slug[]", section), ("type", "menu"), ("portal", portal), ("page", page), ("limit", 100),
+                      ("tag", ""), ("order_dir", "desc"), ("order_by", "publish_date"), ("lang", "en")]
+            response = core.request(client, "get", source.url, params=params)
+            response.raise_for_status()
+            if urlsplit(str(response.url)).hostname != host or "json" not in response.headers.get("content-type", "") or len(response.content) > 5_000_000:
+                raise ValueError("Kemlu content API response unusable")
+            data = response.json().get("data") or {}
+            meta, batch = data.get("meta") or {}, data.get("publication")
+            if not isinstance(batch, list) or "filtered" not in meta:
+                raise ValueError(f"Kemlu section {section} changed shape")
+            filtered = int(meta["filtered"])
+            posts += batch
+            if not batch or len(posts) >= filtered:
+                break
+        if len(posts) != filtered:
+            raise ValueError(f"Kemlu section {section} listed {len(posts)} of {filtered} posts")
+        pattern = re.compile(title_pattern, re.I) if title_pattern else None
+        for post in posts:
+            title = (post.get("title_eng") or post.get("title") or "").strip()
+            if pattern and not pattern.search(f"{post.get('title', '')} {title}"):
+                continue
+            published = core.parse_date((post.get("publish_date") or "")[:10])
+            url = core.canonicalize(f"https://kemlu.go.id/{portal}/{section}/{post['slug']}")
+            body = BeautifulSoup(" ".join(post.get(key) or "" for key in ("content_detail_eng", "content_detail")), "html.parser").get_text(" ", strip=True)
+            result.append(put(evidence, url, title, f"Location: Sarajevo. Employer: {source.organization.name}. {body}", published, core.parse_deadline(body)))
+    return result
+
+
+ADAPTERS = {"kemlu": kemlu_links, "undpnotices": undpnotices_links, "wordpress": wordpress_links, "turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}

@@ -932,8 +932,8 @@ def avature_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs, PeopleSoft and sitemap adapters read the advert themselves.
-FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap", "wordpress"}
-CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress"}
+FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu"}
+CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu"}
 AGGREGATOR_ADAPTERS = ("reliefweb", "impactpool")
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
 
@@ -1136,7 +1136,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.
@@ -1175,7 +1175,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed)
+    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, config.get("opportunity_type") or opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed)
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)

@@ -571,11 +571,28 @@
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639237641411171532",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://backpanel.kemlu.go.id/public-content-service/api/contentMenu",
+        "adapter": "kemlu",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "portal": "sarajevo",
+          "sections": {
+            "karir": "",
+            "berita": "career|vacanc|lowongan|rekrutmen|recruitment|local staff|staf lokal|oglas|posao"
+          }
+        },
+        "notes": "Javni API portala kemlu.go.id (/contentMenu, isti poziv koji koristi stranica): sekcija Karir (namjenska lista karijera, sve objave) i Berita (vijesti; zadržavaju se naslovi o zapošljavanju, npr. 'CAREER OPPERTUNITY' iz 2023). Svaka sekcija se čita do broja meta.filtered. Provjereno 2026-10-03: Karir 0 objava, Berita 195 objava (meta.total 200), nema oglasa u 2026."
+      }
+    ],
     "recruitment_status": "integration",
     "recruitment_checked_at": "2026-10-03",
     "recruitment_evidence_url": "https://backpanel.kemlu.go.id/public-content-service/api/content/publication?portal=sarajevo&lang=en",
-    "recruitment_notes": "Ponovo provjereno 2026-10-03. Portal je JavaScript aplikacija, ali ima javni JSON API (public-content-service) s vijestima ambasade u Sarajevu; ambasada je 2023. objavila 'CAREER OPPERTUNITY'. API uvijek vraća 200 stavki bez paginacije, pa potpunost nije dokazana; integracija čeka dokaz potpune liste."
+    "recruitment_notes": "Izvor dodan 2026-10-03: javni API portala s brojem objava po sekciji (meta.filtered) dokazuje potpunu listu; ambasada ima sekciju Karir."
   },
   {
     "name": "Embassy of the Republic of Ireland to Bosnia and Herzegovina",
@@ -1189,6 +1206,18 @@
           "allow_empty": true
         },
         "notes": "UNDP karijere (Oracle Recruiting Cloud). Javni JSON API daje datum objave i rok; zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-02: 3 oglasa u Sarajevu."
+      },
+      {
+        "url": "https://procurement-notices.undp.org/search.cfm",
+        "adapter": "undpnotices",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "ref_prefix": "UNDP-BIH",
+          "opportunity_type": "consultancy"
+        },
+        "notes": "UNDP-ovi pozivi za individualne konsultante (IC) objavljuju se na sistemu procurement notices, ne na Oracle portalu. Jedna dnevna pretraga po prefiksu reference UNDP-BIH (sve objave ureda u 2026); zadržavaju se otvoreni IC pozivi, a stranica poziva daje zemlju i trajanje. robots.txt sajta zabranjuje crawlere; vlasnik je 2026-10-03 odobrio čitanje. Provjereno 2026-10-03: 169 objava u 2026, 65 IC."
       }
     ]
   },
