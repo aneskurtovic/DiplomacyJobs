@@ -3,7 +3,7 @@ from django.utils import timezone
 
 
 class Organization(models.Model):
-    TYPE_CHOICES = [("aggregator", "Agregator poslova"), ("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija")]
+    TYPE_CHOICES = [("aggregator", "Agregator poslova"), ("embassy", "Ambasada"), ("consulate", "Konzulat"), ("honorary", "Počasni konzulat"), ("international", "Međunarodna organizacija"), ("ngo", "Međunarodna nevladina organizacija")]
     RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)

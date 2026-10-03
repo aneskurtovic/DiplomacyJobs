@@ -2,7 +2,8 @@
 
 Question: do these ten employers have, or did they recently have, openings in
 Bosnia and Herzegovina for BiH nationals? These are outside the original
-missions/IGO scope (see BACKLOG), so no sources were enabled. Recruitment
+missions/IGO scope; following this check, Save the Children and CRS were
+enabled as `ngo` sources. Recruitment
 channels were checked live; historical evidence comes mainly from
 [mreza-mira.net](https://www.mreza-mira.net/), the local board where these
 offices advertise national staff.
@@ -20,15 +21,14 @@ JICA careers URL return 404; fes.ba and savethechildren.taleo.net do not resolve
 | IRI | None (7 openings, all Washington DC) | Resident Program Director in Sarajevo historically; no recent local postings found. | UKG/UltiPro INT1048 job, consulting and internship boards (public JSON). | Possible with a UKG adapter. Low yield. |
 | JICA | None: Balkan Office page says "Currently we have no vacancy" | Balkan Office is in Sarajevo (Bistrik 9). | jica.go.jp …/balkan/others/employment.html | Could use `generic` with that "no vacancy" text as `empty_text`. Low yield. |
 | TIKA | None found | No public postings found. | No careers channel; Sarajevo office contact only. | Not possible. |
-| Catholic Relief Services | None (35 open jobs worldwide, none in Europe) | A "CRS BiH Project Assistant" (refugee integration project) was posted on mreza-mira; the post has since been removed, so its date is unverified. | Oracle Candidate Experience `eipn.fa.us2…/sites/CX_1` | **Ready**: the existing `oracle` adapter runs cleanly (0 BiH jobs). |
-| Save the Children | None (73 open jobs worldwide, 0 in BiH) | Yes, national-only roles in 2026: Cultural Mediator for Arabic, Sarajevo Canton (26.6.–5.7.2026); Director of Impact and Partnerships, Sarajevo preferred (7.–16.4.2026). | Oracle Candidate Experience `hcri.fa.em2…/sites/CX_1`; the NWB jobs page returns 403. | **Ready**: the existing `oracle` adapter runs cleanly (0 BiH jobs). |
+| Catholic Relief Services | None (35 open jobs worldwide, none in Europe) | A "CRS BiH Project Assistant" (refugee integration project) was posted on mreza-mira; the post has since been removed, so its date is unverified. | Oracle Candidate Experience `eipn.fa.us2…/sites/CX_1` | **Enabled** on the `oracle` adapter (first scrape OK, 0 BiH jobs). |
+| Save the Children | None (73 open jobs worldwide, 0 in BiH) | Yes, national-only roles in 2026: Cultural Mediator for Arabic, Sarajevo Canton (26.6.–5.7.2026); Director of Impact and Partnerships, Sarajevo preferred (7.–16.4.2026). | Oracle Candidate Experience `hcri.fa.em2…/sites/CX_1`; the NWB jobs page returns 403. | **Enabled** on the `oracle` adapter (first scrape OK, 0 BiH jobs). |
 | SDC (Swiss cooperation) | None new. The page still lists Political Advisor (2025). | SDC hires in BiH through the Swiss Embassy (Political Advisor 2025, project coordinator calls). | eda.admin.ch Sarajevo vacancies page | **Already covered** by the enabled `swiss` source. |
 
 ## Recommendation
 
-- If the employer scope widens to INGOs, add Save the Children and CRS first.
-  Neither needs new code: use `oracle` with `allow_empty`. Save the Children
-  advertised two national BiH roles in 2026.
+- Done: Save the Children and CRS are enabled (`oracle`, `allow_empty`).
+  Save the Children advertised two national BiH roles in 2026.
 - GIZ is the largest local employer here, but it advertises BiH national posts on
   local boards rather than in a scrapable official listing.
 - KAS, FES, TIKA and JICA rarely or never post local vacancies publicly.

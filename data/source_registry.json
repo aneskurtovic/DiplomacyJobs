@@ -1609,5 +1609,49 @@
         "notes": "Filter mjesta rada 28 (BiH). Provjereno uživo 2026-10-03: 8 oglasa; 6 je duplikat službenih izvora (UNDP x3, UN Women, UNFPA, OSCE), 2 UNICEF oglasa su nova jer je UNICEF izvor blokiran."
       }
     ]
+  },
+  {
+    "name": "Save the Children u Bosni i Hercegovini",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://nwb.savethechildren.net/",
+    "evidence_url": "https://hcri.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions",
+    "verified_at": "2026-10-03",
+    "notes": "Međunarodna nevladina organizacija (ured za Sjeverozapadni Balkan u Sarajevu). U 2026. oglašavala nacionalne pozicije u BiH.",
+    "sources": [
+      {
+        "url": "https://hcri.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Save the Children karijere (Oracle Recruiting Cloud, isti API kao UNDP); zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-03: 73 oglasa globalno, nijedan u BiH."
+      }
+    ]
+  },
+  {
+    "name": "Catholic Relief Services u Bosni i Hercegovini",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.crs.org/our-work-overseas/where-we-work/bosnia-and-herzegovina",
+    "evidence_url": "https://eipn.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions",
+    "verified_at": "2026-10-03",
+    "notes": "Međunarodna nevladina organizacija s programima u BiH.",
+    "sources": [
+      {
+        "url": "https://eipn.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/requisitions",
+        "adapter": "oracle",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "CRS karijere (Oracle Recruiting Cloud, isti API kao UNDP); zadržavaju se samo pozicije s primarnom lokacijom u BiH. Provjereno 2026-10-03: 35 oglasa globalno, nijedan u BiH."
+      }
+    ]
   }
 ]
