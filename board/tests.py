@@ -949,7 +949,7 @@ class PublicViewTests(TestCase):
     def test_type_filter_and_visible_only_dropdowns(self):
         response = self.client.get("/", {"type": "consultancy"})
         self.assertContains(response, "Legal Consultant")
-        self.assertNotContains(response, "<h3>Driver</h3>", html=False)
+        self.assertNotContains(response, ">Driver</a></h3>", html=False)
         self.assertNotContains(response, "Embassy Expired")
         self.assertNotContains(response, "Tuzla")
         self.assertContains(response, 'value="consultancy" selected')
@@ -960,12 +960,12 @@ class PublicViewTests(TestCase):
         Job.objects.filter(title="Driver").update(deadline=self.today + timedelta(days=12))
         Job.objects.filter(title="Legal Consultant").update(deadline=self.today)
         content = self.client.get("/", {"sort": "deadline"}).content.decode()
-        self.assertLess(content.index("Legal Consultant"), content.index("<h3>Driver</h3>"))
+        self.assertLess(content.index("Legal Consultant"), content.index(">Driver</a></h3>"))
         self.assertIn("Ističe danas", content)
         self.assertIn("Novo", content)
         city = self.client.get("/", {"q": "Mostar"}).content.decode()
         self.assertIn("Legal Consultant", city)
-        self.assertNotIn("<h3>Driver</h3>", city)
+        self.assertNotIn(">Driver</a></h3>", city)
 
     def test_search_ignores_case_and_diacritics(self):
         Job.objects.filter(title="Driver").update(title="Vozač – Brčko", city="Brčko")
@@ -1017,7 +1017,7 @@ class PublicViewTests(TestCase):
     def test_scope_filter(self):
         Job.objects.filter(title="Driver").update(scope="national")
         content = self.client.get("/", {"scope": "national"}).content.decode()
-        self.assertIn("<h3>Driver</h3>", content)
+        self.assertIn(">Driver</a></h3>", content)
         self.assertNotIn("Legal Consultant", content)
         self.assertIn("Nacionalna pozicija", content)
 

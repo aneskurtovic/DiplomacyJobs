@@ -57,6 +57,14 @@ Existing databases keep their enablement on import. After backing up the databas
 
 Brazil's folder and closed-process detection work, but future open scanned PDFs need OCR or manual validation; unreadable open notices fail instead of appearing empty. Canada's public LES job data can be monitored, but its mission registry omits the Sarajevo honorary consulate. Separate honorary-consulate notices therefore remain outside the portal's coverage. Both sources are explicitly partial on `/sources/`.
 
+### Job pages, requirements and reports
+
+Every published job has a page at `/jobs/<id>/<slug>/` (`/jobs/<id>/` redirects there). Pages are listed in the sitemap, and feed entries link to them. A published job that is no longer current stays readable with a notice and `noindex`. A closed job answers 410 without details, and a job in review answers 404.
+
+Each scan reads the job's requirements from its text with rules in `board/requirements.py`: minimum education level, field of study, minimum years of experience, languages, driving licence, citizenship, remote work, working time, salary, duration and grade. Each fact keeps the quote it came from, which the page shows under "Iz oglasa". Facts that are unclear are left out. Education level, years of experience and field of study are filterable columns. A correction to them in admin is protected from later scans, like other manual edits. Re-read stored texts after changing the rules with `python manage.py extract_requirements [--dry-run]`. The board's education, experience and field filters show only jobs that state the requirement.
+
+Visitors report problems from a job page or from the footer (`/report/`). Reports appear in admin under *Prijave*, inline on the job, and as a job list filter. Spam controls are a honeypot field and 5 reports per client per hour. The client is identified by a keyed hash of the address; behind the host proxy that address is the last `X-Forwarded-For` hop. When `ADMINS` and an e-mail backend are configured, each report is also e-mailed. Neither is configured yet.
+
 Optional local enrichment uses JSON Lines:
 
 ```powershell

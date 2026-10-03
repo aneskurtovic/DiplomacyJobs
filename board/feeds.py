@@ -29,7 +29,7 @@ class JobsFeed(Feed):
         return f"{job.get_opportunity_type_display()} · {job.city or 'Bosna i Hercegovina'} · Rok: {deadline}"
 
     def item_link(self, job):
-        return job.application_url or job.canonical_url
+        return job.get_absolute_url()
 
     def item_guid(self, job):
         return f"tag:{self.host},2026:job-{job.pk}"

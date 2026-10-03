@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{% block title %}Poslovi u diplomatiji i međunarodnim organizacijama u BiH · DiplomacyJobs{% endblock %}</title>
   {% with description="Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." %}
+  {% block robots %}{% endblock %}
   <meta name="description" content="{% block description %}{{ description }}{% endblock %}">
   <link rel="canonical" href="{{ public_base }}{{ request.path }}">
   <meta property="og:type" content="website">
@@ -30,7 +31,7 @@
       </nav>
     </div>
   </header>
-  <main class="wrap">{% block content %}{% endblock %}</main>
-  <footer class="wrap footer">Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije.</footer>
+  <main class="wrap">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
+  <footer class="wrap footer">Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije. · <a href="/report/?page={{ request.get_full_path|urlencode }}">Prijavi problem</a></footer>
 </body>
 </html>

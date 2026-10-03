@@ -1,5 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
+
+from .requirements import EDUCATION_LEVELS
+from .text import fold
 
 
 class Organization(models.Model):
@@ -93,6 +97,11 @@ class Job(models.Model):
     raw_text = models.TextField(blank=True)
     manually_edited_fields = models.JSONField(default=list, blank=True)
     field_evidence = models.JSONField(default=dict, blank=True)
+    # Read from raw_text by requirements.extract on every scan; the three filterable values are columns so an admin can correct them.
+    requirements = models.JSONField(default=dict, blank=True)
+    education_level = models.CharField("minimalno obrazovanje", max_length=20, choices=EDUCATION_LEVELS, blank=True)
+    experience_years = models.PositiveSmallIntegerField("godine iskustva", null=True, blank=True)
+    fields_of_study = models.JSONField("oblasti studija", default=list, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["source", "canonical_url"], name="unique_source_job_url")]
@@ -116,3 +125,34 @@ class Job(models.Model):
     @property
     def is_aggregated(self):
         return bool(self.via)
+
+    @property
+    def slug(self):
+        return slugify(fold(self.title))[:80].strip("-") or "oglas"
+
+    def get_absolute_url(self):
+        return f"/jobs/{self.pk}/{self.slug}/"
+
+
+class Report(models.Model):
+    """A problem a visitor reported, about one job or about the site."""
+    REASONS = [("expired", "Oglas je istekao ili je mjesto popunjeno"), ("wrong_info", "Netačni podaci (rok, lokacija, uslovi)"), ("broken_link", "Link ne radi"), ("not_bih", "Posao nije u Bosni i Hercegovini"), ("duplicate", "Oglas je duplikat"), ("suspicious", "Sumnjiv ili lažan oglas"), ("missing", "Nedostaje oglas ili poslodavac"), ("site", "Greška na stranici"), ("other", "Drugo")]
+    STATUS = [("new", "Novo"), ("resolved", "Riješeno"), ("dismissed", "Odbačeno")]
+    job = models.ForeignKey(Job, on_delete=models.SET_NULL, null=True, blank=True, related_name="reports")
+    reason = models.CharField("razlog", max_length=20, choices=REASONS)
+    message = models.TextField("poruka", max_length=2000, blank=True)
+    email = models.EmailField("e-mail za odgovor", blank=True)
+    page_url = models.CharField("stranica", max_length=500, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=STATUS, default="new")
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    admin_note = models.TextField("bilješka", blank=True)
+    # A keyed hash of the client address, only for rate limiting; the address itself is not stored.
+    client_hash = models.CharField(max_length=64, blank=True, db_index=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["status", "-created_at"])]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.get_reason_display()} · {self.job or 'stranica'}"

@@ -96,3 +96,57 @@ h1{font-size:2em;margin-block:.67em}
 .badge.soon{color:#6b3a00;background:#fbf3e8}
 .badge.urgent{color:#fff;background:#a23b2a}
 @media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid #dce1e6}.source-table td{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:4px 0;border:0;text-align:right}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:#52606d;font-family:'Public Sans',sans-serif;font-size:13px;font-weight:600}}
+
+/* Job pages, requirement tags and problem reports. */
+.job-link{color:inherit;text-decoration:none}
+.job-link:hover{color:#0f4c81;text-decoration:underline}
+.tags{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;padding:0}
+.tags li{border:1px solid #dce1e6;background:#f4f6f8;color:#253441;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.card-actions{display:flex;flex-direction:column;align-items:stretch;gap:10px;text-align:center}
+.details-link{font-weight:600;font-size:14px;padding:8px 4px}
+.filter-note{margin:-6px 0 16px;color:#52606d;font-size:13px}
+.messages{margin:24px 0 0}
+.message{margin:0 0 8px;padding:12px 14px;border-radius:7px;background:#e7f2ec;color:#1d6b45;font-weight:600}
+.message.error{background:#fbeae7;color:#a23b2a}
+.crumbs{margin:28px 0 0;font-size:14px}
+.crumbs a{text-decoration:none;font-weight:600}
+.job-header h1{font-size:clamp(28px,3.4vw,40px);line-height:1.2;letter-spacing:-.02em;margin:10px 0 12px}
+.job-header{padding:20px 0 8px;max-width:860px}
+.notice{padding:12px 14px;border-radius:7px;background:#fbf3e8;color:#6b3a00;margin:16px 0}
+.job-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px;margin-top:20px;align-items:start}
+.job-body h2{font-size:20px;margin:24px 0 12px}
+.job-body section:first-child h2{margin-top:0}
+.facts{margin:0;border:1px solid #dce1e6;border-radius:10px}
+.facts>div{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;padding:14px 18px;border-bottom:1px solid #dce1e6}
+.facts>div:last-child{border-bottom:0}
+.facts dt{font-weight:600;font-size:14px;color:#3e4c59}
+.facts dd{margin:0;font-size:15px}
+.evidence{margin-top:6px;font-size:13px;color:#52606d}
+.evidence summary{cursor:pointer;color:#0f4c81;width:max-content}
+.evidence q{display:block;margin-top:6px;padding:8px 10px;border-left:3px solid #dce1e6;background:#f8f9fa;quotes:'„' '“'}
+.muted{color:#52606d}
+.disclaimer{color:#52606d;font-size:13px;margin-top:20px}
+.job-aside{border:1px solid #dce1e6;border-radius:10px;padding:20px;position:sticky;top:16px}
+.summary{margin:0 0 18px}
+.summary>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #eef1f4;font-size:14px}
+.summary dt{color:#52606d}
+.summary dd{margin:0;text-align:right;font-weight:600}
+.apply-block{display:block;text-align:center;white-space:normal}
+.aside-note{font-size:13px;color:#52606d;margin:12px 0 0}
+.report-box{margin-top:40px;border:1px solid #dce1e6;border-radius:10px;padding:16px 20px}
+.report-box summary{cursor:pointer;font-weight:600;color:#0f4c81}
+.report-page{max-width:640px;padding-top:12px}
+.report-form{display:grid;gap:16px;margin-top:16px;max-width:600px}
+.report-form fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
+.report-form legend{font-weight:600;font-size:14px;margin-bottom:8px}
+.report-form label{display:grid;gap:6px;font-size:14px;font-weight:600}
+.report-form label.choice{display:flex;align-items:center;gap:8px;font-weight:400}
+.report-form textarea,.report-form input[type=email]{width:100%;padding:10px 12px;border:1px solid #9aa5b1;border-radius:6px;font:inherit;font-weight:400}
+.report-form button{justify-self:start;background:#0f4c81;color:#fff;border:0;border-radius:6px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}
+.report-form button:hover{background:#0a3459}
+.report-form .trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.form-help{font-size:13px;color:#52606d;margin:0}
+.form-errors,.field-error{color:#a23b2a;font-size:13px;font-weight:600}
+.gone h1{font-size:26px;margin-top:0}
+@media(max-width:900px){.job-layout{grid-template-columns:1fr}.job-aside{position:static}}
+@media(max-width:760px){.card-actions{margin-top:16px;flex-direction:row-reverse;justify-content:flex-end;align-items:center}.card-actions .apply{margin-top:0}.facts>div{grid-template-columns:1fr;gap:4px}}

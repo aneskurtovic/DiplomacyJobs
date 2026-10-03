@@ -1,12 +1,14 @@
 import difflib
 import re
 
+from django import forms
 from django.contrib import admin
 from django.contrib.admin.models import CHANGE, LogEntry
-from django.db.models import OuterRef, Subquery
+from django.db.models import Count, OuterRef, Q, Subquery
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
-from .models import Job, Organization, ScrapeRun, Source, SourceDocument
+from . import requirements
+from .models import Job, Organization, Report, ScrapeRun, Source, SourceDocument
 from .text import bs_plural
 
 
@@ -85,13 +87,58 @@ class DeadlineFilter(admin.SimpleListFilter):
         return {"open": queryset.filter(deadline__gte=today), "past": queryset.filter(deadline__lt=today), "none": queryset.filter(deadline__isnull=True)}.get(self.value(), queryset)
 
 
+class JobForm(forms.ModelForm):
+    fields_of_study = forms.MultipleChoiceField(label="Oblasti studija", required=False, choices=[(slug, label) for slug, label, _ in requirements.FIELDS], widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        model = Job
+        exclude = ("requirements",)
+
+
+class ReportInline(admin.TabularInline):
+    model = Report
+    extra = 0
+    fields = ("created_at", "reason", "message", "email", "status")
+    readonly_fields = ("created_at", "reason", "message", "email")
+    can_delete = False
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+class OpenReportFilter(admin.SimpleListFilter):
+    title = "prijave posjetilaca"
+    parameter_name = "prijave"
+
+    def lookups(self, request, model_admin):
+        return [("open", "Ima otvorenih prijava")]
+
+    def queryset(self, request, queryset):
+        return queryset.filter(reports__status="new").distinct() if self.value() == "open" else queryset
+
+
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "organization", "city", "deadline", "source_published_at", "status", "review_reason", "official_link", "last_checked_at")
-    list_filter = ("status", DeadlineFilter, "closed_reason", "opportunity_type", "source__organization")
+    form = JobForm
+    list_display = ("title", "organization", "city", "deadline", "source_published_at", "status", "review_reason", "open_reports", "official_link", "last_checked_at")
+    list_filter = ("status", DeadlineFilter, OpenReportFilter, "closed_reason", "opportunity_type", "education_level", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
     actions = (publish_jobs, close_jobs, renew_jobs)
-    readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "missing_scans")
+    readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "extracted_requirements", "missing_scans")
+    inlines = (ReportInline,)
+
+    @admin.display(description="Prijave", ordering="open_report_count")
+    def open_reports(self, obj):
+        return obj.open_report_count or ""
+
+    @admin.display(description="Izdvojeni uslovi")
+    def extracted_requirements(self, obj):
+        """What the extractor read, with its quotes; the editable fields above override it."""
+        rows = requirements.details(obj) + requirements.terms(obj)
+        if not rows:
+            return "Ništa nije izdvojeno."
+        return format_html_join("", '<p><strong>{}:</strong> {}<br><small style="color:#52606d">{}</small></p>', rows)
 
     @admin.display(description="Organizacija")
     def organization(self, obj):
@@ -119,13 +166,55 @@ class JobAdmin(admin.ModelAdmin):
         return format_html('<a href="{}" target="_blank" rel="noopener noreferrer">Otvori ↗</a>', obj.canonical_url)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("source__organization")
+        return super().get_queryset(request).select_related("source__organization").annotate(open_report_count=Count("reports", filter=Q(reports__status="new")))
 
     def save_model(self, request, obj, form, change):
         if change:
             obj.manually_edited_fields = sorted(set(obj.manually_edited_fields) | set(form.changed_data))
             obj.last_reviewed_at = timezone.now()
         super().save_model(request, obj, form, change)
+
+
+@admin.action(description="Označi kao riješeno")
+def resolve_reports(modeladmin, request, queryset):
+    queryset.update(status="resolved", resolved_at=timezone.now())
+
+
+@admin.action(description="Odbaci")
+def dismiss_reports(modeladmin, request, queryset):
+    queryset.update(status="dismissed", resolved_at=timezone.now())
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "reason", "job_link", "short_message", "email", "status")
+    list_filter = ("status", "reason")
+    search_fields = ("message", "email", "job__title")
+    date_hierarchy = "created_at"
+    actions = (resolve_reports, dismiss_reports)
+    fields = ("job_link", "reason", "message", "email", "page_url", "created_at", "status", "resolved_at", "admin_note")
+    readonly_fields = ("job_link", "reason", "message", "email", "page_url", "created_at", "resolved_at")
+
+    @admin.display(description="Oglas")
+    def job_link(self, obj):
+        if not obj.job_id:
+            return "— (stranica)"
+        return format_html('<a href="/admin/board/job/{}/change/">{}</a> · <a href="{}" target="_blank" rel="noopener">javna stranica ↗</a>', obj.job_id, obj.job.title, obj.job.get_absolute_url())
+
+    @admin.display(description="Poruka")
+    def short_message(self, obj):
+        return obj.message[:120]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("job")
+
+    def save_model(self, request, obj, form, change):
+        if "status" in form.changed_data:
+            obj.resolved_at = None if obj.status == "new" else timezone.now()
+        super().save_model(request, obj, form, change)
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(ScrapeRun)

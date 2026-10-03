@@ -1,0 +1,11 @@
+{% extends 'board/base.html' %}{% block title %}Prijavi problem · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<nav class="crumbs" aria-label="Putanja"><a href="{% if job %}{{ job.get_absolute_url }}{% else %}/{% endif %}">← {% if job %}Nazad na oglas{% else %}Svi oglasi{% endif %}</a></nav>
+<section class="report-page">
+  <h1>Prijavi problem</h1>
+  {% if job %}<p class="muted">Oglas: <strong>{{ job.title }}</strong> · {{ job.employer_name }}</p>
+  {% else %}<p class="muted">Primijetili ste grešku na stranici, oglas koji nedostaje ili poslodavca kojeg ne pratimo? Javite nam.</p>{% endif %}
+  {% include 'board/_report_form.html' %}
+</section>
+{% endblock %}

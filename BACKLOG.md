@@ -19,8 +19,15 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
+## P2 — Job pages and enrichment
+
+- [ ] Configure `ADMINS` and an e-mail backend on the server so visitor reports are e-mailed, not only listed in admin.
+- [ ] Requirements for UNDP consultancy notices live in the attached ToR documents, not in the notice text; read those to fill education and experience.
+- [ ] Optionally extend `export_enrichment`/`import_enrichment` to propose requirement fields, with the same quote checks.
+
 ## Done
 
+- [x] Job pages (`/jobs/<id>/<slug>/`) with rule-based requirements (education, field, experience, languages, licence, citizenship, terms), quotes and admin overrides; board filters by education, experience and field; visitor problem reports with admin queue (2026-10-03).
 - [x] Django models, admin, public jobs and `/sources/` pages, Atom feed, scheduler command, run history, optional AI enrichment interface.
 - [x] `DesignProposal.html` applied to `/sources/` and the jobs page using real database values.
 - [x] More than ten complete official sources integrated and live-checked locally (2026-10-02 and 2026-10-03); see HANDOFF for the count and [integration notes](docs/recruitment-integrations-2026-10-03.md).

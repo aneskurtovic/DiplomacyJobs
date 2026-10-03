@@ -18,6 +18,7 @@ from io import BytesIO
 from xml.etree import ElementTree
 
 from .models import Job, ScrapeRun, Source, SourceDocument
+from . import requirements
 
 USER_AGENT = "DiplomacyJobs/0.1 (+official vacancy monitor; contact via site administrator)"
 TARGET_YEAR = 2026
@@ -1300,6 +1301,8 @@ def ingest_source(source_id):
                     if candidate.withdrawn and job.status != "closed":
                         job.status, job.closed_reason = "closed", "withdrawn"
                     job.save()
+                if changed := requirements.apply(job):
+                    job.save(update_fields=changed)
                 if source.adapter in AGGREGATOR_ADAPTERS:
                     protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
                     if "application_url" not in protected:
