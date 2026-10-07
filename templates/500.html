@@ -1,4 +1,4 @@
-{% load static i18n %}{% get_current_language as LANGUAGE_CODE %}{% comment %}Rendered without a request or context processors, so it does not extend base.html and links by path.{% endcomment %}<!doctype html>
+{% load static i18n %}{% get_current_language as LANGUAGE_CODE %}{% comment %}Rendered without a request or context processors, so it does not extend base.html; it repeats board/error.html and links by path.{% endcomment %}<!doctype html>
 <html lang="{{ LANGUAGE_CODE }}" data-theme="auto">
 <head>
   <meta charset="utf-8">
@@ -15,14 +15,20 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="{{ home }}" aria-label="{% translate 'DiplomacyJobs početna stranica' %}"><svg class="brand-mark" aria-hidden="true" focusable="false"><use href="#i-brand"></use></svg><span>DiplomacyJobs</span></a>
+      <nav class="site-nav" aria-label="{% translate 'Glavna navigacija' %}">
+        <a href="{{ home }}">{% translate "Oglasi" %}</a>
+        <a href="{{ home }}sources/">{% translate "Izvori" %}</a>
+      </nav>
     </div>
   </header>
   <main class="wrap">
-    <section class="empty gone">
+    <section class="error-page">
+      <p class="eyebrow">{% translate "Greška" %} 500</p>
       <h1>{% translate "Nešto nije u redu na našoj strani." %}</h1>
       <p>{% translate "Greška je zabilježena. Pokušajte ponovo za nekoliko minuta." %}</p>
-      <p><a class="apply" href="{{ home }}">{% translate "Pogledaj aktuelne oglase" %}</a></p>
+      <div class="error-actions"><a class="apply" href="{{ home }}">{% translate "Pogledaj aktuelne oglase" %}</a><a class="button-secondary" href="{{ home }}sources/">{% translate "Pregledaj izvore oglasa" %}</a></div>
     </section>
   </main>
+  <footer class="wrap footer">{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %} · <a href="{{ home }}report/">{% translate "Prijavi problem" %}</a></footer>
 </body>
 </html>
