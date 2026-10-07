@@ -32,8 +32,8 @@ jobs:
       # Production runs on PostgreSQL; SQLite ignores max_length and folds case differently.
       DATABASE_URL: ${{ matrix.database == 'postgres' && 'postgresql://diplomacyjobs:diplomacyjobs@localhost:5432/diplomacyjobs' || '' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
