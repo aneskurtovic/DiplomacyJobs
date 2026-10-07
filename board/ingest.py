@@ -1304,8 +1304,12 @@ def ingest_source(source_id):
                         if field not in protected:
                             setattr(job, field, value)
                     review_reason = candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")
-                    # A source change after AI enrichment waits for a human, also on later unchanged scans.
                     source_changed = job.content_hash != candidate.content_hash
+                    # AI requirement proposals described the old text: the rules read the new one, and no human review is needed for them.
+                    if source_changed and (stale := set(job.field_evidence.get("ai_fields", [])) & set(requirements.PROTECTABLE)):
+                        job.field_evidence = {key: value for key, value in job.field_evidence.items() if key not in stale}
+                        job.field_evidence["ai_fields"] = sorted(set(job.field_evidence.get("ai_fields", [])) - stale)
+                    # A source change after AI enrichment waits for a human, also on later unchanged scans.
                     ai_changed = bool(job.field_evidence.get("ai_fields")) and (job.content_hash != candidate.content_hash or (job.status == "review" and job.field_evidence.get("review_reason") == AI_CHANGED))
                     expired = bool(job.deadline and job.deadline < timezone.localdate())
                     # An extended deadline or a job back on the listing reopens it; human and stale closures stay.

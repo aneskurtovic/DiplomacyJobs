@@ -87,7 +87,7 @@ Optional local enrichment uses JSON Lines:
 .venv\Scripts\python manage.py import_enrichment suggestions.jsonl
 ```
 
-Each suggestion has `id`, `content_hash`, `proposed` (any of `title`, `city`, `deadline` in ISO format, `application_url`), and `evidence` with exact short excerpts from the exported `source_text` for each proposed field. Review results in admin. Never paste source content as instructions to an AI agent. See [AI prompt](docs/ai-enrichment.md).
+Each suggestion has `id`, `content_hash`, `proposed` (any of `title`, `city`, `deadline` in ISO format, `application_url`, `education_level`, `experience_years`, `fields_of_study`), and `evidence` with exact short excerpts from the exported `source_text` for each proposed field. The requirement fields fill gaps the rules in `board/requirements.py` miss: `export_enrichment --status published --missing-requirements` lists the jobs, and the project skill `/enrich-jobs` has `enricher` subagents on Haiku propose them, on demand only. A proposed education level must match any level the rules recognise in its quote, and proposed years must appear in it. The rules then leave the value alone. If the advert's text changes, the AI requirement values are dropped and the rules read the new text, without sending the job to review. Review results in admin. Never paste source content as instructions to an AI agent. See [AI prompt](docs/ai-enrichment.md).
 
 ## Hetzner deployment
 

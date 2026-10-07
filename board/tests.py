@@ -873,6 +873,21 @@ class IngestRulesTests(TestCase):
         job.refresh_from_db()
         self.assertEqual(job.status, "published")
 
+    def test_ai_requirements_dropped_without_review_when_source_changes(self):
+        self.run_ingest()
+        job = self.source.jobs.get()
+        job.education_level, job.experience_years = "master", 5
+        job.field_evidence = {**job.field_evidence, "ai_fields": ["education_level", "experience_years"], "education_level": "Master's degree", "experience_years": "5 years"}
+        job.save()
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.education_level, job.experience_years), ("published", "master", 5))
+        self.listing(("officer", "Vacancy: Political Officer", "Published 01.09.2026. Deadline 30.10.2026. Updated terms."))
+        self.run_ingest()
+        job.refresh_from_db()
+        self.assertEqual((job.status, job.education_level, job.experience_years, job.field_evidence["ai_fields"]), ("published", "", None, []))
+        self.assertNotIn("education_level", job.field_evidence)
+
 
 class GenericListingOptionsTests(TestCase):
     def setUp(self):
@@ -1640,6 +1655,59 @@ class EnrichmentTests(TestCase):
         for item, message in cases:
             self.assertIn(message, self.run_import(item))
         self.assertEqual((self.job.city, self.job.deadline, self.job.title), ("", None, "Driver"))
+
+    def requirement_job(self):
+        self.job.raw_text = ("Requirements: Junior college education in Economy or Finance. Minimum of three (3) years of relevant experience. "
+                             "Un diplôme universitaire en droit est requis.")
+        self.job.save()
+        return self.job.raw_text
+
+    def test_requirement_suggestions_applied_and_kept_by_the_rules(self):
+        from . import requirements
+        self.requirement_job()
+        self.run_import(self.suggestion({"education_level": "junior_college", "experience_years": 3, "fields_of_study": ["economics", "law"]},
+                                        {"education_level": "Junior college education", "experience_years": "Minimum of three (3) years", "fields_of_study": "Un diplôme universitaire en droit"}))
+        self.assertEqual((self.job.education_level, self.job.experience_years, self.job.fields_of_study), ("junior_college", 3, ["economics", "law"]))
+        self.assertEqual(self.job.field_evidence["ai_fields"], ["education_level", "experience_years", "fields_of_study"])
+        self.job.experience_years = None
+        self.job.save()
+        requirements.apply(self.job)
+        self.assertIsNone(self.job.experience_years, "the rules leave an AI value alone")
+        # Where the rules found nothing, the job page shows the quote the value was imported with.
+        self.job.experience_years, self.job.requirements = 3, {}
+        rows = {label: quote for label, value, quote in requirements.details(self.job)}
+        self.assertEqual(rows["Oblast studija"], "Un diplôme universitaire en droit")
+        self.assertEqual(rows["Radno iskustvo"], "Minimum of three (3) years")
+
+    def test_unsupported_requirement_suggestions_rejected(self):
+        self.requirement_job()
+        cases = [
+            (self.suggestion({"education_level": "master"}, {"education_level": "Junior college education"}), "education_level not in its evidence"),
+            (self.suggestion({"education_level": "diploma"}, {"education_level": "Junior college education"}), "invalid education_level"),
+            (self.suggestion({"experience_years": 5}, {"experience_years": "Minimum of three (3) years"}), "experience_years not in its evidence"),
+            (self.suggestion({"experience_years": "3"}, {"experience_years": "Minimum of three (3) years"}), "invalid experience_years"),
+            (self.suggestion({"fields_of_study": ["finance"]}, {"fields_of_study": "Economy or Finance"}), "invalid fields_of_study"),
+            (self.suggestion({"fields_of_study": ["economics"]}, {"fields_of_study": "Economics degree"}), "unsupported fields_of_study"),
+        ]
+        for item, message in cases:
+            self.assertIn(message, self.run_import(item))
+        self.job.experience_years = 2
+        self.job.save()
+        self.assertIn("conflicting experience_years", self.run_import(self.suggestion({"experience_years": 3}, {"experience_years": "Minimum of three (3) years"})))
+        self.assertEqual((self.job.education_level, self.job.experience_years, self.job.fields_of_study), ("", 2, []))
+
+    def test_export_of_jobs_missing_requirements(self):
+        import io
+        from django.core.management import call_command
+        complete = Job.objects.create(source=self.job.source, canonical_url="https://a.example/2", title="Analyst", status="published", education_level="bachelor", experience_years=2, fields_of_study=["law"])
+        self.job.status = "published"
+        self.job.save()
+        out = io.StringIO()
+        call_command("export_enrichment", "--status", "published", "--missing-requirements", stdout=out)
+        rows = [json.loads(line) for line in out.getvalue().splitlines()]
+        self.assertEqual([row["id"] for row in rows], [self.job.pk])
+        self.assertEqual(rows[0]["current"]["fields_of_study"], [])
+        self.assertNotEqual(complete.pk, self.job.pk)
 
 
 class VerifySourcesTests(TestCase):

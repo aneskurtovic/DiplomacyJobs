@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 21:21+0200\n"
+"POT-Creation-Date: 2026-10-07 22:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,6 +80,9 @@ msgstr "Other"
 
 msgid "Srednja škola"
 msgstr "Secondary school"
+
+msgid "Viša škola"
+msgstr "Junior college (2–3 years)"
 
 msgid "Fakultet (bachelor)"
 msgstr "University degree (bachelor)"
@@ -573,6 +576,113 @@ msgstr ""
 msgid "Pošalji prijavu"
 msgstr "Send report"
 
+msgid "Aktivni filteri"
+msgstr "Active filters"
+
+msgid "Poništi sve"
+msgstr "Clear all"
+
+msgid "Aktuelni oglasi"
+msgstr "Current jobs"
+
+msgid "Redoslijed"
+msgstr "Sort by"
+
+msgid "Prati ove rezultate"
+msgstr "Follow these results"
+
+msgid "Prati nove oglase"
+msgstr "Follow new jobs"
+
+msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
+msgstr "No jobs currently match your search."
+
+#, python-format
+msgid ""
+"Provjerite ponovo kasnije ili pogledajte <a href=\"%(sources_url)s\">koje "
+"izvore pratimo</a>."
+msgstr ""
+"Check again later or see <a href=\"%(sources_url)s\">which sources we "
+"follow</a>."
+
+msgid "Stranice"
+msgstr "Pages"
+
+msgid "Prethodna"
+msgstr "Previous"
+
+#, python-format
+msgid "Stranica %(number)s od %(total)s"
+msgstr "Page %(number)s of %(total)s"
+
+msgid "Sljedeća"
+msgstr "Next"
+
+msgid "Pretraga oglasa"
+msgstr "Job search"
+
+msgid "Pretraga"
+msgstr "Search"
+
+msgid "Naziv posla ili organizacije"
+msgstr "Job title or organisation"
+
+msgid "Grad"
+msgstr "City"
+
+msgid "Svi gradovi"
+msgstr "All cities"
+
+msgid "Vrsta angažmana"
+msgstr "Type of engagement"
+
+msgid "Sve vrste"
+msgstr "All types"
+
+msgid "Filteri"
+msgstr "Filters"
+
+msgid "aktivno"
+msgstr "active"
+
+msgid "Traži"
+msgstr "Search"
+
+msgid "Organizacija"
+msgstr "Organisation"
+
+msgid "Sve organizacije"
+msgstr "All organisations"
+
+msgid "Pozicija"
+msgstr "Position"
+
+msgid "Sve pozicije"
+msgstr "All positions"
+
+msgid "Nacionalne (lokalno zapošljavanje)"
+msgstr "National (local hire)"
+
+msgid "Moje obrazovanje"
+msgstr "My education"
+
+msgid "Bilo koje"
+msgstr "Any"
+
+msgid "Traženo iskustvo"
+msgstr "Experience required"
+
+msgid "Sve oblasti"
+msgstr "All fields"
+
+msgid ""
+"Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je "
+"taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
+msgstr ""
+"The education, experience and field filters show only adverts that clearly "
+"state that requirement. We read requirements automatically from the advert "
+"text."
+
 msgid "Dostupan"
 msgstr "Available"
 
@@ -621,9 +731,6 @@ msgstr "Location"
 
 msgid "Vrsta"
 msgstr "Type"
-
-msgid "Pozicija"
-msgstr "Position"
 
 msgid ""
 "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas "
@@ -684,8 +791,8 @@ msgstr "Contract and work"
 
 msgid ""
 "Uslovi su izdvojeni automatski iz teksta oglasa i mogu biti nepotpuni. "
-"Mjerodavan je službeni oglas. Ako nešto nije tačno, <a "
-"href=\"#prijava\">javite nam</a>."
+"Mjerodavan je službeni oglas. Ako nešto nije tačno, <a href=\"#prijava"
+"\">javite nam</a>."
 msgstr ""
 "The requirements were read automatically from the advert text and may be "
 "incomplete. The official advert is authoritative. If something is wrong, <a "
@@ -773,109 +880,18 @@ msgstr "Last checked %(date)s"
 msgid "Kako prikupljamo oglase"
 msgstr "How we collect adverts"
 
-msgid "Pretraga oglasa"
-msgstr "Job search"
+msgid "Niste povezani na internet"
+msgstr "You are offline"
 
-msgid "Pretraga"
-msgstr "Search"
-
-msgid "Naziv posla ili organizacije"
-msgstr "Job title or organisation"
-
-msgid "Grad"
-msgstr "City"
-
-msgid "Svi gradovi"
-msgstr "All cities"
-
-msgid "Vrsta angažmana"
-msgstr "Type of engagement"
-
-msgid "Sve vrste"
-msgstr "All types"
-
-msgid "Filteri"
-msgstr "Filters"
-
-msgid "aktivno"
-msgstr "active"
-
-msgid "Traži"
-msgstr "Search"
-
-msgid "Organizacija"
-msgstr "Organisation"
-
-msgid "Sve organizacije"
-msgstr "All organisations"
-
-msgid "Sve pozicije"
-msgstr "All positions"
-
-msgid "Nacionalne (lokalno zapošljavanje)"
-msgstr "National (local hire)"
-
-msgid "Moje obrazovanje"
-msgstr "My education"
-
-msgid "Bilo koje"
-msgstr "Any"
-
-msgid "Traženo iskustvo"
-msgstr "Experience required"
-
-msgid "Sve oblasti"
-msgstr "All fields"
+msgid "Bez veze"
+msgstr "Offline"
 
 msgid ""
-"Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je "
-"taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
+"Oglasi koje ste nedavno otvorili dostupni su i bez veze. Ostalo će se "
+"učitati kada se veza vrati."
 msgstr ""
-"The education, experience and field filters show only adverts that clearly "
-"state that requirement. We read requirements automatically from the advert "
-"text."
-
-msgid "Aktivni filteri"
-msgstr "Active filters"
-
-msgid "Poništi sve"
-msgstr "Clear all"
-
-msgid "Aktuelni oglasi"
-msgstr "Current jobs"
-
-msgid "Redoslijed"
-msgstr "Sort by"
-
-msgid "Prati ove rezultate"
-msgstr "Follow these results"
-
-msgid "Prati nove oglase"
-msgstr "Follow new jobs"
-
-msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
-msgstr "No jobs currently match your search."
-
-#, python-format
-msgid ""
-"Provjerite ponovo kasnije ili pogledajte <a href=\"%(sources_url)s\">koje "
-"izvore pratimo</a>."
-msgstr ""
-"Check again later or see <a href=\"%(sources_url)s\">which sources we "
-"follow</a>."
-
-msgid "Stranice"
-msgstr "Pages"
-
-msgid "Prethodna"
-msgstr "Previous"
-
-#, python-format
-msgid "Stranica %(number)s od %(total)s"
-msgstr "Page %(number)s of %(total)s"
-
-msgid "Sljedeća"
-msgstr "Next"
+"Jobs you opened recently are available offline. Everything else will load "
+"when you are back online."
 
 msgid "Oglasi i izvor"
 msgstr "Jobs and source"
@@ -1103,12 +1119,3 @@ msgstr ""
 
 #~ msgid "Detalji i uslovi"
 #~ msgstr "Details and requirements"
-
-msgid "Niste povezani na internet"
-msgstr "You are offline"
-
-msgid "Bez veze"
-msgstr "Offline"
-
-msgid "Oglasi koje ste nedavno otvorili dostupni su i bez veze. Ostalo će se učitati kada se veza vrati."
-msgstr "Jobs you opened recently are available offline. Everything else will load when you are back online."

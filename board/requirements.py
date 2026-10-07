@@ -10,9 +10,9 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from .text import plural
 
-VERSION = 3
+VERSION = 4
 
-EDUCATION_LEVELS = [("secondary", _("Srednja škola")), ("bachelor", _("Fakultet (bachelor)")), ("master", _("Master")), ("phd", _("Doktorat"))]
+EDUCATION_LEVELS = [("secondary", _("Srednja škola")), ("junior_college", _("Viša škola")), ("bachelor", _("Fakultet (bachelor)")), ("master", _("Master")), ("phd", _("Doktorat"))]
 LEVEL_RANK = {value: rank for rank, (value, _) in enumerate(EDUCATION_LEVELS)}
 
 FIELDS = [
@@ -53,11 +53,13 @@ WORD_NUMBERS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, 
 NUMBER = r"(\d{1,2}|" + "|".join(WORD_NUMBERS) + r")"
 
 # Phrases that mark a passage as being about formal education.
-EDUCATION_CUE = re.compile(r"\b(?:education|degree|diploma|qualification|graduate|university|bachelor|master|ph\.?\s?d|obrazovanj\w*|fakultet\w*|diplom\w*|sprem\w*|studij\w*|školsk\w*)\b", re.I)
+EDUCATION_CUE = re.compile(r"\b(?:education|degree|diploma|qualification|graduate|university|bachelor|master|ph\.?\s?d|obrazovanj\w*|fakultet\w*|diplom\w*|sprem\w*|studij\w*|škol\w*|college|VŠS|VSS|SSS)\b", re.I)
 LEVEL_PATTERNS = {
     "phd": re.compile(r"\bph\.?\s?d\b|\bdoctora(?:te|l)\b|\bdoktor\w*", re.I),
     "master": re.compile(r"\bmaster\w*|\badvanced (?:university )?degree|\bsecond[- ]level (?:university )?degree|\bpost-?graduate|\bMSc\b|\bLL\.?M\b|\bMBA\b|\bmagist\w*|\bVII[/ ]?1\b", re.I),
-    "bachelor": re.compile(r"\bbachelor\w*|\bfirst[- ]level (?:university )?degree|\b1st level (?:university )?degree|\buniversity (?:degree|education|diploma)|\bhigher education\b|\bacademic (?:qualification|degree)|\bundergraduate|\b(?:college|university|academic) degree|\bdegree in\b|['’]s degree|\bBSc\b|\bfakultet\w*|\bVSS\b|\bvisok\w* (?:stručn\w* sprem\w*|obrazovanj\w*)|\bVŠS\b|\bviš\w* stručn\w* sprem\w*", re.I),
+    "bachelor": re.compile(r"\bbachelor\w*|\bfirst[- ]level (?:university )?degree|\b1st level (?:university )?degree|\buniversity (?:degree|education|diploma)|\bhigher education\b|\bacademic (?:qualification|degree)|\bundergraduate|\b(?:college|university|academic) degree|\bdegree in\b|['’]s degree|\bBSc\b|\bfakultet\w*|\bVSS\b|\bvisok\w* (?:stručn\w* sprem\w*|obrazovanj\w*)", re.I),
+    # Two- or three-year post-secondary schooling below a university degree: the former "viša škola" (VŠS, VI stepen).
+    "junior_college": re.compile(r"\bjunior college\b|\bassociate(?:['’]s)? degree\b|\bVŠS\b|\bviš\w* stručn\w* sprem\w*|\bviš(?:a|e|u|oj|om) škol(?:a|e|u|i|om)\b|\b(?-i:VI)\.? stepen\w*", re.I),
     "secondary": re.compile(r"\bsecondary (?:school|education)|\bhigh[- ]school\b|\bsrednj\w* (?:stručn\w* sprem\w*|škol\w*|obrazovanj\w*)|\bSSS\b|\bKV\b", re.I),
 }
 EXPERIENCE_CUE = re.compile(r"\bexperience\w*|\biskustv\w*|\bstaž\w*", re.I)
@@ -327,8 +329,9 @@ def tags(job):
 
 
 def details(job):
-    """Rows for the job page: (label, value, quote)."""
+    """Rows for the job page: (label, value, quote). A value proposed by AI enrichment shows the quote it was imported with."""
     found = job.requirements or {}
+    evidence = job.field_evidence or {}
     rows = []
     if job.education_level:
         levels = found.get("education", {}).get("levels", [])
@@ -336,13 +339,13 @@ def details(job):
         higher = [str(dict(EDUCATION_LEVELS)[level]) for level in levels if LEVEL_RANK[level] > LEVEL_RANK[job.education_level]]
         if higher:
             value += " " + gettext("(oglas spominje i: %(levels)s)") % {"levels": ", ".join(higher).lower()}
-        rows.append((gettext("Minimalno obrazovanje"), value, found.get("education", {}).get("quote", "")))
+        rows.append((gettext("Minimalno obrazovanje"), value, found.get("education", {}).get("quote") or evidence.get("education_level", "")))
     if job.fields_of_study:
-        rows.append((gettext("Oblast studija"), ", ".join(str(FIELD_LABELS.get(slug, slug)) for slug in job.fields_of_study), found.get("fields_quote", "")))
+        rows.append((gettext("Oblast studija"), ", ".join(str(FIELD_LABELS.get(slug, slug)) for slug in job.fields_of_study), found.get("fields_quote") or evidence.get("fields_of_study", "")))
     if job.experience_years is not None:
         years = job.experience_years
         value = gettext("Nije potrebno") if years == 0 else gettext("Najmanje %(count)s %(years)s") % {"count": years, "years": plural(years, ("godina", "godine", "godina"), ("year", "years"))}
-        rows.append((gettext("Radno iskustvo"), value, found.get("experience", {}).get("quote", "")))
+        rows.append((gettext("Radno iskustvo"), value, found.get("experience", {}).get("quote") or evidence.get("experience_years", "")))
     if langs := found.get("languages"):
         parts = [str(LANGUAGE_LABELS[code]) for code in langs.get("required", [])]
         parts += [gettext("%(language)s (prednost)") % {"language": LANGUAGE_LABELS[code]} for code in langs.get("desirable", [])]

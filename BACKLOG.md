@@ -23,9 +23,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 - [ ] Configure `ADMINS` and an e-mail backend on the server so visitor reports are e-mailed, not only listed in admin.
 - [ ] Requirements for UNDP consultancy notices live in the attached ToR documents, not in the notice text; read those to fill education and experience.
-- [ ] Extend `export_enrichment`/`import_enrichment` to propose requirement fields, with the same quote checks (owner wants this, 2026-10-07).
 - [ ] Translate the remaining public jobs with `/translate-jobs` when the owner asks. Translation is on demand only (owner decision 2026-10-07).
-- [ ] Add an education level for "viša škola" / junior college between secondary school and a bachelor's degree (owner wants this, 2026-10-07).
 - [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
 
 ## P2 — App track
@@ -37,6 +35,7 @@ The front-end stays server-rendered with htmx and plain JavaScript only where ne
 
 ## Done
 
+- [x] "Viša škola" (junior college) education level, and quote-checked AI proposals for education, experience and fields of study through `export_enrichment`/`import_enrichment` and `/enrich-jobs` (2026-10-07). Run `extract_requirements` on the server after deploy. Details in HANDOFF.
 - [x] Woodpecker is the only CI; the GitHub Actions workflow was removed (2026-10-07). Haiku subagents added: `translator` (used by `/translate-jobs`) and `source-scout` (read-only source and lead investigations).
 - [x] Installable site and htmx job-list filters (2026-10-07 evening): manifest, icons, service worker with offline job pages and an offline page; filters, chips, sort and pages update `#results` in place with clean pushed URLs, without breaking the plain form. Details in HANDOFF.
 - [x] Phone job list polish (2026-10-07): two-row search box with an icon-only Filteri, sort and feed on one row; first job at 488px instead of 602px. "+n" tag no longer wraps alone, consistent back links, no current tab on error pages.

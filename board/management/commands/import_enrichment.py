@@ -4,8 +4,34 @@ from datetime import date
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from board import requirements
 from board.ingest import DATE_TEXT, parse_date
 from board.models import Job
+
+FACT_FIELDS = {"title", "city", "deadline", "application_url"}
+REQUIREMENT_FIELDS = set(requirements.PROTECTABLE)
+EMPTY = (None, "", [])
+
+
+def requirement_value(field, value, quote):
+    """A proposed requirement field, checked against its quote. The quote may be in any language, so only what can be checked is."""
+    if field == "education_level":
+        if value not in requirements.LEVEL_RANK:
+            raise ValueError("invalid education_level")
+        # Where the rules recognise a level in the quote, the proposal must be one of those levels.
+        stated = {level for level, pattern in requirements.LEVEL_PATTERNS.items() if pattern.search(quote)}
+        if stated and value not in stated:
+            raise ValueError("education_level not in its evidence")
+    elif field == "experience_years":
+        if not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 30:
+            raise ValueError("invalid experience_years")
+        numbers = {requirements.number(token) for token in re.findall(requirements.NUMBER, quote, re.I)}
+        if value and value not in numbers:
+            raise ValueError("experience_years not in its evidence")
+    else:
+        if not isinstance(value, list) or not value or len(value) > 4 or len(set(value)) != len(value) or not set(value) <= set(requirements.FIELD_LABELS):
+            raise ValueError("invalid fields_of_study")
+    return value
 
 
 class Command(BaseCommand):
@@ -29,8 +55,7 @@ class Command(BaseCommand):
                     raise ValueError("stale source content")
                 proposals = item["proposed"]
                 evidence = item["evidence"]
-                allowed = {"title", "city", "deadline", "application_url"}
-                if not isinstance(proposals, dict) or not set(proposals) <= allowed or not isinstance(evidence, dict):
+                if not isinstance(proposals, dict) or not set(proposals) <= FACT_FIELDS | REQUIREMENT_FIELDS or not isinstance(evidence, dict):
                     raise ValueError("invalid field set")
                 changes = {}
                 for field, value in proposals.items():
@@ -39,7 +64,9 @@ class Command(BaseCommand):
                         raise ValueError(f"unsupported {field}")
                     if field in job.manually_edited_fields:
                         raise ValueError(f"manual value for {field}")
-                    if field == "deadline":
+                    if field in REQUIREMENT_FIELDS:
+                        value = requirement_value(field, value, quote)
+                    elif field == "deadline":
                         value = date.fromisoformat(value) if value else None
                     elif not isinstance(value, str) or len(value) > (1000 if field == "application_url" else 100 if field == "city" else 400):
                         raise ValueError(f"invalid {field}")
@@ -51,7 +78,7 @@ class Command(BaseCommand):
                     if field in ("city", "application_url") and value and value.casefold() not in quote.casefold():
                         raise ValueError(f"{field} not in its evidence")
                     old = getattr(job, field)
-                    if old and old != value:
+                    if old not in EMPTY and old != value:
                         raise ValueError(f"conflicting {field}")
                     changes[field] = value
                 for field, value in changes.items():

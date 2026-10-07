@@ -84,8 +84,18 @@ class ExtractionTests(TestCase):
                 "2. Education / Training: Junior college education in Economy or Finance. B. DESIRABLE QUALIFICATIONS: 1. Professional Experience: "
                 "Previous experience with SAP. 2. Education / Training: University degree up to 3 years, in Finance or Economics.")
         found = extract("Purchasing Administrator", text)
-        self.assertNotIn("education", found)
+        self.assertEqual(found["education"]["levels"], ["junior_college"])
         self.assertEqual(found["experience"]["years"], 4)
+
+    def test_junior_college_sits_between_secondary_and_bachelor(self):
+        for text in ("Education: Junior college education in Economy or Finance.", "Uslovi: VŠS ekonomskog smjera.",
+                     "Uslovi: viša stručna sprema ili VI stepen.", "Obrazovanje: završena viša škola.", "Education: associate degree in accounting."):
+            with self.subTest(text=text):
+                self.assertEqual(extract("Administrator", text)["education"]["level"], "junior_college")
+        found = extract("Administrator", "Uslovi: SSS ili VŠS ekonomskog smjera.")
+        self.assertEqual(found["education"]["levels"], ["secondary", "junior_college"])
+        self.assertEqual(extract("Analyst", "Education: VSS, fakultet ekonomskog smjera.")["education"]["level"], "bachelor")
+        self.assertNotIn("education", extract("Assistant", "Ima više školskih projekata i vi stepenujete prioritete."))
 
     def test_asset_language_and_eu_citizenship(self):
         found = extract("Head of Communications", "GENERAL CONDITIONS Citizenship – Citizen of a Member State of the European Union (EU) and enjoying full rights as a citizen. Language Skills – The candidates must be fully fluent in written and oral English language. Language - Proficiency in local language(s) will be considered an advantage.")
@@ -173,6 +183,8 @@ class JobPageTests(TestCase):
             return self.client.get("/", params).content.decode()
         self.assertIn("Project Coordinator", titles(edu="bachelor"))
         self.assertNotIn("Project Coordinator", titles(edu="secondary"))
+        self.assertNotIn("Project Coordinator", titles(edu="junior_college"))
+        self.assertIn("Viša škola", titles())
         self.assertNotIn("Project Coordinator", titles(exp="0"))
         self.assertIn("Administrativni asistent", titles(exp="5"))
         self.assertNotIn("Administrativni asistent", titles(exp="2"))
