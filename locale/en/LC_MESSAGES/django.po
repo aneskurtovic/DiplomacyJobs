@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 19:56+0200\n"
+"POT-Creation-Date: 2026-10-07 20:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -446,6 +446,39 @@ msgstr "Not tracked"
 msgid "Izvori koje ne pratimo"
 msgstr "Sources we do not track"
 
+msgid "Neispravan zahtjev"
+msgstr "Bad request"
+
+msgid "Zahtjev nije ispravan."
+msgstr "The request is not valid."
+
+msgid ""
+"Adresa ili poslani podaci nisu ispravni. Provjerite link i pokušajte ponovo."
+msgstr "The address or the submitted data is not valid. Check the link and try again."
+
+msgid "Pogledaj aktuelne oglase"
+msgstr "See current jobs"
+
+msgid "Pristup nije dozvoljen"
+msgstr "Access denied"
+
+msgid "Nemate pristup ovoj stranici."
+msgstr "You do not have access to this page."
+
+msgid "Ova stranica nije javno dostupna."
+msgstr "This page is not publicly available."
+
+msgid "Obrazac nije poslan"
+msgstr "Form not sent"
+
+msgid "Obrazac nije poslan."
+msgstr "The form was not sent."
+
+msgid ""
+"Stranica je možda bila predugo otvorena, ili su kolačići u pregledniku "
+"isključeni. Vratite se, osvježite stranicu i pošaljite obrazac ponovo."
+msgstr "The page may have been open too long, or cookies are turned off in your browser. Go back, reload the page and send the form again."
+
 msgid "Stranica nije pronađena"
 msgstr "Page not found"
 
@@ -456,11 +489,20 @@ msgid ""
 "Link je možda pogrešno upisan, ili je stranica premještena ili uklonjena."
 msgstr "The link may be mistyped, or the page has been moved or removed."
 
-msgid "Pogledaj aktuelne oglase"
-msgstr "See current jobs"
-
 msgid "Pregledaj izvore oglasa"
 msgstr "Browse job sources"
+
+msgid "Greška na serveru"
+msgstr "Server error"
+
+msgid "DiplomacyJobs početna stranica"
+msgstr "DiplomacyJobs home page"
+
+msgid "Nešto nije u redu na našoj strani."
+msgstr "Something went wrong on our side."
+
+msgid "Greška je zabilježena. Pokušajte ponovo za nekoliko minuta."
+msgstr "The error has been logged. Please try again in a few minutes."
 
 #, python-format
 msgid "putem %(portal)s"
@@ -524,9 +566,6 @@ msgid ""
 msgstr ""
 "Verified job adverts from embassies and international organisations in "
 "Bosnia and Herzegovina, taken from the employers' official websites."
-
-msgid "DiplomacyJobs početna stranica"
-msgstr "DiplomacyJobs home page"
 
 msgid "Glavna navigacija"
 msgstr "Main navigation"

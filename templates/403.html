@@ -1,0 +1,9 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Pristup nije dozvoljen" %} · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="empty gone">
+  <h1>{% translate "Nemate pristup ovoj stranici." %}</h1>
+  <p>{% translate "Ova stranica nije javno dostupna." %}</p>
+  <p><a class="apply" href="{% url 'jobs' %}">{% translate "Pogledaj aktuelne oglase" %}</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% load static i18n %}{% get_current_language as LANGUAGE_CODE %}{% comment %}Rendered without a request or context processors, so it does not extend base.html and links by path.{% endcomment %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}" data-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex">
+  <title>{% translate "Greška na serveru" %} · DiplomacyJobs</title>
+  <link rel="stylesheet" href="{% static 'board/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'board/site.css' %}">
+</head>
+<body>
+  {% include "board/_icons.html" %}
+  {% if LANGUAGE_CODE == 'en' %}{% firstof '/en/' as home %}{% else %}{% firstof '/' as home %}{% endif %}
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="{{ home }}" aria-label="{% translate 'DiplomacyJobs početna stranica' %}"><svg class="brand-mark" aria-hidden="true" focusable="false"><use href="#i-brand"></use></svg><span>DiplomacyJobs</span></a>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="empty gone">
+      <h1>{% translate "Nešto nije u redu na našoj strani." %}</h1>
+      <p>{% translate "Greška je zabilježena. Pokušajte ponovo za nekoliko minuta." %}</p>
+      <p><a class="apply" href="{{ home }}">{% translate "Pogledaj aktuelne oglase" %}</a></p>
+    </section>
+  </main>
+</body>
+</html>

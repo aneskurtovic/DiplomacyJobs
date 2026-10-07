@@ -1,0 +1,9 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Obrazac nije poslan" %} · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="empty gone">
+  <h1>{% translate "Obrazac nije poslan." %}</h1>
+  <p>{% translate "Stranica je možda bila predugo otvorena, ili su kolačići u pregledniku isključeni. Vratite se, osvježite stranicu i pošaljite obrazac ponovo." %}</p>
+  <p><a class="apply" href="{% url 'jobs' %}">{% translate "Pogledaj aktuelne oglase" %}</a></p>
+</section>
+{% endblock %}

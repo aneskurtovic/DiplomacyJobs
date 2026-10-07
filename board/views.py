@@ -5,6 +5,7 @@ from urllib.parse import urlencode, urlsplit
 from django import forms
 from django.contrib import messages
 from django.core.cache import cache
+from django.core.exceptions import DisallowedHost
 from django.core.mail import mail_admins
 from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Count, F, Q
@@ -442,7 +443,13 @@ def absolute(request, path):
 
 def public_base(request):
     """Template origin for canonical and Open Graph URLs."""
-    return {"public_base": settings.PUBLIC_BASE_URL or f"{request.scheme}://{request.get_host()}"}
+    if settings.PUBLIC_BASE_URL:
+        return {"public_base": settings.PUBLIC_BASE_URL}
+    try:
+        return {"public_base": f"{request.scheme}://{request.get_host()}"}
+    except DisallowedHost:
+        # The 400 page for a rejected Host header renders through here too; it must not fail again.
+        return {"public_base": ""}
 
 
 def languages(request):

@@ -5,10 +5,12 @@ import tempfile
 from datetime import timedelta
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.utils import timezone, translation as i18n
 
 from . import requirements, translation
@@ -106,6 +108,21 @@ class EnglishInterfaceTests(TestCase):
         review = self.client.get(f"/en/jobs/{self.job.pk}/project-coordinator/")
         self.assertContains(review, "This page does not exist.", status_code=404)
         self.assertNotContains(review, "Project Coordinator", status_code=404)
+
+    @override_settings(ALLOWED_HOSTS=["testserver"])
+    def test_other_errors_get_site_pages_in_their_language(self):
+        bad_host = self.client.get("/en/", HTTP_HOST="evil.example")
+        self.assertContains(bad_host, "The request is not valid.", status_code=400)
+        with patch("board.views.visible_jobs", side_effect=PermissionDenied), self.assertLogs("django.request", "WARNING"):
+            self.assertContains(self.client.get("/en/sources/"), "You do not have access to this page.", status_code=403)
+        expired_form = Client(enforce_csrf_checks=True).post("/en/report/", {"reason": "site"})
+        self.assertContains(expired_form, "The form was not sent.", status_code=403)
+        failing = Client(raise_request_exception=False)
+        with patch("board.views.visible_jobs", side_effect=RuntimeError("boom")), self.assertLogs("django.request", "ERROR"):
+            broken = failing.get("/en/sources/")
+            self.assertContains(broken, "Something went wrong on our side.", status_code=500)
+            self.assertContains(broken, '<a class="apply" href="/en/">', status_code=500, html=False)
+            self.assertContains(failing.get("/sources/"), 'href="/">', status_code=500, html=False)
 
     def test_report_from_english_page_returns_there(self):
         response = self.client.post(f"/en/jobs/{self.job.pk}/report/", {"reason": "expired"}, follow=True)
