@@ -14,7 +14,6 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.
-- [ ] CI notices (run 37116293201): actions/checkout@v4 and actions/setup-python@v5 target the deprecated Node.js 20; `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19. Update the action versions.
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
@@ -33,12 +32,12 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 The front-end stays server-rendered with htmx and plain JavaScript only where needed; no framework (owner decision 2026-10-07, see HANDOFF).
 
-- [ ] Installable site: web app manifest, icons, a service worker that keeps recently viewed jobs available offline.
-- [ ] htmx on the job list: filters and sort update the results in place, with the URL updated and the plain form still working without JavaScript.
+- [ ] Check installation and offline reading on a real Android and iOS phone after deploy.
 - [ ] Optional: push notifications for a saved search (needs a stored subscription per visitor).
 
 ## Done
 
+- [x] Installable site and htmx job-list filters (2026-10-07 evening): manifest, icons, service worker with offline job pages and an offline page; filters, chips, sort and pages update `#results` in place with clean pushed URLs, without breaking the plain form. CI actions moved to Node 24 versions. Details in HANDOFF.
 - [x] Phone job list polish (2026-10-07): two-row search box with an icon-only Filteri, sort and feed on one row; first job at 488px instead of 602px. "+n" tag no longer wraps alone, consistent back links, no current tab on error pages.
 - [x] Site error pages and screenshot review (2026-10-07): own 400, 403, CSRF-failure, 404, 410 and 500 pages in Bosnian and English on a shared layout (`board/error.html`); every public page checked at 390, 768 and 1280px in light and dark. Phone job cards one row shorter, no duplicated facts on the job page under 960px, sources table text no longer cut off on phones, report form fields and radios fixed in dark mode and enlarged for touch. CI fix: page-rendering tests need plain static storage. Details in HANDOFF.
 - [x] Hetzner launch (2026-10-07): HTTPS at `poslovi.aneskurtovic.com`, migrated and imported registry, scheduled daily scrape, Woodpecker tests and deploy, separate database and role in the existing PostgreSQL instance, and a checked backup restore. The first server scan distinguished 49 successful sources (including empty results) from three failures; public jobs were inspected.
