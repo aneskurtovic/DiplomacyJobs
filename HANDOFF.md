@@ -134,14 +134,22 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - Adapter changes in archive mode: RAI keeps the table's closed rows of the year (not cancelled ones); WordPress reads only that year and takes `search` (GIZ's history adds mreza-mira.net's Arhiva with `search=GIZ`, 15 posts instead of 1,145); UNDP notices searches the year's posting dates and keeps ended IC notices, 3 s apart (owner approved the ~150 page fetches, 2026-10-03).
 - Past jobs on employer pages are now ordered by deadline, newest first, since backfilled jobs were first seen long after they ended.
 - Run locally: 2026 — 65 archived, 63 listed (UNDP 57, EEAS 4, Spain 1, RAI 1); 2025 — 113 archived, 109 listed (UNDP 95, EEAS 8, GIZ 3, RYCO 2, RAI 1). Not listed: Swiss Political Advisor 2025 (no publication date in the PDF), RAI Organisational Expert, Director of Secretariat, Research and Mentorship Coordinator and the HR review call (titles fail the job-advert check), and a second RYCO copy of the Finance and Administration advert. Database backup: `backups/db-before-archive-backfill-20261003-213720.sqlite3`.
-- The server database needs the same: `migrate`, `import_registry`, then `scrape_jobs --history 2026` and `--history 2025`.
+- The Hetzner database was migrated and the registry imported on 2026-10-07. Its 2026 history pass stored 67 archived adverts, 65 listed on employer pages; the 2025 pass stored 113 archived adverts, 109 listed. Sweden's archive page returned 403 in both passes; Greece returned 403 in the 2026 archive pass but worked in the daily scrape and the 2025 archive pass.
+
+## Hetzner deployment (2026-10-07)
+
+- Public site: https://poslovi.aneskurtovic.com/ via Caddy with HTTPS, HTTP redirect and a one-hour HSTS policy. The homepage, coverage page, feed, sitemap, robots file and `/health/` returned 200. `/health/scrape/` returns 503 for the affected sources below.
+- `compose.prod.yaml` runs web and daily scraper containers on Hetzner. Both use a dedicated `diplomacyjobs` database and role inside the **existing** `ludo-postgres` PostgreSQL 16 container; there is no separate production PostgreSQL container. The scraper runs daily at 06:00 Sarajevo time.
+- [Woodpecker pipeline #1](https://ci.aneskurtovic.com/repos/7/pipeline/1) passed the SQLite and PostgreSQL Django tests and deployed commit `319aa59` through the restricted SSH deploy key. The server deployment command takes a checked database dump before rebuilding and restarting the app.
+- A full daily scrape from the server completed: 49 of 52 enabled sources succeeded, producing 21 published jobs and 8 needing review. Slovenia and Germany worked from the server. Sweden (#26) returned 403, UN Careers (#51) returned 504 from its API, and ReliefWeb (#53) returned an HTTP 202 challenge. The sources page marks these unavailable; they are not treated as zero vacancies. A browser TLS fingerprint also received 504 from the UN Careers API. ReliefWeb's official API requires a pre-approved appname since November 2025; the owner does not currently have one.
+- A custom-format PostgreSQL dump was restored successfully into a temporary database and the temporary database removed. [The backup cron file](deploy/diplomacyjobs-backup.cron) is installed on the host and runs daily with 30-day retention.
 
 ## Next steps
 
 1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
-2. **Deployment:** Hetzner, HTTPS, `verify_sources` from the server, daily scrape, backup restore. Recheck the Windows-store TLS cases (Germany) from the server. Push and CI are not deployment proof.
-3. Remaining blocked sites (Romania, UK, UNICEF) stay blocked by policy; retry UNICEF from the server IP and recheck the rest with the 90-day audit renewals. Rerun `scripts/cert_chain.py HOST --save` if a Malaysia or Pakistan run fails on TLS.
-4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile, ideally after deployment: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp once the site has a public URL (`PUBLIC_BASE_URL` must be set for absolute `og:image` links).
+2. Create a production superuser interactively with `ssh hetzner-codex`, then `cd /opt/diplomacyjobs && docker compose -f compose.prod.yaml exec web python manage.py createsuperuser`; review the eight pending jobs in admin.
+3. Recheck Sweden and UN Careers access from Hetzner, and request an approved ReliefWeb API appname if that feed remains important. Do not solve JavaScript challenges. The previously blocked Romania, UK and UNICEF sites remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
+4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
 
 ## Design system files
 

@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+17 2 * * * codex /opt/diplomacyjobs/scripts/ci/backup-db.sh >> /opt/diplomacyjobs/backups/backup.log 2>&1

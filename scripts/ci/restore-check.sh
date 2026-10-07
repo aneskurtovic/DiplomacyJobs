@@ -18,14 +18,16 @@ docker exec ludo-postgres createdb -U ludonexus -O diplomacyjobs "$scratch"
 docker exec -i -e PGPASSWORD="$db_password" ludo-postgres \
     pg_restore -h 127.0.0.1 -U diplomacyjobs --no-owner --no-acl \
     --single-transaction --exit-on-error -d "$scratch" < "$backup"
-actual="$(docker exec -e PGPASSWORD="$db_password" ludo-postgres \
-    psql -h 127.0.0.1 -U diplomacyjobs -d "$scratch" -Atqc \
-    'SELECT count(*) FROM board_source')"
-expected="$(docker exec -e PGPASSWORD="$db_password" ludo-postgres \
-    psql -h 127.0.0.1 -U diplomacyjobs -d diplomacyjobs -Atqc \
-    'SELECT count(*) FROM board_source')"
-test "$actual" = "$expected" || {
-    echo "Restored $actual sources; production has $expected" >&2
-    exit 1
-}
-echo "Restore verified in scratch database: $actual sources"
+for table in board_source board_job; do
+    actual="$(docker exec -e PGPASSWORD="$db_password" ludo-postgres \
+        psql -h 127.0.0.1 -U diplomacyjobs -d "$scratch" -Atqc \
+        "SELECT count(*) FROM $table")"
+    expected="$(docker exec -e PGPASSWORD="$db_password" ludo-postgres \
+        psql -h 127.0.0.1 -U diplomacyjobs -d diplomacyjobs -Atqc \
+        "SELECT count(*) FROM $table")"
+    test "$actual" = "$expected" || {
+        echo "Restored $actual rows in $table; production has $expected" >&2
+        exit 1
+    }
+    echo "$table: $actual rows restored"
+done
