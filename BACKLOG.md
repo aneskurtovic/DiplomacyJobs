@@ -11,7 +11,11 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P1 — Deployment and operations
 
-- [ ] Activate the Woodpecker ops pipeline on the host (install scripts, ops SSH key, secret; README "Server tasks from Woodpecker"), then run `ops/extract_requirements` for the junior college level.
+- [ ] **Owner, needs root on the host:** activate the Woodpecker ops pipeline (commands in README, "Server tasks from Woodpecker"):
+  1. Install `scripts/ci/remote-ops.sh` as `/opt/diplomacyjobs-ops.sh` and `scripts/ci/ops-wrapper.sh` as `/opt/diplomacyjobs-ops-wrapper.sh` (root, 755).
+  2. Generate the ops SSH key and add it to `~codex/.ssh/authorized_keys` with `command="/opt/diplomacyjobs-ops-wrapper.sh",restrict`.
+  3. Add the private key as Woodpecker secret `diplomacyjobs_ops_ssh_key`, delete it from the host, and allow it and `diplomacyjobs_deploy_known_hosts` for tag and manual events.
+  4. Tag `ops/extract_requirements/<date>` so production jobs get the junior college level (until then, production keeps the old requirement values).
 - [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.

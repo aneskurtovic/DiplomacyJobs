@@ -184,7 +184,7 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 
 ## Next steps
 
-1. Finish the ops pipeline setup on the host (README, "Server tasks from Woodpecker"), then tag `ops/extract_requirements/<date>`.
+1. Waiting on the owner (no host access at the moment): finish the ops pipeline setup on the host (README, "Server tasks from Woodpecker"), then tag `ops/extract_requirements/<date>`.
 2. Recheck Sweden and UN Careers access from Hetzner (a `source-scout` subagent per source); investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
 3. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only.
 4. After this push deploys, check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
