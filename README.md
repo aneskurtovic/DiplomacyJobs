@@ -90,19 +90,23 @@ Each suggestion has `id`, `content_hash`, `proposed` (any of `title`, `city`, `d
 
 ## Hetzner deployment
 
-Set an existing HTTPS subdomain and inspect the server's reverse proxy. Copy `.env.example` to `.env` on the server, fill the secret and database password, then run:
+Production serves `https://poslovi.aneskurtovic.com` through the existing Caddy proxy. It uses a separate `diplomacyjobs` database and role in the server's existing `ludo-postgres` PostgreSQL 16 container. The app does not run its own PostgreSQL container. The web and scraper join `ludo-network`; only the web service joins the proxy's `edge` network.
+
+The root-owned `/opt/diplomacyjobs-deploy.sh` is called by the restricted Woodpecker SSH key. It checks out the exact commit on `main`, takes and validates a PostgreSQL dump, builds the image, starts the web and scraper services, then checks health. The [Woodpecker test workflow](.woodpecker/test.yml) runs Django checks and the full suite on SQLite and disposable PostgreSQL. The [deploy workflow](.woodpecker/deploy.yml) runs on pushes to `main` after tests. Server secrets stay in `/opt/diplomacyjobs/.env` and the Woodpecker repository secrets.
+
+For a manual server operation from `/opt/diplomacyjobs`, use:
 
 ```sh
-docker compose up -d --build
-docker compose exec web python manage.py import_registry
-docker compose exec web python manage.py verify_sources
-docker compose exec web python manage.py createsuperuser
+docker compose -f compose.prod.yaml up -d --build web scraper
+docker compose -f compose.prod.yaml exec web python manage.py import_registry
+docker compose -f compose.prod.yaml exec web python manage.py verify_sources
+docker compose -f compose.prod.yaml exec web python manage.py createsuperuser
 ```
 
 The web container runs migrations on start; static files are collected when the image is built. The scraper runs daily at 06:00 Sarajevo time, and at start for any enabled source not scraped in the last 20 hours (so a restart finishes an interrupted run). Before each scrape, it discards obsolete or unusable database connections; PostgreSQL also has connection health checks enabled. A failed scheduled run is logged and the loop continues to the next scheduled run. This does not add an immediate retry. The healthcheck sends the first `DJANGO_ALLOWED_HOSTS` entry as its `Host` header. Container logs rotate at 5 × 10 MB per service.
 
-Production request errors, scheduler exceptions, and unexpected source errors include tracebacks in console logs even with `DJANGO_DEBUG=0`. The console handler writes to stderr, which Compose collects alongside stdout. Defaults are `WARNING` for Django and `INFO` for the board; optional `DJANGO_LOG_LEVEL` sets both (for example, `INFO` while investigating). Inspect `docker compose logs --tail=200 web scraper`; expected fetch/parser failures are recorded in each source's admin run history. One unexpected source failure still allows the other sources and the expiry pass to run.
+Production request errors, scheduler exceptions, and unexpected source errors include tracebacks in console logs even with `DJANGO_DEBUG=0`. The console handler writes to stderr, which Compose collects alongside stdout. Defaults are `WARNING` for Django and `INFO` for the board; optional `DJANGO_LOG_LEVEL` sets both (for example, `INFO` while investigating). Inspect `docker compose -f compose.prod.yaml logs --tail=200 web scraper`; expected fetch/parser failures are recorded in each source's admin run history. One unexpected source failure still allows the other sources and the expiry pass to run.
 
-Proxy the hostname to `127.0.0.1:8000`, forwarding `Host` and `X-Forwarded-Proto`. Use the actual HTTPS hostname in `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`. Set `PUBLIC_BASE_URL` to the same `https://` origin so canonical, Open Graph, sitemap and robots URLs do not depend on proxy headers. Once HTTPS works end to end, set `DJANGO_SECURE_SSL_REDIRECT=1` (`/health/` stays reachable over plain HTTP for the container healthcheck) and, after the hostname is final, `DJANGO_HSTS_SECONDS` (start small, e.g. `3600`; HSTS cannot be withdrawn from browsers that cached it). The database has no public port. For backups, run `docker compose exec -T db pg_dump -Fc -U diplomacyjobs diplomacyjobs > backups/diplomacyjobs-$(date +%F).dump` daily from host cron and delete dumps older than 30 days (`find backups -name '*.dump' -mtime +30 -delete`). Verify a restore before launch with `createdb` on a scratch database and `pg_restore --no-owner -d <scratch> <dump>`. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable.
+The database has no public port. `/opt/diplomacyjobs/scripts/ci/backup-db.sh` writes a checked custom-format dump, and host cron runs it daily with 30-day retention. A restore to a scratch database was verified during launch. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable. The scrape health endpoint can remain 503 when an upstream source blocks requests from the Hetzner network; each affected source remains visible as unavailable.
 
 This checkout does not contain the server hostname or access credentials. The app should not be publicly described as comprehensive; `/sources/` shows exactly which employers are covered.

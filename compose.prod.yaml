@@ -1,14 +1,54 @@
-# The host Caddy proxy and this application's web container share the edge network.
-# Local development uses compose.yaml alone and needs no external network.
+# Production uses the existing PostgreSQL 16 container on ludo-network.
+# The database and its volume belong to the host's existing PostgreSQL stack.
+name: diplomacyjobs
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   web:
+    build: .
+    image: diplomacyjobs:local
+    restart: unless-stopped
+    logging: *logging
+    env_file: .env
+    environment:
+      TZ: Europe/Sarajevo
+    ports:
+      - "127.0.0.1:8000:8000"
     networks:
-      default:
       edge:
         aliases:
           - diplomacyjobs-web
+      ludo-network:
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os, urllib.request as r; host = os.environ['DJANGO_ALLOWED_HOSTS'].split(',')[0].strip(); r.urlopen(r.Request('http://127.0.0.1:8000/health/', headers={'Host': host}), timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  scraper:
+    image: diplomacyjobs:local
+    restart: unless-stopped
+    logging: *logging
+    init: true
+    env_file: .env
+    environment:
+      TZ: Europe/Sarajevo
+    command: ["python", "manage.py", "run_scraper_schedule"]
+    networks:
+      - ludo-network
+    depends_on:
+      web:
+        condition: service_healthy
 
 networks:
   edge:
     external: true
     name: edge
+  ludo-network:
+    external: true
+    name: ludo-network

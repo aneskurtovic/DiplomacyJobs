@@ -15,20 +15,12 @@ git fetch --prune origin main
 git cat-file -e "$sha^{commit}"
 git merge-base --is-ancestor "$sha" origin/main || { echo "Commit is not on origin/main" >&2; exit 1; }
 
-compose=(docker compose -f compose.yaml -f compose.prod.yaml)
-if [[ -n "$("${compose[@]}" ps --status running -q db)" ]]; then
-    install -d -m 700 "$app_dir/backups"
-    backup="$app_dir/backups/before-deploy-$(date -u +%Y%m%dT%H%M%SZ).dump"
-    "${compose[@]}" exec -T db pg_dump -Fc -U diplomacyjobs diplomacyjobs > "$backup"
-    "${compose[@]}" exec -T db pg_restore -l < "$backup" > /dev/null
-    chmod 600 "$backup"
-    echo "Database backup verified: $backup"
-fi
-
+compose=(docker compose -f compose.prod.yaml)
 git checkout --detach "$sha"
+"$app_dir/scripts/ci/backup-db.sh"
 "${compose[@]}" config --quiet
 "${compose[@]}" build web
-"${compose[@]}" up -d --no-build db web scraper
+"${compose[@]}" up -d --no-build web scraper
 
 for attempt in $(seq 1 30); do
     if curl --fail --silent --show-error -H 'Host: poslovi.aneskurtovic.com' \
