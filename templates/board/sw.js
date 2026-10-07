@@ -4,7 +4,8 @@ const PAGES_CACHE = "dj-pages-v1";
 const MAX_PAGES = 20;
 const PRECACHE = {{ precache_json|safe }};
 const SKIP_PREFIXES = ["/admin/", "/editor/", "/health", "/feed/", "/sw.js"];
-const PAGE_PATH = /^\/(en\/)?(jobs\/\d+\/[^/]*\/?)?$/;
+// Job pages (not their report form) and the two home pages.
+const PAGE_PATH = /^\/(en\/)?(jobs\/\d+\/(?!report\/)[^/]+\/)?$/;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));
