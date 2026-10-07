@@ -1,5 +1,6 @@
 import hashlib
 import ipaddress
+import json
 from datetime import timedelta
 from urllib.parse import urlencode, urlsplit
 from django import forms
@@ -9,9 +10,10 @@ from django.core.exceptions import DisallowedHost
 from django.core.mail import mail_admins
 from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Count, F, Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
+from django.templatetags.static import static
 from django.urls import reverse, translate_url
 from django.utils import timezone, translation
 from django.utils.html import escape
@@ -489,6 +491,47 @@ def sitemap(request):
 
 def health(request):
     return HttpResponse("ok", content_type="text/plain")
+
+
+def offline(request):
+    return render(request, "board/offline.html")
+
+
+PWA_ICONS = (("board/icons/icon-192.png", "192x192", "any"), ("board/icons/icon-512.png", "512x512", "any"), ("board/icons/icon-maskable-512.png", "512x512", "maskable"))
+PRECACHE_STATIC = ("board/tokens.css", "board/site.css", "board/fonts/public-sans-latin-wght-normal.woff2", "board/icons/icon-192.png")
+
+
+def manifest(request):
+    data = {
+        "name": "DiplomacyJobs",
+        "short_name": "DiplomacyJobs",
+        "description": "Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini.",
+        "lang": "bs",
+        "id": "/",
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#0f4c81",
+        "icons": [{"src": static(path), "sizes": sizes, "type": "image/png", "purpose": purpose} for path, sizes, purpose in PWA_ICONS],
+    }
+    response = JsonResponse(data, content_type="application/manifest+json", json_dumps_params={"ensure_ascii": False})
+    response["Cache-Control"] = "max-age=86400"
+    return response
+
+
+def service_worker(request):
+    # Offline URLs are language-prefixed, so build both explicitly rather than trusting the request's language.
+    with translation.override(settings.LANGUAGE_CODE):
+        bs_offline = reverse("offline")
+    with translation.override("en"):
+        en_offline = reverse("offline")
+    precache = [bs_offline, en_offline, *(static(path) for path in PRECACHE_STATIC)]
+    # Changes whenever a hashed static name changes, so browsers pick up a new worker and drop the old cache.
+    version = hashlib.sha256("\n".join(precache).encode()).hexdigest()[:10]
+    response = render(request, "board/sw.js", {"version": version, "precache": precache, "precache_json": json.dumps(precache)}, content_type="application/javascript")
+    response["Cache-Control"] = "no-cache"
+    return response
 
 
 def scrape_health(request):

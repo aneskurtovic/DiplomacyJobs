@@ -20,6 +20,11 @@
   <link rel="preload" href="{% static 'board/fonts/public-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'board/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'board/site.css' %}">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f4c81">
+  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'board/icons/icon-192.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'board/icons/apple-touch-icon.png' %}">
+  <script src="{% static 'board/register-sw.js' %}" defer></script>
   <link rel="alternate" type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="{% block feed_href %}/feed/{% endblock %}">
 </head>
 <body>

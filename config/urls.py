@@ -10,6 +10,8 @@ urlpatterns = [
     path("robots.txt", views.robots, name="robots"),
     path("sitemap.xml", views.sitemap, name="sitemap"),
     path("health/", views.health, name="health"),
+    path("manifest.webmanifest", views.manifest, name="manifest"),
+    path("sw.js", views.service_worker, name="service_worker"),
     path("health/scrape/", views.scrape_health, name="scrape_health"),
     path("admin/", admin.site.urls),
     path("editor/", editor.dashboard, name="editor"),
@@ -25,5 +27,6 @@ urlpatterns += i18n_patterns(
     path("sources/", views.sources, name="sources"),
     path("sources/<int:pk>/", views.organization, name="organization_short"),
     path("sources/<int:pk>/<slug:slug>/", views.organization, name="organization"),
+    path("offline/", views.offline, name="offline"),
     prefix_default_language=False,
 )

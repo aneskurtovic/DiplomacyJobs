@@ -1103,3 +1103,12 @@ msgstr ""
 
 #~ msgid "Detalji i uslovi"
 #~ msgstr "Details and requirements"
+
+msgid "Niste povezani na internet"
+msgstr "You are offline"
+
+msgid "Bez veze"
+msgstr "Offline"
+
+msgid "Oglasi koje ste nedavno otvorili dostupni su i bez veze. Ostalo će se učitati kada se veza vrati."
+msgstr "Jobs you opened recently are available offline. Everything else will load when you are back online."
