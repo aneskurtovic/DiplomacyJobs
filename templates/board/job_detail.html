@@ -49,11 +49,11 @@
     </div>
     <aside class="job-aside" aria-label="{% translate 'Osnovni podaci' %}">
       <dl class="summary">
-        <div><dt>{% translate "Lokacija" %}</dt><dd>{% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}</dd></div>
-        <div><dt>{% translate "Rok prijave" %}</dt><dd>{% deadline job "summary" %}</dd></div>
+        <div class="in-key-facts"><dt>{% translate "Lokacija" %}</dt><dd>{% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}</dd></div>
+        <div class="in-key-facts"><dt>{% translate "Rok prijave" %}</dt><dd>{% deadline job "summary" %}</dd></div>
         {% if job.source_published_at %}<div><dt>{% translate "Objavljeno" %}</dt><dd><time datetime="{{ job.source_published_at|date:'Y-m-d' }}">{{ job.source_published_at|date:'d.m.Y.' }}</time></dd></div>{% endif %}
         <div><dt>{% translate "Poslodavac" %}</dt><dd>{% if job.employer_org %}<a href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_name }}</a>{% else %}{{ job.employer_name }}{% endif %}</dd></div>
-        <div><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
+        <div class="in-key-facts"><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
         <div><dt>{% translate "Provjereno" %}</dt><dd>{% if job.last_checked_at %}{{ job.last_checked_at|date:'d.m.Y.' }}{% else %}{% translate "Nije dostupno" %}{% endif %}</dd></div>
       </dl>
       <a class="apply apply-block" href="{{ job.application_url|default:job.canonical_url }}" target="_blank" rel="noopener noreferrer">{% if job.is_aggregated %}{% translate "Oglas / prijava" %}{% else %}{% translate "Službeni oglas i prijava" %}{% endif %} <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>

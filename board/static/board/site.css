@@ -175,7 +175,7 @@ h1{font-size:2em;margin-block:.67em}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{border-radius:var(--radius-pill);padding:2px 9px;font-size:12px;font-weight:600}
 .badge.new{color:var(--color-brand);background:var(--color-brand-subtle)}
-@media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid var(--color-border)}.source-table td{display:flex;justify-content:flex-start;align-items:center;gap:8px;padding:4px 0;border:0;text-align:right}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:var(--color-text-muted);font-family:var(--font-sans);font-size:13px;font-weight:600}.source-table tr.group-row,.source-table tr.more-row{padding:0}.source-table .group-row th{display:block;padding:10px 16px}.source-table .more-row td{justify-content:center;padding:12px 16px}}
+@media(max-width:640px){.source-table thead{display:none}.source-table,.source-table tbody,.source-table tr,.source-table td{display:block;width:100%}.source-table{min-width:0}.source-table tr{padding:14px 16px;border-bottom:1px solid var(--color-border)}.source-table td{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:2px 8px;padding:4px 0;border:0;text-align:right}.source-table td small{flex-basis:100%;margin-top:0}.source-table .checked-at{white-space:normal}.source-table td:first-child{display:block;width:100%;padding-bottom:8px;text-align:left}.source-table td[data-label]:before{content:attr(data-label);margin-right:auto;color:var(--color-text-muted);font-family:var(--font-sans);font-size:13px;font-weight:600}.source-table tr.group-row,.source-table tr.more-row{padding:0}.source-table .group-row th{display:block;padding:10px 16px}.source-table .more-row td{justify-content:center;padding:12px 16px}}
 
 /* Job pages, requirement tags and problem reports. */
 .job-link{color:inherit;text-decoration:none}
@@ -226,10 +226,14 @@ h1{font-size:2em;margin-block:.67em}
 .report-form fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
 .report-form legend{font-weight:600;font-size:14px;margin-bottom:8px}
 .report-form label{display:grid;gap:6px;font-size:14px;font-weight:600}
-.report-form label.choice{display:flex;align-items:center;gap:8px;font-weight:400}
-.report-form textarea,.report-form input[type=email]{width:100%;padding:10px 12px;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);font:inherit;font-weight:400}
+.report-form label.choice{display:flex;align-items:center;gap:10px;min-height:36px;font-weight:400;cursor:pointer}
+.report-form input[type=radio]{appearance:none;width:20px;height:20px;margin:0;flex:none;border:1.5px solid var(--color-border-control);border-radius:50%;background:var(--color-surface);cursor:pointer}
+.report-form input[type=radio]:checked{border-color:var(--color-brand);box-shadow:inset 0 0 0 4px var(--color-surface);background:var(--color-brand)}
+.report-form textarea,.report-form input[type=email]{width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit;font-weight:400}
+.report-form textarea::placeholder,.report-form input::placeholder{color:var(--color-text-muted)}
 .report-form button{justify-self:start;background:var(--color-brand);color:var(--color-text-inverse);border:0;border-radius:var(--radius-sm);padding:12px 18px;font:inherit;font-weight:700;cursor:pointer}
 .report-form button:hover{background:var(--color-brand-hover)}
+@media(max-width:760px){.report-form fieldset{gap:0}.report-form label.choice{min-height:44px}}
 .report-form .trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 .form-help{font-size:13px;color:var(--color-text-muted);margin:0}
 .form-errors,.field-error{color:var(--color-error-fg);font-size:13px;font-weight:600}
@@ -243,7 +247,7 @@ h1{font-size:2em;margin-block:.67em}
 @media(max-width:760px){.error-page{padding:40px 0 0}.error-page>p:not(.eyebrow){font-size:17px}.error-actions{flex-direction:column;margin-top:28px}.error-actions a{width:100%}}
 @media(max-width:900px){.job-layout{grid-template-columns:1fr}.job-aside{position:static}}
 /* Under 960px the key facts sit under the title, and the deadline and official link stay in a bar at the bottom; scroll padding keeps focused elements clear of it. */
-@media(max-width:960px){.key-facts{display:grid}.job-aside .apply-block{display:none}.apply-bar{position:fixed;inset:auto 0 0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--color-surface);border-top:1px solid var(--color-border);box-shadow:var(--shadow-sticky)}.apply-bar .apply{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px}.deadline-bar .deadline-countdown{display:none}:root:has(.apply-bar){scroll-padding-bottom:88px}body:has(.apply-bar){padding-bottom:76px}}
+@media(max-width:960px){.key-facts{display:grid}.summary .in-key-facts{display:none}.job-aside .summary{margin:0}.job-aside .summary>div:last-child{border-bottom:0}.job-aside .apply-block{display:none}.apply-bar{position:fixed;inset:auto 0 0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--color-surface);border-top:1px solid var(--color-border);box-shadow:var(--shadow-sticky)}.apply-bar .apply{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px}.deadline-bar .deadline-countdown{display:none}:root:has(.apply-bar){scroll-padding-bottom:88px}body:has(.apply-bar){padding-bottom:76px}}
 @media(max-width:760px){.facts>div{grid-template-columns:1fr;gap:4px}}
 
 /* Interface language switch and advert translations. */
@@ -262,10 +266,11 @@ h1{font-size:2em;margin-block:.67em}
 .translation-note{font-size:13px!important;color:var(--color-text-muted)!important;margin:0 0 12px;padding:8px 12px;background:var(--color-surface-sunken);border-radius:var(--radius-sm)}
 
 /* Phones: a one-line hero, search on its own row, and the card's side column as a footer row. */
-@media(max-width:760px){.hero{padding:20px 0 0}.monogram{display:none}.hero .eyebrow,.hero>p:not(.trust-strip){display:none}.hero h1{font-size:28px;line-height:1.15;margin:0}.trust-strip{margin-top:8px!important;font-size:13px!important;gap:4px 16px}.search-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}.search-field{grid-column:1/-1}.filter-panel{grid-template-columns:1fr;padding:12px 0 4px}.results-heading{margin:20px 0 12px}.results-heading h2{font-size:20px}.job-card{padding:16px}.job-side{flex:1 1 100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;border-top:1px solid var(--color-border);padding-top:12px}.deadline-card{display:flex;align-items:center;gap:8px;text-align:left}.deadline-card .deadline-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.button-secondary{min-height:40px}}
+@media(max-width:760px){.hero{padding:20px 0 0}.monogram{display:none}.hero .eyebrow,.hero>p:not(.trust-strip){display:none}.hero h1{font-size:28px;line-height:1.15;margin:0}.trust-strip{margin-top:8px!important;font-size:13px!important;gap:4px 16px}.search-bar{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}.search-field{grid-column:1/-1}.filter-panel{grid-template-columns:1fr;padding:12px 0 4px}.results-heading{margin:20px 0 12px}.results-heading h2{font-size:20px}.job-card{padding:16px}.job-side{flex:1 1 100%;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;border-top:1px solid var(--color-border);padding-top:12px}.deadline-card{justify-items:start;text-align:left}.deadline-card .deadline-countdown{justify-self:start}.job-side{flex-wrap:nowrap;justify-content:space-between}.deadline-card .deadline-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.button-secondary{min-height:40px}}
 
 /* Windows High Contrast and other forced-colour modes drop background colours, so anything told apart by its fill gets a border or a system colour. */
 @media (forced-colors: active){
+.report-form input[type=radio]{appearance:auto;box-shadow:none}
 .status-pill,.deadline-countdown,.badge,.monogram,.chip,.filter-count,.tags li{border:1px solid CanvasText}
 .deadline-countdown.today{border-width:2px}
 .language-switch .current-language{border-bottom:3px solid Highlight}
