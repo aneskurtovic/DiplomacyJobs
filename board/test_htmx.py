@@ -47,3 +47,17 @@ class HtmxJobListTests(TestCase):
         response = self.client.get("/")
         self.assertEqual(response.content.decode().count('id="results-status"'), 1)
         self.assertNotContains(response, "hx-swap-oob")
+
+    def test_search_form_needs_no_eval(self):
+        response = self.client.get("/")
+        self.assertNotContains(response, "hx-on")
+        self.assertNotContains(response, "[target.")
+        self.assertContains(response, '"allowEval": false')
+        self.assertContains(response, "search.js")
+
+    def test_content_security_policy_forbids_foreign_and_inline_scripts(self):
+        policy = self.client.get("/")["Content-Security-Policy"]
+        script = next(part for part in policy.split("; ") if part.startswith("script-src"))
+        self.assertRegex(script, r"^script-src 'self' 'nonce-[\w-]{16,}'$")
+        self.assertIn("frame-ancestors 'none'", policy)
+        self.assertNotEqual(policy, self.client.get("/")["Content-Security-Policy"])

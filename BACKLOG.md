@@ -16,6 +16,9 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
   2. Generate the ops SSH key and add it to `~codex/.ssh/authorized_keys` with `command="/opt/diplomacyjobs-ops-wrapper.sh",restrict`.
   3. Add the private key as Woodpecker secret `diplomacyjobs_ops_ssh_key`, delete it from the host, and allow it and `diplomacyjobs_deploy_known_hosts` for tag and manual events.
   4. Tag `ops/extract_requirements/<date>` so production jobs get the junior college level (until then, production keeps the old requirement values).
+- [ ] **Owner, needs root on the host:** harden two headers the app cannot set alone:
+  1. Copy `deploy/poslovi.caddy` into the host Caddy config and reload Caddy. Its `X-Frame-Options` is now `DENY`; the host copy still sends `SAMEORIGIN`, which overrides Django's `DENY`.
+  2. In `/opt/diplomacyjobs/.env`, raise `DJANGO_HSTS_SECONDS` from `3600` to `31536000` and restart the web service. Subdomains stay out of the policy (`includeSubDomains` is off).
 - [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.

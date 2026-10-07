@@ -109,6 +109,8 @@ class ShareImageTests(TestCase):
         page = self.client.get(self.job.get_absolute_url()).content.decode()
         self.assertIn(f'<meta property="og:image" content="http://testserver/jobs/{self.job.pk}/share.png">', page)
         self.assertIn('<meta name="twitter:card" content="summary_large_image">', page)
+        self.assertIn('<meta property="og:description" content="Električar', page)
+        self.assertIn("Sarajevo. Rok:", page.split('property="og:description"')[1].split(">")[0])
         self.assertEqual(self.client.get(f"/en/jobs/{self.job.pk}/share.png").status_code, 200)
 
     def test_unpublished_job_has_no_image_and_an_expired_one_no_tag(self):

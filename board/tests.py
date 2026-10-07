@@ -988,6 +988,12 @@ class PublicViewTests(TestCase):
             self.assertIn("Vozač – Brčko", self.client.get("/", {"q": query}).content.decode(), query)
         self.assertNotIn("Vozač – Brčko", self.client.get("/", {"q": "Mostar"}).content.decode())
 
+    def test_search_matches_every_word_anywhere(self):
+        Job.objects.filter(title="Driver").update(title="Driver, Field Office", city="Brčko")
+        for query in ("driver brcko", "brcko driver", "  DRIVER   office "):
+            self.assertIn("Driver, Field Office", self.client.get("/", {"q": query}).content.decode(), query)
+        self.assertNotIn("Driver, Field Office", self.client.get("/", {"q": "driver mostar"}).content.decode())
+
     def test_fold(self):
         from .text import fold
         self.assertEqual([fold(word) for word in ("Švicarska", "ĐURĐEVDAN", "djurdjevdan", "Žepče")], ["svicarska", "durdevdan", "durdevdan", "zepce"])

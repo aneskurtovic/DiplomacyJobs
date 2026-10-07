@@ -47,9 +47,10 @@ def filter_jobs(query, params):
     field = params.get("field", "")
     if search:
         # Neither database ignores diacritics in a portable way; visible jobs are few, so matching is done on folded text.
-        needle = fold(search)
+        # Every word must appear somewhere, so "consultant sarajevo" finds a consultant job whose city is Sarajevo.
+        words = fold(search).split()
         rows = query.select_related("source__organization").defer("raw_text")
-        query = query.filter(pk__in=[job.pk for job in rows if needle in fold(" ".join((job.title, job.city, job.employer_name)))])
+        query = query.filter(pk__in=[job.pk for job in rows if all(word in fold(" ".join((job.title, job.city, job.employer_name))) for word in words)])
     if employer.isdecimal() and len(employer) <= 18:
         organization = Organization.objects.filter(pk=int(employer)).first()
         key = employer_key(organization.name) if organization else None

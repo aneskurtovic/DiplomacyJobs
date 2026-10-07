@@ -3,5 +3,5 @@
 <p class="trust-strip"><span class="trust-live"><span class="live-dot" aria-hidden="true"></span><strong>{{ trust.jobs }}</strong> {{ trust.jobs|bs_plural:"aktuelni oglas,aktuelna oglasa,aktuelnih oglasa|open job,open jobs" }}</span><span><strong>{{ trust.sources }}</strong> {{ trust.sources|bs_plural:"praćeni izvor,praćena izvora,praćenih izvora|source tracked,sources tracked" }}</span>{% if trust.latest %}<span>{% if trust.latest_today %}{% blocktranslate with time=trust.latest|time:"H:i" %}Provjereno danas u {{ time }}{% endblocktranslate %}{% else %}{% blocktranslate with date=trust.latest|date:"d.m.Y." %}Zadnja provjera {{ date }}{% endblocktranslate %}{% endif %}</span>{% endif %}<a href="{{ sources_url }}">{% translate "Kako prikupljamo oglase" %} →</a></p></section>
 {% include 'board/_search_form.html' %}
 <p id="results-status" class="visually-hidden" role="status" aria-live="polite"></p><div id="results">{% include 'board/_results.html' %}</div>
-<script src="{% static 'board/htmx.min.js' %}" defer></script>
+<script src="{% static 'board/htmx.min.js' %}" defer></script><script src="{% static 'board/search.js' %}" defer></script>
 {% endblock %}

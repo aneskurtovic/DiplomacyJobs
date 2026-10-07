@@ -1,5 +1,5 @@
 {% extends 'board/base.html' %}{% load board_extras i18n static %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
-{% block description %}{% if translation %}{{ translation.title }}{% else %}{{ job.title }}{% endif %} – {{ job.employer_name }}, {% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}. {% translate "Rok:" %} {% if job.deadline %}{{ job.deadline|date:'d.m.Y.' }}{% elif job.open_until_filled %}{% translate "do popune mjesta" %}{% else %}{% translate "nije naveden" %}{% endif %}.{% if job.tags %} {% translate "Uslovi:" %} {{ job.tags|join:', ' }}.{% endif %}{% endblock %}
+{% block description %}{% include 'board/_job_summary.html' %}{% endblock %}{% block og_description %}{% include 'board/_job_summary.html' %}{% endblock %}
 {% block og_title %}{{ job.title }} – {{ job.employer_name }}{% endblock %}
 {% block og_image %}{% if current %}{% url 'job_share_image' job.pk as share_url %}<meta property="og:image" content="{{ public_base }}{{ share_url }}">
   <meta property="og:image:type" content="image/png">

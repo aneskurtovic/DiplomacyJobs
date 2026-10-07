@@ -20,6 +20,13 @@ Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and veri
 - `.woodpecker/ops.yml` runs allow-listed server tasks from a tag `ops/<task>[-<number>][/<anything>]` or a manual run (`OPS_TASK`, `OPS_ARG`): `extract_requirements[_dry_run]`, `reconcile_duplicates`, `import_registry`, `verify_sources`, `scrape[-<source id>]` and `history-<year>`. Every writing task backs up the database first. Setup and the full list are in README ("Server tasks from Woodpecker").
 - **Not active yet.** The owner must install the two scripts on the host, add the ops SSH key with its forced command, and create the `diplomacyjobs_ops_ssh_key` secret, allowing it and the known-hosts secret for tag and manual events. Claude Code's auto mode blocks SSH reads of the production host, so this was not done from the session. First use after setup: `ops/extract_requirements/<date>` to apply the junior college level to production jobs.
 
+## Search and security headers (2026-10-07, night)
+
+- **Search matches every word anywhere** in a job's title, city and employer (folded for case and diacritics), so "consultant sarajevo" finds a consultant job in Sarajevo; it used to need the exact phrase.
+- **Content-Security-Policy** from `board/middleware.py` on every response: scripts only from the site plus a per-response nonce, which Cloudflare adds to the JavaScript it injects; inline style attributes allowed; `frame-ancestors 'none'`. htmx runs with `allowEval: false`; the search form's select trigger and empty-field stripping moved from inline htmx attributes to `board/static/board/search.js`.
+- **Job pages** now give link previews a job-specific `og:description` (title, employer, city, deadline), the same text as the meta description.
+- **Owner task:** host Caddy `X-Frame-Options DENY` and a one-year HSTS (BACKLOG P1).
+
 ## Junior college level and requirement enrichment (2026-10-07, late)
 
 - **"Viša škola" (`junior_college`)** sits between secondary school and bachelor (migration 0038, requirement rules version 4). It is read from "junior college", "associate degree", VŠS, "viša stručna sprema", "viša škola" and "VI stepen"; VŠS and "viša stručna sprema" used to count as bachelor. The education filter treats it like the other levels (a visitor with Viša škola sees jobs asking for it or less). English label: "Junior college (2–3 years)". Locally only EUFOR's Purchasing Administrator (job 6) changed: it now shows Viša škola with economics and public administration. Database backup: `backups/db-before-junior-college-*.sqlite3`. **Production needs `extract_requirements` after the deploy** (the migration alone does not re-read texts): tag `ops/extract_requirements/<date>` once the ops pipeline is set up.
