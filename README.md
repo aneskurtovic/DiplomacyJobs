@@ -60,7 +60,7 @@ Brazil's folder and closed-process detection work, but future open scanned PDFs 
 
 ### Job pages, requirements and reports
 
-Every published job has a page at `/jobs/<id>/<slug>/` (`/jobs/<id>/` redirects there). Pages are listed in the sitemap, and feed entries link to them. A published job that is no longer current stays readable with a notice and `noindex`. A closed job answers 410 without details, and a job in review answers 404.
+Every published job has a page at `/jobs/<id>/<slug>/` (`/jobs/<id>/` redirects there). Pages are listed in the sitemap, and feed entries link to them. A published job that is no longer current stays readable with a notice and `noindex`. A closed job answers 410 without details, and a job in review answers 404. Unknown URLs and hidden jobs get the site's own 404 page (`templates/404.html`, `noindex`) in the language of the URL, with links back to the jobs and sources.
 
 Each scan reads the job's requirements from its text with rules in `board/requirements.py`: minimum education level, field of study, minimum years of experience, languages, driving licence, citizenship, remote work, working time, salary, duration and grade. Each fact keeps the quote it came from, which the page shows under "Iz oglasa". Facts that are unclear are left out. Education level, years of experience and field of study are filterable columns. A correction to them in admin is protected from later scans, like other manual edits. Re-read stored texts after changing the rules with `python manage.py extract_requirements [--dry-run]`. The board's education, experience and field filters show only jobs that state the requirement.
 

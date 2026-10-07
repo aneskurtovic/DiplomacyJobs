@@ -92,6 +92,21 @@ class EnglishInterfaceTests(TestCase):
         self.assertContains(filtered, 'href="/?edu=master" hreflang="bs"', html=False)
         self.assertEqual(self.client.get("/en/jobs/%d/" % self.job.pk).status_code, 301)
 
+    def test_missing_pages_get_the_site_404_in_their_language(self):
+        missing = self.client.get("/nema-te-stranice/")
+        self.assertContains(missing, "Ova stranica ne postoji.", status_code=404)
+        self.assertContains(missing, '<meta name="robots" content="noindex">', status_code=404, html=False)
+        self.assertContains(missing, '<a class="apply" href="/">', status_code=404, html=False)
+        english = self.client.get("/en/no-such-page/")
+        self.assertContains(english, '<html lang="en" data-theme="auto">', status_code=404, html=False)
+        self.assertContains(english, "This page does not exist.", status_code=404)
+        self.assertContains(english, '<a class="apply" href="/en/">', status_code=404, html=False)
+        self.job.status = "review"
+        self.job.save()
+        review = self.client.get(f"/en/jobs/{self.job.pk}/project-coordinator/")
+        self.assertContains(review, "This page does not exist.", status_code=404)
+        self.assertNotContains(review, "Project Coordinator", status_code=404)
+
     def test_report_from_english_page_returns_there(self):
         response = self.client.post(f"/en/jobs/{self.job.pk}/report/", {"reason": "expired"}, follow=True)
         self.assertRedirects(response, f"/en/jobs/{self.job.pk}/project-coordinator/")
