@@ -1,5 +1,7 @@
 # International job aggregators
 
+The live results and test count below are from 2026-10-03. For current production counts and source health, see [HANDOFF](../HANDOFF.md).
+
 ReliefWeb (BiH country filter C40) and Impactpool (work-location filter 28) extend
 the official-source inventory. Both adapters are implemented (`board/aggregators.py`)
 and registered as enabled sources under organizations of kind `aggregator`.
@@ -8,7 +10,7 @@ The board and Atom feed choose one record per vacancy, preferring the direct
 employer. Source records, snapshots, manual edits and scan lifecycles remain
 independent. A syndicated record cannot reopen an official record held for review,
 withdrawn, disabled or closed. This decision is recomputed when reading the board,
-so scrape order and admin changes cannot leave a stale duplicate flag.
+so scrape order and admin changes cannot leave a stale duplicate flag. Since 2026-10-07, each daily scrape also closes matching syndicated copies as `duplicate`; the same reconciliation can be run manually with `manage.py reconcile_duplicates`.
 
 Matching uses the original vacancy/application URL (tracking removed, requisition
 parameters retained), with a specific UNICEF requisition URL normalization. The

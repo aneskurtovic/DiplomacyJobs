@@ -2,7 +2,7 @@
 
 Bosnian-language job board for roles based in Bosnia and Herzegovina at diplomatic missions, international governmental organizations, and international NGOs and development agencies. Listings link to where the employer advertised them, preferring the employer's own site; aggregator and third-party-board jobs are attributed. Source coverage is explicit; an unavailable source is never presented as having zero vacancies.
 
-The current collection window is **2026 only**. The scraper skips clearly older dated archives before fetching job details, bounds each source to 100 possible 2026 details per run, and stores only qualifying 2026 candidates. Deadline-only leads require admin review. See [the MVP plan](PLAN.md) (scope and launch gates), [backlog](BACKLOG.md) (work list), and [continuation handoff](HANDOFF.md) (current counts, verification results and next steps).
+The daily current-job collection window is **2026 only**. The scraper skips clearly older dated archives before fetching job details, bounds each source to 100 possible 2026 details per run, and stores only qualifying 2026 candidates. Deadline-only leads require editorial review. A separate, manual archive command stores eligible ended 2025 and 2026 adverts as closed records for employer pages. See [the MVP plan](PLAN.md) (scope and launch gates), [backlog](BACKLOG.md) (work list), and [continuation handoff](HANDOFF.md) (current counts, verification results and next steps).
 
 ## Local start
 
@@ -28,33 +28,30 @@ The [2026-10-03 discovery audit](docs/source-audit-2026-10-03.md) examined 46 pr
 
 ## Verification
 
-CI and the production image target Python 3.12. This Windows checkout also has an existing `.venv311` (Python 3.11.3) with dependencies matching `requirements.lock`. The following commands passed on 2026-10-03:
+CI and the production image target Python 3.12. Create a Python 3.12 environment with `requirements.lock` for matching results. To check a local environment:
 
 ```powershell
 $env:DJANGO_DEBUG = '1'
-$env:TEMP = Join-Path (Get-Location) 'data\raw\test-temp'
-$env:TMP = $env:TEMP
-New-Item -ItemType Directory -Force $env:TEMP | Out-Null
-.venv311\Scripts\python.exe manage.py check
-.venv311\Scripts\python.exe manage.py makemigrations --check --dry-run
-.venv311\Scripts\python.exe manage.py test board --noinput
+.venv\Scripts\python.exe manage.py check
+.venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+.venv\Scripts\python.exe manage.py test board --noinput
 ```
 
-The latest results (test count, skips, CI run) are recorded in [HANDOFF](HANDOFF.md); the PostgreSQL connection-recovery test is skipped on local SQLite. `.venv` uses Python 3.14.7 in this checkout; its earlier test run hit temporary-directory permission errors. The writable test directory above avoids that environment issue. Use the verified `.venv311` here or create a Python 3.12 environment with the locked dependencies.
+The latest results (test count, skips, CI run) are recorded in [HANDOFF](HANDOFF.md); the PostgreSQL connection-recovery test is skipped on local SQLite. Use Python 3.12 for parity with CI and production.
 
-[GitHub Actions](.github/workflows/tests.yml) defines independent SQLite and PostgreSQL 16 jobs on Linux/Python 3.12. Both run Django checks, migration drift checks, and the full suite. The PostgreSQL job also terminates only the test's own connection to the disposable test database and verifies that the next scheduler run reconnects. CI runs on every push to `main`; the latest run is linked from [HANDOFF](HANDOFF.md). Neither Docker nor PostgreSQL was available in the recorded local verification. To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
+[Woodpecker CI](.woodpecker/test.yml) runs the SQLite and PostgreSQL 16 tests on Linux/Python 3.12; a passing push to `main` triggers [deployment](.woodpecker/deploy.yml). [GitHub Actions](.github/workflows/tests.yml) also defines independent SQLite and PostgreSQL jobs. Both CI systems run Django checks, migration drift checks and the full suite. The PostgreSQL connection-recovery test terminates only its own connection to a disposable test database and verifies that the next scheduler run reconnects. The latest checked run is linked from [HANDOFF](HANDOFF.md). To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
 
 ## Operations
 
 The [source registry](data/source_registry.json) is an evidence-backed starting set. The registry is the set of employers we choose to monitor; a full reconciliation against the BiH MFA directory is not required, and the [MFA candidate inventory](data/mfa_inventory.json) remains as reference data. The seven audit integrations were checked on 2026-10-03; their [scan report](data/recruitment_integration_2026-10-03.json) records source IDs, timestamps, outcomes and coverage limits. Sources without successful validation remain disabled. Launch gates are listed in [PLAN](PLAN.md). Japan, Switzerland, Ireland, OSCE search, Türkiye, Brazil and Spain opt into a Chrome TLS fingerprint through `"impersonate": true` in `adapter_config`; other sources use the honest bot user agent. TLS verification stays enabled and JavaScript challenges are not solved. `import_registry` updates notes and `adapter_config` of existing sources (matched by URL, even when moved to another organization), changes the adapter only while a source is disabled (an enabled source whose registry adapter differs keeps its adapter and settings, with a warning), and never changes existing source status or enablement; do those in admin. An organization entry may carry `previous_name` to rename an existing organization.
 
-Run one fetch with `python manage.py scrape_jobs --source ID` or all enabled sources with `python manage.py scrape_jobs`. `python manage.py verify_sources [--all]` fetches each listing and reports leads or errors without writing to the database; run it first from a new server network. The dedicated Compose scheduler runs this daily. Errors are recorded per run; a failed run does not remove jobs. Scrape details are visible in admin. The scraper lock file is `/tmp/diplomacyjobs-scrape.lock` in the container.
+Run one fetch with `python manage.py scrape_jobs --source ID` or all enabled sources with `python manage.py scrape_jobs`. `python manage.py verify_sources [--all]` fetches each listing and reports leads or errors without writing to the database; run it first from a new server network. The dedicated Compose scheduler runs this daily. For a one-off archive pass, `python manage.py scrape_jobs --history YEAR [--source ID]` reads only sources with history settings and stores eligible ended adverts as closed records. Errors are recorded per run; a failed run does not remove jobs. Scrape details are visible in admin. The scraper lock file is `/tmp/diplomacyjobs-scrape.lock` in the container.
 
 For read-only checks of the seven audit integrations, use the repository-root commands below with `DJANGO_DEBUG=1`. The validator checks candidate details as well as listing access and saves its report under ignored `data/raw/integration_2026-10-03/`.
 
 ```powershell
-.venv311\Scripts\python.exe scripts\validate_recruitment_integrations.py
-.venv311\Scripts\python.exe scripts\validate_recruitment_integrations.py --adapter spain
+.venv\Scripts\python.exe scripts\validate_recruitment_integrations.py
+.venv\Scripts\python.exe scripts\validate_recruitment_integrations.py --adapter spain
 ```
 
 Existing databases keep their enablement on import. After backing up the database, `scripts/activate_recruitment_integrations.py` applies the reviewed settings, scans only these seven sources and leaves any failed integration disabled. Migration **0025** adds the new adapter choices. Local activation has already been applied in this checkout.
@@ -76,9 +73,9 @@ The public site is in Bosnian at `/` and in English at `/en/`, with a BS/EN swit
 Adverts get a Bosnian and an English version (title, summary, duties, requirements, how to apply), so foreign-language adverts can be read in both languages. These are written in a local Claude Code session with the project skill `/translate-jobs`, not by the app; there is no API key. The skill runs:
 
 ```powershell
-.venv311\Scripts\python.exe manage.py export_translations --limit 10 > batch.jsonl
+.venv\Scripts\python.exe manage.py export_translations --limit 10 > batch.jsonl
 # the skill writes out.jsonl
-.venv311\Scripts\python.exe manage.py import_translations out.jsonl --translator "claude-code <model>"
+.venv\Scripts\python.exe manage.py import_translations out.jsonl --translator "claude-code <model>"
 ```
 
 The import accepts only the expected fields and lengths. It rejects a version if the advert changed since export, or if it contains an e-mail address or URL that does not appear in the advert. A version is tied to the job's `content_hash`; when the source changes, the job page hides it until the job is translated again. The page labels it as automatic and keeps the scraped facts separate. Admin can clear a translation, or turn translation off for a job. `detect_language` stores each advert's main language in `requirements["language"]`. On the server, run the export and import with `docker compose exec web python manage.py …` and copy the files.
@@ -113,4 +110,4 @@ Production request errors, scheduler exceptions, and unexpected source errors in
 
 The database has no public port. [The backup script](scripts/ci/backup-db.sh) writes a checked custom-format dump; [host cron](deploy/diplomacyjobs-backup.cron) runs it daily with 30-day retention. [The restore check](scripts/ci/restore-check.sh) creates and removes a scratch database, then compares source and job counts. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable. The scrape health endpoint can remain 503 when an upstream source blocks requests from the Hetzner network; each affected source remains visible as unavailable.
 
-This checkout does not contain the server hostname or access credentials. The app should not be publicly described as comprehensive; `/sources/` shows exactly which employers are covered.
+The app should not be publicly described as comprehensive; `/sources/` shows exactly which employers are covered.

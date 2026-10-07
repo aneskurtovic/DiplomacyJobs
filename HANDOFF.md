@@ -1,14 +1,13 @@
 # DiplomacyJobs continuation handoff
 
-Updated: 2026-10-03 (Europe/Sarajevo). This is the only file that records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Nothing has been deployed.
+Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
 
-## Current state (verified 2026-10-03, local SQLite)
+## Current state (verified 2026-10-07, Hetzner PostgreSQL)
 
-- **Commit:** see `git log` on `main` (job pages, requirements, reports, English interface and translation import, 2026-10-03). The last CI run checked was [37116293201](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37116293201) on `2028a85`; check CI for the newer commits, which add migrations 0032–0033.
-- **Tests:** 248 discovered locally: 247 passed, one PostgreSQL-only skip. Django checks and migration drift are clean.
-- **Registry:** 87 organizations (41 embassies, 7 consulates, 6 honorary consulates, 28 international organizations, 2 INGOs, 1 development agency, 2 aggregators); 59 sources, **52 enabled**.
-- **Coverage on `/sources/`** (87 rows): **52 complete** (47 official mission/IGO sources, 2 INGOs, GIZ via mreza-mira.net and 2 aggregators; 10 with published jobs, 42 empty), **0 partial**, **3 unavailable** (Romania, UK, UNICEF), **33 no local recruitment list**, 0 awaiting integration, 0 unchecked.
-- **Jobs:** 23 published (all visible on the board; 8 of them UNDP consultancies from the new notices source), 0 in review, 187 closed (178 of them backfilled from source archives, see below). Content review of the original 21 done 2026-10-03; the 8 UNDP notices published automatically under the rule.
+- **Code and CI:** server checkout is `9d2b116` (migration 0037); [Woodpecker pipeline #3](https://ci.aneskurtovic.com/repos/7/pipeline/3) passed SQLite and PostgreSQL tests and deployed it. Local full suite at that commit: 252 tests, one SQLite skip; Django checks and migration drift passed.
+- **Production:** [poslovi.aneskurtovic.com](https://poslovi.aneskurtovic.com/) serves through Caddy with HTTPS. Web and scraper containers use a dedicated `diplomacyjobs` database and role in the existing PostgreSQL 16 instance. The daily scrape is scheduled for 06:00 Sarajevo time; a daily database backup is installed and a scratch-database restore was verified. `/health/` returns 200.
+- **Registry:** 87 organizations and 59 sources were imported; 52 sources are enabled. From the first Hetzner scrape, 49 succeeded and three were unavailable: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), ReliefWeb (#53, HTTP 202 challenge). `/health/scrape/` still returns 503 for those three; this is visible as unavailable coverage, not zero jobs.
+- **Jobs:** 21 published, 0 in review, 188 closed; eight of the closed records are syndicated copies marked `duplicate`. The staff queue is at `/editor/`, with Django admin at `/admin/` for source settings and advanced records. There are 21 currently visible public jobs awaiting Bosnian/English advert versions.
 
 ## Owner decisions (2026-10-03)
 
@@ -129,7 +128,7 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 ## Archive backfill of 2025 and ended 2026 adverts (2026-10-03)
 
 - Owner request: past adverts on the employer pages. The daily scrape drops an advert that is already expired when first seen, so before this only jobs caught while open were stored.
-- All 52 enabled sources were probed for 2025 and 2026 (discovery only, nothing written). Recruitment portals (Oracle, Workday, Taleo, Avature, CSOD, SuccessFactors, BambooHR, Lanteria, PeopleSoft, ERA, UN Careers, Canada), Impactpool and the current-list pages (OSCE, OHR, RCC, EUFOR, UNCT, Ireland, Denmark, Japan, Malaysia, Pakistan) show open adverts only. ReliefWeb keeps expired jobs only in its API, which needs an approved app name; the owner declined (2026-10-03). Italy's concluded list has nothing for 2025 and its 2026 advert was already stored. Slovenia's full MFA list runs past the page limit and a Sarajevo advert is rare, so it was left out. Germany's sitemap would need a lower article floor and its last adverts are from 2020/2022.
+- All 52 enabled sources were probed for 2025 and 2026 (discovery only, nothing written). Recruitment portals (Oracle, Workday, Taleo, Avature, CSOD, SuccessFactors, BambooHR, Lanteria, PeopleSoft, ERA, UN Careers, Canada), Impactpool and the current-list pages (OSCE, OHR, RCC, EUFOR, UNCT, Ireland, Denmark, Japan, Malaysia, Pakistan) show open adverts only. ReliefWeb keeps expired jobs only in its API, which asks for an approved app name; none is configured. Italy's concluded list has nothing for 2025 and its 2026 advert was already stored. Slovenia's full MFA list runs past the page limit and a Sarajevo advert is rare, so it was left out. Germany's sitemap would need a lower article floor and its last adverts are from 2020/2022.
 - `manage.py scrape_jobs --history YEAR [--source ID]` (`ingest.archive_source`) runs only sources whose `adapter_config` has a `history` object (12 in the registry); its keys override the daily settings for the run. It stores ended adverts of that year as `closed`/`archive` (migration 0036), never touches a known URL, and leaves open adverts to the daily scrape. An advert that passes every publication check except its deadline gets `published_at`, so the employer page lists it; the others keep their reason in `field_evidence.review_reason`.
 - Adapter changes in archive mode: RAI keeps the table's closed rows of the year (not cancelled ones); WordPress reads only that year and takes `search` (GIZ's history adds mreza-mira.net's Arhiva with `search=GIZ`, 15 posts instead of 1,145); UNDP notices searches the year's posting dates and keeps ended IC notices, 3 s apart (owner approved the ~150 page fetches, 2026-10-03).
 - Past jobs on employer pages are now ordered by deadline, newest first, since backfilled jobs were first seen long after they ended.
@@ -140,16 +139,16 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 
 - Public site: https://poslovi.aneskurtovic.com/ via Caddy with HTTPS, HTTP redirect and a one-hour HSTS policy. The homepage, coverage page, feed, sitemap, robots file and `/health/` returned 200. `/health/scrape/` returns 503 for the affected sources below.
 - `compose.prod.yaml` runs web and daily scraper containers on Hetzner. Both use a dedicated `diplomacyjobs` database and role inside the **existing** `ludo-postgres` PostgreSQL 16 container; there is no separate production PostgreSQL container. The scraper runs daily at 06:00 Sarajevo time.
-- [Woodpecker pipeline #1](https://ci.aneskurtovic.com/repos/7/pipeline/1) passed the SQLite and PostgreSQL Django tests and deployed commit `319aa59` through the restricted SSH deploy key. The server deployment command takes a checked database dump before rebuilding and restarting the app.
-- A full daily scrape from the server completed: 49 of 52 enabled sources succeeded, producing 21 published jobs and 8 needing review. Slovenia and Germany worked from the server. Sweden (#26) returned 403, UN Careers (#51) returned 504 from its API, and ReliefWeb (#53) returned an HTTP 202 challenge. The sources page marks these unavailable; they are not treated as zero vacancies. A browser TLS fingerprint also received 504 from the UN Careers API. ReliefWeb's official API requires a pre-approved appname since November 2025; the owner does not currently have one.
+- [Woodpecker pipeline #1](https://ci.aneskurtovic.com/repos/7/pipeline/1) launched the site at commit `319aa59`; [pipeline #3](https://ci.aneskurtovic.com/repos/7/pipeline/3) later deployed the editorial queue and duplicate reconciliation at `9d2b116`. Both ran the SQLite and PostgreSQL Django tests. The restricted SSH deployment command takes a checked database dump before rebuilding and restarting the app.
+- The first full server scrape completed: 49 of 52 enabled sources succeeded, producing 21 published jobs and eight Impactpool copies needing review. Slovenia and Germany worked from the server. Sweden (#26) returned 403, UN Careers (#51) returned 504 from its API, and ReliefWeb (#53) returned an HTTP 202 challenge. The sources page marks these unavailable; they are not treated as zero vacancies. A browser TLS fingerprint also received 504 from the UN Careers API. [ReliefWeb's official API requires a pre-approved appname](https://apidoc.reliefweb.int/parameters); none is configured, while the older HTML approach previously worked without one.
+- `/editor/` now handles uncertain listings with source evidence, corrections and guarded publish/reject actions. `reconcile_duplicates` closed the eight Impactpool copies as `duplicate`, leaving the editorial queue empty. Each scheduled scrape runs this reconciliation.
 - A custom-format PostgreSQL dump was restored successfully into a temporary database and the temporary database removed. [The backup cron file](deploy/diplomacyjobs-backup.cron) is installed on the host and runs daily with 30-day retention.
 
 ## Next steps
 
-1. Run `/translate-jobs` for the 22 untranslated public jobs, and again after each scrape that adds jobs.
-2. Create a production superuser interactively with `ssh hetzner-codex`, then `cd /opt/diplomacyjobs && docker compose -f compose.prod.yaml exec web python manage.py createsuperuser`; review the eight pending jobs in admin.
-3. Recheck Sweden and UN Careers access from Hetzner, and request an approved ReliefWeb API appname if that feed remains important. Do not solve JavaScript challenges. The previously blocked Romania, UK and UNICEF sites remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
-4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
+1. Recheck Sweden and UN Careers access from Hetzner; investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
+2. Run `/translate-jobs` for the 21 currently visible public jobs awaiting translations, and decide how new or changed jobs will be translated after each scrape.
+3. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
 
 ## Design system files
 
@@ -161,14 +160,12 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 
 ## Working notes
 
-- Use `.venv311` (Python 3.11.3, matches `requirements.lock`); do not rebuild `.venv` (Python 3.14, temp-directory errors). CI and production target Python 3.12. Verification commands are in README.
+- CI and production target Python 3.12. Set `DJANGO_DEBUG=1` before local management commands, and use a Python 3.12 environment with `requirements.lock` for parity. Verification commands are in README.
 - The local dev server runs on http://127.0.0.1:8000/ with `DJANGO_DEBUG=1`. On Windows the venv launcher can leave the serving child process alive; stop both before restarting, and check process identity rather than reusing old PIDs.
 - `import_registry` preserves existing enablement, status and timestamps; enable or disable sources in admin. `scripts/validate_recruitment_integrations.py` runs read-only live checks (`--adapter NAME` for one).
-- Locally, the German sitemap source fails TLS: `ssl.create_default_context()` uses the Windows certificate store, which here lacks ISRG Root X2 (diplo.de's Let's Encrypt chain). certifi and standard Linux CA bundles include it; the source passed with certifi as the trust store. Recheck from the server.
+- In the 2026-10-03 local run, the German sitemap source failed TLS because the Windows certificate store lacked ISRG Root X2. It passed from the Hetzner server.
 - Source access policy: TLS verification stays on, JavaScript challenges are never solved, and Chrome TLS impersonation is opt-in per source (`adapter_config.impersonate`).
-- The local `admin` superuser has a deliberately weak, owner-chosen development password. Never copy this database or account to a deployment; create production users with `createsuperuser`.
 - Local database backups made before each data change are in ignored `backups/`.
-- The GitHub CLI token lacks `workflow` scope; pushes that change `.github/workflows/` need a credential with that scope (earlier pushes used Git Credential Manager).
 - Unreachable commit `eb52b78` holds an obsolete SQLite-only workflow; do not restore it.
 
 ## History

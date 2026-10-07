@@ -2,9 +2,9 @@
 
 Open [design-system.html](design-system.html) in a browser. It holds the audit, principles, foundations, component specs, redesigned screens and a phased rollout. It builds on the visual direction in [DesignProposal.html](../../DesignProposal.html) and does not replace it.
 
-- [tokens.css](../../board/static/board/tokens.css): design tokens (global → alias → component, light and dark). The site links it before `site.css`, which uses only alias tokens. Dark mode is opt-in through `<html data-theme="auto">` and stays off until it has had a QA pass.
+- [tokens.css](../../board/static/board/tokens.css): design tokens (global → alias → component, light and dark). The site links it before `site.css`, which uses only alias tokens. `<html data-theme="auto">` follows the visitor's light or dark OS setting.
 - [canvas/](canvas/): source files of the [Design canvas](https://claude.ai/artifact/2sbsjQcyQhKx6VimewJzoN) (overview, audit, foundations, components, rollout and five screens). The canvas is private until shared from its Share menu.
-- [before/](before/): screenshots of the current site, from a local run with the real registry and 8 sample jobs.
+- [before/](before/): screenshots of the site before the 2026-10-03 redesign, from a local run with the real registry and eight sample jobs.
 
 Phase 1 of the rollout (the launch blockers) was done on 2026-10-03:
 

@@ -2,7 +2,7 @@
 
 Checked: **2026-10-03**, Europe/Sarajevo. Scope: the 46 rows originally shown under `Izvor nije provjeren` on the local coverage page.
 
-Follow-up: the [seven recruitment integrations](recruitment-integrations-2026-10-03.md) are now enabled and passed local scrapes, with five complete and two partial. The results and source counts below describe the initial discovery audit, before that implementation. Current local coverage has zero awaiting integration and 39 enabled sources; Brazil and Canada retain explicit coverage limits.
+Follow-up: the [seven recruitment integrations](recruitment-integrations-2026-10-03.md) were enabled and passed local scrapes, with five complete and two partial. The results and source counts below describe the initial discovery audit, before that implementation. At the time, local coverage had zero awaiting integration and 39 enabled sources; Brazil and Canada retained explicit coverage limits. See [HANDOFF](../HANDOFF.md) for current production counts.
 
 ## Results
 

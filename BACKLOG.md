@@ -2,21 +2,19 @@
 
 Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification results and the ordered next steps are in [HANDOFF.md](HANDOFF.md); this file does not repeat them.
 
-## P0 — Coverage and content review (owner priority, 2026-10-03)
+## P0 — Source access and content coverage
 
-- [ ] Still unavailable (2026-10-03 afternoon): Romania (JavaScript browser check on sarajevo.mae.ro and www.mae.ro; cariera.mae.ro is a login-only platform). No challenge solving. Kuwait: the owner checked by hand (no embassy website, no MFA vacancies); now "no local recruitment list".
-- [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Retry UNICEF from the server's IP once deployed; its jobs also arrive through the aggregators.
+- [ ] Romania remains unavailable: sarajevo.mae.ro and www.mae.ro require a JavaScript browser check; cariera.mae.ro is a login-only platform. No challenge solving.
+- [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Recheck UNICEF from the Hetzner network; its jobs also arrive through aggregators.
+- [ ] Restore or replace the three enabled feeds still failing from Hetzner: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), and ReliefWeb (#53, HTTP 202 challenge). Keep them visible as unavailable. [ReliefWeb's API requires a pre-approved appname](https://apidoc.reliefweb.int/parameters); none is configured, and the older HTML approach previously worked. Investigate an approved access path if this feed remains important.
 - [x] Malaysia and Pakistan are sources (2026-10-03): their missing intermediates are fetched from the certificate's own AIA link and verified to a trusted root (`scripts/cert_chain.py`, `data/intermediates/`, `adapter_config.intermediates`). Qatar's site, now readable the same way, has no recruitment section; Russia's official Telegram channel has never posted a vacancy. Both are "no local recruitment list".
 
 ## P1 — Deployment and operations
 
-- [ ] Deploy to the Hetzner host with an HTTPS subdomain: migrations, static assets, `import_registry`, `verify_sources` from the server network, daily scheduled scrape, and a verified backup restore.
-- [ ] After the first server runs, confirm that successful empty listings are distinguished from failures and inspect the public jobs.
-- [ ] Revisit the 30 "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03).
+- [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
-- [ ] Aggregator copies of vacancies already held from the employer's own source land in review ("year not proven") on every first sighting, although the board already hides them. Close or auto-resolve them at ingest so the review queue holds only real decisions.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.
-- [ ] CI notices (run 37116293201): actions/checkout@v4 and actions/setup-python@v5 target the deprecated Node.js 20; `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19. Update the action versions (needs a token with `workflow` scope).
+- [ ] CI notices (run 37116293201): actions/checkout@v4 and actions/setup-python@v5 target the deprecated Node.js 20; `ubuntu-latest` moves to Ubuntu 26 from 2026-10-19. Update the action versions.
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
@@ -32,6 +30,11 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
 
 ## Done
+
+- [x] Hetzner launch (2026-10-07): HTTPS at `poslovi.aneskurtovic.com`, migrated and imported registry, scheduled daily scrape, Woodpecker tests and deploy, separate database and role in the existing PostgreSQL instance, and a checked backup restore. The first server scan distinguished 49 successful sources (including empty results) from three failures; public jobs were inspected.
+- [x] Staff editorial queue at `/editor/` (2026-10-07): source evidence, corrections, verification note, save/publish/reject actions, and publication guards. An admin shortcut points to it; advanced settings remain in Django admin.
+- [x] Reconcile aggregator copies of official vacancies after each scrape or with `reconcile_duplicates` (2026-10-07). Eight existing Impactpool copies were closed as duplicates in production, leaving no pending review jobs.
+- [x] Kuwait checked by the owner (2026-10-03): no embassy website and no MFA vacancies; recorded as "no local recruitment list".
 
 - [x] Employer pages and related jobs (2026-10-03): `/sources/<id>/<slug>/` per organization, linked from `/sources/`, the job card's employer line and the job page. Each page shows its source status with the recruitment audit note and evidence link, current jobs, then paginated past jobs. Past jobs are those once published (new `Job.published_at`), never ones a reviewer closed. Syndicated jobs appear under their registry employer, and under the aggregator only when the employer is unknown. A page is indexed and in the sitemap only when it lists a job. On the job page, "Drugi oglasi istog poslodavca" (up to 3, aggregator copies included) and "Slične pozicije" (`board/related.py`: rule-based; needs a shared title word about the work plus one more signal, from another employer) are left out when empty. On the 23 current jobs, only the three EU4People/Balkans programme jobs get suggestions.
 

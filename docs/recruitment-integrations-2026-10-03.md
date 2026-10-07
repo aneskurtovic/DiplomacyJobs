@@ -1,6 +1,6 @@
 # Seven recruitment audit integrations
 
-Verified on **2026-10-03**, Europe/Sarajevo. These are local implementation, official-source scan and Linux CI results. Integration commit **`7898c821e51fe7d09d61f38064c222c00aabe56d`** is pushed to `main`; deployment-network access has not been checked.
+Verified on **2026-10-03**, Europe/Sarajevo. These are historical local implementation, official-source scan and Linux CI results. Integration commit **`7898c821e51fe7d09d61f38064c222c00aabe56d`** was pushed to `main`; deployment-network access had not yet been checked. See [HANDOFF](../HANDOFF.md) for current production results.
 
 All seven previously disabled audit leads now have adapters and passed their first local scrape. Five have complete listing coverage; two are deliberately partial. No current job was imported. All column values in the 15 existing job rows are identical in a database comparison with the pre-integration backup.
 
@@ -33,4 +33,4 @@ Use the locked environment and `DJANGO_DEBUG=1` for local development. `manage.p
 
 `scripts/validate_recruitment_integrations.py [--adapter spain]` performs read-only live candidate checks. `scripts/activate_recruitment_integrations.py` applies the seven reviewed integrations and runs them against the local database; take a database backup first. A failed source is left disabled. This script does not run unrelated sources or global expiry. Successful activation stores its report and updates registry metadata. A fresh database must still execute a successful scrape before showing a source as monitored.
 
-Raw public responses are ignored under `data/raw/integration_2026-10-03/`. The earlier [46-entry discovery audit](source-audit-2026-10-03.md) remains historical evidence. The 15 unresolved access/rendering cases, periodic discovery renewal and deployment work remain outstanding.
+Raw public responses are ignored under `data/raw/integration_2026-10-03/`. The earlier [46-entry discovery audit](source-audit-2026-10-03.md) remains historical evidence. At the time, 15 access/rendering cases, periodic discovery renewal and deployment work remained outstanding; later progress is recorded in [HANDOFF](../HANDOFF.md).
