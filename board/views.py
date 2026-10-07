@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
 from django.urls import reverse, translate_url
 from django.utils import timezone, translation
+from django.utils.cache import patch_vary_headers
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
 from . import related, requirements, share_image
@@ -109,7 +110,15 @@ def jobs(request):
     fields = fields_in(visible)
     types = [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]
     sort_query = urlencode({"sort": sort}) if sort else ""
-    return render(request, "board/jobs.html", {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible)})
+    context = {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible)}
+    # Boosted links (chips, sort, pages) change the filters, so the form is swapped too to show them.
+    if request.headers.get("HX-Request") and not request.headers.get("HX-History-Restore-Request"):
+        response = render(request, "board/_results.html", {**context, "partial": True, "oob_form": bool(request.headers.get("HX-Boosted"))})
+    else:
+        response = render(request, "board/jobs.html", context)
+    # The partial and the full page share a URL, so caches must key on the htmx headers.
+    patch_vary_headers(response, ["HX-Request", "HX-Boosted", "HX-History-Restore-Request"])
+    return response
 
 
 # Filters behind the "Filters" disclosure; search, city and type stay in the main row.
