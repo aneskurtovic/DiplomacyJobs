@@ -11,6 +11,7 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 ## P1 — Deployment and operations
 
+- [ ] Activate the Woodpecker ops pipeline on the host (install scripts, ops SSH key, secret; README "Server tasks from Woodpecker"), then run `ops/extract_requirements` for the junior college level.
 - [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
 - [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.

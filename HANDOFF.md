@@ -15,9 +15,14 @@ Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and veri
 - **Translations run only on demand** (`/translate-jobs`), never after a scrape. Untranslated jobs show the source text.
 - **Haiku subagents** do the bulk work: `.claude/agents/enricher.md` proposes missing requirement fields for `/enrich-jobs`; `.claude/agents/translator.md` writes advert versions in parallel batches that the main session imports and spot-checks; `.claude/agents/source-scout.md` investigates sources, blocked sites, the 90-day audit and new employers or fields, read-only, under the source access policy, and reports a verdict with evidence. The main session decides and changes the registry or code. Both use the `haiku` model alias, so they follow the current Haiku model.
 
+## Server tasks from Woodpecker (2026-10-07, late)
+
+- `.woodpecker/ops.yml` runs allow-listed server tasks from a tag `ops/<task>[-<number>][/<anything>]` or a manual run (`OPS_TASK`, `OPS_ARG`): `extract_requirements[_dry_run]`, `reconcile_duplicates`, `import_registry`, `verify_sources`, `scrape[-<source id>]` and `history-<year>`. Every writing task backs up the database first. Setup and the full list are in README ("Server tasks from Woodpecker").
+- **Not active yet.** The owner must install the two scripts on the host, add the ops SSH key with its forced command, and create the `diplomacyjobs_ops_ssh_key` secret, allowing it and the known-hosts secret for tag and manual events. Claude Code's auto mode blocks SSH reads of the production host, so this was not done from the session. First use after setup: `ops/extract_requirements/<date>` to apply the junior college level to production jobs.
+
 ## Junior college level and requirement enrichment (2026-10-07, late)
 
-- **"Viša škola" (`junior_college`)** sits between secondary school and bachelor (migration 0038, requirement rules version 4). It is read from "junior college", "associate degree", VŠS, "viša stručna sprema", "viša škola" and "VI stepen"; VŠS and "viša stručna sprema" used to count as bachelor. The education filter treats it like the other levels (a visitor with Viša škola sees jobs asking for it or less). English label: "Junior college (2–3 years)". Locally only EUFOR's Purchasing Administrator (job 6) changed: it now shows Viša škola with economics and public administration. Database backup: `backups/db-before-junior-college-*.sqlite3`. **Production needs `extract_requirements` after the deploy** (the migration alone does not re-read texts).
+- **"Viša škola" (`junior_college`)** sits between secondary school and bachelor (migration 0038, requirement rules version 4). It is read from "junior college", "associate degree", VŠS, "viša stručna sprema", "viša škola" and "VI stepen"; VŠS and "viša stručna sprema" used to count as bachelor. The education filter treats it like the other levels (a visitor with Viša škola sees jobs asking for it or less). English label: "Junior college (2–3 years)". Locally only EUFOR's Purchasing Administrator (job 6) changed: it now shows Viša škola with economics and public administration. Database backup: `backups/db-before-junior-college-*.sqlite3`. **Production needs `extract_requirements` after the deploy** (the migration alone does not re-read texts): tag `ops/extract_requirements/<date>` once the ops pipeline is set up.
 - **Requirement enrichment:** `export_enrichment --missing-requirements` and `import_enrichment` now handle `education_level`, `experience_years` and `fields_of_study`, each with a quote from the advert. Allowed values are checked. A level must match any level the rules see in the quote, and years must appear in it. A stored value is never overwritten. Imported values are AI fields, which the rules leave alone. When the source text changes they are dropped and the rules take over, without sending the job to review (other AI fields still do). The job page shows the AI quote where the rules have none. Run on demand with `/enrich-jobs` (Haiku `enricher` subagents).
 
 ## Front-end approach (owner decision, 2026-10-07)
@@ -179,11 +184,12 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 
 ## Next steps
 
-1. Recheck Sweden and UN Careers access from Hetzner (a `source-scout` subagent per source); investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
-2. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only.
-3. After this push deploys, check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
-4. App track: optional push notifications for a saved search. Other htmx candidates are "load more" instead of page links and sending the report form in place.
-5. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
+1. Finish the ops pipeline setup on the host (README, "Server tasks from Woodpecker"), then tag `ops/extract_requirements/<date>`.
+2. Recheck Sweden and UN Careers access from Hetzner (a `source-scout` subagent per source); investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
+3. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only.
+4. After this push deploys, check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
+5. App track: optional push notifications for a saved search. Other htmx candidates are "load more" instead of page links and sending the report form in place.
+6. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
 
 ## Design system files
 

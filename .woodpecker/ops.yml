@@ -1,0 +1,47 @@
+# Maintenance tasks on the server, started by a tag or a manual run; never by a push.
+# Tag: ops/<task>[-<number>][/<anything unique>], e.g. ops/extract_requirements/2026-10-07, ops/history-2025/1, ops/scrape-26/a
+# Manual run: set the variables OPS_TASK (and OPS_ARG for a number).
+# Tasks are allow-listed in scripts/ci/remote-ops.sh.
+labels:
+  platform: linux/amd64
+
+when:
+  - event: tag
+    ref: refs/tags/ops/*
+  - event: manual
+
+concurrency:
+  limit: 1
+
+steps:
+  - name: server-task
+    image: alpine:3.22
+    environment:
+      OPS_SSH_KEY:
+        from_secret: diplomacyjobs_ops_ssh_key
+      DEPLOY_KNOWN_HOSTS:
+        from_secret: diplomacyjobs_deploy_known_hosts
+    commands:
+      - apk add --no-cache openssh-client
+      - |
+        if [ "$${CI_PIPELINE_EVENT}" = tag ]; then
+          spec="$${CI_COMMIT_TAG#ops/}"
+          spec="$${spec%%/*}"
+          task="$${spec%%-*}"
+          arg=""
+          case "$${spec}" in *-*) arg="$${spec#*-}" ;; esac
+        else
+          task="$${OPS_TASK:-}"
+          arg="$${OPS_ARG:-}"
+        fi
+        case "$${task}" in ""|*[!a-z_]*) echo "Set a task: tag ops/<task>[-<number>] or OPS_TASK" >&2; exit 2 ;; esac
+        case "$${arg}" in *[!0-9]*) echo "The argument must be a number" >&2; exit 2 ;; esac
+        key_dir="$$(mktemp -d)"
+        trap 'rm -rf "$${key_dir}"' EXIT
+        printf '%s\n' "$${OPS_SSH_KEY}" > "$${key_dir}/id_ed25519"
+        printf '%s\n' "$${DEPLOY_KNOWN_HOSTS}" > "$${key_dir}/known_hosts"
+        chmod 600 "$${key_dir}/id_ed25519" "$${key_dir}/known_hosts"
+        ssh -i "$${key_dir}/id_ed25519" -o IdentitiesOnly=yes \
+          -o UserKnownHostsFile="$${key_dir}/known_hosts" -o StrictHostKeyChecking=yes \
+          codex@46.224.18.207 \
+          "$${task} $${arg}"

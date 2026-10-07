@@ -95,6 +95,21 @@ Production serves `https://poslovi.aneskurtovic.com` through the existing Caddy 
 
 The root-owned `/opt/diplomacyjobs-deploy.sh` is called by the restricted Woodpecker SSH key. It checks out the exact commit on `main`, takes and validates a PostgreSQL dump, builds the image, starts the web and scraper services, then checks health. The [Woodpecker test workflow](.woodpecker/test.yml) runs Django checks and the full suite on SQLite and disposable PostgreSQL. The [deploy workflow](.woodpecker/deploy.yml) runs on pushes to `main` after tests. Server secrets stay in `/opt/diplomacyjobs/.env` and the Woodpecker repository secrets.
 
+### Server tasks from Woodpecker
+
+[`.woodpecker/ops.yml`](.woodpecker/ops.yml) runs one allow-listed task on the deployed app, started by a tag `ops/<task>[-<number>][/<anything>]` (for example `git tag ops/extract_requirements/2026-10-07 && git push origin --tags`) or a manual Woodpecker run with the variables `OPS_TASK` and `OPS_ARG`. Pushes never start it. Tasks ([list](scripts/ci/remote-ops.sh)): `extract_requirements_dry_run`, `extract_requirements`, `reconcile_duplicates`, `import_registry`, `verify_sources`, `scrape` (or `scrape-<source id>`) and `history-<year>`. Every task that writes takes a checked database dump first. Tasks share the deploy lock, and scrapes run in the scraper container, so they never overlap a deploy or the daily scrape. It uses its own SSH key, whose forced command (`scripts/ci/ops-wrapper.sh`) accepts only `<task> [number]`; the deploy key is unchanged.
+
+One-time setup on the host, as root, after the commit with these scripts is deployed:
+
+```sh
+install -o root -g root -m 755 /opt/diplomacyjobs/scripts/ci/remote-ops.sh /opt/diplomacyjobs-ops.sh
+install -o root -g root -m 755 /opt/diplomacyjobs/scripts/ci/ops-wrapper.sh /opt/diplomacyjobs-ops-wrapper.sh
+ssh-keygen -t ed25519 -N '' -C woodpecker-diplomacyjobs-ops -f /root/diplomacyjobs-ops
+echo "command=\"/opt/diplomacyjobs-ops-wrapper.sh\",restrict $(cat /root/diplomacyjobs-ops.pub)" >> ~codex/.ssh/authorized_keys
+```
+
+Then add `/root/diplomacyjobs-ops` as the Woodpecker repository secret `diplomacyjobs_ops_ssh_key` and delete the file. Allow both `diplomacyjobs_ops_ssh_key` and `diplomacyjobs_deploy_known_hosts` for the `tag` and `manual` events. After changing either script, run the two `install` lines again.
+
 For a manual server operation from `/opt/diplomacyjobs`, use:
 
 ```sh
