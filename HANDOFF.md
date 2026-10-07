@@ -4,7 +4,7 @@ Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and veri
 
 ## Current state (verified 2026-10-07, Hetzner PostgreSQL)
 
-- **Code and CI:** server checkout is `9d2b116` (migration 0037); [Woodpecker pipeline #3](https://ci.aneskurtovic.com/repos/7/pipeline/3) passed SQLite and PostgreSQL tests and deployed it. Local full suite at that commit: 252 tests, one SQLite skip; Django checks and migration drift passed.
+- **Code and CI:** `main` carries the error pages and mobile/dark-mode fixes of 2026-10-07 (latest code commit `ca941e3`, migration 0037 unchanged). [GitHub Actions run 43](https://github.com/aneskurtovic/DiplomacyJobs/actions/runs/37670165952) passed SQLite and PostgreSQL; the four pushes before it (`8b36bc7` to `7eda8ea`) failed one test, described below. The live site serves the stylesheet built from `ca941e3` (checked by its hashed file name), so Woodpecker deployed it. Local full suite: 254 tests, one SQLite skip, on Python 3.12 with `requirements.lock`, on SQLite and PostgreSQL 16 without collected static files, as CI runs.
 - **Production:** [poslovi.aneskurtovic.com](https://poslovi.aneskurtovic.com/) serves through Caddy with HTTPS. Web and scraper containers use a dedicated `diplomacyjobs` database and role in the existing PostgreSQL 16 instance. The daily scrape is scheduled for 06:00 Sarajevo time; a daily database backup is installed and a scratch-database restore was verified. `/health/` returns 200.
 - **Registry:** 87 organizations and 59 sources were imported; 52 sources are enabled. From the first Hetzner scrape, 49 succeeded and three were unavailable: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), ReliefWeb (#53, HTTP 202 challenge). `/health/scrape/` still returns 503 for those three; this is visible as unavailable coverage, not zero jobs.
 - **Jobs:** 21 published, 0 in review, 188 closed; eight of the closed records are syndicated copies marked `duplicate`. The staff queue is at `/editor/`, with Django admin at `/admin/` for source settings and advanced records. There are 21 currently visible public jobs awaiting Bosnian/English advert versions.
@@ -144,11 +144,19 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - `/editor/` now handles uncertain listings with source evidence, corrections and guarded publish/reject actions. `reconcile_duplicates` closed the eight Impactpool copies as `duplicate`, leaving the editorial queue empty. Each scheduled scrape runs this reconciliation.
 - A custom-format PostgreSQL dump was restored successfully into a temporary database and the temporary database removed. [The backup cron file](deploy/diplomacyjobs-backup.cron) is installed on the host and runs daily with 30-day retention.
 
+## Error pages and screenshot review (2026-10-07)
+
+- **Error pages:** `templates/404.html`, `400.html`, `403.html`, `403_csrf.html` and the closed-job page (`board/job_gone.html`, 410) extend `board/error.html`: an "Error 404"-style eyebrow, a headline set like the board's hero, and two actions that sit side by side on desktop and stack full width under 760px. All are `noindex` and follow the URL's language. `500.html` repeats the layout without `base.html`, because Django renders it without a request or context processors; it links by path (`/` or `/en/`). The CSRF page offers "Otvori obrazac ponovo".
+- `views.public_base` returns an empty origin instead of raising when the Host header is rejected, so the 400 page for a bad host cannot turn into a 500.
+- **Screenshot review:** every public page (job list, filters open, job page, `/sources/`, an employer page, `/report/`, `/en/`) was captured at 390px and 1280px in light and dark, first on the live site, then locally against a fresh scrape (26 published jobs), plus 768px for the job page and list. No page scrolls sideways at any width. Fixed: phone job cards put the countdown under the date with the official link beside it (one row shorter per card); under 960px the job page's side summary drops location, deadline and type, which the key-facts grid already shows (`.in-key-facts`); the phone sources table wraps the city and source-discovery date under their value instead of squeezing them or running off the card; report-form fields use the site surface colours in dark mode, and radios are drawn in the brand colour with 44px rows on phones (native in forced-colours mode).
+- **CI failure and fix:** with `400.html` present, `ProductionHostTests` rendered the site layout, whose `{% static %}` links need the collected manifest; CI never runs `collectstatic`, so the test raised "Missing staticfiles manifest entry". The test now uses plain static storage like the other page tests. Production builds collect static files in the Dockerfile and were not affected, but nothing after `6ddeef0` deployed until `ca941e3`.
+
 ## Next steps
 
 1. Recheck Sweden and UN Careers access from Hetzner; investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
 2. Run `/translate-jobs` for the 21 currently visible public jobs awaiting translations, and decide how new or changed jobs will be translated after each scrape.
-3. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
+3. Update the CI action versions (Node.js 20 deprecation) before `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19.
+4. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
 
 ## Design system files
 
@@ -166,6 +174,8 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 - In the 2026-10-03 local run, the German sitemap source failed TLS because the Windows certificate store lacked ISRG Root X2. It passed from the Hetzner server.
 - Source access policy: TLS verification stays on, JavaScript challenges are never solved, and Chrome TLS impersonation is opt-in per source (`adapter_config.impersonate`).
 - Local database backups made before each data change are in ignored `backups/`.
+- CI has no collected static files. Any test that renders a page, including an error page (400/403/404/500), needs plain static storage (`PLAIN_STATIC` in `test_i18n.py`/`test_requirements.py`, or the same `STORAGES` override); otherwise it passes locally where `staticfiles/` exists and fails in CI. To reproduce CI, move `staticfiles/` aside before running the suite.
+- Page screenshots: Playwright with the preinstalled Chromium, at 390px (mobile, touch) and 1280px, `colorScheme` light and dark, full-page. To see error pages, run with `DJANGO_DEBUG=0`, a SQLite copy of the database, `collectstatic` and a server restart after each CSS change (the manifest is read at startup).
 - Unreachable commit `eb52b78` holds an obsolete SQLite-only workflow; do not restore it.
 
 ## History

@@ -29,8 +29,18 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 - [ ] "Junior college" / "viša škola" has no education level between secondary school and a bachelor's degree; consider adding one.
 - [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
 
+## P2 — Public site polish
+
+Found in the 2026-10-07 screenshot review; minor, not fixed.
+
+- [ ] Job card tags: the "+n" chip often wraps onto a line of its own on phones.
+- [ ] Back links are inconsistent: "← Svi oglasi" on `/report/`, "‹ Svi oglasi" on job and employer pages.
+- [ ] On phones the first job sits near the bottom of the first screen (hero, trust strip, search and sort take about 600 of 844px); consider a tighter hero or collapsing the search row.
+- [ ] The 400 page for a rejected Host header marks the "Oglasi" tab active when the path is `/` or `/en/`.
+
 ## Done
 
+- [x] Site error pages and screenshot review (2026-10-07): own 400, 403, CSRF-failure, 404, 410 and 500 pages in Bosnian and English on a shared layout (`board/error.html`); every public page checked at 390, 768 and 1280px in light and dark. Phone job cards one row shorter, no duplicated facts on the job page under 960px, sources table text no longer cut off on phones, report form fields and radios fixed in dark mode and enlarged for touch. CI fix: page-rendering tests need plain static storage. Details in HANDOFF.
 - [x] Hetzner launch (2026-10-07): HTTPS at `poslovi.aneskurtovic.com`, migrated and imported registry, scheduled daily scrape, Woodpecker tests and deploy, separate database and role in the existing PostgreSQL instance, and a checked backup restore. The first server scan distinguished 49 successful sources (including empty results) from three failures; public jobs were inspected.
 - [x] Staff editorial queue at `/editor/` (2026-10-07): source evidence, corrections, verification note, save/publish/reject actions, and publication guards. An admin shortcut points to it; advanced settings remain in Django admin.
 - [x] Reconcile aggregator copies of official vacancies after each scrape or with `reconcile_duplicates` (2026-10-07). Eight existing Impactpool copies were closed as duplicates in production, leaving no pending review jobs.
