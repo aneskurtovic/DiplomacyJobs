@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 22:31+0200\n"
+"POT-Creation-Date: 2026-10-07 23:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -258,6 +258,12 @@ msgstr "Application deadline"
 
 msgid "Bosna i Hercegovina"
 msgstr "Bosnia and Herzegovina"
+
+msgid "Zadaci"
+msgstr "Duties"
+
+msgid "Traži se"
+msgstr "Requirements"
 
 msgid "Ističe danas"
 msgstr "Closes today"
@@ -597,6 +603,9 @@ msgstr "Follow new jobs"
 msgid "Trenutno nema oglasa koji odgovaraju pretrazi."
 msgstr "No jobs currently match your search."
 
+msgid "Poništi filtere"
+msgstr "Clear filters"
+
 #, python-format
 msgid ""
 "Provjerite ponovo kasnije ili pogledajte <a href=\"%(sources_url)s\">koje "
@@ -732,6 +741,15 @@ msgstr "Location"
 msgid "Vrsta"
 msgstr "Type"
 
+msgid "Link je kopiran."
+msgstr "Link copied."
+
+msgid "Kopirajte link iz adresne trake."
+msgstr "Copy the link from the address bar."
+
+msgid "Podijeli oglas"
+msgstr "Share job"
+
 msgid ""
 "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas "
 "povučen). Provjerite stanje na službenoj stranici."
@@ -751,12 +769,6 @@ msgstr "Automatic summary of the advert."
 
 msgid "Mjerodavan je službeni oglas."
 msgstr "The official advert is authoritative."
-
-msgid "Zadaci"
-msgstr "Duties"
-
-msgid "Traži se"
-msgstr "Requirements"
 
 msgid "Kako se prijaviti"
 msgstr "How to apply"

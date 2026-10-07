@@ -40,6 +40,7 @@ The front-end stays server-rendered with htmx and plain JavaScript only where ne
 
 ## Done
 
+- [x] SEO and sharing from an external review (2026-10-07): `JobPosting` JSON-LD on current job pages, `noindex, follow` on filtered or sorted lists, page-numbered canonicals, a share/copy-link button, a "Poništi filtere" button on an empty result, and a 70ch line length for advert text. Not done: city/category landing pages (too few jobs, they would be thin), e-mail alerts (no mail backend; the Atom feed per search exists), a dark-mode toggle (the theme already follows the OS). Check the markup in Google's Rich Results Test after deploy.
 - [x] "Viša škola" (junior college) education level, and quote-checked AI proposals for education, experience and fields of study through `export_enrichment`/`import_enrichment` and `/enrich-jobs` (2026-10-07). Run `extract_requirements` on the server after deploy. Details in HANDOFF.
 - [x] Woodpecker is the only CI; the GitHub Actions workflow was removed (2026-10-07). Haiku subagents added: `translator` (used by `/translate-jobs`) and `source-scout` (read-only source and lead investigations).
 - [x] Installable site and htmx job-list filters (2026-10-07 evening): manifest, icons, service worker with offline job pages and an offline page; filters, chips, sort and pages update `#results` in place with clean pushed URLs, without breaking the plain form. Details in HANDOFF.

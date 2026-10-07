@@ -8,7 +8,7 @@
   {% translate "Provjereni oglasi za posao u ambasadama i međunarodnim organizacijama u Bosni i Hercegovini, preuzeti sa službenih stranica poslodavaca." as description %}
   {% block robots %}{% endblock %}
   <meta name="description" content="{% block description %}{{ description }}{% endblock %}">
-  <link rel="canonical" href="{{ public_base }}{{ request.path }}">
+  <link rel="canonical" href="{% block canonical %}{{ public_base }}{{ request.path }}{% endblock %}">
   {% for link in language_links %}<link rel="alternate" hreflang="{{ link.code }}" href="{{ public_base }}{{ link.url }}">
   {% endfor %}<meta property="og:type" content="website">
   <meta property="og:site_name" content="DiplomacyJobs">
@@ -25,6 +25,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="{% static 'board/icons/icon-192.png' %}">
   <link rel="apple-touch-icon" href="{% static 'board/icons/apple-touch-icon.png' %}">
   <script src="{% static 'board/register-sw.js' %}" defer></script>
+  {% block head_extra %}{% endblock %}
   <link rel="alternate" type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="{% block feed_href %}/feed/{% endblock %}">
 </head>
 <body>

@@ -19,7 +19,7 @@ from django.utils import timezone, translation
 from django.utils.cache import patch_vary_headers
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
-from . import related, requirements, share_image
+from . import related, requirements, share_image, structured_data
 from .models import Job, Organization, Report, Source
 from .text import fold, monogram, plural
 from .dedup import employer_key, same_vacancy, unique_visible_ids
@@ -112,7 +112,7 @@ def jobs(request):
     fields = fields_in(visible)
     types = [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]
     sort_query = urlencode({"sort": sort}) if sort else ""
-    context = {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible)}
+    context = {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible), "filtered": bool(feed_query or sort)}
     # Boosted links (chips, sort, pages) change the filters, so the form is swapped too to show them.
     if request.headers.get("HX-Request") and not request.headers.get("HX-History-Restore-Request"):
         response = render(request, "board/_results.html", {**context, "partial": True, "oob_form": bool(request.headers.get("HX-Boosted"))})
@@ -217,7 +217,10 @@ def job_detail(request, pk, slug=None):
     for other in employer_jobs[:related.RELATED_LIMIT] + similar_jobs:
         annotate(other, timezone.localdate())
         card(other, known)
-    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": requirements.details(job), "terms": requirements.terms(job), "form": ReportForm(job=job), "translation": translation_for(job), "employer_jobs": employer_jobs[:related.RELATED_LIMIT], "employer_jobs_total": len(employer_jobs), "similar_jobs": similar_jobs})
+    details, terms, found = requirements.details(job), requirements.terms(job), translation_for(job)
+    # Only a current job is offered to job search; an expired one keeps its page but loses the markup.
+    posting = structured_data.job_posting(job, absolute(request, job.get_absolute_url()), found, details, terms) if current else ""
+    return render(request, "board/job_detail.html", {"job": job, "current": current, "details": details, "terms": terms, "posting": posting, "form": ReportForm(job=job), "translation": found, "employer_jobs": employer_jobs[:related.RELATED_LIMIT], "employer_jobs_total": len(employer_jobs), "similar_jobs": similar_jobs})
 
 
 def job_share_image(request, pk):
@@ -507,7 +510,7 @@ def offline(request):
 
 
 PWA_ICONS = (("board/icons/icon-192.png", "192x192", "any"), ("board/icons/icon-512.png", "512x512", "any"), ("board/icons/icon-maskable-512.png", "512x512", "maskable"))
-PRECACHE_STATIC = ("board/tokens.css", "board/site.css", "board/fonts/public-sans-latin-wght-normal.woff2", "board/icons/icon-192.png")
+PRECACHE_STATIC = ("board/tokens.css", "board/site.css", "board/fonts/public-sans-latin-wght-normal.woff2", "board/icons/icon-192.png", "board/share.js")
 
 
 def manifest(request):

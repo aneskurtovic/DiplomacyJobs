@@ -1,4 +1,4 @@
-{% extends 'board/base.html' %}{% load board_extras i18n %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
+{% extends 'board/base.html' %}{% load board_extras i18n static %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
 {% block description %}{% if translation %}{{ translation.title }}{% else %}{{ job.title }}{% endif %} – {{ job.employer_name }}, {% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}. {% translate "Rok:" %} {% if job.deadline %}{{ job.deadline|date:'d.m.Y.' }}{% elif job.open_until_filled %}{% translate "do popune mjesta" %}{% else %}{% translate "nije naveden" %}{% endif %}.{% if job.tags %} {% translate "Uslovi:" %} {{ job.tags|join:', ' }}.{% endif %}{% endblock %}
 {% block og_title %}{{ job.title }} – {{ job.employer_name }}{% endblock %}
 {% block og_image %}{% if current %}{% url 'job_share_image' job.pk as share_url %}<meta property="og:image" content="{{ public_base }}{{ share_url }}">
@@ -8,6 +8,7 @@
   <meta property="og:image:alt" content="{{ job.title }} – {{ job.employer_name }}">
   <meta name="twitter:card" content="summary_large_image">
   {% endif %}{% endblock %}
+{% block head_extra %}{{ posting }}{% endblock %}
 {% block robots %}{% if not current %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block content %}
 <nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'jobs' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% translate "Svi oglasi" %}</a></nav>
@@ -23,6 +24,7 @@
       {% if job.scope %}<div><dt>{% translate "Pozicija" %}</dt><dd>{{ job.get_scope_display }}</dd></div>{% endif %}
     </dl>
     {% if job.tags %}<ul class="tags" aria-label="{% translate 'Uslovi iz oglasa' %}">{% for tag in job.tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
+    <p class="share" hidden><button type="button" class="button-secondary share-button" data-share-title="{{ job.title }} – {{ job.employer_name }}" data-copied="{% translate 'Link je kopiran.' %}" data-failed="{% translate 'Kopirajte link iz adresne trake.' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-share"></use></svg>{% translate "Podijeli oglas" %}</button><span class="share-status" role="status"></span></p>
   </header>
   {% if not current %}<p class="notice">{% translate "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas povučen). Provjerite stanje na službenoj stranici." %}</p>{% endif %}
   <div class="job-layout">
@@ -75,4 +77,5 @@
     {% include 'board/_report_form.html' %}
   </details>
 </article>
+<script src="{% static 'board/share.js' %}" defer></script>
 {% endblock %}

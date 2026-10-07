@@ -264,6 +264,11 @@ h1{font-size:2em;margin-block:.67em}
 .advert-text h3{font-size:16px;margin:20px 0 8px}
 .advert-text p,.advert-text li{font-size:15px;line-height:1.6;color:var(--color-text-body)}
 .advert-text ul{margin:0;padding-left:20px}
+.advert-text p,.advert-text ul{max-width:70ch}
+.share{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:14px 0 0}
+.share[hidden]{display:none}
+.share-button{min-height:44px;cursor:pointer;font-family:inherit}
+.share-status{font-size:14px;color:var(--color-text-muted)}
 .translation-note{font-size:13px!important;color:var(--color-text-muted)!important;margin:0 0 12px;padding:8px 12px;background:var(--color-surface-sunken);border-radius:var(--radius-sm)}
 
 /* Phones: a one-line hero, search on its own row, and the card's side column as a footer row. */
