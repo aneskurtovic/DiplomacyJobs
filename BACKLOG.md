@@ -23,9 +23,9 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 - [ ] Configure `ADMINS` and an e-mail backend on the server so visitor reports are e-mailed, not only listed in admin.
 - [ ] Requirements for UNDP consultancy notices live in the attached ToR documents, not in the notice text; read those to fill education and experience.
-- [ ] Optionally extend `export_enrichment`/`import_enrichment` to propose requirement fields, with the same quote checks.
-- [ ] Translate the remaining public jobs with `/translate-jobs`; decide whether translation runs after every scrape or on demand.
-- [ ] "Junior college" / "viša škola" has no education level between secondary school and a bachelor's degree; consider adding one.
+- [ ] Extend `export_enrichment`/`import_enrichment` to propose requirement fields, with the same quote checks (owner wants this, 2026-10-07).
+- [ ] Translate the remaining public jobs with `/translate-jobs` when the owner asks. Translation is on demand only (owner decision 2026-10-07).
+- [ ] Add an education level for "viša škola" / junior college between secondary school and a bachelor's degree (owner wants this, 2026-10-07).
 - [ ] Employer names on the English site come from the Bosnian registry (e.g. "UNDP u Bosni i Hercegovini"); add English names if wanted.
 
 ## P2 — App track
@@ -37,7 +37,8 @@ The front-end stays server-rendered with htmx and plain JavaScript only where ne
 
 ## Done
 
-- [x] Installable site and htmx job-list filters (2026-10-07 evening): manifest, icons, service worker with offline job pages and an offline page; filters, chips, sort and pages update `#results` in place with clean pushed URLs, without breaking the plain form. CI actions moved to Node 24 versions. Details in HANDOFF.
+- [x] Woodpecker is the only CI; the GitHub Actions workflow was removed (2026-10-07). Haiku subagents added: `translator` (used by `/translate-jobs`) and `source-scout` (read-only source and lead investigations).
+- [x] Installable site and htmx job-list filters (2026-10-07 evening): manifest, icons, service worker with offline job pages and an offline page; filters, chips, sort and pages update `#results` in place with clean pushed URLs, without breaking the plain form. Details in HANDOFF.
 - [x] Phone job list polish (2026-10-07): two-row search box with an icon-only Filteri, sort and feed on one row; first job at 488px instead of 602px. "+n" tag no longer wraps alone, consistent back links, no current tab on error pages.
 - [x] Site error pages and screenshot review (2026-10-07): own 400, 403, CSRF-failure, 404, 410 and 500 pages in Bosnian and English on a shared layout (`board/error.html`); every public page checked at 390, 768 and 1280px in light and dark. Phone job cards one row shorter, no duplicated facts on the job page under 960px, sources table text no longer cut off on phones, report form fields and radios fixed in dark mode and enlarged for touch. CI fix: page-rendering tests need plain static storage. Details in HANDOFF.
 - [x] Hetzner launch (2026-10-07): HTTPS at `poslovi.aneskurtovic.com`, migrated and imported registry, scheduled daily scrape, Woodpecker tests and deploy, separate database and role in the existing PostgreSQL instance, and a checked backup restore. The first server scan distinguished 49 successful sources (including empty results) from three failures; public jobs were inspected.

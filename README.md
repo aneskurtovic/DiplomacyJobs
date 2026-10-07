@@ -39,7 +39,7 @@ $env:DJANGO_DEBUG = '1'
 
 The latest results (test count, skips, CI run) are recorded in [HANDOFF](HANDOFF.md); the PostgreSQL connection-recovery test is skipped on local SQLite. Use Python 3.12 for parity with CI and production.
 
-[Woodpecker CI](.woodpecker/test.yml) runs the SQLite and PostgreSQL 16 tests on Linux/Python 3.12; a passing push to `main` triggers [deployment](.woodpecker/deploy.yml). [GitHub Actions](.github/workflows/tests.yml) also defines independent SQLite and PostgreSQL jobs. Both CI systems run Django checks, migration drift checks and the full suite. The PostgreSQL connection-recovery test terminates only its own connection to a disposable test database and verifies that the next scheduler run reconnects. The latest checked run is linked from [HANDOFF](HANDOFF.md). To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
+[Woodpecker CI](.woodpecker/test.yml) runs the SQLite and PostgreSQL 16 tests on Linux/Python 3.12; a passing push to `main` triggers [deployment](.woodpecker/deploy.yml). It is the only CI; GitHub Actions is not used. Each run does Django checks, migration drift checks and the full suite. The PostgreSQL connection-recovery test terminates only its own connection to a disposable test database and verifies that the next scheduler run reconnects. The latest checked run is linked from [HANDOFF](HANDOFF.md). To run the PostgreSQL suite elsewhere, set `DATABASE_URL` to a dedicated development database whose user can create test databases and terminate its own connections, then run the same checks. Django creates a separate test database; do not use production credentials.
 
 ## Operations
 
@@ -70,7 +70,7 @@ Visitors report problems from a job page or from the footer (`/report/`). Report
 
 The public site is in Bosnian at `/` and in English at `/en/`, with a BS/EN switch and `hreflang` links; the sitemap lists both. Admin, the Atom feed and health URLs stay Bosnian. Interface strings are marked with `{% translate %}`/`gettext`, and Bosnian is the source language. After changing them, run `manage.py makemessages -l en --no-location --ignore=.venv --ignore=.venv311`, translate the new entries in `locale/en/LC_MESSAGES/django.po`, then run `manage.py compilemessages -l en --ignore=.venv --ignore=.venv311`. Both need GNU gettext; Git for Windows includes it. Commit the `.mo` file, since the Docker image has no gettext. A test fails when an entry is untranslated or the `.mo` is stale.
 
-Adverts get a Bosnian and an English version (title, summary, duties, requirements, how to apply), so foreign-language adverts can be read in both languages. These are written in a local Claude Code session with the project skill `/translate-jobs`, not by the app; there is no API key. The skill runs:
+Adverts get a Bosnian and an English version (title, summary, duties, requirements, how to apply), so foreign-language adverts can be read in both languages. These are written in a local Claude Code session with the project skill `/translate-jobs`, not by the app; there is no API key. Translation runs only on demand, never after a scrape. The skill hands each batch to `translator` subagents on Haiku (`.claude/agents/translator.md`) and imports their output. The skill runs:
 
 ```powershell
 .venv\Scripts\python.exe manage.py export_translations --limit 10 > batch.jsonl
