@@ -1,0 +1,33 @@
+labels:
+  platform: linux/amd64
+
+when:
+  - event: push
+    branch: main
+
+depends_on:
+  - test
+
+concurrency:
+  limit: 1
+
+steps:
+  - name: deploy-production
+    image: alpine:3.22
+    environment:
+      DEPLOY_SSH_KEY:
+        from_secret: diplomacyjobs_deploy_ssh_key
+      DEPLOY_KNOWN_HOSTS:
+        from_secret: diplomacyjobs_deploy_known_hosts
+    commands:
+      - apk add --no-cache openssh-client
+      - |
+        key_dir="$$(mktemp -d)"
+        trap 'rm -rf "$${key_dir}"' EXIT
+        printf '%s\n' "$${DEPLOY_SSH_KEY}" > "$${key_dir}/id_ed25519"
+        printf '%s\n' "$${DEPLOY_KNOWN_HOSTS}" > "$${key_dir}/known_hosts"
+        chmod 600 "$${key_dir}/id_ed25519" "$${key_dir}/known_hosts"
+        ssh -i "$${key_dir}/id_ed25519" -o IdentitiesOnly=yes \
+          -o UserKnownHostsFile="$${key_dir}/known_hosts" -o StrictHostKeyChecking=yes \
+          codex@46.224.18.207 \
+          "$${CI_COMMIT_SHA}"

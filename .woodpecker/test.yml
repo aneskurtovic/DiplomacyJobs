@@ -1,0 +1,25 @@
+labels:
+  platform: linux/amd64
+
+when:
+  - event: [push, pull_request]
+
+steps:
+  - name: django-sqlite-and-postgres
+    image: python:3.12-slim
+    environment:
+      DJANGO_DEBUG: "1"
+    commands:
+      - pip install --no-cache-dir -r requirements.lock
+      - python manage.py check
+      - python manage.py makemigrations --check --dry-run
+      - python manage.py test board --noinput
+      - DATABASE_URL=postgresql://diplomacyjobs:diplomacyjobs@postgres:5432/diplomacyjobs python manage.py test board --noinput
+
+services:
+  - name: postgres
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: diplomacyjobs
+      POSTGRES_USER: diplomacyjobs
+      POSTGRES_PASSWORD: diplomacyjobs
