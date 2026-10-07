@@ -18,7 +18,11 @@ python -m venv .venv
 .venv\Scripts\python manage.py runserver
 ```
 
-Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, an Atom feed of new jobs at `/feed/` (accepts the board's `q`, `employer`, `city`, `type` and `scope` filters), and admin at `/admin/`. Development defaults to SQLite. Current source and job counts are in [HANDOFF](HANDOFF.md). The board may still be empty when no source has an open 2026 vacancy. A fresh database must run a successful scrape before a source appears as monitored. Source reachability must be checked from each deployment network.
+Browse `http://127.0.0.1:8000/`, coverage at `/sources/`, an Atom feed of new jobs at `/feed/` (accepts the board's `q`, `employer`, `city`, `type` and `scope` filters), the staff editorial queue at `/editor/`, and advanced admin at `/admin/`. Development defaults to SQLite. Current source and job counts are in [HANDOFF](HANDOFF.md). The board may still be empty when no source has an open 2026 vacancy. A fresh database must run a successful scrape before a source appears as monitored. Source reachability must be checked from each deployment network.
+
+### Publishing jobs
+
+The scraper publishes a job automatically when its source proves it is a current, eligible opening in BiH. Staff use `/editor/` only for uncertain jobs: open the original listing, correct any facts, write where you verified that it is current, tick the confirmation, and choose **Objavi oglas**. **Sačuvaj izmjene** keeps it in review; **Odbaci oglas** closes it with a required reason. A changed source page requires a fresh review. Copies from aggregators that match an official record are closed as duplicates after each scrape; run `python manage.py reconcile_duplicates` to reconcile older data without fetching sources. `/admin/` remains available for source settings, reports and all model fields.
 
 The [2026-10-03 discovery audit](docs/source-audit-2026-10-03.md) examined 46 previously unchecked entries; its [seven integration leads](docs/recruitment-integrations-2026-10-03.md) are enabled (Brazil and Canada partial), while its no-list and unresolved-access findings remain open in the backlog. Each discovery finding has a date, evidence link and explanation on `/sources/`, and unknown vacancy counts stay unknown. Run migrations and `import_registry` to apply registry settings; importing preserves existing source enablement and successful-scrape timestamps. Discovery findings require renewal after 90 days.
 

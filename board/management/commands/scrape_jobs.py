@@ -3,6 +3,7 @@ import os
 import time
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
+from board.dedup import reconcile_aggregator_duplicates
 from board.ingest import archive_source, expire_jobs, ingest_source
 from board.models import Source
 
@@ -58,6 +59,9 @@ class Command(BaseCommand):
                         self.stdout.write(f"{source.pk}: {'ok' if result.success else result.error}")
             finally:
                 expire_jobs()
+                closed = reconcile_aggregator_duplicates()
+                if closed:
+                    self.stdout.write(f"{closed} syndicated copies closed as duplicates")
         finally:
             lock.unlink(missing_ok=True)
 

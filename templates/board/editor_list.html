@@ -1,0 +1,37 @@
+{% extends "board/editor_base.html" %}
+{% block content %}
+<div class="editor-intro">
+  <p class="eyebrow">Urednički pregled</p>
+  <h1>Oglasi za provjeru</h1>
+  <p>Potvrđeni oglasi se objavljuju automatski. Ovdje odlučujete samo o oglasima za koje nedostaje dokaz ili se izvor promijenio. Otvorite originalni oglas prije objave.</p>
+</div>
+<div class="editor-stats" aria-label="Stanje oglasa">
+  <div><strong>{{ pending|length }}</strong><span>Čeka pregled</span></div>
+  <div><strong>{{ published_count }}</strong><span>Objavljeno</span></div>
+  <div><strong>{{ duplicate_count }}</strong><span>Duplikata zatvoreno</span></div>
+</div>
+<section class="editor-section" aria-labelledby="pending-heading">
+  <div class="section-heading"><h2 id="pending-heading">Treba vašu odluku</h2><span>{{ pending|length }} oglasa</span></div>
+  {% if pending %}
+    <div class="review-list">
+      {% for job in pending %}
+      <article class="review-card">
+        <div>
+          <p class="review-meta">{{ job.employer_name }} · {{ job.source.organization.name }}</p>
+          <h3><a href="{% url 'editor_job' job.pk %}">{{ job.title }}</a></h3>
+          <p class="review-reason">{{ job.field_evidence.review_reason|default:"Potrebna ručna provjera podataka" }}</p>
+          <p class="review-facts">{{ job.city|default:"Grad nije potvrđen" }} · Rok: {{ job.deadline|date:"d.m.Y."|default:"nije naveden" }} · Pronađen: {{ job.first_seen_at|date:"d.m.Y." }}</p>
+        </div>
+        <a class="button button-primary" href="{% url 'editor_job' job.pk %}">Pregledaj oglas →</a>
+      </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><strong>Sve je pregledano.</strong><p>Trenutno nema oglasa koji čekaju vašu odluku. Novi potvrđeni oglasi objavljuju se automatski.</p></div>
+  {% endif %}
+</section>
+<section class="editor-section" aria-labelledby="recent-heading">
+  <div class="section-heading"><h2 id="recent-heading">Nedavno objavljeno</h2><a href="/admin/board/job/?status__exact=published">Svi objavljeni oglasi ↗</a></div>
+  <ul class="recent-list">{% for job in recent %}<li><span><strong>{{ job.title }}</strong><small>{{ job.employer_name }} · {{ job.city|default:"BiH" }}</small></span><a href="{{ job.get_absolute_url }}" target="_blank" rel="noopener">Pogledaj ↗</a></li>{% empty %}<li>Još nema objavljenih oglasa.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

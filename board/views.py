@@ -349,7 +349,7 @@ def organization(request, pk, slug=None):
 
 def past_job_query(visible):
     """Jobs that were on the board and have since expired or left their source. A reviewer's closure (duplicates, errors) is not history, and a job never published is not shown."""
-    past = (Q(status="closed") & ~Q(closed_reason="manual")) | Q(status="published", deadline__lt=timezone.localdate())
+    past = (Q(status="closed") & ~Q(closed_reason__in=("manual", "duplicate"))) | Q(status="published", deadline__lt=timezone.localdate())
     return Job.objects.filter(published_at__isnull=False).exclude(pk__in=visible.values("pk")).filter(past).select_related("source__organization").defer("raw_text")
 
 

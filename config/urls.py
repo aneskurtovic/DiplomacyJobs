@@ -2,6 +2,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import path
 from board import views
+from board import editor
 from board.feeds import JobsFeed
 
 urlpatterns = [
@@ -11,6 +12,8 @@ urlpatterns = [
     path("health/", views.health, name="health"),
     path("health/scrape/", views.scrape_health, name="scrape_health"),
     path("admin/", admin.site.urls),
+    path("editor/", editor.dashboard, name="editor"),
+    path("editor/jobs/<int:pk>/", editor.review_job, name="editor_job"),
 ]
 urlpatterns += i18n_patterns(
     path("", views.jobs, name="jobs"),

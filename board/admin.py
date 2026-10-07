@@ -6,11 +6,18 @@ from django.contrib import admin
 from django.contrib.admin.models import CHANGE, LogEntry
 from django.db.models import Count, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce, Now
+from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from . import requirements
+from .dedup import official_duplicate
 from .models import Job, Organization, Report, ScrapeRun, Source, SourceDocument
 from .text import bs_plural
+
+admin.site.site_header = "Poslovi · napredni admin"
+admin.site.site_title = "Poslovi · admin"
+admin.site.index_title = "Upravljanje podacima"
+admin.site.index_template = "admin/editor_index.html"
 
 
 @admin.register(Organization)
@@ -49,13 +56,16 @@ def publish_jobs(modeladmin, request, queryset):
     disabled = queryset.filter(source__enabled=False).exclude(deadline__lt=timezone.localdate()).count()
     publishable = queryset.filter(source__enabled=True).exclude(deadline__lt=timezone.localdate())
     # A job whose scan raised a review reason is published one at a time from its own page, never in bulk.
-    flagged = [(pk, title, evidence["review_reason"]) for pk, title, evidence in publishable.values_list("pk", "title", "field_evidence") if (evidence or {}).get("review_reason")]
-    published = list(publishable.exclude(pk__in=[pk for pk, _, _ in flagged]).values_list("pk", flat=True))
+    flagged = [(job.pk, job.title, job.field_evidence["review_reason"]) for job in publishable.select_related("source__organization") if job.field_evidence.get("review_reason")]
+    duplicates = [job.pk for job in publishable.select_related("source__organization") if official_duplicate(job)]
+    published = list(publishable.exclude(pk__in=[pk for pk, _, _ in flagged] + duplicates).values_list("pk", flat=True))
     Job.objects.filter(pk__in=published).update(status="published", closed_reason="", last_reviewed_at=timezone.now(), published_at=Coalesce("published_at", Now()))
     log_bulk(request, published, "Objavljeno skupnom akcijom.")
     if flagged:
         names = "; ".join(f"{title} ({reason})" for _, title, reason in flagged[:5]) + (" …" if len(flagged) > 5 else "")
         modeladmin.message_user(request, f"{len(flagged)} {bs_plural(len(flagged), 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer čeka pregled; otvorite oglas i objavite ga pojedinačno: {names}", level="warning")
+    if duplicates:
+        modeladmin.message_user(request, f"{len(duplicates)} duplikata službenih oglasa nije objavljeno.", level="warning")
     if expired:
         modeladmin.message_user(request, f"{expired} {bs_plural(expired, 'oglas nije objavljen', 'oglasa nisu objavljena', 'oglasa nije objavljeno')} jer je rok istekao.", level="warning")
     if disabled:
@@ -109,6 +119,22 @@ class JobForm(forms.ModelForm):
         model = Job
         exclude = ("requirements", "translations")
 
+    def clean(self):
+        values = super().clean()
+        if values.get("status") == "published":
+            job = self.instance
+            existing_duplicate = job.pk and official_duplicate(job)
+            for field in ("title", "city", "deadline", "application_url", "source_published_at"):
+                if field in values:
+                    setattr(job, field, values[field])
+            if existing_duplicate or (job.pk and official_duplicate(job)):
+                raise forms.ValidationError("Ovaj oglas je duplikat službenog oglasa. Objavite službeni zapis.")
+            if values.get("deadline") and values["deadline"] < timezone.localdate():
+                raise forms.ValidationError("Rok je istekao. Oglas se ne može objaviti.")
+            if job.source_id and not job.source.enabled:
+                raise forms.ValidationError("Izvor je isključen. Oglas se ne može objaviti.")
+        return values
+
 
 class ReportInline(admin.TabularInline):
     model = Report
@@ -136,11 +162,19 @@ class OpenReportFilter(admin.SimpleListFilter):
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     form = JobForm
+    change_list_template = "admin/board/job/change_list.html"
+    list_per_page = 25
+    ordering = ("-first_seen_at", "-pk")
     list_display = ("title", "organization", "city", "deadline", "source_published_at", "status", "review_reason", "open_reports", "official_link", "last_checked_at")
     list_filter = ("status", DeadlineFilter, OpenReportFilter, "closed_reason", "opportunity_type", "education_level", "source__organization")
     search_fields = ("title", "source__organization__name", "canonical_url")
     actions = (publish_jobs, close_jobs, renew_jobs, retranslate_jobs, disable_translation)
     readonly_fields = ("first_seen_at", "last_seen_at", "source_changes", "content_hash", "raw_text", "field_evidence", "extracted_requirements", "machine_translation", "missing_scans")
+
+    def changelist_view(self, request, extra_context=None):
+        if not request.GET and request.method == "GET":
+            return HttpResponseRedirect(request.path + "?status__exact=review")
+        return super().changelist_view(request, extra_context)
 
     @admin.display(description="Automatski prijevod")
     def machine_translation(self, obj):

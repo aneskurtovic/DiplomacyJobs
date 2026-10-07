@@ -1,0 +1,48 @@
+{% extends "board/editor_base.html" %}
+{% block title %}Pregled oglasa{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'editor' %}">← Nazad na pregled</a>
+<div class="editor-intro detail-intro">
+  <p class="eyebrow">Oglas #{{ job.pk }} · Na provjeri</p>
+  <h1>{{ job.title }}</h1>
+  <p>{{ job.employer_name }} · {{ job.source.organization.name }}</p>
+</div>
+<div class="detail-grid">
+  <div>
+    {% if duplicate %}<div class="notice danger"><strong>Duplikat službenog oglasa.</strong><p>Ovaj oglas već postoji kao <a href="/admin/board/job/{{ duplicate.pk }}/change/">{{ duplicate.title }}</a>. Nemojte ga ponovo objaviti.</p></div>{% endif %}
+    <div class="notice"><strong>Zašto je ovdje?</strong><p>{{ job.field_evidence.review_reason|default:"Potrebna je ručna provjera podataka." }}</p></div>
+    <form method="post" class="review-form">
+      {% csrf_token %}
+      <input type="hidden" name="content_hash" value="{{ job.content_hash }}">
+      {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+      <h2>Provjerite podatke</h2>
+      <p class="form-help">Uporedite ih s originalnim oglasom. Ispravke se pamte i scraper ih neće prepisati.</p>
+      {% for field in form %}
+        <div class="field {% if field.errors %}field-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<p class="error-text">{{ error }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <div class="actions">
+        <button class="button button-primary" type="submit" name="decision" value="publish" {% if duplicate %}disabled{% endif %}>Objavi oglas</button>
+        <button class="button" type="submit" name="decision" value="save">Sačuvaj izmjene</button>
+        <button class="button button-danger" type="submit" name="decision" value="reject">Odbaci oglas</button>
+      </div>
+    </form>
+  </div>
+  <aside class="evidence-panel" aria-label="Dokazi iz izvora">
+    <h2>Izvor i dokazi</h2>
+    <dl>
+      <dt>Originalni oglas</dt><dd><a href="{{ job.canonical_url }}" target="_blank" rel="noopener noreferrer">Otvori original ↗</a></dd>
+      {% if job.application_url %}<dt>Prijava</dt><dd><a href="{{ job.application_url }}" target="_blank" rel="noopener noreferrer">Otvori link za prijavu ↗</a></dd>{% endif %}
+      <dt>Izvor</dt><dd>{{ job.source.organization.name }}</dd>
+      <dt>Prvi put pronađen</dt><dd>{{ job.first_seen_at|date:"d.m.Y. H:i" }}</dd>
+      <dt>Posljednja provjera</dt><dd>{{ job.last_checked_at|date:"d.m.Y. H:i"|default:"Nije zabilježena" }}</dd>
+    </dl>
+    <h3>Tekst oglasa</h3>
+    <div class="source-text">{{ job.raw_text|truncatechars:6000|linebreaksbr }}</div>
+    <a class="advanced-link" href="/admin/board/job/{{ job.pk }}/change/">Sva polja i historija u naprednom adminu ↗</a>
+  </aside>
+</div>
+{% endblock %}

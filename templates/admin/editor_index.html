@@ -1,0 +1,9 @@
+{% extends "admin/index.html" %}
+{% block content %}
+<div style="padding:20px 24px;margin-bottom:24px;background:#eef4fa;border:1px solid #b6cfe7;border-radius:8px">
+  <h2 style="margin:0 0 8px">Objavljivanje oglasa</h2>
+  <p style="margin:0 0 12px">Potvrđeni oglasi se objavljuju automatski. Oglase koji čekaju odluku pregledajte na jednostavnijoj uredničkoj stranici.</p>
+  <a href="/editor/" style="font-weight:700">Otvori urednički pregled →</a>
+</div>
+{{ block.super }}
+{% endblock %}

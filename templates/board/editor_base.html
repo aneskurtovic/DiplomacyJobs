@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="bs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Urednički pregled{% endblock %} · Poslovi</title>
+  <link rel="stylesheet" href="{% static 'board/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'board/editor.css' %}">
+</head>
+<body>
+  <header class="editor-header">
+    <div class="editor-wrap header-row">
+      <a class="editor-brand" href="{% url 'editor' %}">Poslovi <span>/ Uredništvo</span></a>
+      <nav aria-label="Navigacija">
+        <a href="{% url 'editor' %}">Pregled</a>
+        <a href="/admin/">Napredni admin</a>
+        <a href="/" target="_blank" rel="noopener">Javna stranica ↗</a>
+      </nav>
+    </div>
+  </header>
+  <main class="editor-wrap">
+    {% if messages %}<div class="editor-messages" role="status">{% for message in messages %}<p class="{{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

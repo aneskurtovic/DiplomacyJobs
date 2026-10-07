@@ -86,3 +86,32 @@ def unique_visible_ids(query):
         if not any(same_vacancy(job, other) for other in winners):
             winners.append(job)
     return [job.pk for job in winners]
+
+
+def official_duplicate(job, official_jobs=None):
+    """Return the official record for a syndicated copy, including withdrawn records."""
+    from .models import Job
+
+    if job.source.adapter not in AGGREGATORS:
+        return None
+    if official_jobs is None:
+        official_jobs = Job.objects.exclude(source__adapter__in=AGGREGATORS).select_related("source__organization").defer("raw_text")
+    return next((other for other in official_jobs if same_vacancy(job, other)), None)
+
+
+def reconcile_aggregator_duplicates():
+    """Remove syndicated copies of official records from the editorial queue."""
+    from .models import Job
+
+    official_jobs = list(Job.objects.exclude(source__adapter__in=AGGREGATORS).select_related("source__organization").defer("raw_text"))
+    copies = Job.objects.filter(source__adapter__in=AGGREGATORS, status__in=("review", "published")).select_related("source__organization").defer("raw_text")
+    closed = 0
+    for job in copies:
+        match = official_duplicate(job, official_jobs)
+        if match:
+            job.status = "closed"
+            job.closed_reason = "duplicate"
+            job.field_evidence = {**job.field_evidence, "duplicate_of": match.pk}
+            job.save(update_fields=["status", "closed_reason", "field_evidence"])
+            closed += 1
+    return closed
