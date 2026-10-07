@@ -312,3 +312,5 @@ h1{font-size:2em;margin-block:.67em}
 .past-title{font-weight:600;color:var(--color-text-secondary)}
 .past-meta{font-size:13px;color:var(--color-text-muted)}
 @media(max-width:760px){.org-header .monogram{display:none}}
+#results.htmx-request{opacity:.55;transition:opacity .15s}
+@media (prefers-reduced-motion:reduce){#results.htmx-request{transition:none}}
