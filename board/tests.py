@@ -1676,7 +1676,8 @@ class VerifySourcesTests(TestCase):
         self.assertIn("1 reachable, 1 failing", out.getvalue())
 
 
-@override_settings(ALLOWED_HOSTS=["jobs.example.com"])
+# The rejected host gets the site's 400 page, which links stylesheets; CI has no collected static manifest.
+@override_settings(ALLOWED_HOSTS=["jobs.example.com"], STORAGES={"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
 class ProductionHostTests(TestCase):
     def test_healthcheck_needs_the_public_host_header(self):
         self.assertEqual(self.client.get("/health/", HTTP_HOST="127.0.0.1").status_code, 400)
