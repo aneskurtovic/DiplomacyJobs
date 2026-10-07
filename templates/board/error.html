@@ -1,5 +1,6 @@
 {% extends 'board/base.html' %}{% load i18n %}{% comment %}Shared layout for error pages (400, 403, 404, 410 and the CSRF failure). 500.html repeats it without base.html.{% endcomment %}
 {% block title %}{% block error_title %}{% endblock %} · DiplomacyJobs{% endblock %}
+{% block site_nav %}{% url 'jobs' as jobs_url %}{% url 'sources' as sources_url %}<a href="{{ jobs_url }}">{% translate "Oglasi" %}</a><a href="{{ sources_url }}">{% translate "Izvori" %}</a>{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
 <section class="error-page">

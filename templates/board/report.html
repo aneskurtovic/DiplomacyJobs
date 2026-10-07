@@ -1,7 +1,7 @@
 {% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Prijavi problem" %} · DiplomacyJobs{% endblock %}
 {% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
-<nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% if job %}{{ job.get_absolute_url }}{% else %}{% url 'jobs' %}{% endif %}">← {% if job %}{% translate "Nazad na oglas" %}{% else %}{% translate "Svi oglasi" %}{% endif %}</a></nav>
+<nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% if job %}{{ job.get_absolute_url }}{% else %}{% url 'jobs' %}{% endif %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% if job %}{% translate "Nazad na oglas" %}{% else %}{% translate "Svi oglasi" %}{% endif %}</a></nav>
 <section class="report-page">
   <h1>{% translate "Prijavi problem" %}</h1>
   {% if job %}<p class="muted">{% translate "Oglas:" %} <strong>{{ job.title }}</strong> · {{ job.employer_name }}</p>

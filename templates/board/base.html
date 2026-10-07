@@ -28,10 +28,10 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="{{ jobs_url }}" aria-label="{% translate 'DiplomacyJobs početna stranica' %}"><svg class="brand-mark" aria-hidden="true" focusable="false"><use href="#i-brand"></use></svg><span>DiplomacyJobs</span></a>
-      <nav class="site-nav" aria-label="{% translate 'Glavna navigacija' %}">
+      <nav class="site-nav" aria-label="{% translate 'Glavna navigacija' %}">{% block site_nav %}
         <a href="{{ jobs_url }}"{% if request.path == jobs_url %} class="active" aria-current="page"{% endif %}>{% translate "Oglasi" %}</a>
         <a href="{{ sources_url }}"{% if request.path == sources_url %} class="active" aria-current="page"{% endif %}>{% translate "Izvori" %}</a>
-      </nav>
+      {% endblock %}</nav>
       {% if language_links %}<span class="language-switch">{% for link in language_links %}{% if link.current %}<span class="current-language" aria-current="true">{{ link.code|upper }}</span>{% else %}<a href="{{ link.url }}" hreflang="{{ link.code }}" lang="{{ link.code }}" title="{{ link.name }}">{{ link.code|upper }}</a>{% endif %}{% endfor %}</span>{% endif %}
     </div>
   </header>
