@@ -137,3 +137,58 @@ class AggregatorAdapterTests(TestCase):
         self.assertFalse(candidate.year_proven)  # Impactpool shows no publication date; never invent one
         self.assertEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/36935"))
         self.assertNotEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/36935"))
+
+
+RELIEFWEB_FEED = """<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>ReliefWeb - Bosnia and Herzegovina Jobs</title>
+<item><title>Europe Programme Officer - Balkans</title><link>https://reliefweb.int/job/4230833/europe-programme-officer-balkans</link>
+<pubDate>Tue, 22 Sep 2026 07:30:02 +0000</pubDate><description>
+&lt;div class="tag country"&gt;Countries: Albania, Bosnia and Herzegovina, Greece&lt;/div&gt;
+&lt;div class="tag source"&gt;Organization: International Detention Coalition&lt;/div&gt;
+&lt;div class="date closing"&gt;Closing date: 16 Oct 2026&lt;/div&gt;
+&lt;p&gt;Candidates must already have the legal right to reside and work in Albania, Bosnia and Herzegovina or Greece.&lt;/p&gt;
+&lt;p&gt;Read our &lt;a href="https://idc.org/about"&gt;story&lt;/a&gt;.&lt;/p&gt;
+&lt;h2&gt;How to apply&lt;/h2&gt;&lt;p&gt;Apply at &lt;a href="https://idc.bamboohr.com/careers/47?source=x"&gt;IDC careers&lt;/a&gt;.&lt;/p&gt;
+</description><category>Bosnia and Herzegovina</category><author>International Detention Coalition</author></item>
+</channel></rss>"""
+
+
+@override_settings(STORAGES={"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}})
+class ReliefWebFeedTests(TestCase):
+    FEED = "https://reliefweb.int/jobs/rss.xml?advanced-search=%28C40%29"
+
+    def setUp(self):
+        organization = Organization.objects.create(name="ReliefWeb", kind="aggregator")
+        self.source = Source.objects.create(organization=organization, url=self.FEED, adapter="reliefweb", enabled=True, status="verified", adapter_config={"allow_empty": True})
+
+    def scan(self, feed):
+        def handle(request):
+            # The feed carries the whole advert; job pages sit behind the challenge and are never fetched.
+            if str(request.url) != self.FEED:
+                raise AssertionError(f"Unexpected request {request.url}")
+            return httpx.Response(200, content=feed.encode(), headers={"content-type": "application/rss+xml; charset=utf-8"}, request=request)
+        from .ingest import ingest_source
+        with patch("board.ingest.open_client") as open_client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 3)):
+            open_client.return_value.__enter__.return_value = httpx.Client(transport=httpx.MockTransport(handle))
+            return ingest_source(self.source.pk)
+
+    def test_feed_item_becomes_an_attributed_job_without_fetching_its_page(self):
+        run = self.scan(RELIEFWEB_FEED)
+        self.assertTrue(run.success, run.error)
+        job = Job.objects.get()
+        self.assertEqual((job.title, job.status, job.deadline, job.source_published_at), ("Europe Programme Officer - Balkans", "published", date(2026, 10, 16), date(2026, 9, 22)))
+        self.assertEqual(job.canonical_url, "https://reliefweb.int/job/4230833/europe-programme-officer-balkans")
+        self.assertEqual(job.application_url, "https://idc.bamboohr.com/careers/47?source=x")  # only links under "How to apply"
+        self.assertEqual(job.field_evidence["employer_name"], "International Detention Coalition")
+        self.assertIn("Regionalna pozicija", job.eligibility)
+        self.assertNotIn("Countries:", job.raw_text.split("Location:")[0])
+
+    def test_full_feed_may_be_truncated_and_fails(self):
+        item = RELIEFWEB_FEED[RELIEFWEB_FEED.index("<item>"):RELIEFWEB_FEED.index("</channel>")]
+        run = self.scan(RELIEFWEB_FEED.replace(item, item * 20))
+        self.assertFalse(run.success)
+        self.assertIn("may be truncated", run.error)
+
+    def test_item_without_closing_date_fails_the_source(self):
+        run = self.scan(RELIEFWEB_FEED.replace("Closing date: 16 Oct 2026", ""))
+        self.assertFalse(run.success)
+        self.assertIn("fields missing", run.error)

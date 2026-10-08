@@ -852,13 +852,28 @@ def taleo_links(client, source, evidence):
     return result
 
 
+# careers.un.org's gateway sometimes answers 504 "upstream request timeout" from a slow origin; a later try usually succeeds.
+UNCAREERS_RETRY_WAITS = (5, 15)
+
+
+def uncareers_page(client, api, payload):
+    for wait in (*UNCAREERS_RETRY_WAITS, None):
+        try:
+            return fetch_json(client, api, payload)
+        except (httpx.HTTPStatusError, httpx.TimeoutException) as exc:
+            status = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None
+            if wait is None or status not in (None, 502, 503, 504):
+                raise
+            time.sleep(wait)
+
+
 def uncareers_links(client, source, evidence):
     """UN Secretariat careers (careers.un.org) public API. Keyword search also hits descriptions, so every opening is paged through and kept by its BiH duty station."""
     api = "https://careers.un.org/api/public/opening/jo/list/filteredV2/en"
     # Rows read, not distinct ids, prove completeness: a job repeated across pages still counts once per row in the API's total.
     openings, page, count, read = {}, 0, None, 0
     while page < 20:
-        data = fetch_json(client, api, {"filterConfig": {}, "pagination": {"page": page, "itemPerPage": 100, "sortBy": "startDate", "sortDirection": -1}}).get("data") or {}
+        data = uncareers_page(client, api, {"filterConfig": {}, "pagination": {"page": page, "itemPerPage": 100, "sortBy": "startDate", "sortDirection": -1}}).get("data") or {}
         if "count" not in data or not isinstance(data.get("list"), list):
             raise ValueError("UN careers response changed shape")
         count = data["count"]
@@ -957,7 +972,7 @@ def discover_links(client, source, soup, evidence=None):
     evidence = {} if evidence is None else evidence
     if source.adapter in AGGREGATOR_ADAPTERS:
         from .aggregators import listing_links as aggregator_links
-        return aggregator_links(client, source, soup)
+        return aggregator_links(client, source, soup, evidence)
     listing_url = (source.adapter_config or {}).get("listing_url")
     if listing_url and source.adapter in ("rmk", "slovenia"):
         if not trusted_host(urlsplit(listing_url).hostname or "", (urlsplit(source.url).hostname or "").removeprefix("www.")):
@@ -1224,6 +1239,10 @@ def build_candidate(client, source, url, title, evidence, delay=0):
     """One lead as a Candidate: card/API evidence as listed, otherwise the fetched detail page."""
     if source.adapter in CARD_EVIDENCE:
         return make_candidate(source, url, title, evidence[url], None)
+    if source.adapter in AGGREGATOR_ADAPTERS:
+        from .aggregators import make_candidate as aggregator_candidate, reliefweb_feed
+        if reliefweb_feed(source):
+            return aggregator_candidate(client, source, url, evidence[url])
     time.sleep(delay)
     text, detail_soup = fetch(client, url, keep=("footer",)) if source.adapter in AGGREGATOR_ADAPTERS else fetch(client, url)
     listed = evidence.get(url, "")
@@ -1250,7 +1269,8 @@ def ingest_source(source_id):
     try:
         with open_client(source) as client:
             # A feed source is no HTML page; its adapter reads the URL itself.
-            soup = BeautifulSoup("", "html.parser") if source.adapter in FEED_ADAPTERS else fetch(client, source.url)[1]
+            from .aggregators import reliefweb_feed
+            soup = BeautifulSoup("", "html.parser") if source.adapter in FEED_ADAPTERS or reliefweb_feed(source) else fetch(client, source.url)[1]
             if soup is None:
                 raise ValueError("Source listing must be HTML")
             evidence = {}

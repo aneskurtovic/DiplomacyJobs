@@ -1,14 +1,51 @@
 """Public, country-filtered aggregator listings; dates and employers stay attributed."""
 import hashlib
 import re
+from email.utils import parsedate_to_datetime
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
+from bs4 import BeautifulSoup
 from django.utils import timezone
 
 from . import ingest as core
 
 
-def listing_links(client, source, soup):
+def reliefweb_feed(source):
+    """ReliefWeb's country RSS feed: served where the HTML river is behind a challenge, and it carries the whole advert."""
+    return source.adapter == "reliefweb" and urlsplit(source.url).path == "/jobs/rss.xml"
+
+
+# The unfiltered feed stops at 20 items, so a country feed that full may be cut short.
+RELIEFWEB_FEED_LIMIT = 20
+
+
+def reliefweb_feed_links(client, source, evidence):
+    response = core.request(client, "get", source.url)
+    response.raise_for_status()
+    if "xml" not in response.headers.get("content-type", "").lower():
+        raise ValueError("ReliefWeb feed is not XML")
+    channel = core.ElementTree.fromstring(response.content).find("channel")
+    if channel is None:
+        raise ValueError("ReliefWeb feed changed shape")
+    items = channel.findall("item")
+    if len(items) >= RELIEFWEB_FEED_LIMIT:
+        raise ValueError(f"ReliefWeb feed has {len(items)} items; it may be truncated")
+    links = {}
+    for item in items:
+        url = core.canonicalize((item.findtext("link") or "").strip())
+        title = (item.findtext("title") or "").strip()
+        if urlsplit(url).hostname != "reliefweb.int" or not re.fullmatch(r"/job/\d+/[^/]+/?", urlsplit(url).path):
+            raise ValueError("Unexpected aggregator vacancy link")
+        if not title:
+            raise ValueError("Vacancy title missing")
+        evidence[url] = item
+        links[url] = title
+    return list(links.items())
+
+
+def listing_links(client, source, soup, evidence):
+    if reliefweb_feed(source):
+        return reliefweb_feed_links(client, source, evidence)
     links = {}
     expected = None
     for page in range(core.MAX_LISTING_PAGES):
@@ -71,40 +108,73 @@ def impactpool_application(client, url):
     return ""  # Login walls or a form are not an original employer URL.
 
 
+def reliefweb_page(url, soup):
+    """Title, employer, body text, dates, countries, whether BiH is tagged, and apply links from a ReliefWeb job page."""
+    article = soup.select_one("article.node--job")
+    heading = article.select_one("h1") if article else None
+    body = article.select_one(".rw-article__content") if article else None
+    employer = article.select_one(".rw-article__header .rw-entity-meta__tag-value--source") if article else None
+    posted = article.select_one(".rw-entity-meta__tag-value--posted time[datetime]") if article else None
+    closing = article.select_one(".rw-entity-meta__tag-value--closing time[datetime]") if article else None
+    countries = article.select("#details .rw-entity-meta__tag-value--country a") if article else []
+    if not all((heading, body, employer, posted, closing, countries)):
+        raise ValueError("ReliefWeb job fields missing")
+    return (heading.get_text(" ", strip=True), employer.get_text(" ", strip=True), body.get_text(" ", strip=True),
+            core.parse_date(posted["datetime"][:10]), core.parse_date(closing["datetime"][:10]),
+            [country.get_text(" ", strip=True) for country in countries],
+            any(urlsplit(a.get("href", "")).path == "/country/bih" for a in countries),
+            [urljoin(url, a["href"]) for a in article.select(".rw-how-to-apply a[href]")])
+
+
+def reliefweb_item(item):
+    """The same fields from a feed item, whose description opens with "Countries:", "Organization:" and "Closing date:" lines."""
+    description = BeautifulSoup(item.findtext("description") or "", "html.parser")
+
+    def tagged(selector, label):
+        node = description.select_one(selector)
+        value = node.get_text(" ", strip=True) if node else ""
+        return value[len(label):].strip() if value.startswith(label) else ""
+
+    # A country name with a comma would count as two countries, which only asks for more residence evidence.
+    countries = [name.strip() for name in tagged("div.tag.country", "Countries:").split(",") if name.strip()]
+    employer = tagged("div.tag.source", "Organization:")
+    closing = tagged("div.date.closing", "Closing date:")
+    try:
+        published = parsedate_to_datetime(item.findtext("pubDate") or "").date()
+    except (TypeError, ValueError):
+        published = None
+    for node in description.select("div.tag, div.date"):
+        node.decompose()
+    how_to_apply = next((h for h in description.find_all(["h2", "h3"]) if "how to apply" in h.get_text().lower()), None)
+    title = (item.findtext("title") or "").strip()
+    if not all((title, employer, closing, countries)):
+        raise ValueError("ReliefWeb job fields missing")
+    return (title, employer, description.get_text(" ", strip=True), published, core.parse_date(closing),
+            countries, "Bosnia and Herzegovina" in countries,
+            [a["href"] for a in how_to_apply.find_all_next("a", href=True)] if how_to_apply else [])
+
+
 def make_candidate(client, source, url, soup):
+    """`soup` is the fetched job page, or the item of ReliefWeb's feed."""
     if soup is None:
         raise ValueError("Aggregator vacancy must be HTML")
     published = None
     application = ""
     eligibility = ""
     if source.adapter == "reliefweb":
-        article = soup.select_one("article.node--job")
-        heading = article.select_one("h1") if article else None
-        body = article.select_one(".rw-article__content") if article else None
-        employer = article.select_one(".rw-article__header .rw-entity-meta__tag-value--source") if article else None
-        posted = article.select_one(".rw-entity-meta__tag-value--posted time[datetime]") if article else None
-        closing = article.select_one(".rw-entity-meta__tag-value--closing time[datetime]") if article else None
-        countries = article.select("#details .rw-entity-meta__tag-value--country a") if article else []
-        if not all((heading, body, employer, posted, closing, countries)):
-            raise ValueError("ReliefWeb job fields missing")
-        published = core.parse_date(posted["datetime"][:10])
-        deadline = core.parse_date(closing["datetime"][:10])
+        title, employer_name, text, published, deadline, locations, in_country, apply_links = reliefweb_item(soup) if reliefweb_feed(source) else reliefweb_page(url, soup)
         if not published or not deadline:
             raise ValueError("ReliefWeb dates invalid")
-        locations = [country.get_text(" ", strip=True) for country in countries]
-        in_country = any(urlsplit(a.get("href", "")).path == "/country/bih" for a in countries)
         location = "; ".join(locations)
-        text = body.get_text(" ", strip=True)
-        city = core.city_name(text) if len(countries) == 1 else ""
-        if len(countries) > 1:
+        city = core.city_name(text) if len(locations) == 1 else ""
+        if len(locations) > 1:
             # Multi-country tags alone do not prove that this role can be based in BiH.
             residence = re.search(r"(?:resid\w*|work|based|location)[^.!?]{0,250}Bosnia(?: and | & )Herzegovina", text, re.I)
             in_country = in_country and bool(residence)
             if in_country:
                 location += ". " + residence.group(0)
                 eligibility = "Regionalna pozicija: BiH je jedna od dozvoljenih zemalja boravka/rada. Provjerite uslove u oglasu."
-        apply_links = [safe_url(urljoin(url, a["href"])) for a in article.select(".rw-how-to-apply a[href]")]
-        apply_links = list(dict.fromkeys(link for link in apply_links if link))
+        apply_links = list(dict.fromkeys(link for link in map(safe_url, apply_links) if link))
         if len(apply_links) == 1:
             application = apply_links[0]
         withdrawn = False
@@ -128,8 +198,8 @@ def make_candidate(client, source, url, soup):
         # page. Do not substitute today's date or the age of a reused portal ID.
         stamp = header.select_one("time[itemprop=datePosted][datetime]")
         published = core.parse_date(stamp["datetime"][:10]) if stamp else None
-    title = heading.get_text(" ", strip=True)[:400]
-    employer_name = employer.get_text(" ", strip=True)[:240]
+        title, employer_name = heading.get_text(" ", strip=True), employer.get_text(" ", strip=True)
+    title, employer_name = title[:400], employer_name[:240]
     excluded = bool(core.EXCLUDED.search(title) or re.search(r"\b(?:unpaid|neplaćen[aeo]?)\b", text, re.I))
     fresh = bool(deadline and deadline >= timezone.localdate())
     eligible = in_country and fresh and not excluded and not withdrawn

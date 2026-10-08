@@ -31,7 +31,7 @@ def description(job, translation, details, terms):
     if job.eligibility:
         parts.append(f"<p>{escape(job.eligibility)}</p>")
     if not parts:
-        parts.append(f"<p>{escape(job.title)} – {escape(job.employer_name)}</p>")
+        parts.append(f"<p>{escape(job.title)} – {escape(job.employer_label)}</p>")
     return "".join(parts)
 
 
@@ -46,7 +46,7 @@ def job_posting(job, url, translation, details, terms):
         "datePosted": posted.isoformat(),
         "url": url,
         "directApply": False,
-        "hiringOrganization": {"@type": "Organization", "name": job.employer_name},
+        "hiringOrganization": {"@type": "Organization", "name": job.employer_label},
         "jobLocation": {"@type": "Place", "address": {"@type": "PostalAddress", "addressLocality": job.city or "Bosna i Hercegovina", "addressCountry": "BA"}},
     }
     organization = getattr(job, "employer_org", None)

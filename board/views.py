@@ -50,7 +50,7 @@ def filter_jobs(query, params):
         # Every word must appear somewhere, so "consultant sarajevo" finds a consultant job whose city is Sarajevo.
         words = fold(search).split()
         rows = query.select_related("source__organization").defer("raw_text")
-        query = query.filter(pk__in=[job.pk for job in rows if all(word in fold(" ".join((job.title, job.city, job.employer_name))) for word in words)])
+        query = query.filter(pk__in=[job.pk for job in rows if all(word in fold(" ".join((job.title, job.city, job.employer_name, job.employer_label))) for word in words)])
     if employer.isdecimal() and len(employer) <= 18:
         organization = Organization.objects.filter(pk=int(employer)).first()
         key = employer_key(organization.name) if organization else None
@@ -109,18 +109,21 @@ def jobs(request):
     for job in visible.select_related("source__organization").defer("raw_text"):
         key = employer_key(job.employer_name)
         employers[key] = known.get(key) or {"pk": "name:" + job.employer_name, "name": job.employer_name}
-    employers = sorted(employers.values(), key=lambda item: item["name"] if isinstance(item, dict) else item.name)
+    employers = sorted(employers.values(), key=lambda item: fold(item["name"] if isinstance(item, dict) else item.display_name))
     fields = fields_in(visible)
     types = [(value, label) for value, label in Job.TYPE if visible.filter(opportunity_type=value).exists()]
     sort_query = urlencode({"sort": sort}) if sort else ""
     context = {"page": page, **filters, "sort": sort, "feed_query": feed_query, "page_query": page_query, "sort_links": sort_links(feed_query), "chips": filter_chips(filters, sort, employers, types, fields), "reset_query": sort_query, "hidden_active": sum(1 for name in MORE_FILTERS if filters[name]), "employers": employers, "cities": visible.exclude(city="").values_list("city", flat=True).distinct().order_by("city"), "types": types, "education_levels": requirements.EDUCATION_LEVELS, "experience_choices": EXPERIENCE_CHOICES.items(), "fields": fields, "requirement_filter": any(filters[name] for name in REQUIREMENT_FILTERS), "trust": trust_strip(visible), "filtered": bool(feed_query or sort)}
     # Boosted links (chips, sort, pages) change the filters, so the form is swapped too to show them.
-    if request.headers.get("HX-Request") and not request.headers.get("HX-History-Restore-Request"):
+    if request.headers.get("HX-Request") and request.headers.get("HX-Target") == "pager":
+        # "Load more" appends the next page's cards where its button was.
+        response = render(request, "board/_more.html", context)
+    elif request.headers.get("HX-Request") and not request.headers.get("HX-History-Restore-Request"):
         response = render(request, "board/_results.html", {**context, "partial": True, "oob_form": bool(request.headers.get("HX-Boosted"))})
     else:
         response = render(request, "board/jobs.html", context)
     # The partial and the full page share a URL, so caches must key on the htmx headers.
-    patch_vary_headers(response, ["HX-Request", "HX-Boosted", "HX-History-Restore-Request"])
+    patch_vary_headers(response, ["HX-Request", "HX-Boosted", "HX-History-Restore-Request", "HX-Target"])
     return response
 
 
@@ -130,7 +133,7 @@ MORE_FILTERS = ("employer", "scope", "education", "experience", "field")
 
 def filter_chips(filters, sort, employers, types, fields):
     """One removable chip per active filter: its label and a link to the same results without it."""
-    employer_names = {str(item["pk"]): item["name"] for item in employers if isinstance(item, dict)} | {str(item.pk): item.name for item in employers if not isinstance(item, dict)}
+    employer_names = {str(item["pk"]): item["name"] for item in employers if isinstance(item, dict)} | {str(item.pk): item.display_name for item in employers if not isinstance(item, dict)}
     labels = {
         "search": lambda value: f"„{value}“",
         "employer": lambda value: employer_names.get(value, value.removeprefix("name:")),
@@ -228,7 +231,7 @@ def job_share_image(request, pk):
     """The Open Graph image of a published job: rendered once per text and language, then cached."""
     job = get_object_or_404(Job.objects.select_related("source__organization"), pk=pk, status="published")
     language = translation.get_language()
-    fingerprint = hashlib.sha256("|".join((language, job.title, job.employer_name, str(job.deadline), str(job.open_until_filled), job.city)).encode()).hexdigest()[:16]
+    fingerprint = hashlib.sha256("|".join((language, job.title, job.employer_label, str(job.deadline), str(job.open_until_filled), job.city)).encode()).hexdigest()[:16]
     key = f"share-image:{job.pk}:{fingerprint}"
     png = cache.get(key)
     if png is None:
@@ -283,11 +286,16 @@ def report(request, pk=None):
     back = job.get_absolute_url() if job else reverse("jobs")
     page = (request.POST.get("page") or request.GET.get("page") or "")[:500]
     page = page if page.startswith("/") and not page.startswith("//") else ""
+    # Sent from the page by htmx, the form is answered in place instead of by a redirect.
+    in_place = request.method == "POST" and request.headers.get("HX-Request")
     if request.method == "POST":
         form = ReportForm(request.POST, job=job)
         if form.is_valid():
             if form.cleaned_data["website"]:
-                messages.success(request, gettext("Hvala, prijava je zaprimljena."))
+                thanks = gettext("Hvala, prijava je zaprimljena.")
+                if in_place:
+                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": back})
+                messages.success(request, thanks)
                 return redirect(back)
             key = client_hash(request)
             if Report.objects.filter(client_hash=key, created_at__gte=timezone.now() - timedelta(hours=1)).count() >= REPORTS_PER_HOUR:
@@ -296,11 +304,14 @@ def report(request, pk=None):
                 item = Report.objects.create(job=job, reason=form.cleaned_data["reason"], message=form.cleaned_data["message"].strip(), email=form.cleaned_data["email"], page_url=page, client_hash=key)
                 # Sent only when ADMINS and an e-mail backend are configured; the admin list is the record either way.
                 mail_admins(f"Nova prijava: {item.get_reason_display()}", f"{item}\n\n{item.message}\n\n{absolute(request, f'/admin/board/report/{item.pk}/change/')}", fail_silently=True)
-                messages.success(request, gettext("Hvala! Prijava je zaprimljena i pregledat ćemo je."))
+                thanks = gettext("Hvala! Prijava je zaprimljena i pregledat ćemo je.")
+                if in_place:
+                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": back})
+                messages.success(request, thanks)
                 return redirect(back if job or not page else page)
     else:
         form = ReportForm(job=job)
-    return render(request, "board/report.html", {"form": form, "job": job, "page": page})
+    return render(request, "board/_report_form.html" if in_place else "board/report.html", {"form": form, "job": job, "page": page})
 
 
 def sources(request):
@@ -320,7 +331,7 @@ def sources(request):
         selected = "all"
     search = request.GET.get("q", "").strip()[:100]
     states = COVERAGE_BUCKETS.get(selected) or ((selected,) if selected in totals else tuple(totals))
-    shown_rows = [row for row in rows if row["status"] in states and (not search or fold(search) in fold(row["organization"].name))]
+    shown_rows = [row for row in rows if row["status"] in states and (not search or fold(search) in fold(row["organization"].name + " " + row["organization"].display_name))]
     # The full list trims each group; a card, a state or a search shows every row.
     trim = SOURCE_GROUP_PREVIEW if selected == "all" and not search else None
     groups = []

@@ -1347,6 +1347,30 @@ def csod_site(request):
     return httpx.Response(200, json={"data": {"totalCount": 2, "requisitions": rows}})
 
 
+class UnCareersRetryTests(TestCase):
+    @patch("board.ingest.time.sleep")
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 2))
+    def test_gateway_timeouts_are_retried_then_give_up(self, _, sleep):
+        organization = Organization.objects.create(name="UN", kind="international")
+        source = Source.objects.create(organization=organization, adapter="uncareers", url="https://careers.un.org/jobopening?language=en")
+        calls = []
+        def flaky(request):
+            calls.append(request)
+            return httpx.Response(504, text="upstream request timeout") if len(calls) in (1, 3) else uncareers_api(request)
+        with httpx.Client(transport=httpx.MockTransport(flaky)) as client:
+            self.assertEqual(len(discover_links(client, source, None, {})), 1)
+        self.assertEqual(len(calls), 4)
+        with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(504, text="upstream request timeout"))) as client:
+            with self.assertRaises(httpx.HTTPStatusError):
+                discover_links(client, source, None, {})
+        # A refusal is not retried.
+        sleep.reset_mock()
+        with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(403))) as client:
+            with self.assertRaises(httpx.HTTPStatusError):
+                discover_links(client, source, None, {})
+        sleep.assert_not_called()
+
+
 class UnCareersShortPageTests(TestCase):
     def test_fewer_rows_than_count_fails(self):
         organization = Organization.objects.create(name="UN", kind="international")

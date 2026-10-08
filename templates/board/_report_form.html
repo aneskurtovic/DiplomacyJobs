@@ -1,4 +1,4 @@
-{% load i18n %}<form class="report-form" method="post" action="{% if job %}{% url 'job_report' job.pk %}{% else %}{% url 'report' %}{% endif %}">{% csrf_token %}
+{% load i18n %}{% if job %}{% url 'job_report' job.pk as report_url %}{% else %}{% url 'report' as report_url %}{% endif %}<form class="report-form" method="post" action="{{ report_url }}" hx-post="{{ report_url }}" hx-target="this" hx-swap="outerHTML" hx-disabled-elt="find button">{% csrf_token %}
   {% if form.non_field_errors %}<div class="form-errors" role="alert">{% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
   <input type="hidden" name="page" value="{% if page %}{{ page }}{% else %}{{ request.get_full_path }}{% endif %}">
   <fieldset><legend>{{ form.reason.label }}</legend>{% for choice in form.reason %}<label class="choice">{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}{% for error in form.reason.errors %}<p class="field-error">{{ error }}</p>{% endfor %}</fieldset>

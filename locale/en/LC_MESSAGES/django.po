@@ -1102,6 +1102,13 @@ msgstr ""
 "unavailable, the number of jobs is unknown. An empty cell does not mean zero "
 "adverts."
 
+msgid "Prikaži još oglasa"
+msgstr "Show more jobs"
+
+#, python-format
+msgid "Prikazano %(shown)s od %(total)s"
+msgstr "Showing %(shown)s of %(total)s"
+
 #~ msgid "Sa provjerenog izvora pratimo aktivne oglase"
 #~ msgstr "We follow current adverts from a verified source"
 

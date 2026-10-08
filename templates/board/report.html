@@ -4,7 +4,7 @@
 <nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% if job %}{{ job.get_absolute_url }}{% else %}{% url 'jobs' %}{% endif %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% if job %}{% translate "Nazad na oglas" %}{% else %}{% translate "Svi oglasi" %}{% endif %}</a></nav>
 <section class="report-page">
   <h1>{% translate "Prijavi problem" %}</h1>
-  {% if job %}<p class="muted">{% translate "Oglas:" %} <strong>{{ job.title }}</strong> · {{ job.employer_name }}</p>
+  {% if job %}<p class="muted">{% translate "Oglas:" %} <strong>{{ job.title }}</strong> · {{ job.employer_label }}</p>
   {% else %}<p class="muted">{% translate "Primijetili ste grešku na stranici, oglas koji nedostaje ili poslodavca kojeg ne pratimo? Javite nam." %}</p>{% endif %}
   {% include 'board/_report_form.html' %}
 </section>

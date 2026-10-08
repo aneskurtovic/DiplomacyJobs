@@ -1,10 +1,10 @@
 # DiplomacyJobs continuation handoff
 
-Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
+Updated: 2026-10-08 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
 
 ## Current state (verified 2026-10-07, Hetzner PostgreSQL)
 
-- **Code and CI:** `main` carries the installable site and htmx job-list filters of 2026-10-07 (evening; migration 0037 unchanged). Local full suite: 270 tests, one SQLite skip, on Python 3.12 with `requirements.lock`, without collected static files, as CI runs. Woodpecker is the only CI (owner decision 2026-10-07); the GitHub Actions workflow was removed. The live site serves `/manifest.webmanifest`, `/sw.js` and `/en/offline/` and answers `HX-Request` with the partial, so Woodpecker deployed it.
+- **Code and CI:** `main` carries the installable site and htmx job-list filters of 2026-10-07 (evening; migration 0037 unchanged). Local full suite (2026-10-08, migration 0039): 287 tests, one SQLite skip, on Python 3.12 with `requirements.lock`, without collected static files, as CI runs. Woodpecker is the only CI (owner decision 2026-10-07); the GitHub Actions workflow was removed. The live site serves `/manifest.webmanifest`, `/sw.js` and `/en/offline/` and answers `HX-Request` with the partial, so Woodpecker deployed it.
 - **Production:** [poslovi.aneskurtovic.com](https://poslovi.aneskurtovic.com/) serves through Caddy with HTTPS. Web and scraper containers use a dedicated `diplomacyjobs` database and role in the existing PostgreSQL 16 instance. The daily scrape is scheduled for 06:00 Sarajevo time; a daily database backup is installed and a scratch-database restore was verified. `/health/` returns 200.
 - **Registry:** 87 organizations and 59 sources were imported; 52 sources are enabled. From the first Hetzner scrape, 49 succeeded and three were unavailable: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), ReliefWeb (#53, HTTP 202 challenge). `/health/scrape/` still returns 503 for those three; this is visible as unavailable coverage, not zero jobs.
 - **Jobs:** 21 published, 0 in review, 188 closed; eight of the closed records are syndicated copies marked `duplicate`. The staff queue is at `/editor/`, with Django admin at `/admin/` for source settings and advanced records. There are 21 currently visible public jobs awaiting Bosnian/English advert versions.
@@ -14,6 +14,16 @@ Updated: 2026-10-07 (Europe/Sarajevo). This file records current counts and veri
 - **CI is Woodpecker only.** `.woodpecker/test.yml` runs Django checks, migration drift and the suite on SQLite and PostgreSQL 16; `deploy.yml` deploys `main` after it. `.github/workflows/` was deleted; do not add GitHub Actions back.
 - **Translations run only on demand** (`/translate-jobs`), never after a scrape. Untranslated jobs show the source text.
 - **Haiku subagents** do the bulk work: `.claude/agents/enricher.md` proposes missing requirement fields for `/enrich-jobs`; `.claude/agents/translator.md` writes advert versions in parallel batches that the main session imports and spot-checks; `.claude/agents/source-scout.md` investigates sources, blocked sites, the 90-day audit and new employers or fields, read-only, under the source access policy, and reports a verdict with evidence. The main session decides and changes the registry or code. Both use the `haiku` model alias, so they follow the current Haiku model.
+
+## Failing sources, load more and English names (2026-10-08)
+
+- **ReliefWeb (#53)** now reads the RSS feed of the same search, `https://reliefweb.int/jobs/rss.xml?advanced-search=%28C40%29`, when the source URL is that feed. Each item carries the whole advert, the organization, countries, closing date and the apply link under "How to apply", so job pages (behind the HTTP 202 challenge from Hetzner) are never fetched. The feed has no total: 20 items (the unfiltered feed's size) fails the source as possibly truncated. The registry has the feed URL, but `import_registry` matches by URL and never disables a source, so **production needs the URL of source #53 changed in admin** before the next registry import. Job URLs are unchanged, so existing jobs carry over. The official API answers 403 to any appname that is not pre-approved ([form](https://apidoc.reliefweb.int/parameters#appname)); not requested.
+- **UN Careers (#51):** from a Bosnian ISP the API answers normally (457 openings, 5 pages, about 2.5 s each), and nothing points to an IP block; the 504 is Envoy's own "upstream request timeout" from a slow origin. The duty-station filter is ignored by the API, so paging through everything stays. Each page now retries after 5 and 15 s on 502/503/504 or a timeout. Requests without the project user agent get 403.
+- **Sweden (#26):** the news list is behind a Cloudflare managed challenge (`cf-mitigated: challenge`) that also hit a residential request once. No feed exists; the sitemap lists news URLs on the same zone. None of the 28 news items (6 pages) is a vacancy. Kept as unavailable; close it if a Hetzner scrape still gets the challenge.
+- **Job list "Prikaži još oglasa":** htmx appends the next page's cards in place of the pager (`HX-Target: pager`, `board/_more.html`) without pushing a URL; the page links stay underneath and work without JavaScript.
+- **Report form** posts with htmx and is answered in place: errors return the form, a sent report returns the thanks (`board/_report_sent.html`). Without JavaScript it redirects as before.
+- **English employer names:** `Organization.name_en` (migration 0039, registry key `name_en`, set for the 34 Bosnian-named organizations) is shown on `/en/` through `Organization.display_name` and `Job.employer_label`. `name` and `Job.employer_name` stay the matching keys for filters, related jobs and dedup. Production needs `import_registry` after the deploy to fill the names.
+- **Catalog:** no gettext on this machine; the two new strings were added to `django.po` by hand and the `.mo` compiled with `polib` (same entries, checked against the previous `.mo`).
 
 ## Server tasks from Woodpecker (2026-10-07, late)
 
@@ -192,10 +202,10 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 ## Next steps
 
 1. Waiting on the owner (no host access at the moment): finish the ops pipeline setup on the host (README, "Server tasks from Woodpecker"), then tag `ops/extract_requirements/<date>`.
-2. Recheck Sweden and UN Careers access from Hetzner (a `source-scout` subagent per source); investigate an approved access path for ReliefWeb if that feed remains important. Do not solve JavaScript challenges. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
-3. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only.
-4. After this push deploys, check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
-5. App track: optional push notifications for a saved search. Other htmx candidates are "load more" instead of page links and sending the report form in place.
+2. After the 2026-10-08 deploy: change source #53's URL in admin to the RSS feed, then run `import_registry` (English names) and `scrape-53`, `scrape-51` and `scrape-26`, and check `/health/scrape/`. Close Sweden if it still gets the Cloudflare challenge. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
+3. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only. The jobs are only in production (the local `db.sqlite3` is empty), so the export and import run on the server.
+4. Check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
+5. App track: optional push notifications for a saved search.
 6. **Usability check** (Design Phase 3, item 6) with five job seekers on mobile: [script](docs/design/usability-check.md). Check the share image preview in Viber/WhatsApp at the public URL.
 
 ## Design system files

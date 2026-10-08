@@ -1,6 +1,7 @@
 [
   {
     "name": "Ambasada Japana u Bosni i Hercegovini",
+    "name_en": "Embassy of Japan in Bosnia and Herzegovina",
     "short_name": "JP",
     "kind": "embassy",
     "country": "JAPAN",
@@ -26,6 +27,7 @@
   },
   {
     "name": "Ambasada Sjedinjenih Američkih Država u BiH",
+    "name_en": "Embassy of the United States of America in BiH",
     "short_name": "US",
     "kind": "embassy",
     "country": "United States of America",
@@ -65,6 +67,7 @@
   },
   {
     "name": "Britanska ambasada u Sarajevu",
+    "name_en": "British Embassy Sarajevo",
     "short_name": "UK",
     "kind": "embassy",
     "country": "UK",
@@ -207,6 +210,7 @@
   },
   {
     "name": "Delegacija Evropske unije i Ured specijalnog predstavnika EU u BiH",
+    "name_en": "Delegation of the European Union and Office of the EU Special Representative in BiH",
     "short_name": "EU",
     "kind": "international",
     "country": "",
@@ -981,6 +985,7 @@
   },
   {
     "name": "Evropska banka za obnovu i razvoj (EBRD)",
+    "name_en": "European Bank for Reconstruction and Development (EBRD)",
     "short_name": "EBRD",
     "kind": "international",
     "country": "",
@@ -1004,6 +1009,7 @@
   },
   {
     "name": "EUFOR (Operacija EU Althea)",
+    "name_en": "EUFOR (EU Operation Althea)",
     "short_name": "EUFOR",
     "kind": "international",
     "country": "",
@@ -1148,6 +1154,7 @@
   },
   {
     "name": "Misija OSCE-a u Bosni i Hercegovini",
+    "name_en": "OSCE Mission to Bosnia and Herzegovina",
     "short_name": "OSCE",
     "kind": "international",
     "country": "",
@@ -1198,6 +1205,7 @@
   },
   {
     "name": "Regionalno vijeće za saradnju (RCC)",
+    "name_en": "Regional Cooperation Council (RCC)",
     "short_name": "RCC",
     "kind": "international",
     "country": "",
@@ -1237,6 +1245,7 @@
   },
   {
     "name": "Ujedinjene nacije u Bosni i Hercegovini",
+    "name_en": "United Nations in Bosnia and Herzegovina",
     "short_name": "UN",
     "kind": "international",
     "country": "",
@@ -1268,6 +1277,7 @@
   },
   {
     "name": "UNICEF u Bosni i Hercegovini",
+    "name_en": "UNICEF in Bosnia and Herzegovina",
     "short_name": "UNICEF",
     "kind": "international",
     "country": "",
@@ -1293,6 +1303,7 @@
   },
   {
     "name": "UNDP u Bosni i Hercegovini",
+    "name_en": "UNDP in Bosnia and Herzegovina",
     "short_name": "UNDP",
     "kind": "international",
     "country": "",
@@ -1331,6 +1342,7 @@
   },
   {
     "name": "IOM u Bosni i Hercegovini",
+    "name_en": "IOM in Bosnia and Herzegovina",
     "short_name": "IOM",
     "kind": "international",
     "country": "",
@@ -1354,6 +1366,7 @@
   },
   {
     "name": "UNFPA u Bosni i Hercegovini",
+    "name_en": "UNFPA in Bosnia and Herzegovina",
     "short_name": "UNFPA",
     "kind": "international",
     "country": "",
@@ -1377,6 +1390,7 @@
   },
   {
     "name": "UN Women u Bosni i Hercegovini",
+    "name_en": "UN Women in Bosnia and Herzegovina",
     "short_name": "UNW",
     "kind": "international",
     "country": "",
@@ -1400,6 +1414,7 @@
   },
   {
     "name": "UNHCR u Bosni i Hercegovini",
+    "name_en": "UNHCR in Bosnia and Herzegovina",
     "short_name": "UNHCR",
     "kind": "international",
     "country": "",
@@ -1423,6 +1438,7 @@
   },
   {
     "name": "Međunarodni monetarni fond (MMF) – Ured stalnog predstavnika u BiH",
+    "name_en": "International Monetary Fund (IMF) – Resident Representative Office in BiH",
     "short_name": "MMF",
     "kind": "international",
     "country": "",
@@ -1446,6 +1462,7 @@
   },
   {
     "name": "Svjetska zdravstvena organizacija (WHO) – Ured u BiH",
+    "name_en": "World Health Organization (WHO) – Country Office in BiH",
     "short_name": "WHO",
     "kind": "international",
     "country": "",
@@ -1470,6 +1487,7 @@
   },
   {
     "name": "Međunarodna komisija za nestale osobe (ICMP)",
+    "name_en": "International Commission on Missing Persons (ICMP)",
     "short_name": "ICMP",
     "kind": "international",
     "country": "",
@@ -1493,6 +1511,7 @@
   },
   {
     "name": "UNESCO – Antena ured u Sarajevu",
+    "name_en": "UNESCO – Antenna Office in Sarajevo",
     "short_name": "UNESCO",
     "kind": "international",
     "country": "",
@@ -1516,6 +1535,7 @@
   },
   {
     "name": "Organizacija UN-a za hranu i poljoprivredu (FAO) – Projektni ured u Sarajevu",
+    "name_en": "Food and Agriculture Organization of the UN (FAO) – Project Office in Sarajevo",
     "short_name": "FAO",
     "kind": "international",
     "country": "",
@@ -1540,6 +1560,7 @@
   },
   {
     "name": "Međunarodna organizacija rada (ILO) – projekti u BiH",
+    "name_en": "International Labour Organization (ILO) – projects in BiH",
     "short_name": "ILO",
     "kind": "international",
     "country": "",
@@ -1563,6 +1584,7 @@
   },
   {
     "name": "Međunarodni centar za razvoj migracionih politika (ICMPD) – Ured u Sarajevu",
+    "name_en": "International Centre for Migration Policy Development (ICMPD) – Sarajevo Office",
     "short_name": "ICMPD",
     "kind": "international",
     "country": "",
@@ -1586,6 +1608,7 @@
   },
   {
     "name": "Štab NATO-a u Sarajevu (NHQSa)",
+    "name_en": "NATO Headquarters Sarajevo (NHQSa)",
     "short_name": "NATO",
     "kind": "international",
     "country": "",
@@ -1609,6 +1632,7 @@
   },
   {
     "name": "Regionalna antikorupcijska inicijativa (RAI) – Sekretarijat",
+    "name_en": "Regional Anti-Corruption Initiative (RAI) – Secretariat",
     "short_name": "RAI",
     "kind": "international",
     "country": "",
@@ -1633,6 +1657,7 @@
   },
   {
     "name": "Regionalna kancelarija za saradnju mladih (RYCO) – Lokalni ured u Sarajevu",
+    "name_en": "Regional Youth Cooperation Office (RYCO) – Local Branch Office Sarajevo",
     "short_name": "RYCO",
     "kind": "international",
     "country": "",
@@ -1680,6 +1705,7 @@
   },
   {
     "name": "Ured visokog predstavnika (OHR)",
+    "name_en": "Office of the High Representative (OHR)",
     "short_name": "OHR",
     "kind": "international",
     "country": "",
@@ -1703,6 +1729,7 @@
   },
   {
     "name": "Vijeće Evrope – Ured u Sarajevu",
+    "name_en": "Council of Europe – Office in Sarajevo",
     "short_name": "CoE",
     "kind": "international",
     "country": "",
@@ -1726,6 +1753,7 @@
   },
   {
     "name": "UN Sekretarijat (uredi u Bosni i Hercegovini)",
+    "name_en": "UN Secretariat (offices in Bosnia and Herzegovina)",
     "short_name": "UN",
     "kind": "international",
     "country": "",
@@ -1749,6 +1777,7 @@
   },
   {
     "name": "Grupa Svjetske banke (World Bank, IFC)",
+    "name_en": "World Bank Group (World Bank, IFC)",
     "short_name": "WBG",
     "kind": "international",
     "country": "",
@@ -1782,11 +1811,11 @@
     "notes": "Agregator (UN OCHA). Poslodavac i originalni link za prijavu se čuvaju; oglas se ne prikazuje ako postoji službeni zapis istog oglasa.",
     "sources": [
       {
-        "url": "https://reliefweb.int/jobs?advanced-search=%28C40%29",
+        "url": "https://reliefweb.int/jobs/rss.xml?advanced-search=%28C40%29",
         "adapter": "reliefweb",
         "status": "verified",
         "enabled": true,
-        "notes": "Filter zemlje C40 (BiH). Regionalni oglasi s više zemalja traže BiH kao mjesto boravka/rada u tekstu. Provjereno uživo 2026-10-03: 1 oglas (International Detention Coalition, Balkans)."
+        "notes": "Filter zemlje C40 (BiH). Regionalni oglasi s više zemalja traže BiH kao mjesto boravka/rada u tekstu. Provjereno uživo 2026-10-03: 1 oglas (International Detention Coalition, Balkans). 2026-10-08: HTML lista s Hetznera vraća HTTP 202 izazov; izvor čita RSS feed iste pretrage (cijeli oglas, rok, organizacija, link za prijavu), bez otvaranja stranica oglasa. Feed nema ukupan broj; 20 stavki se tretira kao moguće skraćen. Službeni API traži odobren appname."
       }
     ]
   },
@@ -1812,6 +1841,7 @@
   },
   {
     "name": "Save the Children u Bosni i Hercegovini",
+    "name_en": "Save the Children in Bosnia and Herzegovina",
     "short_name": "SC",
     "kind": "ngo",
     "country": "",
@@ -1835,6 +1865,7 @@
   },
   {
     "name": "Catholic Relief Services u Bosni i Hercegovini",
+    "name_en": "Catholic Relief Services in Bosnia and Herzegovina",
     "short_name": "CRS",
     "kind": "ngo",
     "country": "",
@@ -1858,6 +1889,7 @@
   },
   {
     "name": "UNOPS u Bosni i Hercegovini",
+    "name_en": "UNOPS in Bosnia and Herzegovina",
     "short_name": "UNOPS",
     "kind": "international",
     "country": "",
@@ -1882,6 +1914,7 @@
   },
   {
     "name": "Evropska investicijska banka (EIB) – Ured u Sarajevu",
+    "name_en": "European Investment Bank (EIB) – Sarajevo Office",
     "short_name": "EIB",
     "kind": "international",
     "country": "",
@@ -1922,6 +1955,7 @@
   },
   {
     "name": "GIZ – Ured u Sarajevu",
+    "name_en": "GIZ – Sarajevo Office",
     "short_name": "GIZ",
     "kind": "agency",
     "country": "GERMANY",

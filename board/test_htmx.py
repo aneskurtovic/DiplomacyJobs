@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .models import Organization, Source
+from .models import Organization, Report, Source
 from .test_i18n import PLAIN_STATIC, make_job
 from .test_requirements import UNDP
 
@@ -61,3 +61,44 @@ class HtmxJobListTests(TestCase):
         self.assertRegex(script, r"^script-src 'self' 'nonce-[\w-]{16,}'$")
         self.assertIn("frame-ancestors 'none'", policy)
         self.assertNotEqual(policy, self.client.get("/")["Content-Security-Policy"])
+
+    def test_load_more_appends_the_next_page_without_the_page_links(self):
+        for number in range(25):
+            make_job(self.source, f"Assistant {number:02d}", f"{UNDP} {number}")
+        first = self.client.get("/").content.decode()
+        self.assertIn('class="button-secondary load-more" href="?page=2"', first)
+        self.assertIn('class="pagination"', first)
+        more = self.client.get("/?page=2", HTTP_HX_REQUEST="true", HTTP_HX_TARGET="pager")
+        self.assertNotContains(more, 'id="job-search"')
+        self.assertNotContains(more, 'class="pagination"')
+        self.assertNotContains(more, "load-more")
+        self.assertContains(more, "Prikazano 26 od 26")
+        self.assertEqual(more.content.decode().count('class="job-card'), 6)
+        self.assertIn("HX-Target", more["Vary"])
+
+
+@PLAIN_STATIC
+class HtmxReportTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="Ambasada Italije", kind="embassy")
+        source = Source.objects.create(organization=organization, url="https://employer.test/jobs", adapter="generic", enabled=True, status="verified")
+        self.job = make_job(source, "Project Coordinator", UNDP)
+        self.url = f"/jobs/{self.job.pk}/report/"
+
+    def test_form_posts_in_place(self):
+        self.assertContains(self.client.get(self.job.get_absolute_url()), f'hx-post="{self.url}"')
+
+    def test_sent_report_answers_with_thanks_in_place(self):
+        response = self.client.post(self.url, {"reason": "expired"}, HTTP_HX_REQUEST="true")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "<html")
+        self.assertContains(response, "Prijava je zaprimljena")
+        self.assertContains(response, f'href="{self.job.get_absolute_url()}"')
+        self.assertEqual(Report.objects.count(), 1)
+
+    def test_invalid_report_returns_the_form_with_errors(self):
+        response = self.client.post(self.url, {"reason": "other"}, HTTP_HX_REQUEST="true")
+        self.assertNotContains(response, "<html")
+        self.assertContains(response, "Opišite ukratko problem.")
+        self.assertContains(response, 'class="report-form"')
+        self.assertFalse(Report.objects.exists())

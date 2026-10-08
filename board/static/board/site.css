@@ -94,6 +94,7 @@ h1{font-size:2em;margin-block:.67em}
 .eligibility .icon{margin-top:.15em;stroke-width:1.8}
 .empty{padding:50px 24px;background:var(--color-bg-subtle);border-radius:var(--radius-md);text-align:center}
 .pagination{display:flex;justify-content:space-between;margin:28px 0;align-items:center}
+.pager{display:grid;justify-items:center;gap:4px;margin-top:20px}.pager .pagination{width:100%;margin-top:8px}.load-more{min-height:44px;padding:0 20px}.load-more.htmx-request{opacity:.55;pointer-events:none}
 
 /* Deadline: one component for the card, the job summary and the apply bar. */
 .deadline{display:grid;gap:2px;font-variant-numeric:tabular-nums}
@@ -224,6 +225,7 @@ h1{font-size:2em;margin-block:.67em}
 .report-box summary{cursor:pointer;font-weight:600;color:var(--color-brand)}
 .report-page{max-width:640px;padding-top:12px}
 .report-form{display:grid;gap:16px;margin-top:16px;max-width:600px}
+.report-sent p{margin:0}.report-form button[disabled]{opacity:.55}
 .report-form fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
 .report-form legend{font-weight:600;font-size:14px;margin-bottom:8px}
 .report-form label{display:grid;gap:6px;font-size:14px;font-weight:600}

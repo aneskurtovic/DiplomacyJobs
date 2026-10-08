@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 from django.utils.text import slugify
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from .requirements import EDUCATION_LEVELS
 from .text import fold
@@ -12,6 +12,8 @@ class Organization(models.Model):
     TYPE_CHOICES = [("aggregator", _("Agregator poslova")), ("embassy", _("Ambasada")), ("consulate", _("Konzulat")), ("honorary", _("Počasni konzulat")), ("international", _("Međunarodna organizacija")), ("ngo", _("Međunarodna nevladina organizacija")), ("agency", _("Razvojna agencija"))]
     RECRUITMENT_STATUS = [("", "Nije provjeren"), ("not_found", "Izvor nije pronađen"), ("integration", "Čeka integraciju"), ("blocked", "Provjera nije uspjela")]
     name = models.CharField(max_length=240, unique=True)
+    # The English site shows this when set; `name` stays the key that jobs and aggregator copies are matched by.
+    name_en = models.CharField(max_length=240, blank=True)
     # Shown as the employer monogram on job cards ("OSCE", "UNDP", a country code for missions).
     short_name = models.CharField(max_length=8, blank=True)
     kind = models.CharField(max_length=20, choices=TYPE_CHOICES)
@@ -29,6 +31,10 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def display_name(self):
+        return self.name_en if self.name_en and get_language() == "en" else self.name
 
     @property
     def slug(self):
@@ -135,6 +141,11 @@ class Job(models.Model):
     @property
     def employer_name(self):
         return self.field_evidence.get("employer_name") or self.source.organization.name
+
+    @property
+    def employer_label(self):
+        """The employer as shown: the registry name in the page's language. Matching and filters use `employer_name`."""
+        return self.field_evidence.get("employer_name") or self.source.organization.display_name
 
     @property
     def via(self):

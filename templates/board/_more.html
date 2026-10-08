@@ -1,0 +1,3 @@
+{% load board_extras i18n %}{% for job in page %}{% include 'board/_job_card.html' %}{% endfor %}
+{% include 'board/_pager.html' with more=True %}
+<p id="results-status" class="visually-hidden" hx-swap-oob="innerHTML">{% blocktranslate with shown=page.end_index total=page.paginator.count %}Prikazano {{ shown }} od {{ total }}{% endblocktranslate %}</p>

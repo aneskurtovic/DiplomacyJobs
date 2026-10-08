@@ -58,7 +58,7 @@ def render(job):
     draw.text((MARGIN + 68, MARGIN + 26), "DiplomacyJobs", font=font("Bold", 30), fill=TEXT, anchor="lm")
 
     y = MARGIN + 104
-    for line in wrap(draw, job.employer_name, font("Regular", 30), text_width, 1):
+    for line in wrap(draw, job.employer_label, font("Regular", 30), text_width, 1):
         draw.text((MARGIN, y), line, font=font("Regular", 30), fill=SOFT)
         y += 48
 

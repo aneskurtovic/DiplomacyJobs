@@ -1,11 +1,11 @@
-{% extends 'board/base.html' %}{% load board_extras i18n static %}{% block title %}{{ job.title }} · {{ job.employer_name }} · DiplomacyJobs{% endblock %}
+{% extends 'board/base.html' %}{% load board_extras i18n static %}{% block title %}{{ job.title }} · {{ job.employer_label }} · DiplomacyJobs{% endblock %}
 {% block description %}{% include 'board/_job_summary.html' %}{% endblock %}{% block og_description %}{% include 'board/_job_summary.html' %}{% endblock %}
-{% block og_title %}{{ job.title }} – {{ job.employer_name }}{% endblock %}
+{% block og_title %}{{ job.title }} – {{ job.employer_label }}{% endblock %}
 {% block og_image %}{% if current %}{% url 'job_share_image' job.pk as share_url %}<meta property="og:image" content="{{ public_base }}{{ share_url }}">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="{{ job.title }} – {{ job.employer_name }}">
+  <meta property="og:image:alt" content="{{ job.title }} – {{ job.employer_label }}">
   <meta name="twitter:card" content="summary_large_image">
   {% endif %}{% endblock %}
 {% block head_extra %}{{ posting }}{% endblock %}
@@ -14,7 +14,7 @@
 <nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'jobs' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% translate "Svi oglasi" %}</a></nav>
 <article class="job-page">
   <header class="job-header">
-    <p class="job-employer">{% if job.employer_org %}<a class="employer-link" href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_name }}</a>{% else %}<span>{{ job.employer_name }}</span>{% endif %}{% if job.is_aggregated %} <span class="via">· {% blocktranslate with portal=job.via %}putem {{ portal }}{% endblocktranslate %}</span>{% endif %}{% if current and job.is_new %} <span class="badge new">{% translate "Novo" %}</span>{% endif %}</p>
+    <p class="job-employer">{% if job.employer_org %}<a class="employer-link" href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_label }}</a>{% else %}<span>{{ job.employer_label }}</span>{% endif %}{% if job.is_aggregated %} <span class="via">· {% blocktranslate with portal=job.via %}putem {{ portal }}{% endblocktranslate %}</span>{% endif %}{% if current and job.is_new %} <span class="badge new">{% translate "Novo" %}</span>{% endif %}</p>
     <h1>{{ job.title }}</h1>
     {% if job.translated_title %}<p class="translated-title" lang="{{ LANGUAGE_CODE }}"><span class="visually-hidden">{% translate "Prijevod naslova:" %} </span>{{ job.translated_title }}</p>{% endif %}
     <dl class="key-facts">
@@ -24,7 +24,7 @@
       {% if job.scope %}<div><dt>{% translate "Pozicija" %}</dt><dd>{{ job.get_scope_display }}</dd></div>{% endif %}
     </dl>
     {% if job.tags %}<ul class="tags" aria-label="{% translate 'Uslovi iz oglasa' %}">{% for tag in job.tags %}<li>{{ tag }}</li>{% endfor %}</ul>{% endif %}
-    <p class="share" hidden><button type="button" class="button-secondary share-button" data-share-title="{{ job.title }} – {{ job.employer_name }}" data-copied="{% translate 'Link je kopiran.' %}" data-failed="{% translate 'Kopirajte link iz adresne trake.' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-share"></use></svg>{% translate "Podijeli oglas" %}</button><span class="share-status" role="status"></span></p>
+    <p class="share" hidden><button type="button" class="button-secondary share-button" data-share-title="{{ job.title }} – {{ job.employer_label }}" data-copied="{% translate 'Link je kopiran.' %}" data-failed="{% translate 'Kopirajte link iz adresne trake.' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-share"></use></svg>{% translate "Podijeli oglas" %}</button><span class="share-status" role="status"></span></p>
   </header>
   {% if not current %}<p class="notice">{% translate "Ovaj oglas više nije među aktuelnim oglasima (rok je istekao ili je oglas povučen). Provjerite stanje na službenoj stranici." %}</p>{% endif %}
   <div class="job-layout">
@@ -54,7 +54,7 @@
         <div class="in-key-facts"><dt>{% translate "Lokacija" %}</dt><dd>{% if job.city %}{{ job.city }}{% else %}{% translate "Bosna i Hercegovina" %}{% endif %}</dd></div>
         <div class="in-key-facts"><dt>{% translate "Rok prijave" %}</dt><dd>{% deadline job "summary" %}</dd></div>
         {% if job.source_published_at %}<div><dt>{% translate "Objavljeno" %}</dt><dd><time datetime="{{ job.source_published_at|date:'Y-m-d' }}">{{ job.source_published_at|date:'d.m.Y.' }}</time></dd></div>{% endif %}
-        <div><dt>{% translate "Poslodavac" %}</dt><dd>{% if job.employer_org %}<a href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_name }}</a>{% else %}{{ job.employer_name }}{% endif %}</dd></div>
+        <div><dt>{% translate "Poslodavac" %}</dt><dd>{% if job.employer_org %}<a href="{{ job.employer_org.get_absolute_url }}">{{ job.employer_label }}</a>{% else %}{{ job.employer_label }}{% endif %}</dd></div>
         <div class="in-key-facts"><dt>{% translate "Vrsta" %}</dt><dd>{{ job.get_opportunity_type_display }}{% if job.scope %}, {{ job.get_scope_display|lower }}{% endif %}</dd></div>
         <div><dt>{% translate "Provjereno" %}</dt><dd>{% if job.last_checked_at %}{{ job.last_checked_at|date:'d.m.Y.' }}{% else %}{% translate "Nije dostupno" %}{% endif %}</dd></div>
       </dl>

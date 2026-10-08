@@ -70,6 +70,20 @@ class EnglishInterfaceTests(TestCase):
         self.source = Source.objects.create(organization=organization, url="https://employer.test/jobs", adapter="generic", enabled=True, status="verified")
         self.job = make_job(self.source, "Project Coordinator", UNDP)
 
+    def test_english_site_shows_the_english_employer_name(self):
+        organization = self.source.organization
+        organization.name_en = "Embassy of Italy"
+        organization.save()
+        board = self.client.get("/en/")
+        self.assertContains(board, "Embassy of Italy")
+        self.assertNotContains(board, "Ambasada Italije")
+        self.assertContains(self.client.get(f"/en/jobs/{self.job.pk}/project-coordinator/"), "Embassy of Italy")
+        # The filter still matches by the registry name, and English words find the job.
+        self.assertContains(self.client.get("/en/", {"employer": organization.pk}), "Project Coordinator")
+        self.assertContains(self.client.get("/en/", {"q": "embassy italy"}), "Project Coordinator")
+        self.assertContains(self.client.get("/"), "Ambasada Italije")
+        self.assertNotContains(self.client.get("/"), "Embassy of Italy")
+
     def test_english_board_and_job_page(self):
         board = self.client.get("/en/")
         self.assertContains(board, '<html lang="en" data-theme="auto">', html=False)
