@@ -286,6 +286,7 @@ def report(request, pk=None):
     back = job.get_absolute_url() if job else reverse("jobs")
     page = (request.POST.get("page") or request.GET.get("page") or "")[:500]
     page = page if page.startswith("/") and not page.startswith("//") else ""
+    sent_back = back if job or not page else page
     # Sent from the page by htmx, the form is answered in place instead of by a redirect.
     in_place = request.method == "POST" and request.headers.get("HX-Request")
     if request.method == "POST":
@@ -294,7 +295,7 @@ def report(request, pk=None):
             if form.cleaned_data["website"]:
                 thanks = gettext("Hvala, prijava je zaprimljena.")
                 if in_place:
-                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": back})
+                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": sent_back})
                 messages.success(request, thanks)
                 return redirect(back)
             key = client_hash(request)
@@ -306,9 +307,9 @@ def report(request, pk=None):
                 mail_admins(f"Nova prijava: {item.get_reason_display()}", f"{item}\n\n{item.message}\n\n{absolute(request, f'/admin/board/report/{item.pk}/change/')}", fail_silently=True)
                 thanks = gettext("Hvala! Prijava je zaprimljena i pregledat ćemo je.")
                 if in_place:
-                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": back})
+                    return render(request, "board/_report_sent.html", {"thanks": thanks, "job": job, "back": sent_back})
                 messages.success(request, thanks)
-                return redirect(back if job or not page else page)
+                return redirect(sent_back)
     else:
         form = ReportForm(job=job)
     return render(request, "board/_report_form.html" if in_place else "board/report.html", {"form": form, "job": job, "page": page})

@@ -66,7 +66,7 @@ class HtmxJobListTests(TestCase):
         for number in range(25):
             make_job(self.source, f"Assistant {number:02d}", f"{UNDP} {number}")
         first = self.client.get("/").content.decode()
-        self.assertIn('class="button-secondary load-more" href="?page=2"', first)
+        self.assertIn('class="button-secondary load-more" data-shown="20" href="?page=2"', first)
         self.assertIn('class="pagination"', first)
         more = self.client.get("/?page=2", HTTP_HX_REQUEST="true", HTTP_HX_TARGET="pager")
         self.assertNotContains(more, 'id="job-search"')
@@ -102,3 +102,7 @@ class HtmxReportTests(TestCase):
         self.assertContains(response, "Opišite ukratko problem.")
         self.assertContains(response, 'class="report-form"')
         self.assertFalse(Report.objects.exists())
+
+    def test_sent_site_report_links_back_to_its_page(self):
+        response = self.client.post("/report/", {"reason": "site", "page": "/sources/"}, HTTP_HX_REQUEST="true")
+        self.assertContains(response, 'href="/sources/"')

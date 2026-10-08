@@ -192,3 +192,14 @@ class ReliefWebFeedTests(TestCase):
         run = self.scan(RELIEFWEB_FEED.replace("Closing date: 16 Oct 2026", ""))
         self.assertFalse(run.success)
         self.assertIn("fields missing", run.error)
+
+    def test_migration_moves_the_html_source_to_the_feed(self):
+        from importlib import import_module
+        from django.apps import apps
+        migration = import_module("board.migrations.0040_reliefweb_rss_feed")
+        self.source.url = migration.HTML
+        self.source.save()
+        migration.move(migration.HTML, migration.FEED)(apps, None)
+        self.source.refresh_from_db()
+        self.assertEqual(self.source.url, self.FEED)
+        self.assertEqual(Source.objects.count(), 1)

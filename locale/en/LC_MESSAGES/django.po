@@ -1109,6 +1109,9 @@ msgstr "Show more jobs"
 msgid "Prikazano %(shown)s od %(total)s"
 msgstr "Showing %(shown)s of %(total)s"
 
+msgid "Nazad"
+msgstr "Back"
+
 #~ msgid "Sa provjerenog izvora pratimo aktivne oglase"
 #~ msgstr "We follow current adverts from a verified source"
 
