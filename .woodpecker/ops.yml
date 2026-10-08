@@ -7,7 +7,7 @@ labels:
 
 when:
   - event: tag
-    ref: refs/tags/ops/*
+    ref: refs/tags/ops/**
   - event: manual
 
 concurrency:
