@@ -188,6 +188,13 @@ class ReliefWebFeedTests(TestCase):
         self.assertFalse(run.success)
         self.assertIn("may be truncated", run.error)
 
+    def test_challenge_page_names_its_status(self):
+        with patch("board.ingest.open_client") as open_client:
+            open_client.return_value.__enter__.return_value = httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(202, text="<html>challenge</html>", headers={"content-type": "text/html"})))
+            from .ingest import ingest_source
+            run = ingest_source(self.source.pk)
+        self.assertIn("HTTP 202, text/html", run.error)
+
     def test_item_without_closing_date_fails_the_source(self):
         run = self.scan(RELIEFWEB_FEED.replace("Closing date: 16 Oct 2026", ""))
         self.assertFalse(run.success)

@@ -22,8 +22,9 @@ RELIEFWEB_FEED_LIMIT = 20
 def reliefweb_feed_links(client, source, evidence):
     response = core.request(client, "get", source.url)
     response.raise_for_status()
-    if "xml" not in response.headers.get("content-type", "").lower():
-        raise ValueError("ReliefWeb feed is not XML")
+    # A bot challenge answers 202 with an HTML page.
+    if response.status_code != 200 or "xml" not in response.headers.get("content-type", "").lower():
+        raise ValueError(f"ReliefWeb feed unusable: HTTP {response.status_code}, {response.headers.get('content-type', '')}")
     channel = core.ElementTree.fromstring(response.content).find("channel")
     if channel is None:
         raise ValueError("ReliefWeb feed changed shape")
