@@ -1616,8 +1616,20 @@
     "website": "",
     "evidence_url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146",
     "verified_at": "2026-10-02",
-    "notes": "NATO-ov štab u Sarajevu zapošljava civilno osoblje preko centralnog NATO karijernog portala (Taleo), gdje je NHQSa zasebna organizacija u filteru.",
+    "notes": "NATO-ov štab u Sarajevu zapošljava međunarodno civilno osoblje preko centralnog NATO karijernog portala (Taleo), gdje je NHQSa zasebna organizacija u filteru. Lokalne pozicije (LCH) objavljuje samo na svojoj stranici, kao PDF uz tabelu oglasa.",
     "sources": [
+      {
+        "url": "https://jfcnaples.nato.int/hqsarajevo/about-sarajevo-/working-in-nhqsa/local-positions.aspx",
+        "adapter": "nhqsa",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "impersonate": true,
+          "allow_empty": true,
+          "pdf_date_as_published": true
+        },
+        "notes": "Lokalne pozicije NHQSa: tabela (naziv, lokacija, grade, rok) s PDF oglasom po redu; tabela samo sa zaglavljem znači da nema oglasa. Akamai odbija ne-browser TLS, pa izvor koristi Chrome otisak. Datum objave je datum PDF-a na serveru. Provjereno 2026-10-09: 1 oglas (Public Affairs Assistant, LCH-4, rok 25. 10. 2026), kojeg nema na Taleu."
+      },
       {
         "url": "https://nato.taleo.net/careersection/2/jobsearch.ftl?lang=en&organization=250305010146",
         "adapter": "taleoftl",

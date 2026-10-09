@@ -10,7 +10,7 @@ import re
 from datetime import date, datetime
 from email.utils import parsedate_to_datetime
 from io import BytesIO
-from urllib.parse import parse_qsl, urljoin, urlsplit
+from urllib.parse import parse_qsl, quote, urljoin, urlsplit
 from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup
@@ -561,4 +561,29 @@ def kemlu_links(client, source, soup, evidence):
     return result
 
 
-ADAPTERS = {"kemlu": kemlu_links, "undpnotices": undpnotices_links, "wordpress": wordpress_links, "turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}
+NHQSA_COLUMNS = ["Job Title", "Location", "Grade", "Closing Date", "Application Information"]
+
+
+def nhqsa_links(client, source, soup, evidence):
+    """NATO HQ Sarajevo local (LCH) positions: one table row per vacancy, linking a PDF
+    advert that the scan then reads. These posts never reach NATO's Taleo. A table with
+    only its header row means no vacancies; a missing or reshaped table fails."""
+    table = next((node for node in soup.find_all("table") if node.find("tr") and [text(cell) for cell in node.find("tr").find_all("td")] == NHQSA_COLUMNS), None) if soup else None
+    if table is None:
+        raise ValueError("NHQSa local positions table missing")
+    result = []
+    for row in table.find_all("tr")[1:]:
+        cells = row.find_all("td")
+        if not cells:
+            continue
+        link = cells[-1].find("a", href=re.compile(r"\.pdf$", re.I)) if len(cells) == len(NHQSA_COLUMNS) else None
+        deadline = core.parse_date(text(cells[3])) if link else None
+        if not link or not text(cells[0]) or not deadline:
+            raise ValueError("NHQSa vacancy row changed shape")
+        url = local_url(source.url, quote(link["href"]), "/resources/")
+        title, location, grade = text(cells[0]), text(cells[1]), text(cells[2])
+        result.append(put(evidence, url, title, f"Employer: NATO Headquarters Sarajevo. Duty station: {location}, Sarajevo. Grade: {grade} (local civilian hire).", None, deadline))
+    return result
+
+
+ADAPTERS = {"nhqsa": nhqsa_links, "kemlu": kemlu_links, "undpnotices": undpnotices_links, "wordpress": wordpress_links, "turkey": turkey_links, "spain": spain_links, "brazil": brazil_links, "slovenia": slovenia_links, "canadales": canada_links, "peoplesoft": peoplesoft_links, "sitemap": sitemap_links}

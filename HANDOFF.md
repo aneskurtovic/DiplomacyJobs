@@ -9,6 +9,12 @@ Updated: 2026-10-08 (Europe/Sarajevo). This file records current counts and veri
 - **Registry:** 87 organizations and 59 sources were imported; 52 sources are enabled. From the first Hetzner scrape, 49 succeeded and three were unavailable: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), ReliefWeb (#53, HTTP 202 challenge). `/health/scrape/` still returns 503 for those three; this is visible as unavailable coverage, not zero jobs.
 - **Jobs:** 21 published, 0 in review, 188 closed; eight of the closed records are syndicated copies marked `duplicate`. The staff queue is at `/editor/`, with Django admin at `/admin/` for source settings and advanced records. There are 21 currently visible public jobs awaiting Bosnian/English advert versions.
 
+## NATO HQ Sarajevo local positions (2026-10-09)
+
+- Owner asked about EBRD, EIB/EIF and NHQSa. EBRD (`ebrd`, Sarajevo search) and EIB Group (`peoplesoft` Atom feed, which carries EIF postings too) were already sources; both rescraped locally on 2026-10-09 without error and with no BiH postings.
+- **NHQSa local (LCH) hires were missing:** they appear only on `jfcnaples.nato.int/.../local-positions.aspx`, not on NATO Taleo. New `nhqsa` adapter (migration 0041, `board/recruitment.py`) reads that table and each row's PDF advert; Chrome impersonation because Akamai refuses other TLS fingerprints; the PDF's server date is the publication date. Registry entry added to the NHQSa organization. Locally: backup `backups/db-before-nhqsa-local-*.sqlite3`, `import_registry`, scrape published Public Affairs Assistant (LCH-4, closes 2026-10-25).
+- **Production:** after deploy (migration 0041), run `import_registry` and a scrape of the new source on the server.
+
 ## Tooling decisions (owner, 2026-10-07)
 
 - **CI is Woodpecker only.** `.woodpecker/test.yml` runs Django checks, migration drift and the suite on SQLite and PostgreSQL 16; `deploy.yml` deploys `main` after it. `.github/workflows/` was deleted; do not add GitHub Actions back.
