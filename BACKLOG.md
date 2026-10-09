@@ -6,12 +6,12 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 
 - [ ] Romania remains unavailable: sarajevo.mae.ro and www.mae.ro require a JavaScript browser check; cariera.mae.ro is a login-only platform. No challenge solving.
 - [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Recheck UNICEF from the Hetzner network; its jobs also arrive through aggregators.
-- [ ] Verify from Hetzner the three sources that failed there (2026-10-08 changes, see HANDOFF): ReliefWeb (#53) reads the RSS feed (migration 0040 moves its URL); UN Careers (#51) retries gateway timeouts; Sweden (#26) is behind a Cloudflare challenge, with no vacancies in its news list, so close it if the challenge stays. Optional: request a ReliefWeb API appname ([form](https://apidoc.reliefweb.int/parameters#appname)) if the feed proves incomplete.
+- [ ] Two sources still fail from Hetzner (full scrape 2026-10-09, pipeline #32; UN Careers #51 now succeeds): ReliefWeb (#53) gets the HTTP 202 challenge on its RSS feed too, so the feed path did not help there; options are a ReliefWeb API appname ([form](https://apidoc.reliefweb.int/parameters#appname)) or relying on the other aggregators. Sweden (#26) still gets 403 behind Cloudflare and has no vacancies in its news list: owner to close it in admin. Source #19 timed out once in the same run; recheck at the next daily scrape.
 - [x] Malaysia and Pakistan are sources (2026-10-03): their missing intermediates are fetched from the certificate's own AIA link and verified to a trusted root (`scripts/cert_chain.py`, `data/intermediates/`, `adapter_config.intermediates`). Qatar's site, now readable the same way, has no recruitment section; Russia's official Telegram channel has never posted a vacancy. Both are "no local recruitment list".
 
 ## P1 — Deployment and operations
 
-- [ ] **Owner, needs root on the host:** activate the Woodpecker ops pipeline (commands in README, "Server tasks from Woodpecker"):
+- [x] Woodpecker ops pipeline active (2026-10-08; owner set it up on the host, commands in README, "Server tasks from Woodpecker"); `ops/extract_requirements/2026-10-08` applied the junior college level to production:
   1. Install `scripts/ci/remote-ops.sh` as `/opt/diplomacyjobs-ops.sh` and `scripts/ci/ops-wrapper.sh` as `/opt/diplomacyjobs-ops-wrapper.sh` (root, 755).
   2. Generate the ops SSH key and add it to `~codex/.ssh/authorized_keys` with `command="/opt/diplomacyjobs-ops-wrapper.sh",restrict`.
   3. Add the private key as Woodpecker secret `diplomacyjobs_ops_ssh_key`, delete it from the host, and allow it and `diplomacyjobs_deploy_known_hosts` for tag and manual events.
@@ -42,6 +42,7 @@ The front-end stays server-rendered with htmx and plain JavaScript only where ne
 
 ## Done
 
+- [x] NATO HQ Sarajevo local (LCH) positions as a source (`nhqsa`, migration 0041, 2026-10-09); they never reach NATO Taleo. EBRD and EIB/EIF were already covered. Live in production after `ops/import_registry` and `ops/scrape` (2026-10-09). Details in HANDOFF.
 - [x] Load more and in-place report form with htmx; English employer names on `/en/` (`Organization.name_en`, run `import_registry` after deploy); ReliefWeb RSS path and UN Careers retries (2026-10-08). Details in HANDOFF.
 - [x] SEO and sharing from an external review (2026-10-07): `JobPosting` JSON-LD on current job pages, `noindex, follow` on filtered or sorted lists, page-numbered canonicals, a share/copy-link button, a "Poništi filtere" button on an empty result, and a 70ch line length for advert text. Not done: city/category landing pages (too few jobs, they would be thin), e-mail alerts (no mail backend; the Atom feed per search exists), a dark-mode toggle (the theme already follows the OS). Check the markup in Google's Rich Results Test after deploy.
 - [x] "Viša škola" (junior college) education level, and quote-checked AI proposals for education, experience and fields of study through `export_enrichment`/`import_enrichment` and `/enrich-jobs` (2026-10-07). Run `extract_requirements` on the server after deploy. Details in HANDOFF.

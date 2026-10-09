@@ -1,19 +1,19 @@
 # DiplomacyJobs continuation handoff
 
-Updated: 2026-10-08 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
+Updated: 2026-10-09 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
 
-## Current state (verified 2026-10-07, Hetzner PostgreSQL)
+## Current state (verified 2026-10-07, Hetzner PostgreSQL; scrape status 2026-10-09)
 
-- **Code and CI:** `main` carries the installable site and htmx job-list filters of 2026-10-07 (evening; migration 0037 unchanged). Local full suite (2026-10-08, migration 0040): 289 tests, one SQLite skip, on Python 3.12 with `requirements.lock`, without collected static files, as CI runs. Woodpecker is the only CI (owner decision 2026-10-07); the GitHub Actions workflow was removed. The live site serves `/manifest.webmanifest`, `/sw.js` and `/en/offline/` and answers `HX-Request` with the partial, so Woodpecker deployed it.
+- **Code and CI:** `main` carries the installable site and htmx job-list filters of 2026-10-07 (evening; migration 0037 unchanged). Local full suite (2026-10-09, migration 0041): 293 tests, one SQLite skip, on Python 3.12 with `requirements.lock`, without collected static files, as CI runs. Woodpecker is the only CI (owner decision 2026-10-07); the GitHub Actions workflow was removed. The live site serves `/manifest.webmanifest`, `/sw.js` and `/en/offline/` and answers `HX-Request` with the partial, so Woodpecker deployed it.
 - **Production:** [poslovi.aneskurtovic.com](https://poslovi.aneskurtovic.com/) serves through Caddy with HTTPS. Web and scraper containers use a dedicated `diplomacyjobs` database and role in the existing PostgreSQL 16 instance. The daily scrape is scheduled for 06:00 Sarajevo time; a daily database backup is installed and a scratch-database restore was verified. `/health/` returns 200.
-- **Registry:** 87 organizations and 59 sources were imported; 52 sources are enabled. From the first Hetzner scrape, 49 succeeded and three were unavailable: Sweden (#26, HTTP 403), UN Careers (#51, API HTTP 504), ReliefWeb (#53, HTTP 202 challenge). `/health/scrape/` still returns 503 for those three; this is visible as unavailable coverage, not zero jobs.
+- **Registry:** 87 organizations; the 2026-10-09 full scrape (pipeline #32) ran 53 enabled sources. 50 succeeded; Sweden (#26, HTTP 403 Cloudflare) and ReliefWeb (#53, HTTP 202 challenge, now on its RSS feed too) failed, and #19 timed out once. UN Careers (#51) recovered with the retries. `/health/scrape/` returns 503 listing Sweden and ReliefWeb as stale; this is visible as unavailable coverage, not zero jobs.
 - **Jobs:** 21 published, 0 in review, 188 closed; eight of the closed records are syndicated copies marked `duplicate`. The staff queue is at `/editor/`, with Django admin at `/admin/` for source settings and advanced records. There are 21 currently visible public jobs awaiting Bosnian/English advert versions.
 
 ## NATO HQ Sarajevo local positions (2026-10-09)
 
 - Owner asked about EBRD, EIB/EIF and NHQSa. EBRD (`ebrd`, Sarajevo search) and EIB Group (`peoplesoft` Atom feed, which carries EIF postings too) were already sources; both rescraped locally on 2026-10-09 without error and with no BiH postings.
 - **NHQSa local (LCH) hires were missing:** they appear only on `jfcnaples.nato.int/.../local-positions.aspx`, not on NATO Taleo. New `nhqsa` adapter (migration 0041, `board/recruitment.py`) reads that table and each row's PDF advert; Chrome impersonation because Akamai refuses other TLS fingerprints; the PDF's server date is the publication date. Registry entry added to the NHQSa organization. Locally: backup `backups/db-before-nhqsa-local-*.sqlite3`, `import_registry`, scrape published Public Affairs Assistant (LCH-4, closes 2026-10-25).
-- **Production:** after deploy (migration 0041), run `import_registry` and a scrape of the new source on the server.
+- **Production (2026-10-09):** deployed by pipeline #30, then `ops/import_registry/2026-10-09` (#31) and a full `ops/scrape/2026-10-09` (#32), each after a verified database dump. The advert is live as [job 211](https://poslovi.aneskurtovic.com/jobs/211/public-affairs-assistant/).
 
 ## Tooling decisions (owner, 2026-10-07)
 
@@ -34,7 +34,7 @@ Updated: 2026-10-08 (Europe/Sarajevo). This file records current counts and veri
 ## Server tasks from Woodpecker (2026-10-07, late)
 
 - `.woodpecker/ops.yml` runs allow-listed server tasks from a tag `ops/<task>[-<number>][/<anything>]` or a manual run (`OPS_TASK`, `OPS_ARG`): `extract_requirements[_dry_run]`, `reconcile_duplicates`, `import_registry`, `verify_sources`, `scrape[-<source id>]` and `history-<year>`. Every writing task backs up the database first. Setup and the full list are in README ("Server tasks from Woodpecker").
-- **Not active yet.** The owner must install the two scripts on the host, add the ops SSH key with its forced command, and create the `diplomacyjobs_ops_ssh_key` secret, allowing it and the known-hosts secret for tag and manual events. Claude Code's auto mode blocks SSH reads of the production host, so this was not done from the session. First use after setup: `ops/extract_requirements/<date>` to apply the junior college level to production jobs.
+- **Active since 2026-10-08.** The owner set it up on the host; nested tags `ops/<task>/<date>` need the `ops/**` ref filter (`c94a9ea`). First runs (all successful): `extract_requirements_dry_run` and `extract_requirements` (#24, #25), `import_registry` (#26), `scrape-53` and `scrape-51` (#27, #28). Pipeline status and logs are readable through the Woodpecker API (`https://ci.aneskurtovic.com/api/repos/7/pipelines`, token in `WOODPECKER_TOKEN`). Claude Code's auto mode lets a session push `ops/import_registry` when the owner asks, but blocked an `ops/scrape` tag as a production deploy; the owner pushed that one.
 
 ## Search and security headers (2026-10-07, night)
 
@@ -45,7 +45,7 @@ Updated: 2026-10-08 (Europe/Sarajevo). This file records current counts and veri
 
 ## Junior college level and requirement enrichment (2026-10-07, late)
 
-- **"Viša škola" (`junior_college`)** sits between secondary school and bachelor (migration 0038, requirement rules version 4). It is read from "junior college", "associate degree", VŠS, "viša stručna sprema", "viša škola" and "VI stepen"; VŠS and "viša stručna sprema" used to count as bachelor. The education filter treats it like the other levels (a visitor with Viša škola sees jobs asking for it or less). English label: "Junior college (2–3 years)". Locally only EUFOR's Purchasing Administrator (job 6) changed: it now shows Viša škola with economics and public administration. Database backup: `backups/db-before-junior-college-*.sqlite3`. **Production needs `extract_requirements` after the deploy** (the migration alone does not re-read texts): tag `ops/extract_requirements/<date>` once the ops pipeline is set up.
+- **"Viša škola" (`junior_college`)** sits between secondary school and bachelor (migration 0038, requirement rules version 4). It is read from "junior college", "associate degree", VŠS, "viša stručna sprema", "viša škola" and "VI stepen"; VŠS and "viša stručna sprema" used to count as bachelor. The education filter treats it like the other levels (a visitor with Viša škola sees jobs asking for it or less). English label: "Junior college (2–3 years)". Locally only EUFOR's Purchasing Administrator (job 6) changed: it now shows Viša škola with economics and public administration. Database backup: `backups/db-before-junior-college-*.sqlite3`. Production needed `extract_requirements` after the deploy (the migration alone does not re-read texts); done 2026-10-08 through `ops/extract_requirements/2026-10-08` (pipeline #25).
 - **Requirement enrichment:** `export_enrichment --missing-requirements` and `import_enrichment` now handle `education_level`, `experience_years` and `fields_of_study`, each with a quote from the advert. Allowed values are checked. A level must match any level the rules see in the quote, and years must appear in it. A stored value is never overwritten. Imported values are AI fields, which the rules leave alone. When the source text changes they are dropped and the rules take over, without sending the job to review (other AI fields still do). The job page shows the AI quote where the rules have none. Run on demand with `/enrich-jobs` (Haiku `enricher` subagents).
 
 ## Front-end approach (owner decision, 2026-10-07)
@@ -207,8 +207,8 @@ Owner approval: complete incomplete certificate chains the way browsers do. Chal
 
 ## Next steps
 
-1. Waiting on the owner (no host access at the moment): finish the ops pipeline setup on the host (README, "Server tasks from Woodpecker"), then tag `ops/extract_requirements/<date>`.
-2. After the 2026-10-08 deploy (migration 0040 switches ReliefWeb to its feed): run `import_registry` (English names) and `scrape-53`, `scrape-51` and `scrape-26`, and check `/health/scrape/`. Close Sweden if it still gets the Cloudflare challenge. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
+1. Owner: close Sweden (#26) in admin; the Hetzner scrape still gets the Cloudflare 403 and its news list has no vacancies.
+2. ReliefWeb (#53) gets the HTTP 202 challenge on the RSS feed from Hetzner as well: decide between requesting an API appname and relying on the other aggregators. Recheck #19 after the next daily scrape. Romania, UK and UNICEF remain unavailable; retry at the 90-day audit. Rerun `scripts/cert_chain.py HOST --save` if Malaysia or Pakistan fails on TLS.
 3. When the owner asks, run `/translate-jobs` (Haiku translator subagents) for the 21 public jobs awaiting translations. Translation is on demand only. The jobs are only in production (the local `db.sqlite3` is empty), so the export and import run on the server.
 4. Check on a real phone that the site installs (Android Chrome prompt, iOS "Add to Home Screen") and that a job page opened earlier still opens offline.
 5. App track: optional push notifications for a saved search.
