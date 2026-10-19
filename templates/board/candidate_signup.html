@@ -1,0 +1,7 @@
+{% extends 'board/base.html' %}{% load i18n %}
+{% block title %}{% translate "Registracija" %} · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block content %}<section class="candidate-account"><h1>{% translate "Sačuvajte svoje postavke" %}</h1>
+<p>{% translate "Račun je besplatan. Nakon registracije poslat ćemo poruku za potvrdu adrese. Oglase možete pregledati i bez računa." %}</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<p><a href="{% url 'candidate_privacy' %}">{% translate "Kako koristimo vaše podatke" %}</a></p><button class="candidate-submit" type="submit">{% translate "Registracija" %}</button></form>
+<p><a href="{% url 'candidate_login' %}">{% translate "Već imate račun? Prijavite se." %}</a></p></section>{% endblock %}

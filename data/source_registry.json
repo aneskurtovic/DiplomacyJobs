@@ -1337,6 +1337,7 @@
           "allow_empty": true,
           "ref_prefix": "UNDP-BIH",
           "opportunity_type": "consultancy",
+          "min_scrape_interval_hours": 24,
           "history": {
             "request_delay": 3
           }

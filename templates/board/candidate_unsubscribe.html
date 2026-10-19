@@ -1,0 +1,2 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block content %}<section class="candidate-account"><h1>{% translate "Odjava od obavijesti" %}</h1><p>{% translate "Prestanite primati sedmične poruke o poslovima. Račun i postavke ostat će sačuvani." %}</p><form method="post">{% csrf_token %}<button class="candidate-submit" type="submit">{% translate "Odjavi me" %}</button></form></section>{% endblock %}

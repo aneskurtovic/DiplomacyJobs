@@ -1,0 +1,5 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Prijava" %} · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block content %}<section class="candidate-account"><h1>{% translate "Prijava" %}</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button class="candidate-submit" type="submit">{% translate "Prijavite se" %}</button></form>
+{% if candidate_account_mail_ready %}<p><a href="{% url 'candidate_password_reset' %}">{% translate "Zaboravili ste lozinku?" %}</a></p>{% endif %}
+{% if candidate_signup_open %}<p><a href="{% url 'candidate_signup' %}">{% translate "Napravite račun" %}</a></p>{% endif %}</section>{% endblock %}

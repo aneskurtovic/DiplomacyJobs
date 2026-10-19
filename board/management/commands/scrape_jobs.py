@@ -1,13 +1,17 @@
 import logging
 import os
 import time
+from datetime import timedelta
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import OuterRef, Subquery
+from django.utils import timezone
 from board.dedup import reconcile_aggregator_duplicates
 from board.ingest import archive_source, expire_jobs, ingest_source
-from board.models import Source
+from board.models import ScrapeRun, Source
 
 STALE_LOCK_SECONDS = 6 * 60 * 60
+INTERRUPTED = "Interrupted: the scheduler restarted during this run"
 logger = logging.getLogger(__name__)
 
 
@@ -15,11 +19,24 @@ def lock_path():
     return Path("/tmp/diplomacyjobs-scrape.lock") if os.name != "nt" else Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock"
 
 
+def due_sources(sources, now):
+    """Respect each source's minimum interval, including failed attempts."""
+    previous = (ScrapeRun.objects.filter(source_id=OuterRef("pk"))
+                .exclude(error=INTERRUPTED).order_by("-started_at").values("started_at")[:1])
+    for source in sources.annotate(previous_attempt=Subquery(previous)):
+        # Existing production rows may not have the registry's new interval yet.
+        default_hours = 24 if source.adapter == "undpnotices" else 1
+        hours = max(1, int((source.adapter_config or {}).get("min_scrape_interval_hours", default_hours)))
+        if source.previous_attempt is None or source.previous_attempt <= now - timedelta(hours=hours):
+            yield source
+
+
 class Command(BaseCommand):
     help = "Fetch enabled official recruitment sources once"
 
     def add_arguments(self, parser):
         parser.add_argument("--source", type=int)
+        parser.add_argument("--scheduled", action="store_true", help="Skip sources checked within their minimum interval")
         # A one-off backfill, not part of the schedule: ended adverts of a past or the current year, stored as closed.
         parser.add_argument("--history", type=int, metavar="YEAR", help="Store this year's ended adverts from sources with history settings")
 
@@ -44,6 +61,8 @@ class Command(BaseCommand):
             if options["history"]:
                 self.archive(sources, options["history"])
                 return
+            if options["scheduled"]:
+                sources = due_sources(sources, timezone.now())
             try:
                 for source in sources:
                     # One source's unexpected error must not skip the rest or the expiry pass.

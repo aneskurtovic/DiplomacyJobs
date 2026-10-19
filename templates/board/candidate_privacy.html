@@ -1,0 +1,10 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Privatnost kandidata" %} · DiplomacyJobs{% endblock %}
+{% block content %}<section class="candidate-account"><h1>{% translate "Privatnost kandidata" %}</h1>
+<p>{% if operator %}{{ operator }}{% else %}DiplomacyJobs{% endif %} {% translate "upravlja podacima koje unesete za preporuke oglasa." %}</p>
+<h2>{% translate "Šta čuvamo" %}</h2><p>{% translate "Bez računa, vaše postavke za pregled oglasa čuvaju se u sesiji do njenog isteka. Dnevne brojeve pregleda, odlazaka na službene oglase i oznaka ‘nije relevantno’ čuvamo zbirno, bez identifikatora posjetioca." %}</p>
+<p>{% translate "Ako otvorite račun, čuvamo vašu e-mail adresu, zaštićenu lozinku, postavke, izbore za e-mail, oznake nerelevantnih oglasa i evidenciju već poslanih oglasa. Profil čuvamo dok ga ne obrišete; tada se uklanjaju i povezani podaci." %}</p>
+<h2>{% translate "Kako koristimo podatke" %}</h2><p>{% translate "Postavke koristimo za rangiranje javnih oglasa i objašnjenje podudaranja. Poslodavcima ne šaljemo vaš profil. Poslodavac vidi vaš posjet kada otvorite njegovu stranicu. Oglase i njihove uslove uvijek provjerite na službenom izvoru." %}</p>
+<p>{% translate "E-mail poruke o poslovima i povremene novosti su zasebni izbori. Dok je slanje isključeno, ne šaljemo ih. Kada bude uključeno, svoj izbor možete promijeniti u profilu ili odjavom iz poruke." %}</p>
+{% if email_processor %}<p>{% blocktranslate with provider=email_processor %}Za dostavu e-maila koristimo pružaoca usluge {{ provider }}.{% endblocktranslate %}</p>{% endif %}
+<h2>{% translate "Vaša kontrola" %}</h2><p>{% translate "Postavke možete urediti ili obrisati račun u profilu. Za zahtjev za pristup ili ispravku podataka" %}{% if privacy_email %} <a href="mailto:{{ privacy_email }}">{{ privacy_email }}</a>{% else %} <a href="{% url 'report' %}">{% translate "kontaktirajte nas" %}</a>{% endif %}.</p>
+</section>{% endblock %}

@@ -1879,19 +1879,46 @@ class SchedulerTests(TestCase):
             command.run_once()
         scrape.assert_called_once_with("scrape_jobs")
 
-    def test_next_run_is_six_in_the_morning_local(self):
+    def test_next_run_is_the_next_clock_hour_including_dst(self):
         from datetime import datetime
         from zoneinfo import ZoneInfo
         from .management.commands.run_scraper_schedule import seconds_until_next_run
         sarajevo = ZoneInfo("Europe/Sarajevo")
         self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 5, 30, tzinfo=sarajevo)), 30 * 60)
-        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 6, 0, tzinfo=sarajevo)), 24 * 60 * 60)
-        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 18, 0, tzinfo=sarajevo)), 12 * 60 * 60)
-        # Clocks go back on 25 October 2026 and forward on 28 March 2027.
-        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 24, 7, 0, tzinfo=sarajevo)), 24 * 60 * 60)
-        self.assertEqual(seconds_until_next_run(datetime(2027, 3, 27, 7, 0, tzinfo=sarajevo)), 22 * 60 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 6, 0, tzinfo=sarajevo)), 60 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 2, 18, 45, tzinfo=sarajevo)), 15 * 60)
+        # Both copies of 02:30 during the autumn clock change get a next run.
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 25, 2, 30, tzinfo=sarajevo, fold=0)), 30 * 60)
+        self.assertEqual(seconds_until_next_run(datetime(2026, 10, 25, 2, 30, tzinfo=sarajevo, fold=1)), 30 * 60)
 
-    def test_start_skips_run_when_scraped_recently_and_clears_lock(self):
+    def test_hourly_due_filter_preserves_daily_source_and_retries_interrupted_run(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from .management.commands.scrape_jobs import INTERRUPTED, due_sources
+        from .models import ScrapeRun
+        now = timezone.now()
+        organization = Organization.objects.create(name="Embassy", kind="embassy")
+        hourly = Source.objects.create(organization=organization, url="https://a.example/jobs", adapter="generic", enabled=True)
+        daily = Source.objects.create(organization=organization, url="https://b.example/jobs", adapter="undpnotices", enabled=True)
+        interrupted = Source.objects.create(organization=organization, url="https://c.example/jobs", adapter="generic", enabled=True)
+        ScrapeRun.objects.create(source=hourly, started_at=now - timedelta(minutes=30), finished_at=now)
+        ScrapeRun.objects.create(source=daily, started_at=now - timedelta(hours=10), finished_at=now)
+        ScrapeRun.objects.create(source=interrupted, started_at=now - timedelta(minutes=10), finished_at=now, error=INTERRUPTED)
+        self.assertEqual({source.pk for source in due_sources(Source.objects.filter(enabled=True), now)}, {interrupted.pk})
+        from django.core.management import call_command
+        with patch("board.management.commands.scrape_jobs.ingest_source") as ingest, \
+             patch("board.management.commands.scrape_jobs.expire_jobs"), \
+             patch("board.management.commands.scrape_jobs.reconcile_aggregator_duplicates", return_value=0):
+            call_command("scrape_jobs", scheduled=True, verbosity=0)
+        ingest.assert_called_once_with(interrupted.pk)
+        ScrapeRun.objects.create(source=hourly, started_at=now - timedelta(hours=2), finished_at=now)
+        ScrapeRun.objects.create(source=daily, started_at=now - timedelta(hours=25), finished_at=now)
+        self.assertEqual({source.pk for source in due_sources(Source.objects.filter(enabled=True), now)}, {interrupted.pk})
+        ScrapeRun.objects.filter(source__in=[hourly, daily]).update(started_at=now - timedelta(hours=25))
+        self.assertEqual({source.pk for source in due_sources(Source.objects.filter(enabled=True), now)},
+                         {hourly.pk, daily.pk, interrupted.pk})
+
+    def test_start_invokes_due_filter_and_clears_lock(self):
         from .management.commands.run_scraper_schedule import Command
         from .management.commands.scrape_jobs import lock_path
         from .models import ScrapeRun
@@ -1903,7 +1930,7 @@ class SchedulerTests(TestCase):
         with patch("board.management.commands.run_scraper_schedule.close_old_connections"), patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
             with self.assertRaises(KeyboardInterrupt):
                 Command().handle()
-        scrape.assert_not_called()
+        scrape.assert_called_once_with("scrape_jobs", scheduled=True)
         self.assertFalse(lock.exists())
 
     def test_start_finishes_an_interrupted_run(self):
@@ -1919,8 +1946,9 @@ class SchedulerTests(TestCase):
         with patch("board.management.commands.run_scraper_schedule.close_old_connections"), patch("board.management.commands.run_scraper_schedule.call_command") as scrape, patch("board.management.commands.run_scraper_schedule.time.sleep", side_effect=KeyboardInterrupt), patch("board.management.commands.run_scraper_schedule.signal.signal"):
             with self.assertRaises(KeyboardInterrupt):
                 Command().handle()
-        self.assertEqual([call.kwargs for call in scrape.call_args_list], [{"source": left.pk}, {"source": killed.pk}])
+        scrape.assert_called_once_with("scrape_jobs", scheduled=True)
         self.assertFalse(ScrapeRun.objects.filter(finished_at__isnull=True).exists())
+        self.assertEqual(ScrapeRun.objects.get(source=killed).error, "Interrupted: the scheduler restarted during this run")
 
 
 @skipUnless(connection.vendor == "postgresql", "Requires the disposable PostgreSQL test database")

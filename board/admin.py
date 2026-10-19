@@ -11,13 +11,64 @@ from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 from . import requirements
 from .dedup import official_duplicate
-from .models import Job, Organization, Report, ScrapeRun, Source, SourceDocument
+from .models import (CandidateDigest, CandidateFeedback, CandidateProfile, DiscoveryMetric,
+                     Job, JobAlertDelivery, Organization, Report, ScrapeRun, Source, SourceDocument)
 from .text import bs_plural
 
 admin.site.site_header = "Poslovi · napredni admin"
 admin.site.site_title = "Poslovi · admin"
 admin.site.index_title = "Upravljanje podacima"
 admin.site.index_template = "admin/editor_index.html"
+
+
+class CandidateDataAdmin(admin.ModelAdmin):
+    """Candidate records are visible only to the site owner, not staff editors."""
+
+    def has_module_permission(self, request):
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+@admin.register(CandidateProfile)
+class CandidateProfileAdmin(CandidateDataAdmin):
+    list_display = ("user", "language", "job_alert_opt_in_at", "product_email_opt_in_at", "created_at")
+    search_fields = ("user__email",)
+    readonly_fields = ("user", "language", "preferences", "job_alert_opt_in_at", "product_email_opt_in_at", "created_at", "updated_at")
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(CandidateDigest)
+class CandidateDigestAdmin(CandidateDataAdmin):
+    list_display = ("user", "week_start", "status", "sent_at")
+    list_filter = ("status", "week_start")
+    readonly_fields = ("user", "week_start", "job_ids", "status", "created_at", "sent_at")
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(DiscoveryMetric)
+class DiscoveryMetricAdmin(CandidateDataAdmin):
+    list_display = ("day", "kind", "job", "count")
+    list_filter = ("kind", "day")
+    readonly_fields = ("day", "kind", "job", "count")
+
+    def has_add_permission(self, request):
+        return False
+
+
+admin.site.register(CandidateFeedback, CandidateDataAdmin)
+admin.site.register(JobAlertDelivery, CandidateDataAdmin)
 
 
 @admin.register(Organization)

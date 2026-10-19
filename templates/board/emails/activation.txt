@@ -1,0 +1,5 @@
+{% load i18n %}{% translate "Potvrdite svoj DiplomacyJobs račun otvaranjem ovog linka:" %}
+
+{{ url }}
+
+{% translate "Ako niste tražili račun, zanemarite ovu poruku." %}

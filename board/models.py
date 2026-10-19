@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.urls import reverse
 from django.utils.text import slugify
@@ -165,6 +166,67 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse("job", args=[self.pk, self.slug])
+
+
+class CandidateProfile(models.Model):
+    """Private matching preferences. Email choices are independent of account creation."""
+
+    user = models.OneToOneField("auth.User", on_delete=models.CASCADE, related_name="candidate_profile")
+    language = models.CharField(max_length=2, choices=[("bs", "Bosanski"), ("en", "English")], default="bs")
+    preferences = models.JSONField(default=dict, blank=True)
+    job_alert_opt_in_at = models.DateTimeField(null=True, blank=True)
+    product_email_opt_in_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class CandidateFeedback(models.Model):
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE, related_name="candidate_feedback")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "job"], name="unique_candidate_job_feedback")]
+
+
+class JobAlertDelivery(models.Model):
+    """A successful digest item; dry runs never create these records."""
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    sent_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "job"], name="unique_candidate_job_alert")]
+
+
+class CandidateDigest(models.Model):
+    """One weekly attempt per candidate; uncertain attempts are never resent automatically."""
+
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    week_start = models.DateField()
+    job_ids = models.JSONField(default=list)
+    status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("sent", "Sent"), ("needs_review", "Needs review")])
+    created_at = models.DateTimeField(default=timezone.now)
+    sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "week_start"], name="unique_candidate_weekly_digest")]
+
+
+class DiscoveryMetric(models.Model):
+    """Daily aggregate counts, without visitor identifiers or profile contents."""
+
+    day = models.DateField(default=timezone.localdate)
+    kind = models.CharField(max_length=30)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True, blank=True)
+    count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["day", "kind"], condition=Q(job__isnull=True), name="unique_global_discovery_metric"),
+            models.UniqueConstraint(fields=["day", "kind", "job"], condition=Q(job__isnull=False), name="unique_job_discovery_metric"),
+        ]
 
 
 class Report(models.Model):

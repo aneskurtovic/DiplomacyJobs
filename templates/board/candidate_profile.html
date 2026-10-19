@@ -1,0 +1,14 @@
+{% extends 'board/base.html' %}{% load i18n %}{% block title %}{% translate "Moj profil" %} · DiplomacyJobs{% endblock %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block content %}<section class="candidate-intro"><h1>{% translate "Moj profil" %}</h1><p>{% translate "Postavke su privatne i služe samo za preporuke oglasa." %}</p><p><a href="{% url 'for_you' %}">{% translate "Pogledajte svoje oglase" %} →</a></p></section>
+<form class="candidate-form" method="post">{% csrf_token %}{% include 'board/_candidate_fields.html' %}
+<fieldset class="candidate-languages"><legend>{% translate "E-mail postavke" %}</legend>
+<label class="candidate-check">{{ form.job_alert }} {{ form.job_alert.label }}</label>
+<label class="candidate-check">{{ form.product_email }} {{ form.product_email.label }}</label>
+<p class="candidate-note">{% if job_alerts_active %}{% translate "Sedmične poruke se šalju samo ako ima novih odgovarajućih oglasa." %}{% else %}{% translate "E-mail obavijesti još nisu aktivne. Vaš izbor ćemo sačuvati, ali vam sada nećemo slati poruke." %}{% endif %}</p>
+</fieldset><button class="candidate-submit" type="submit">{% translate "Sačuvaj postavke" %}</button></form>
+<section class="candidate-account"><h2>{% translate "Račun" %}</h2><p>{{ request.user.email }}</p>
+<form method="post" action="{% url 'candidate_logout' %}">{% csrf_token %}<button type="submit">{% translate "Odjava" %}</button></form>
+<details><summary>{% translate "Obriši račun" %}</summary><p>{% translate "Brisanjem se uklanjaju profil, postavke, povratne informacije i historija dostavljenih oglasa." %}</p>
+<form method="post" action="{% url 'candidate_delete' %}">{% csrf_token %}<label for="delete-password">{% translate "Potvrdite lozinkom" %}</label><input id="delete-password" name="password" type="password" required autocomplete="current-password"><button type="submit">{% translate "Trajno obriši račun" %}</button></form></details></section>
+{% endblock %}

@@ -15,7 +15,7 @@ flock 9
 
 compose=(docker compose -f compose.prod.yaml)
 web() { "${compose[@]}" exec -T web python manage.py "$@"; }
-# Scrapes run in the scraper container, which holds the scrape lock of the daily run.
+# Scrapes run in the scraper container, which holds the scrape lock of the hourly run.
 scraper() { "${compose[@]}" exec -T scraper python manage.py "$@"; }
 backup() { "$app_dir/scripts/ci/backup-db.sh"; }
 no_arg() { [[ -z "$arg" ]] || { echo "$task takes no argument" >&2; exit 2; }; }

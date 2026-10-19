@@ -3,7 +3,7 @@ const STATIC_CACHE = "dj-static-" + VERSION;
 const PAGES_CACHE = "dj-pages-v1";
 const MAX_PAGES = 20;
 const PRECACHE = {{ precache_json|safe }};
-const SKIP_PREFIXES = ["/admin/", "/editor/", "/health", "/feed/", "/sw.js"];
+const SKIP_PREFIXES = ["/admin/", "/editor/", "/health", "/feed/", "/sw.js", "/for-you/", "/en/for-you/", "/account/", "/en/account/"];
 // Job pages (not their report form) and the two home pages.
 const PAGE_PATH = /^\/(en\/)?(jobs\/\d+\/(?!report\/)[^/]+\/)?$/;
 

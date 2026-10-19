@@ -321,3 +321,43 @@ h1{font-size:2em;margin-block:.67em}
 @media(max-width:760px){.org-header .monogram{display:none}}
 #results.htmx-request{opacity:.55;transition:opacity .15s}
 @media (prefers-reduced-motion:reduce){#results.htmx-request{transition:none}}
+
+/* Candidate discovery and private account pages. */
+.candidate-intro{max-width:760px;padding:44px 0 18px}
+.candidate-intro h1{font-size:clamp(30px,4vw,44px);margin:8px 0 12px}
+.candidate-intro p{line-height:1.55;color:var(--color-text-secondary)}
+.candidate-form,.candidate-match,.candidate-empty,.candidate-account{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:24px}
+.candidate-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px}
+.candidate-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.candidate-field>label:first-child,.candidate-languages legend{font-weight:600;font-size:14px}
+.candidate-field input:not([type=checkbox]),.candidate-field select,.candidate-account input:not([type=checkbox]){width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--color-border-control);border-radius:var(--radius-sm);background:var(--color-surface);color:var(--color-text);font:inherit}
+.candidate-check{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.35}
+.candidate-check input{width:18px;height:18px;flex:none}
+.candidate-languages{border:0;border-top:1px solid var(--color-border-subtle);margin:22px 0 0;padding:15px 0 0}
+.candidate-languages>div{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:9px}
+.candidate-languages label{display:flex;align-items:center;gap:7px;font-size:14px}
+.candidate-note{font-size:13px;color:var(--color-text-muted);line-height:1.5}
+.candidate-submit,.candidate-apply{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 18px;background:var(--color-brand);border:0;border-radius:var(--radius-sm);color:var(--color-text-inverse);font:inherit;font-weight:600;text-decoration:none;cursor:pointer}
+.candidate-submit:hover,.candidate-apply:hover{background:var(--color-brand-hover);color:var(--color-text-inverse)}
+.candidate-results{max-width:860px;margin:42px 0}
+.candidate-results h2{font-size:24px}
+.candidate-results h2 span{font-weight:400;color:var(--color-text-muted)}
+.candidate-match{margin:0 0 12px}
+.candidate-match-heading,.candidate-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.candidate-match h3{font-size:21px;margin:12px 0 6px}
+.candidate-employer,.candidate-meta{font-size:14px;color:var(--color-text-muted)}
+.candidate-tier{font-size:12px;font-weight:700;padding:5px 9px;border-radius:99px;background:var(--color-bg-subtle)}
+.candidate-tier.strong{background:var(--color-success-bg);color:var(--color-success-fg)}
+.candidate-reason,.candidate-unknown,.candidate-caution{font-size:14px;line-height:1.5;margin:10px 0}
+.candidate-unknown,.candidate-caution{padding:10px 12px;background:var(--color-bg-subtle);border-left:3px solid var(--color-border-strong)}
+.candidate-match details{font-size:14px;margin:12px 0}
+.candidate-match details summary{cursor:pointer;font-weight:600}
+.candidate-match details ul{margin:8px 0;padding-left:22px}
+.candidate-actions{margin-top:18px}
+.candidate-actions button{background:transparent;color:var(--color-text-secondary);border:1px solid var(--color-border-control);border-radius:var(--radius-sm);min-height:44px;padding:8px 12px;font:inherit;cursor:pointer}
+.candidate-account{max-width:650px;margin:32px 0}
+.candidate-account form>p{display:flex;flex-direction:column;gap:6px}
+.candidate-account .candidate-check{margin:16px 0}
+.candidate-account .candidate-check label{display:inline}
+.candidate-account .errorlist{color:var(--color-error-fg)}
+@media(max-width:700px){.candidate-grid{grid-template-columns:1fr}.candidate-form,.candidate-match,.candidate-empty,.candidate-account{padding:18px}}

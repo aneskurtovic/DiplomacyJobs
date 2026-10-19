@@ -27,7 +27,7 @@ MIDDLEWARE = [
     "board.middleware.content_security_policy",
 ]
 ROOT_URLCONF = "config.urls"
-TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "DIRS": [BASE_DIR / "templates"], "APP_DIRS": True, "OPTIONS": {"context_processors": ["django.template.context_processors.debug", "django.template.context_processors.request", "django.template.context_processors.i18n", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages", "board.views.public_base", "board.views.languages"]}}]
+TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "DIRS": [BASE_DIR / "templates"], "APP_DIRS": True, "OPTIONS": {"context_processors": ["django.template.context_processors.debug", "django.template.context_processors.request", "django.template.context_processors.i18n", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages", "board.views.public_base", "board.views.languages", "board.candidate_mail.candidate_navigation"]}}]
 WSGI_APPLICATION = "config.wsgi.application"
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
@@ -36,6 +36,25 @@ if database_url:
 else:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"}, {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"}, {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}, {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}]
+LOGIN_URL = "candidate_login"
+LOGIN_REDIRECT_URL = "candidate_profile"
+LOGOUT_REDIRECT_URL = "jobs"
+# Account flows can be built and tested while all production delivery remains off.
+CANDIDATE_MAIL_ENABLED = os.environ.get("CANDIDATE_MAIL_ENABLED", "0") == "1"
+CANDIDATE_SIGNUP_ENABLED = os.environ.get("CANDIDATE_SIGNUP_ENABLED", "0") == "1"
+JOB_ALERTS_ENABLED = os.environ.get("JOB_ALERTS_ENABLED", "0") == "1"
+JOB_ALERTS_ACTIVE_SINCE = os.environ.get("JOB_ALERTS_ACTIVE_SINCE", "")
+EMAIL_BACKEND = os.environ.get("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("DJANGO_EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_USE_TLS", "1") == "1"
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "")
+CANDIDATE_OPERATOR_NAME = os.environ.get("CANDIDATE_OPERATOR_NAME", "")
+CANDIDATE_PRIVACY_EMAIL = os.environ.get("CANDIDATE_PRIVACY_EMAIL", "")
+CANDIDATE_EMAIL_PROCESSOR = os.environ.get("CANDIDATE_EMAIL_PROCESSOR", "")
 LANGUAGE_CODE = "bs"
 TIME_ZONE = "Europe/Sarajevo"
 USE_I18N = True

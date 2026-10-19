@@ -1,0 +1,14 @@
+{% load i18n %}
+{{ form.non_field_errors }}
+<div class="candidate-grid">
+  <div class="candidate-field">{{ form.role.label_tag }}{{ form.role }}{{ form.role.errors }}</div>
+  <div class="candidate-field">{{ form.city.label_tag }}{{ form.city }}{{ form.city.errors }}<label class="candidate-check">{{ form.must_city }} {{ form.must_city.label }}</label>{{ form.must_city.errors }}</div>
+  <div class="candidate-field"><label class="candidate-check">{{ form.remote }} {{ form.remote.label }}</label><label class="candidate-check">{{ form.must_remote }} {{ form.must_remote.label }}</label>{{ form.must_remote.errors }}</div>
+  <div class="candidate-field">{{ form.type.label_tag }}{{ form.type }}{{ form.type.errors }}<label class="candidate-check">{{ form.must_type }} {{ form.must_type.label }}</label>{{ form.must_type.errors }}</div>
+  <div class="candidate-field">{{ form.field.label_tag }}{{ form.field }}{{ form.field.errors }}</div>
+  <div class="candidate-field">{{ form.education.label_tag }}{{ form.education }}{{ form.education.errors }}</div>
+  <div class="candidate-field">{{ form.experience.label_tag }}{{ form.experience }}{{ form.experience.errors }}</div>
+  <div class="candidate-field">{{ form.work_bih.label_tag }}{{ form.work_bih }}{{ form.work_bih.errors }}</div>
+</div>
+<fieldset class="candidate-languages"><legend>{{ form.languages.label }}</legend>{{ form.languages }}{{ form.languages.errors }}</fieldset>
+<p class="candidate-note">{% translate "Samo označeni obavezni uslovi mogu ukloniti oglas iz ovog pregleda. Obrazovanje i iskustvo služe za rangiranje i objašnjenje." %}</p>

@@ -396,7 +396,8 @@ msgstr "Thank you, your report was received."
 
 msgid ""
 "Poslali ste više prijava u kratkom roku. Pokušajte ponovo za sat vremena."
-msgstr "You sent several reports in a short time. Please try again in an hour."
+msgstr ""
+"You sent several reports in a short time. Please try again in an hour."
 
 msgid "Hvala! Prijava je zaprimljena i pregledat ćemo je."
 msgstr "Thank you! Your report was received and we will review it."
@@ -467,7 +468,8 @@ msgstr "The request is not valid."
 msgid ""
 "Adresa ili poslani podaci nisu ispravni. Provjerite link i pokušajte ponovo."
 msgstr ""
-"The address or the submitted data is not valid. Check the link and try again."
+"The address or the submitted data is not valid. Check the link and try "
+"again."
 
 msgid "Pristup nije dozvoljen"
 msgstr "Access denied"
@@ -643,7 +645,7 @@ msgid "Svi gradovi"
 msgstr "All cities"
 
 msgid "Vrsta angažmana"
-msgstr "Type of engagement"
+msgstr "Opportunity type"
 
 msgid "Sve vrste"
 msgstr "All types"
@@ -685,8 +687,8 @@ msgid "Sve oblasti"
 msgstr "All fields"
 
 msgid ""
-"Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je "
-"taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
+"Filteri po obrazovanju, iskustvu i oblasti prikazuju samo oglase u kojima je"
+" taj uslov jasno naveden. Uslove izdvajamo automatski iz teksta oglasa."
 msgstr ""
 "The education, experience and field filters show only adverts that clearly "
 "state that requirement. We read requirements automatically from the advert "
@@ -803,8 +805,8 @@ msgstr "Contract and work"
 
 msgid ""
 "Uslovi su izdvojeni automatski iz teksta oglasa i mogu biti nepotpuni. "
-"Mjerodavan je službeni oglas. Ako nešto nije tačno, <a href=\"#prijava"
-"\">javite nam</a>."
+"Mjerodavan je službeni oglas. Ako nešto nije tačno, <a "
+"href=\"#prijava\">javite nam</a>."
 msgstr ""
 "The requirements were read automatically from the advert text and may be "
 "incomplete. The official advert is authoritative. If something is wrong, <a "
@@ -876,8 +878,8 @@ msgid "Poslovi u diplomatiji i međunarodnim organizacijama."
 msgstr "Jobs in diplomacy and international organisations."
 
 msgid ""
-"Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici "
-"poslodavca."
+"Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici"
+" poslodavca."
 msgstr ""
 "Verified adverts in one place. You apply on the employer's official website."
 
@@ -958,8 +960,8 @@ msgid ""
 "Primijetili ste grešku na stranici, oglas koji nedostaje ili poslodavca "
 "kojeg ne pratimo? Javite nam."
 msgstr ""
-"Noticed an error on the site, a missing job or an employer we do not follow? "
-"Let us know."
+"Noticed an error on the site, a missing job or an employer we do not follow?"
+" Let us know."
 
 msgid ""
 "Koje službene izvore oglasa pratimo, njihov status i kada su posljednji put "
@@ -977,8 +979,8 @@ msgid ""
 "oglase iz 2026."
 msgstr ""
 "We take adverts from employers' official websites. Here you can see which "
-"sources we follow and what we know from the last check. We collect only 2026 "
-"adverts."
+"sources we follow and what we know from the last check. We collect only 2026"
+" adverts."
 
 msgid "Posljednja uspješna provjera:"
 msgstr "Last successful check:"
@@ -1079,7 +1081,8 @@ msgid ""
 "Izvor je uspješno provjeren. Prikazujemo otvorene oglase koje smo na njemu "
 "pronašli."
 msgstr ""
-"The source was checked successfully. We show the open adverts we found on it."
+"The source was checked successfully. We show the open adverts we found on "
+"it."
 
 msgid "Dostupan · 0"
 msgstr "Available · 0"
@@ -1099,8 +1102,8 @@ msgid ""
 "nedostupna, broj poslova ostaje nepoznat. Prazno polje ne znači nula oglasa."
 msgstr ""
 "A page we found may be awaiting integration. If no list was found or it is "
-"unavailable, the number of jobs is unknown. An empty cell does not mean zero "
-"adverts."
+"unavailable, the number of jobs is unknown. An empty cell does not mean zero"
+" adverts."
 
 msgid "Prikaži još oglasa"
 msgstr "Show more jobs"
@@ -1112,13 +1115,490 @@ msgstr "Showing %(shown)s of %(total)s"
 msgid "Nazad"
 msgstr "Back"
 
+msgid "Za vas"
+msgstr "For you"
+
+msgid "Profil"
+msgstr "Profile"
+
+msgid "Pronađite oglase za sebe"
+msgstr "Find jobs for you"
+
+msgid "Zanimaju me pozicije"
+msgstr "Roles I'm interested in"
+
+msgid "Npr. komunikacije, projekti"
+msgstr "E.g. communications, projects"
+
+msgid "Odgovara mi rad na daljinu"
+msgstr "Remote work suits me"
+
+msgid "Bilo koja"
+msgstr "Any"
+
+msgid "Ne želim navesti"
+msgstr "Prefer not to say"
+
+msgid "Godine iskustva"
+msgstr "Years of experience"
+
+msgid "Jezici koje govorim"
+msgstr "Languages I speak"
+
+msgid "Imam pravo na rad u BiH"
+msgstr "I have the right to work in Bosnia and Herzegovina"
+
+msgid "Da"
+msgstr "Yes"
+
+msgid "Ne"
+msgstr "No"
+
+msgid "Nisam siguran/sigurna"
+msgstr "I'm not sure"
+
+msgid "Grad je obavezan"
+msgstr "This city is required"
+
+msgid "Rad na daljinu je obavezan"
+msgstr "Remote work is required"
+
+msgid "Vrsta angažmana je obavezna"
+msgstr "This opportunity type is required"
+
+msgid "Prvo unesite grad."
+msgstr "Enter a city first."
+
+msgid "Prvo odaberite rad na daljinu."
+msgstr "Select remote work first."
+
+msgid "Prvo odaberite vrstu angažmana."
+msgstr "Select an opportunity type first."
+
+msgid ""
+"Želim sedmični pregled novih odgovarajućih oglasa kada ova usluga bude "
+"aktivna"
+msgstr ""
+"I want a weekly digest of new matching jobs when this service becomes "
+"available"
+
+msgid "Želim povremene novosti o portalu kada ova usluga bude aktivna"
+msgstr "I want occasional portal updates when this service becomes available"
+
+msgid "E-mail"
+msgstr "Email"
+
+msgid "Lozinka"
+msgstr "Password"
+
+msgid "Ponovite lozinku"
+msgstr "Repeat password"
+
+msgid "Račun s ovom e-mail adresom već postoji."
+msgstr "An account with this email address already exists."
+
+msgid "Lozinke se ne podudaraju."
+msgstr "Passwords do not match."
+
+msgid "Naziv posla odgovara vašem interesu"
+msgstr "The job title matches your interests"
+
+msgid "Naziv posla ne odgovara unesenom interesu"
+msgstr "The job title does not match the interest you entered"
+
+msgid "Odgovara željenoj lokaciji ili radu na daljinu"
+msgstr "Matches your location or remote-work preference"
+
+msgid "Poslodavac nije jasno naveo lokaciju ili rad na daljinu"
+msgstr ""
+"The employer did not clearly state the location or remote-work arrangement"
+
+msgid "Druga lokacija ili način rada"
+msgstr "Different location or work arrangement"
+
+msgid "Odgovara željenoj vrsti angažmana"
+msgstr "Matches your preferred opportunity type"
+
+msgid "Druga vrsta angažmana"
+msgstr "Different opportunity type"
+
+msgid "Odgovara oblasti studija"
+msgstr "Matches your field of study"
+
+msgid "Oglas navodi drugu oblast studija"
+msgstr "The posting names a different field of study"
+
+msgid "Poslodavac nije naveo oblast studija"
+msgstr "The employer did not state a field of study"
+
+msgid "Navedeni nivo obrazovanja odgovara"
+msgstr "The stated education level matches"
+
+msgid "Oglas navodi viši nivo obrazovanja"
+msgstr "The posting states a higher education level"
+
+msgid "Poslodavac nije naveo minimalno obrazovanje"
+msgstr "The employer did not state a minimum education level"
+
+msgid "Poslodavac nije naveo minimum iskustva"
+msgstr "The employer did not state a minimum experience requirement"
+
+msgid "Navedeno iskustvo odgovara"
+msgstr "The stated experience requirement matches"
+
+msgid "Oglas navodi više godina iskustva"
+msgstr "The posting states more years of experience"
+
+msgid "Navedeni jezici odgovaraju"
+msgstr "The stated language requirements match"
+
+msgid "Provjerite jezičke uslove u oglasu"
+msgstr "Check the language requirements in the posting"
+
+msgid "Poslodavac nije jasno naveo obavezne jezike"
+msgstr "The employer did not clearly state required languages"
+
+msgid "Oglas ima uslov državljanstva; provjerite na službenom izvoru"
+msgstr "The posting has a citizenship requirement; check the official source"
+
+msgid "Provjerite pravo na rad prije prijave"
+msgstr "Check your right to work before applying"
+
+msgid "Novi oglasi za vas · DiplomacyJobs"
+msgstr "New jobs for you · DiplomacyJobs"
+
+msgid "Novi oglasi koji odgovaraju vašim postavkama:"
+msgstr "New jobs matching your preferences:"
+
+msgid "Neki uslovi nisu navedeni; provjerite službeni oglas."
+msgstr "Some requirements were not stated; check the official posting."
+
+msgid "Prijava se podnosi na službenoj stranici poslodavca."
+msgstr "Apply on the employer's official site."
+
+msgid "Odjava od obavijesti:"
+msgstr "Unsubscribe from alerts:"
+
+msgid "Potvrdu trenutno nije moguće poslati. Pokušajte ponovo kasnije."
+msgstr "We cannot send the confirmation right now. Please try again later."
+
+msgid "Račun je potvrđen."
+msgstr "Your account is confirmed."
+
+msgid "Postavke su sačuvane."
+msgstr "Your preferences were saved."
+
+msgid "Pogrešna lozinka. Račun nije obrisan."
+msgstr "Incorrect password. Your account was not deleted."
+
+msgid "Račun je obrisan."
+msgstr "Your account was deleted."
+
+msgid "Oglasi za vas"
+msgstr "Jobs for you"
+
+msgid "PRONAĐITE OGLASE"
+msgstr "FIND JOBS"
+
+msgid ""
+"Unesite nekoliko želja. Oglase rangiramo prema objavljenim podacima, a "
+"nepoznate uslove jasno označavamo. Sve oglase uvijek možete vidjeti u "
+"pretrazi."
+msgstr ""
+"Enter a few preferences. We rank jobs using published details and clearly "
+"mark unknown requirements. You can always see every job in Browse."
+
+msgid "Pogledajte sve oglase"
+msgstr "Browse all jobs"
+
+msgid "Sačuvajte postavke uz besplatan račun"
+msgstr "Save your preferences with a free account"
+
+msgid "Prikaži odgovarajuće oglase"
+msgstr "Show matching jobs"
+
+msgid "Vaši rezultati"
+msgstr "Your results"
+
+msgid "Dobar spoj"
+msgstr "Strong match"
+
+msgid "Mogući spoj"
+msgstr "Possible match"
+
+msgid "Zašto je prikazan:"
+msgstr "Why this appears:"
+
+msgid "Poslodavac nije naveo sve uslove — provjerite službeni oglas."
+msgstr ""
+"The employer did not state every requirement — check the official posting."
+
+msgid "Detalji podudaranja"
+msgstr "Match details"
+
+msgid "Službeni oglas / prijava"
+msgstr "Official posting / apply"
+
+msgid "Nije relevantno"
+msgstr "Not relevant"
+
+msgid ""
+"Trenutno nema oglasa koji ispunjavaju vaše obavezne uslove. Ublažite neki od"
+" njih ili pogledajte sve oglase."
+msgstr ""
+"No current jobs meet all your required preferences. Relax one of them or "
+"browse all jobs."
+
+msgid ""
+"Samo označeni obavezni uslovi mogu ukloniti oglas iz ovog pregleda. "
+"Obrazovanje i iskustvo služe za rangiranje i objašnjenje."
+msgstr ""
+"Only preferences you mark as required can remove a job from this view. "
+"Education and experience affect ranking and explanation."
+
+msgid "Registracija"
+msgstr "Sign up"
+
+msgid "Sačuvajte svoje postavke"
+msgstr "Save your preferences"
+
+msgid ""
+"Račun je besplatan. Nakon registracije poslat ćemo poruku za potvrdu adrese."
+" Oglase možete pregledati i bez računa."
+msgstr ""
+"The account is free. After signing up, we will email you a verification "
+"link. You can browse jobs without an account."
+
+msgid "Kako koristimo vaše podatke"
+msgstr "How we use your data"
+
+msgid "Već imate račun? Prijavite se."
+msgstr "Already have an account? Sign in."
+
+msgid "Provjerite e-mail"
+msgstr "Check your email"
+
+msgid ""
+"Poslali smo link za potvrdu računa. Nakon potvrde možete sačuvati postavke i"
+" urediti profil."
+msgstr ""
+"We sent an account verification link. Once confirmed, you can save your "
+"preferences and edit your profile."
+
+msgid "Link nije važeći"
+msgstr "This link is invalid"
+
+msgid ""
+"Link za potvrdu računa je nevažeći ili je istekao. Obratite nam se putem "
+"obrasca za prijavu problema."
+msgstr ""
+"The verification link is invalid or has expired. Contact us using the "
+"problem report form."
+
+msgid "Prijava"
+msgstr "Sign in"
+
+msgid "Prijavite se"
+msgstr "Sign in"
+
+msgid "Zaboravili ste lozinku?"
+msgstr "Forgot your password?"
+
+msgid "Napravite račun"
+msgstr "Create an account"
+
+msgid "Nova lozinka"
+msgstr "Reset password"
+
+msgid "Unesite adresu računa. Poslat ćemo link za promjenu lozinke."
+msgstr ""
+"Enter the email address for your account. We will send a password reset "
+"link."
+
+msgid "Pošalji link"
+msgstr "Send link"
+
+msgid "Ako račun postoji, poslat ćemo link za promjenu lozinke."
+msgstr "If the account exists, we will send a password reset link."
+
+msgid "Promijenite lozinku"
+msgstr "Change your password"
+
+msgid "Sačuvaj lozinku"
+msgstr "Save password"
+
+msgid "Link je nevažeći ili je istekao."
+msgstr "The link is invalid or has expired."
+
+msgid "Lozinka je promijenjena"
+msgstr "Your password was changed"
+
+msgid "Moj profil"
+msgstr "My profile"
+
+msgid "Postavke su privatne i služe samo za preporuke oglasa."
+msgstr "Your preferences are private and used only for job recommendations."
+
+msgid "Pogledajte svoje oglase"
+msgstr "See your jobs"
+
+msgid "E-mail postavke"
+msgstr "Email preferences"
+
+msgid "Sedmične poruke se šalju samo ako ima novih odgovarajućih oglasa."
+msgstr "Weekly messages are sent only when there are new matching jobs."
+
+msgid ""
+"E-mail obavijesti još nisu aktivne. Vaš izbor ćemo sačuvati, ali vam sada "
+"nećemo slati poruke."
+msgstr ""
+"Email alerts are not active yet. We will save your choice but will not email"
+" you now."
+
+msgid "Sačuvaj postavke"
+msgstr "Save preferences"
+
+msgid "Račun"
+msgstr "Account"
+
+msgid "Odjava"
+msgstr "Sign out"
+
+msgid "Obriši račun"
+msgstr "Delete account"
+
+msgid ""
+"Brisanjem se uklanjaju profil, postavke, povratne informacije i historija "
+"dostavljenih oglasa."
+msgstr ""
+"Deleting your account removes your profile, preferences, feedback and "
+"delivered-job history."
+
+msgid "Potvrdite lozinkom"
+msgstr "Confirm with your password"
+
+msgid "Trajno obriši račun"
+msgstr "Permanently delete account"
+
+msgid "Odjava od obavijesti"
+msgstr "Unsubscribe from alerts"
+
+msgid ""
+"Prestanite primati sedmične poruke o poslovima. Račun i postavke ostat će "
+"sačuvani."
+msgstr ""
+"Stop receiving weekly job emails. Your account and preferences will remain "
+"saved."
+
+msgid "Odjavi me"
+msgstr "Unsubscribe me"
+
+msgid "Odjava je sačuvana"
+msgstr "You have been unsubscribed"
+
+msgid ""
+"Više vam nećemo slati sedmične obavijesti o poslovima. Izbor možete "
+"promijeniti u profilu."
+msgstr ""
+"We will no longer send weekly job alerts. You can change this choice in your"
+" profile."
+
+msgid "Privatnost kandidata"
+msgstr "Candidate privacy"
+
+msgid "upravlja podacima koje unesete za preporuke oglasa."
+msgstr "manages the data you enter for job recommendations."
+
+msgid "Šta čuvamo"
+msgstr "What we store"
+
+msgid ""
+"Bez računa, vaše postavke za pregled oglasa čuvaju se u sesiji do njenog "
+"isteka. Dnevne brojeve pregleda, odlazaka na službene oglase i oznaka ‘nije "
+"relevantno’ čuvamo zbirno, bez identifikatora posjetioca."
+msgstr ""
+"Without an account, your matching preferences remain in your session until "
+"it expires. We store daily totals for views, visits to official postings and"
+" 'not relevant' feedback without visitor identifiers."
+
+msgid ""
+"Ako otvorite račun, čuvamo vašu e-mail adresu, zaštićenu lozinku, postavke, "
+"izbore za e-mail, oznake nerelevantnih oglasa i evidenciju već poslanih "
+"oglasa. Profil čuvamo dok ga ne obrišete; tada se uklanjaju i povezani "
+"podaci."
+msgstr ""
+"If you create an account, we store your email address, protected password, "
+"preferences, email choices, irrelevant-job feedback and a record of jobs "
+"already emailed. We keep your profile until you delete it, then remove its "
+"related data."
+
+msgid "Kako koristimo podatke"
+msgstr "How we use the data"
+
+msgid ""
+"Postavke koristimo za rangiranje javnih oglasa i objašnjenje podudaranja. "
+"Poslodavcima ne šaljemo vaš profil. Poslodavac vidi vaš posjet kada otvorite"
+" njegovu stranicu. Oglase i njihove uslove uvijek provjerite na službenom "
+"izvoru."
+msgstr ""
+"We use preferences to rank public jobs and explain matches. We do not send "
+"your profile to employers. An employer can see your visit when you open its "
+"site. Always check jobs and requirements at the official source."
+
+msgid ""
+"E-mail poruke o poslovima i povremene novosti su zasebni izbori. Dok je "
+"slanje isključeno, ne šaljemo ih. Kada bude uključeno, svoj izbor možete "
+"promijeniti u profilu ili odjavom iz poruke."
+msgstr ""
+"Job emails and occasional product updates are separate choices. We send "
+"neither while delivery is off. Once enabled, you can change your choice in "
+"your profile or unsubscribe from a message."
+
+msgid "Za dostavu e-maila koristimo pružaoca usluge %(provider)s."
+msgstr "We use %(provider)s to deliver email."
+
+msgid "Vaša kontrola"
+msgstr "Your control"
+
+msgid ""
+"Postavke možete urediti ili obrisati račun u profilu. Za zahtjev za pristup "
+"ili ispravku podataka"
+msgstr ""
+"You can edit preferences or delete your account in your profile. To request "
+"access to or correction of your data,"
+
+msgid "kontaktirajte nas"
+msgstr "contact us"
+
+msgid "Potvrdite svoj DiplomacyJobs račun"
+msgstr "Confirm your DiplomacyJobs account"
+
+msgid "Potvrdite svoj DiplomacyJobs račun otvaranjem ovog linka:"
+msgstr "Confirm your DiplomacyJobs account by opening this link:"
+
+msgid "Ako niste tražili račun, zanemarite ovu poruku."
+msgstr "If you did not request an account, ignore this message."
+
+msgid "Promjena lozinke za DiplomacyJobs"
+msgstr "Reset your DiplomacyJobs password"
+
+msgid ""
+"Zatražena je promjena lozinke za vaš DiplomacyJobs račun. Otvorite ovaj "
+"link:"
+msgstr ""
+"A password reset was requested for your DiplomacyJobs account. Open this "
+"link:"
+
+msgid "Ako niste zatražili promjenu, zanemarite ovu poruku."
+msgstr "If you did not request a reset, ignore this message."
+
 #~ msgid "Sa provjerenog izvora pratimo aktivne oglase"
 #~ msgstr "We follow current adverts from a verified source"
 
 #, python-format
 #~ msgid ""
-#~ "%(pending)s čeka provjeru · %(integration)s čeka integraciju · "
-#~ "%(not_found)s bez pronađene liste"
+#~ "%(pending)s čeka provjeru · %(integration)s čeka integraciju · %(not_found)s"
+#~ " bez pronađene liste"
 #~ msgstr ""
 #~ "%(pending)s awaiting a check · %(integration)s awaiting integration · "
 #~ "%(not_found)s with no list found"
