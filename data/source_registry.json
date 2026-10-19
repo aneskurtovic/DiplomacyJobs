@@ -78,10 +78,15 @@
     "notes": "Stranica za zapošljavanje upućuje na FCDO Local Staff portal i filtriranje po državi. Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
       {
-        "url": "https://www.gov.uk/world/organisations/british-embassy-sarajevo/about/recruitment",
-        "adapter": "govuk",
-        "status": "blocked",
-        "notes": "GOV.UK stranica vodi na FCDO portal (fco.tal.net), koji 2026-10-02 vraća anti-bot provjeru (\"Quick Check\") za svaki URL. Ne zaobilaziti; tražiti zvanični feed ili ponovo provjeriti sa servera."
+        "url": "https://fco.tal.net/vx/appcentre-ext/candidate/jobboard/vacancy/1/adv/?f_Item_Opportunity_15689_lk=1746",
+        "adapter": "fco",
+        "status": "discovered",
+        "notes": "Službeni FCDO Local Staff portal, filtriran na Bosnu i Hercegovinu. Lista prikazuje ukupan broj rezultata; rok bez datuma objave ide na uredničku provjeru. Provjereno 2026-10-19.",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "browser_user_agent": true
+        }
       }
     ]
   },

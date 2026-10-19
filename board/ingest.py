@@ -208,8 +208,43 @@ def fetch_json(client, url, payload=None, headers=None):
     return response.json()
 
 
+def fco_links(source, soup):
+    """The official FCDO board, filtered to Bosnia and Herzegovina."""
+    empty = soup.select_one("#no_results_message")
+    if empty is not None:
+        country_filter = soup.select_one('input[type="hidden"][name="f_Item_Opportunity_15689_lk"][value="1746"]')
+        if country_filter is not None and empty.get_text(" ", strip=True).startswith("Sorry, we currently have no vacancies"):
+            return []
+        raise ValueError("FCDO empty listing is missing its country filter or no-vacancies note")
+    country = soup.select_one('input[name="f_Item_Opportunity_15689_lk"][value="1746"]')
+    count_tag = soup.select_one('.results_meta h2[role="alert"]')
+    count = re.fullmatch(r"(\d+)\s+Opportunit(?:y|ies) found\.", count_tag.get_text(" ", strip=True)) if count_tag else None
+    if country is None or not country.has_attr("checked") or count is None:
+        raise ValueError("FCDO Bosnia filter or result count missing")
+    rows = soup.select("table.solr_search_list tr.search_res")
+    if len(rows) != int(count.group(1)):
+        raise ValueError(f"FCDO shows {len(rows)} of {count.group(1)} vacancies; check pagination")
+    links = []
+    for row in rows:
+        link = row.select_one("a.subject[href]")
+        if link is None:
+            raise ValueError("FCDO vacancy row has no title link")
+        url = urljoin(source.url, link["href"])
+        path = urlsplit(url).path
+        advert_path = re.search(r"(/candidate/so/.*/opp/\d+[^/]*/en-GB)/?$", path)
+        if not trusted_host(urlsplit(url).hostname or "", "tal.net") or advert_path is None:
+            raise ValueError("FCDO vacancy link is outside its official board")
+        # The listing's /xf-.../ prefix changes between requests. Use the stable
+        # canonical path published on each vacancy page to avoid duplicate jobs.
+        stable_url = "https://fco.tal.net/vx/mobile-0/appcentre-ext/brand-2" + advert_path.group(1)
+        links.append((canonicalize(stable_url), link.get_text(" ", strip=True)[:400]))
+    return links
+
+
 def listing_links(source, soup):
     config = source.adapter_config or {}
+    if source.adapter == "fco":
+        return fco_links(source, soup)
     if source.adapter == "osce":
         rows = soup.select(".job_list_row")
         count = re.search(r"(\d+)\s+results?\b", soup.get_text(" ", strip=True))
@@ -615,7 +650,7 @@ def bamboohr_links(client, source, evidence):
 def rmk_links(client, source, soup, evidence):
     """SuccessFactors career site (UNESCO). The all-jobs category is paged by a start row in the path until the stated total is read; rows are kept by a BiH location and their posting date is listing evidence."""
     total = re.search(r"\bof\s+(\d+)", soup.select_one(".paginationLabel").get_text(" ", strip=True)) if soup.select_one(".paginationLabel") else None
-    if not total and (soup.select("tr.data-row") or not re.search(r"no (?:jobs|results)|no matching", soup.get_text(" ", strip=True), re.I)):
+    if not total and (soup.select("tr.data-row") or not re.search(r"no (?:jobs|results)|no matching|there are currently no open positions matching", soup.get_text(" ", strip=True), re.I)):
         raise ValueError("SuccessFactors result count missing")
     total = int(total.group(1)) if total else 0
     listing_url = (source.adapter_config or {}).get("listing_url") or source.url
@@ -1083,6 +1118,12 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     title = listing_title
     structured_published = None
     title_from_fields = False
+    if source.adapter == "fco" and soup:
+        advert = soup.select_one("#vac_desc")
+        if advert is None:
+            raise ValueError("FCDO vacancy details missing")
+        text = advert.get_text(" ", strip=True)
+        title_from_fields = True  # The page h1 adds "View Vacancy" to the listing title.
     if source.adapter == "eeas" and soup:
         # Judge only the vacancy itself; site navigation mentions BiH and unrelated jobs.
         article = soup.select_one("article.node--type-vacancy")
@@ -1165,7 +1206,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     deadline = parse_deadline(text) or parse_deadline(listing_title)
     published = structured_published or parse_published(text)
     today = timezone.localdate()
-    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu", "nhqsa")
+    job_like = bool((JOB_WORDS.search(title) or (source.adapter_config or {}).get("any_title")) and JOB_WORDS.search(text)) or bool(source.adapter == "osce" and "Requisition ID:" in text and "Closing Date:" in text) or source.adapter in ("fco", "eeas", "unct", "ohr", "eufor", "unicef", "ebrd", "rcc", "era", "oracle", "workday", "avature", "uncareers", "csod", "taleo", "bamboohr", "rmk", "taleoftl", "sfrss", "lanteria", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu", "nhqsa")
     in_country = bool(excerpt)
     excluded = bool(EXCLUDED.search(title) or re.search(r"\b(unpaid|neplaćen[aeo]?)\b", text, re.I))
     # A global portal may mention BiH in navigation. Ambiguous pages go to review.

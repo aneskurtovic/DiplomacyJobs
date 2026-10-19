@@ -1478,6 +1478,48 @@ class RmkAdapterTests(TestCase):
         with patch("board.ingest.fetch", return_value=("", BeautifulSoup("", "html.parser"))), self.assertRaisesRegex(ValueError, "1 of 3"):
             discover_links(None, self.source, first, {})
 
+    def test_uae_zero_positions_wording_is_a_confirmed_empty_listing(self):
+        soup = BeautifulSoup('<h1>Ministry of Foreign Affairs Jobs</h1><p>There are currently no open positions matching " ".</p>', "html.parser")
+        self.assertEqual(discover_links(None, self.source, soup, {}), [])
+        with self.assertRaisesRegex(ValueError, "result count missing"):
+            discover_links(None, self.source, BeautifulSoup("<h1>Quick Check</h1>", "html.parser"), {})
+
+
+class FcoAdapterTests(TestCase):
+    def setUp(self):
+        organization = Organization.objects.create(name="British Embassy Sarajevo", kind="embassy")
+        self.source = Source.objects.create(organization=organization, adapter="fco", url="https://fco.tal.net/vx/appcentre-ext/candidate/jobboard/vacancy/1/adv/?f_Item_Opportunity_15689_lk=1746")
+
+    def listing(self, token="one", count=1):
+        return BeautifulSoup(f'''<input name="f_Item_Opportunity_15689_lk" value="1746" checked>
+            <div class="results_meta"><h2 role="alert">{count} Opportunities found.</h2></div>
+            <table class="solr_search_list"><tr class="search_res"><td><a class="subject"
+            href="https://fco.tal.net/vx/xf-{token}/candidate/so/pm/4/pl/1/opp/27647-Pro-Consul-BIH26-020308/en-GB">Pro-Consul (BIH26-020308)</a></td></tr></table>''', "html.parser")
+
+    def test_session_prefix_does_not_create_duplicate_jobs(self):
+        first = discover_links(None, self.source, self.listing("one"), {})
+        self.assertEqual(first, discover_links(None, self.source, self.listing("two"), {}))
+        self.assertEqual(first[0][0], "https://fco.tal.net/vx/mobile-0/appcentre-ext/brand-2/candidate/so/pm/4/pl/1/opp/27647-Pro-Consul-BIH26-020308/en-GB")
+
+    def test_count_mismatch_fails_instead_of_silently_missing_jobs(self):
+        with self.assertRaisesRegex(ValueError, "1 of 2"):
+            discover_links(None, self.source, self.listing(count=2), {})
+
+    def test_official_no_vacancies_note_confirms_an_empty_listing(self):
+        empty = BeautifulSoup('<h1>Search Jobs</h1><input type="hidden" name="f_Item_Opportunity_15689_lk" value="1746"><p id="no_results_message">Sorry, we currently have no vacancies.</p>', "html.parser")
+        self.assertEqual(discover_links(None, self.source, empty, {}), [])
+        with self.assertRaisesRegex(ValueError, "country filter"):
+            discover_links(None, self.source, BeautifulSoup('<p id="no_results_message">Sorry, we currently have no vacancies.</p>', "html.parser"), {})
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 19))
+    def test_deadline_only_vacancy_needs_editorial_review(self, _):
+        url, title = discover_links(None, self.source, self.listing(), {})[0]
+        soup = BeautifulSoup('<div id="vac_desc"><h1>View Vacancy - Pro-Consul</h1><p>British Embassy Sarajevo recruits a Pro-Consul in Bosnia and Herzegovina.</p><div>Application deadline 25 October 2026</div></div>', "html.parser")
+        candidate = make_candidate(self.source, url, title, soup.get_text(" ", strip=True), soup)
+        self.assertEqual((candidate.title, candidate.city, candidate.deadline), ("Pro-Consul (BIH26-020308)", "Sarajevo", date(2026, 10, 25)))
+        self.assertTrue(candidate.eligible)
+        self.assertFalse(candidate.year_proven)
+
 
 class RaiAdapterTests(TestCase):
     def test_current_boxes_and_open_vacancy_rows(self):
