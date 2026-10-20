@@ -255,7 +255,7 @@ body { background: var(--color-bg); color: var(--color-text); }
 
 .job-header { max-width: 1000px; padding-top: 24px; }
 .job-header h1 { max-width: 28ch; font-size: clamp(30px, 3.4vw, 46px); margin-top: 12px; }
-.key-facts { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin-top: 24px; }
+.key-facts { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); margin-top: 24px; }
 .key-facts>div:last-child:nth-child(odd) { grid-column: auto; }
 .key-facts>div { padding: 16px; }
 .key-facts dd { margin-top: 6px; font-size: 15px; }
