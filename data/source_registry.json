@@ -2136,8 +2136,8 @@
       {
         "url": "https://www.goethe.de/ins/ba/bs/ueb/aus.html",
         "adapter": "generic",
-        "status": "verified",
-        "enabled": true,
+        "status": "blocked",
+        "enabled": false,
         "adapter_config": {
           "allow_empty": true,
           "impersonate": true,
@@ -2148,7 +2148,7 @@
           "path_contains": "/ueb/aus/",
           "content_selector": "main"
         },
-        "notes": "Službena lokalna lista radnih mjesta, odvojena od prakse. Detalj nastavničkog oglasa nema datum ni rok; scraper ga neće automatski objaviti bez dokaza o godini i otvorenom konkursu. Stranica zahtijeva Chrome TLS otisak."
+        "notes": "Službena lokalna lista radnih mjesta, odvojena od prakse. Detalj nastavničkog oglasa nema datum ni rok. Lokalni Chrome TLS dohvat radi, ali produkcijski Hetzner server dobiva HTTP 403 čak i uz Chrome otisak; izvor je isključen 2026-10-20 do dostupnog prvog izvora."
       }
     ]
   }
