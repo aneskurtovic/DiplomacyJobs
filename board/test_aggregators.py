@@ -138,6 +138,31 @@ class AggregatorAdapterTests(TestCase):
         self.assertEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/36935"))
         self.assertNotEqual(url_key(candidate.application_url), url_key("https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/36935"))
 
+    def test_impactpool_unicef_uses_matching_official_advertised_date(self):
+        url = "https://www.impactpool.org/jobs/1239685"
+        official = "https://jobs.unicef.org/en-us/job/596053"
+        title = "National Consultants for Field Implementation of the EU4People Social Protection Programme"
+        impactpool = IMPACTPOOL_JOB.replace("Project Manager", title).replace("UNDP - United Nations Development Programme", "UNICEF - United Nations Children's Fund").replace("October 09", "October 25")
+        unicef = f'''<html><h2>{title}</h2><p><span class="job-externalJobNo">596053</span>
+        <span class="location">Bosnia &amp; Herzegovina</span></p><p>
+        <span class="open-date"><time datetime="2026-10-01T07:00:00Z">01 Oct 2026</time></span>
+        <span class="close-date"><time datetime="2026-10-25T22:55:00Z">25 Oct 2026</time></span></p></html>'''
+        source = SimpleNamespace(adapter="impactpool", url="https://www.impactpool.org/search", adapter_config={})
+        routes = {url: (200, impactpool, {}), url + "/apply": (302, "", {"location": official}), official: (200, unicef, {})}
+        with self.http(routes) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 20)):
+            candidate = make_candidate(client, source, url, fetch(client, url)[1])
+        self.assertTrue(candidate.eligible and candidate.year_proven, candidate.reason)
+        self.assertEqual(candidate.source_published_at, date(2026, 10, 1))
+        self.assertEqual(candidate.application_url, official)
+
+        # A challenge or mismatched official requisition cannot prove the year.
+        for response in [(202, "", {}), (200, unicef.replace(title, "Different role"), {})]:
+            routes[official] = response
+            with self.subTest(response=response[0]), self.http(routes) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 20)):
+                candidate = make_candidate(client, source, url, fetch(client, url)[1])
+            self.assertFalse(candidate.year_proven)
+            self.assertIsNone(candidate.source_published_at)
+
 
 RELIEFWEB_FEED = """<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>ReliefWeb - Bosnia and Herzegovina Jobs</title>
 <item><title>Europe Programme Officer - Balkans</title><link>https://reliefweb.int/job/4230833/europe-programme-officer-balkans</link>

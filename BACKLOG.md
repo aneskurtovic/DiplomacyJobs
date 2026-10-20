@@ -5,8 +5,9 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
 ## P0 — Source access and content coverage
 
 - [ ] Romania remains unavailable: sarajevo.mae.ro and www.mae.ro require a JavaScript browser check; cariera.mae.ro is a login-only platform. No challenge solving.
-- [ ] Still blocked: UK (FCDO "Quick Check" on every fco.tal.net page) and UNICEF's listing (AWS WAF; per-IP limit so strict that the second request within seconds is challenged, even with `request_delay`). Recheck UNICEF from the Hetzner network; its jobs also arrive through aggregators.
-- [ ] Two sources still fail from Hetzner (full scrape 2026-10-09, pipeline #32; UN Careers #51 now succeeds): ReliefWeb (#53) gets the HTTP 202 challenge on its RSS feed too, so the feed path did not help there; options are a ReliefWeb API appname ([form](https://apidoc.reliefweb.int/parameters#appname)) or relying on the other aggregators. Sweden (#26) still gets 403 behind Cloudflare and has no vacancies in its news list: owner to close it in admin. Source #19 timed out once in the same run; recheck at the next daily scrape.
+- [ ] UNICEF's global listing still hits an AWS WAF HTTP 202 challenge after a few requests. The UN BiH feed covers three UNICEF roles on 2026-10-20, but misses the official UNICEF requisitions 596053, 595995 (deadline 2026-10-20), and 596420. The UNICEF BiH vacancies page is accessible but also incomplete. Find a dependable first-party way to enumerate and read all BiH requisitions; until then, verify and add missed jobs editorially. See the 2026-10-20 HANDOFF section.
+- [ ] ReliefWeb (#53) still gets HTTP 202 from Hetzner on its RSS feed. Its official Jobs API requires a pre-approved appname ([form and terms](https://apidoc.reliefweb.int/parameters#appname)); request one and validate it from Hetzner before replacing the feed. Impactpool and direct employer sources remain enabled, but may miss ReliefWeb-only jobs.
+- [ ] After release, verify Sweden (#26) from Hetzner on the first-party `beta-api.swedenabroad.se` mirror. The local listing, pagination, and detail fetch succeeded on 2026-10-20; migration 0044 preserves the source row. Check `/health/scrape/` after its scheduled run. Source #19 timed out once on 2026-10-09; recheck its recent runs.
 - [x] Malaysia and Pakistan are sources (2026-10-03): their missing intermediates are fetched from the certificate's own AIA link and verified to a trusted root (`scripts/cert_chain.py`, `data/intermediates/`, `adapter_config.intermediates`). Qatar's site, now readable the same way, has no recruitment section; Russia's official Telegram channel has never posted a vacancy. Both are "no local recruitment list".
 
 ## P1 — Deployment and operations
@@ -21,8 +22,10 @@ Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification r
   2. In `/opt/diplomacyjobs/.env`, raise `DJANGO_HSTS_SECONDS` from `3600` to `31536000` and restart the web service. Subdomains stay out of the policy (`includeSubDomains` is off).
 - [ ] Revisit the dated "no local recruitment list" findings before their 90-day expiry (checked 2026-10-02/03; 33 organizations in the 2026-10-03 snapshot).
 - [ ] Add source-specific handling for PDFs and JavaScript-rendered portals only where an official source requires it.
-- [ ] For UNICEF jobs found via aggregators, read the "Advertised" date from the jobs.unicef.org detail page to prove the year instead of leaving them in review.
+- [x] For Impactpool's UNICEF copies with direct requisition links, read the official "Advertised" date after matching requisition ID, title, BiH location and deadline (2026-10-20). If UNICEF's page answers with its HTTP 202 challenge, the copy remains in review.
+- [ ] Evaluate SOS Dječija sela BiH's currently listed paid roles whose notices are open until filled, including how to display undated openings and verify that they remain open. See [INGO lead research](docs/source-expansion-ingos-2026-10-20.md).
 - [ ] Set a retention policy before trimming stored text of long-closed jobs.
+- [ ] Backfill OHR's 2025 national-vacancy archive if past employer-page coverage is expanded. Its software developer/database administrator role closed 2025-10-25; `/vacancies/` correctly reports no active OHR opening on 2026-10-20.
 - [ ] Open question: now that INGOs are in scope, decide whether to add ICRC (earlier excluded as outside the mission/IGO scope).
 
 - [ ] Run the five-person mobile usability check ([script](docs/design/usability-check.md)); it needs real participants, ideally on the deployed site.
@@ -41,6 +44,8 @@ The front-end stays server-rendered with htmx and plain JavaScript only where ne
 - [ ] Optional: push notifications for a saved search (needs a stored subscription per visitor).
 
 ## Done
+
+- [x] UK FCDO local-staff source added 2026-10-19; production source page reports a successful check on 2026-10-20. The old "Quick Check" blocker is no longer current.
 
 - [x] NATO HQ Sarajevo local (LCH) positions as a source (`nhqsa`, migration 0041, 2026-10-09); they never reach NATO Taleo. EBRD and EIB/EIF were already covered. Live in production after `ops/import_registry` and `ops/scrape` (2026-10-09). Details in HANDOFF.
 - [x] Load more and in-place report form with htmx; English employer names on `/en/` (`Organization.name_en`, run `import_registry` after deploy); ReliefWeb RSS path and UN Careers retries (2026-10-08). Details in HANDOFF.

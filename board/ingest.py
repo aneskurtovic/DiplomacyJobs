@@ -20,7 +20,7 @@ from io import BytesIO
 from pathlib import Path
 from xml.etree import ElementTree
 
-from .models import Job, ScrapeRun, Source, SourceDocument
+from .models import Job, Organization, ScrapeRun, Source, SourceDocument
 from . import requirements
 
 USER_AGENT = "DiplomacyJobs/0.1 (+official vacancy monitor; contact via site administrator)"
@@ -54,6 +54,8 @@ DEADLINE = re.compile(r"\b(?:deadline|closing date|closing for applications?|pos
 DEADLINE_DIRECT = re.compile(r"\b(?:(?:accepted|received|open)\s+(?:until|till|through|by)|primaju do|application documents by|applications? by|ističe)\s*(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
 # "Candidates should submit … by 7 December 2024": an application verb, then "by <date>" in the same sentence.
 SUBMIT_BY = re.compile(r"\b(?:submit\w*|send|apply)\b(?:[^.;]|\.(?=\S)){0,200}?\bby\s+(?:the\s+)?(?:[A-Za-z]+day,?\s+)?(" + DATE_TEXT + r")", re.I)
+# Some notices place the date before the verb: "candidates should by 28.03.2025 submit their CV".
+SUBMIT_AFTER_BY = re.compile(r"\b(?:candidates?|applicants?)\s+should\s+by\s+(" + DATE_TEXT + r")\s+(?:submit|send|apply)\b", re.I)
 # An extension notice names the date that counts now; the original deadline usually comes first in the text.
 # It must name the deadline or the call itself, so a contract that "may be extended until" a later date does not count.
 EXTENDED = re.compile(r"(?:\b(?:deadline|closing date|rok\w*|prijav\w*|applications?|vacancy|natje?čaj\w*|konkurs\w*|oglas\w*)(?:(?!contract|ugovor|appointment|angažman)[^\d.;]){0,40}?(?:(?:" + DATE_TEXT + r")\W{0,5}(?:(?:is|has been|je)\s+)?)?\b(?:extended|prolonged|produžen\w*|produljen\w*)|\bextended (?:deadline|closing date)|\bprodužen\w* rok\w*)\D{0,30}(" + DATE_TEXT + r")", re.I)
@@ -143,7 +145,7 @@ def parse_deadline(text):
     if extended := first_date(EXTENDED, text):
         return extended
     # The earliest stated deadline wins, whichever phrasing it uses.
-    found = [(match.start(), parsed) for pattern in (DEADLINE, DEADLINE_DIRECT, SUBMIT_BY) for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))]
+    found = [(match.start(), parsed) for pattern in (DEADLINE, DEADLINE_DIRECT, SUBMIT_BY, SUBMIT_AFTER_BY) for match in pattern.finditer(text) if (parsed := parse_date(match.group(1)))]
     return min(found, key=lambda item: item[0])[1] if found else None
 
 
@@ -353,12 +355,13 @@ def unct_page_links(source, soup, evidence):
             continue
         fields = [div.get_text(" ", strip=True) for div in card.select(".node__content > div > div")]
         published = parse_date(fields[0]) if fields else None
+        agency = fields[-1].split(":", 1)[0].strip() if len(fields) > 1 else ""
         card_text = card.get_text(" ", strip=True)
         deadline = parse_deadline(card_text)
         if deadline and deadline.year < TARGET_YEAR:
             continue
         url = canonicalize(url)
-        evidence[url] = (f"Published {published.isoformat()}. " if published else "") + card_text
+        evidence[url] = (f"Agency: {agency}\n" if agency else "") + (f"Published {published.isoformat()}. " if published else "") + card_text
         result.append((url, link.get_text(" ", strip=True)[:400]))
     return result
 
@@ -568,14 +571,18 @@ def workday_links(client, source, evidence):
             raise ValueError("Workday posting without a job path")
         detail = fetch_json(client, f"{api}{path}").get("jobPostingInfo") or {}
         url = detail.get("externalUrl", "")
-        if (detail.get("jobRequisitionLocation") or {}).get("country", {}).get("alpha2Code") != "BA" or urlsplit(url).hostname != parts.hostname:
+        country = (detail.get("jobRequisitionLocation") or {}).get("country", {})
+        primary_bih = country.get("alpha2Code") == "BA"
+        additional_bih = [place for place in detail.get("additionalLocations") or [] if LOCATION.search(place.replace("-", " and "))]
+        if (not primary_bih and not additional_bih) or urlsplit(url).hostname != parts.hostname:
             continue
         description = BeautifulSoup(detail.get("jobDescription") or "", "html.parser").get_text(" ", strip=True)
         opened, ends = parse_date(detail.get("startDate") or ""), parse_date(detail.get("endDate") or "")
         # endDate is when the posting is taken down, often the day after the stated deadline.
         stated = parse_deadline(description)
         closing = stated if stated and opened and ends and opened <= stated <= ends else ends
-        evidence[canonicalize(url)] = f"{detail.get('title', '')}. Location: {detail.get('location', '')} ({detail['jobRequisitionLocation']['country'].get('descriptor', '')}). " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
+        location = f"{detail.get('location', '')} ({country.get('descriptor', '')})" if primary_bih else f"Bosnia and Herzegovina (additional location: {additional_bih[0]})"
+        evidence[canonicalize(url)] = f"{detail.get('title', '')}. Location: {location}. " + (f"Published {opened.isoformat()}. " if opened else "") + (f"Closing date {closing.isoformat()}. " if closing else "") + description
         result.append((canonicalize(url), (detail.get("title") or posting.get("title") or "")[:400]))
     return result
 
@@ -1246,7 +1253,11 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     else:
         in_scope_year = False
         year_proven = False
-    return Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, config.get("opportunity_type") or opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed, qualified=qualified)
+    candidate = Candidate(url, title, text[:100_000], city, deadline, published, hashlib.sha256(text.encode("utf-8")).hexdigest(), location_evidence, eligibility, eligible, in_scope_year, year_proven, reason, excluded, config.get("opportunity_type") or opportunity_type(title), "national" if source.adapter == "era" else recruitment_scope(title, text), closed, qualified=qualified)
+    if source.adapter == "unct" and (agency := re.match(r"Agency: ([^\n]+)\n", text)):
+        code = agency.group(1)
+        candidate.employer_name = Organization.objects.filter(short_name__iexact=code).values_list("name", flat=True).first() or code
+    return candidate
 
 
 FETCH_ERRORS = (httpx.HTTPError, curl_requests.RequestsError, ValueError)
@@ -1358,7 +1369,7 @@ def ingest_source(source_id):
                 latest = SourceDocument.objects.filter(source=source, url=candidate.url).order_by("-fetched_at").values_list("content_hash", flat=True).first()
                 if latest != candidate.content_hash:
                     SourceDocument.objects.create(source=source, url=candidate.url, content_hash=candidate.content_hash, text=candidate.text)
-                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else "")}, "last_checked_at": now})
+                job, created = Job.objects.get_or_create(source=source, canonical_url=candidate.url, defaults={"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "source_published_at": candidate.source_published_at, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility, "status": "published" if candidate.eligible and candidate.year_proven else "review", "content_hash": candidate.content_hash, "raw_text": candidate.text, "field_evidence": {"location": candidate.location_evidence, "review_reason": candidate.reason or ("Godina objave nije potvrđena" if not candidate.year_proven else ""), **({"employer_name": candidate.employer_name} if candidate.employer_name else {})}, "last_checked_at": now})
                 if not created:
                     protected = set(job.manually_edited_fields) | set(job.field_evidence.get("ai_fields", []))
                     for field, value in {"title": candidate.title, "city": candidate.city, "deadline": candidate.deadline, "opportunity_type": candidate.opportunity_type, "scope": candidate.scope, "location_evidence": candidate.location_evidence, "eligibility": candidate.eligibility}.items():
@@ -1384,6 +1395,8 @@ def ingest_source(source_id):
                         job.source_published_at = candidate.source_published_at
                     job.raw_text = candidate.text
                     job.field_evidence = {**job.field_evidence, "location": candidate.location_evidence, "review_reason": review_reason}
+                    if candidate.employer_name and "employer_name" not in protected:
+                        job.field_evidence["employer_name"] = candidate.employer_name
                     job.last_seen_at = now
                     job.last_checked_at = now
                     job.missing_scans = 0

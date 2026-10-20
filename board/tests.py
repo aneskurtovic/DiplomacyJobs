@@ -123,6 +123,29 @@ class UnctAdapterTests(TestCase):
         self.assertTrue(candidate.eligible)
         self.assertTrue(candidate.year_proven)
 
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 4, 20))
+    def test_scrape_attributes_agency_and_repairs_existing_job(self, _):
+        from .ingest import ingest_source
+
+        Organization.objects.create(name="UNICEF u Bosni i Hercegovini", short_name="UNICEF", kind="international")
+        self.source.enabled = True
+        self.source.save(update_fields=["enabled"])
+        listing = BeautifulSoup(UN_CARD, "html.parser")
+        empty_page = BeautifulSoup('<div class="view-jobs"></div>', "html.parser")
+
+        def fake_fetch(client, url):
+            return ("", empty_page) if "page=" in url else ("", listing)
+
+        with patch("board.ingest.fetch", side_effect=fake_fetch):
+            self.assertTrue(ingest_source(self.source.pk).success)
+            job = self.source.jobs.get()
+            self.assertEqual(job.employer_name, "UNICEF u Bosni i Hercegovini")
+            job.field_evidence.pop("employer_name")
+            job.save(update_fields=["field_evidence"])
+            self.assertTrue(ingest_source(self.source.pk).success)
+        job.refresh_from_db()
+        self.assertEqual(job.employer_name, "UNICEF u Bosni i Hercegovini")
+
     def test_card_of_an_agency_with_its_own_enabled_source_is_skipped(self):
         agency = Source.objects.create(organization=self.source.organization, adapter="generic", url="https://jobs.unicef.org/en-us/search/", enabled=True)
         self.assertEqual(unct_page_links(self.source, BeautifulSoup(UN_CARD, "html.parser"), {}), [])
@@ -372,7 +395,7 @@ class JapanAdapterTests(TestCase):
 
 class DateParsingTests(TestCase):
     def test_deadline_formats(self):
-        for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15))]:
+        for text, expected in [("najkasnije do 17. septembra 2026.", date(2026, 9, 17)), ("Deadline: August 25, 2026", date(2026, 8, 25)), ("deadline AUGUST 25,2026", date(2026, 8, 25)), ("Closing date 2026-10-15", date(2026, 10, 15)), ("Interested candidates should by 28.03.2025 submit their CV", date(2025, 3, 28))]:
             self.assertEqual(parse_deadline(text), expected, text)
 
     def test_more_deadline_shapes(self):
@@ -459,6 +482,33 @@ class WorkdayAdapterTests(TestCase):
         no_bih = lambda request: httpx.Response(200, json={"total": 1, "jobPostings": [], "facets": [{"facetParameter": "locationCountry", "values": [{"descriptor": "Hungary", "id": "hu1"}]}]})
         with httpx.Client(transport=httpx.MockTransport(no_bih)) as client:
             self.assertEqual(discover_links(client, self.source, None, {}), [])
+
+    @patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 20))
+    def test_additional_bih_work_location_is_kept(self, _):
+        self.source.url = "https://worldvision.wd1.myworkdayjobs.com/WorldVisionInternational"
+
+        def world_vision(request):
+            if request.url.path.endswith("/jobs"):
+                if not json.loads(request.content)["appliedFacets"]:
+                    return httpx.Response(200, json={"facets": [{"facetParameter": "locationCountry", "values": [{"descriptor": "Bosnia and Herzegovina", "id": "ba1"}]}]})
+                return httpx.Response(200, json={"total": 1, "jobPostings": [{"title": "Regional Adviser", "externalPath": "/job/Nicosia/Regional-Adviser_JR1"}]})
+            return httpx.Response(200, json={"jobPostingInfo": {
+                "title": "Regional Adviser", "location": "Nicosia, Cyprus",
+                "additionalLocations": ["Bosnia-Herzegovina - Home Working"],
+                "startDate": "2026-10-14", "endDate": "2026-11-01",
+                "jobDescription": "<p>Regional staff position.</p>",
+                "externalUrl": "https://worldvision.wd1.myworkdayjobs.com/WorldVisionInternational/job/Nicosia/Regional-Adviser_JR1",
+                "jobRequisitionLocation": {"country": {"descriptor": "Cyprus", "alpha2Code": "CY"}},
+            }})
+
+        evidence = {}
+        with httpx.Client(transport=httpx.MockTransport(world_vision)) as client:
+            links = discover_links(client, self.source, None, evidence)
+        self.assertEqual(len(links), 1)
+        candidate = make_candidate(self.source, links[0][0], links[0][1], evidence[links[0][0]], None)
+        self.assertEqual((candidate.source_published_at, candidate.deadline), (date(2026, 10, 14), date(2026, 11, 1)))
+        self.assertTrue(candidate.eligible and candidate.year_proven)
+        self.assertIn("Bosnia-Herzegovina - Home Working", candidate.text)
 
     def test_location_facet_used_when_site_has_no_country_facet(self):
         def imf(request):

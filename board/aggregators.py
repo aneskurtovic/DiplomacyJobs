@@ -109,6 +109,31 @@ def impactpool_application(client, url):
     return ""  # Login walls or a form are not an original employer URL.
 
 
+def unicef_advertised_date(client, application, title, deadline):
+    """Use a matching first-party requisition to prove an Impactpool copy's year."""
+    parts = urlsplit(application)
+    match = re.fullmatch(r"/(?:cw/)?en-us/job/(\d+)(?:/[^/]*)?/?", parts.path, re.I)
+    if parts.hostname != "jobs.unicef.org" or not match:
+        return None
+    try:
+        _, soup = core.fetch(client, f"https://jobs.unicef.org/en-us/job/{match[1]}")
+    except core.FETCH_ERRORS:
+        return None
+    job_id = soup.select_one(".job-externalJobNo")
+    location = soup.select_one(".location")
+    posted = soup.select_one(".open-date time[datetime]")
+    closing = soup.select_one(".close-date time[datetime]")
+    normalized = lambda value: re.sub(r"\W+", "", value, flags=re.UNICODE).casefold()
+    heading = next((node for node in soup.select("h2") if normalized(node.get_text(" ", strip=True)) == normalized(title)), None)
+    if not all((job_id, heading, location, posted, closing)):
+        return None
+    if (job_id.get_text(strip=True) != match[1]
+            or not core.LOCATION.search(location.get_text(" ", strip=True))
+            or core.parse_date(closing["datetime"][:10]) != deadline):
+        return None
+    return core.parse_date(posted["datetime"][:10])
+
+
 def reliefweb_page(url, soup):
     """Title, employer, body text, dates, countries, whether BiH is tagged, and apply links from a ReliefWeb job page."""
     article = soup.select_one("article.node--job")
@@ -200,6 +225,8 @@ def make_candidate(client, source, url, soup):
         stamp = header.select_one("time[itemprop=datePosted][datetime]")
         published = core.parse_date(stamp["datetime"][:10]) if stamp else None
         title, employer_name = heading.get_text(" ", strip=True), employer.get_text(" ", strip=True)
+        if not published and not withdrawn and re.search(r"\bUNICEF\b", employer_name, re.I):
+            published = unicef_advertised_date(client, application, title, deadline)
     title, employer_name = title[:400], employer_name[:240]
     excluded = bool(core.EXCLUDED.search(title) or re.search(r"\b(?:unpaid|neplaćen[aeo]?)\b", text, re.I))
     fresh = bool(deadline and deadline >= timezone.localdate())

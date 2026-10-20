@@ -1140,7 +1140,7 @@
     "notes": "Adresa iz MFA direktorija. Ambasada objavljuje oglase (npr. National Programme Officer) kao vijesti na Sweden Abroad.",
     "sources": [
       {
-        "url": "https://www.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/current/news2/",
+        "url": "https://beta-api.swedenabroad.se/en/embassies/bosnia-and-herzegovina-sarajevo/current/news2/",
         "adapter": "generic",
         "status": "verified",
         "enabled": true,
@@ -2010,6 +2010,86 @@
           }
         },
         "notes": "Treća strana (mreza-mira.net, WordPress REST API): sve objave iz 2026. u kategorijama Poslovi (9) i Volonterski angažman i internships (1272), bez Arhive (5885); zadržavaju se naslovi GIZ oglasa. Raniji GIZ oglasi: Communication Specialist (11/2024), internship (1/2025), Technical Advisor (2/2025), Local Intern (12/2025). Provjereno 2026-10-03: nijedan GIZ oglas u 2026."
+      }
+    ]
+  },
+  {
+    "name": "World Vision u Bosni i Hercegovini",
+    "name_en": "World Vision Bosnia and Herzegovina",
+    "short_name": "WV",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.wvi.org/bosnia-and-herzegovina",
+    "evidence_url": "https://www.wvi.org/bosnia-and-herzegovina/contact-us",
+    "verified_at": "2026-10-20",
+    "notes": "World Vision navodi nacionalni ured u Sarajevu te urede u Tuzli, Zenici i Banjoj Luci. Službena stranica upućuje na Workday portal za prijave.",
+    "sources": [
+      {
+        "url": "https://worldvision.wd1.myworkdayjobs.com/WorldVisionInternational",
+        "adapter": "workday",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true
+        },
+        "notes": "Službeni Workday portal, filtriran po državi rada. Provjereno 2026-10-20: tri oglasa navode Bosnia-Herzegovina - Home Working kao dodatnu lokaciju; dva imaju budući rok, jedan nema naveden rok i ostaje na provjeri."
+      }
+    ]
+  },
+  {
+    "name": "CARE International Balkans",
+    "short_name": "CARE",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://care-balkan.org/",
+    "evidence_url": "https://care-balkan.org/contact-us/",
+    "verified_at": "2026-10-20",
+    "notes": "CARE Balkans navodi ured u Sarajevu i Banjoj Luci. Službeni oglasi za osoblje objavljuju se u kategoriji Jobs, a pozivi za stručnjake i u drugim kategorijama.",
+    "sources": [
+      {
+        "url": "https://care-balkan.org/wp-json/wp/v2/posts",
+        "adapter": "wordpress",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "categories": [385],
+          "partial_listing": true
+        },
+        "notes": "Djelimično praćenje: službena WordPress kategorija Jobs (385), s potpunim stranicama REST API-ja. Pozivi za plaćene stručnjake mogu biti u Announcements/News i nisu obuhvaćeni. Provjereno 2026-10-20: jedan oglas iz 2026. za Prištinu, rok je istekao; nijedan otvoreni oglas za BiH."
+      }
+    ]
+  },
+  {
+    "name": "Hilfswerk International u Bosni i Hercegovini",
+    "name_en": "Hilfswerk International in Bosnia and Herzegovina",
+    "short_name": "HWI",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://hwi.ba/en/",
+    "evidence_url": "https://hwi.ba/en/news?category_id=32",
+    "verified_at": "2026-10-20",
+    "notes": "Predstavništvo u Sarajevu objavljuje plaćene pozicije i pozive za stručnjake u kategoriji Jobs and Careers.",
+    "sources": [
+      {
+        "url": "https://hwi.ba/en/news?category_id=32",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "any_title": true,
+          "link_selector": "div.article-box.article-box-news > a[href]",
+          "page_item_selector": "div.article-box.article-box-news",
+          "second_page": 2,
+          "path_contains": "/en/news/",
+          "content_selector": "article",
+          "history": {}
+        },
+        "notes": "Službena kategorija Jobs and Careers (32) navodi pet oglasa i ima stranicu 2 s izričito praznim rezultatom. Dva oglasa za puno radno vrijeme u Sarajevu zatvorena su u martu 2025; 2026-10-20 nema otvorenih oglasa."
       }
     ]
   }
