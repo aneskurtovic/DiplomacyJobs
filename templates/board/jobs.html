@@ -1,7 +1,24 @@
-{% extends 'board/base.html' %}{% load board_extras i18n static %}{% block robots %}{% if filtered %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}{% block canonical %}{{ public_base }}{{ request.path }}{% if not filtered and page.number > 1 %}?page={{ page.number }}{% endif %}{% endblock %}{% block feed_href %}/feed/{% if feed_query %}?{{ feed_query }}{% endif %}{% endblock %}{% block content %}{% url 'jobs' as jobs_url %}{% url 'sources' as sources_url %}
-<section class="hero"><div class="eyebrow">{% translate "PRILIKE U BOSNI I HERCEGOVINI" %}</div><h1>{% translate "Poslovi u diplomatiji i međunarodnim organizacijama." %}</h1><p>{% translate "Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici poslodavca." %}</p><p><a href="{% url 'for_you' %}">{% translate "Pronađite oglase za sebe" %} →</a></p>
-<p class="trust-strip"><span class="trust-live"><span class="live-dot" aria-hidden="true"></span><strong>{{ trust.jobs }}</strong> {{ trust.jobs|bs_plural:"aktuelni oglas,aktuelna oglasa,aktuelnih oglasa|open job,open jobs" }}</span><span><strong>{{ trust.sources }}</strong> {{ trust.sources|bs_plural:"praćeni izvor,praćena izvora,praćenih izvora|source tracked,sources tracked" }}</span>{% if trust.latest %}<span>{% if trust.latest_today %}{% blocktranslate with time=trust.latest|time:"H:i" %}Provjereno danas u {{ time }}{% endblocktranslate %}{% else %}{% blocktranslate with date=trust.latest|date:"d.m.Y." %}Zadnja provjera {{ date }}{% endblocktranslate %}{% endif %}</span>{% endif %}<a href="{{ sources_url }}">{% translate "Kako prikupljamo oglase" %} →</a></p></section>
+{% extends 'board/base.html' %}{% load board_extras i18n static %}
+{% block robots %}{% if filtered %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+{% block canonical %}{{ public_base }}{{ request.path }}{% if not filtered and page.number > 1 %}?page={{ page.number }}{% endif %}{% endblock %}
+{% block feed_href %}/feed/{% if feed_query %}?{{ feed_query }}{% endif %}{% endblock %}
+{% block content %}{% url 'sources' as sources_url %}
+<section class="hero" aria-labelledby="home-title">
+  <div class="hero-copy">
+    <p class="hero-kicker">{% translate "PRILIKE U BOSNI I HERCEGOVINI" %}</p>
+    <h1 id="home-title">{% translate "Poslovi u diplomatiji i međunarodnim organizacijama." %}</h1>
+    <p class="hero-description">{% translate "Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici poslodavca." %}</p>
+    <a class="hero-link" href="{% url 'for_you' %}">{% translate "Pronađite oglase za sebe" %}<span aria-hidden="true"> ↗</span></a>
+  </div>
+  <div class="hero-brief" aria-label="{% translate 'Aktuelni oglasi' %}">
+    <div class="brief-top"><span class="live-dot" aria-hidden="true"></span>{% translate "Aktuelni oglasi" %}</div>
+    <p class="brief-number"><strong>{{ trust.jobs }}</strong> {{ trust.jobs|bs_plural:"aktuelni oglas,aktuelna oglasa,aktuelnih oglasa|open job,open jobs" }}</p>
+    <div class="brief-bottom"><span><strong>{{ trust.sources }}</strong> {{ trust.sources|bs_plural:"praćeni izvor,praćena izvora,praćenih izvora|source tracked,sources tracked" }}</span>{% if trust.latest %}<span>{% if trust.latest_today %}{% blocktranslate with time=trust.latest|time:"H:i" %}Provjereno danas u {{ time }}{% endblocktranslate %}{% else %}{% blocktranslate with date=trust.latest|date:"d.m.Y." %}Zadnja provjera {{ date }}{% endblocktranslate %}{% endif %}</span>{% endif %}</div>
+    <a href="{{ sources_url }}">{% translate "Kako prikupljamo oglase" %}<span aria-hidden="true"> ↗</span></a>
+  </div>
+</section>
 {% include 'board/_search_form.html' %}
-<p id="results-status" class="visually-hidden" role="status" aria-live="polite"></p><div id="results">{% include 'board/_results.html' %}</div>
+<p id="results-status" class="visually-hidden" role="status" aria-live="polite"></p>
+<div id="results">{% include 'board/_results.html' %}</div>
 <script src="{% static 'board/htmx.min.js' %}" defer></script><script src="{% static 'board/search.js' %}" defer></script>
 {% endblock %}
