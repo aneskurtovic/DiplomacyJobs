@@ -2092,5 +2092,64 @@
         "notes": "Službena kategorija Jobs and Careers (32) navodi pet oglasa i ima stranicu 2 s izričito praznim rezultatom. Dva oglasa za puno radno vrijeme u Sarajevu zatvorena su u martu 2025; 2026-10-20 nema otvorenih oglasa."
       }
     ]
+  },
+  {
+    "name": "Islamic Relief Worldwide u Bosni i Hercegovini",
+    "name_en": "Islamic Relief Worldwide in Bosnia and Herzegovina",
+    "short_name": "IRW",
+    "kind": "ngo",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://islamic-relief.ba/",
+    "evidence_url": "https://islamic-relief.ba/zaposljavamo-sluzbenik-za-dobrobit-djece-child-welfare-officer/",
+    "verified_at": "2026-10-20",
+    "notes": "Službeni lokalni oglas za Službenika za dobrobit djece u Tuzli objavljen je 3. 6. 2026. s rokom 11. 6. 2026. Stranica navodi urede u Sarajevu i Tuzli.",
+    "sources": [
+      {
+        "url": "https://islamic-relief.ba/wp-json/wp/v2/posts",
+        "adapter": "wordpress",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "min_scrape_interval_hours": 24,
+          "categories": [138],
+          "title_pattern": "zapošljavamo|zapošljavanje|oglas za posao|konkurs za posao|natječaj za posao|radno mjesto|job vacancy|job opening|we are hiring"
+        },
+        "notes": "Službeni WordPress REST API, kategorija Najnovije vijesti (138). U 2026. kategorija ima 22 objave i jedan oglas za posao; naslovni filter isključuje pozive za nabavku i stipendije. HTTP klijent treba Chrome TLS otisak. Potpuna paginacija preko X-WP-Total; objava iz juna 2026. je zatvorena."
+      }
+    ]
+  },
+  {
+    "name": "Goethe-Institut Bosna i Hercegovina",
+    "name_en": "Goethe-Institut Bosnia and Herzegovina",
+    "short_name": "GI",
+    "kind": "agency",
+    "country": "",
+    "city": "Sarajevo",
+    "website": "https://www.goethe.de/ins/ba/bs/",
+    "evidence_url": "https://www.goethe.de/ins/ba/bs/ueb/aus.html",
+    "verified_at": "2026-10-20",
+    "notes": "Lokalna stranica Karijera prikazuje plaćeni konkurs za nastavnika njemačkog jezika u Sarajevu, odvojeno od neplaćene prakse. Oglas nema datum objave ni rok, pa njegova aktuelnost zahtijeva uredničku provjeru.",
+    "sources": [
+      {
+        "url": "https://www.goethe.de/ins/ba/bs/ueb/aus.html",
+        "adapter": "generic",
+        "status": "verified",
+        "enabled": true,
+        "adapter_config": {
+          "allow_empty": true,
+          "impersonate": true,
+          "min_scrape_interval_hours": 24,
+          "any_title": true,
+          "preserve_listing_title": true,
+          "link_selector": ".link-list-container-wrapper:has(h2:-soup-contains(\"Konkursi za radna mjesta\")) a[href]",
+          "path_contains": "/ueb/aus/",
+          "content_selector": "main"
+        },
+        "notes": "Službena lokalna lista radnih mjesta, odvojena od prakse. Detalj nastavničkog oglasa nema datum ni rok; scraper ga neće automatski objaviti bez dokaza o godini i otvorenom konkursu. Stranica zahtijeva Chrome TLS otisak."
+      }
+    ]
   }
 ]

@@ -974,6 +974,16 @@ class GenericListingOptionsTests(TestCase):
     def test_long_closing_phrase_parses(self):
         self.assertEqual(parse_deadline("The closing date for completed applications is 12 May 2026."), date(2026, 5, 12))
 
+    def test_undated_goethe_listing_keeps_specific_title_without_publishing(self):
+        self.source.adapter_config = {"content_selector": "main", "preserve_listing_title": True}
+        html = '<h1>Stellenausschreibung</h1><main><p>Das Goethe-Institut in Sarajevo sucht Lehrkräfte für Deutsch als Fremdsprache in Vollzeit. Vergütung ist ortsüblich.</p></main>'
+        soup = BeautifulSoup(html, "html.parser")
+        candidate = make_candidate(self.source, "https://www.goethe.de/ins/ba/bs/ueb/aus/sa.html", "Lehrkraft für Deutsch als Fremdsprache (Vollzeit)", soup.get_text(" ", strip=True), soup)
+        self.assertEqual(candidate.title, "Lehrkraft für Deutsch als Fremdsprache (Vollzeit)")
+        self.assertTrue(candidate.qualified)
+        self.assertFalse(candidate.year_proven)
+        self.assertFalse(candidate.in_scope_year)
+
 
 class DenmarkItalyAdapterTests(TestCase):
     def setUp(self):

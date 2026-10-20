@@ -44,7 +44,7 @@ def city_name(text):
     match = STATION.search(text) or CITY.search(text)
     return next((name for name, pattern in CITIES.items() if match and re.fullmatch(pattern, match.group(1), re.I)), "")
 OUTSIDE = re.compile(r"\b(albania|chad|kosovo|montenegro|serbia|croatia|north macedonia|belgrade|zagreb|tirana|pristina)\b", re.I)
-JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stelle)\b", re.I)
+JOB_WORDS = re.compile(r"\b(vacan(?:cy|cies)|job|career|position|officer|assistant|adviser|advisor|traineeship|internship|consultant|oglas|konkurs|natječaj|posao|radno mjesto|slobodna radna mjesta|prijava|asistent|savjetnik|selezione|assunzione|impiegat[oi]|stellenangebot|stellenausschreibung|stelle|lehrkr[aä]fte?)\b", re.I)
 EXCLUDED = re.compile(r"\b(unpaid|volunteer|volont\w*|scholarship|stipendij\w*|tender|call for proposals|poziv za projekte|javna nabavka)\b", re.I)
 CONSULTANCY = re.compile(r"\b(consultan(?:t|cy|ts)|konsultant\w*|individual contractor|ic contract)\b", re.I)
 INTERNSHIP = re.compile(r"\b(intern(?:ship)?s?|traineeships?|praksa|pripravni\w*|tirocinio)\b", re.I)
@@ -1203,7 +1203,7 @@ def make_candidate(source, url, listing_title, text, soup, listing_evidence=""):
     if soup:
         heading = soup.find("h1")
         # UNICEF's h1 is the generic "Current vacancies", ERA's the State Department banner, Lanteria's "Job Opening Details".
-        if heading and source.adapter not in ("unicef", "era", "lanteria") and not title_from_fields:
+        if heading and source.adapter not in ("unicef", "era", "lanteria") and not title_from_fields and not config.get("preserve_listing_title"):
             title = heading.get_text(" ", strip=True)[:400] or title
     excerpt = LOCATION.search(text)
     city = ""
