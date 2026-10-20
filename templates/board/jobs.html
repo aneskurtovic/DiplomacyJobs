@@ -5,7 +5,7 @@
 {% block content %}{% url 'sources' as sources_url %}
 <section class="hero" aria-labelledby="home-title">
   <div class="hero-copy">
-    <p class="hero-kicker">{% translate "PRILIKE U BOSNI I HERCEGOVINI" %}</p>
+    <p class="hero-kicker">{% translate "Prilike u Bosni i Hercegovini" %}</p>
     <h1 id="home-title">{% translate "Poslovi u diplomatiji i međunarodnim organizacijama." %}</h1>
     <p class="hero-description">{% translate "Provjereni oglasi na jednom mjestu. Prijava se podnosi na službenoj stranici poslodavca." %}</p>
     <a class="hero-link" href="{% url 'for_you' %}">{% translate "Pronađite oglase za sebe" %}<span aria-hidden="true"> ↗</span></a>
@@ -18,6 +18,7 @@
   </div>
 </section>
 {% include 'board/_search_form.html' %}
+<p class="search-feedback" id="search-feedback" role="status" data-loading="{% translate 'Pretraživanje oglasa…' %}" data-error="{% translate 'Pretraga nije uspjela. Pokušajte ponovo.' %}"></p>
 <p id="results-status" class="visually-hidden" role="status" aria-live="polite"></p>
 <div id="results">{% include 'board/_results.html' %}</div>
 <script src="{% static 'board/htmx.min.js' %}" defer></script><script src="{% static 'board/search.js' %}" defer></script>

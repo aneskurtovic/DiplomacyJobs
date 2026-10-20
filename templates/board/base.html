@@ -21,9 +21,9 @@
   <link rel="preload" href="{% static 'board/fonts/public-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'board/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'board/site.css' %}">
-  <link rel="stylesheet" href="{% static 'board/refinement.css' %}?v=20261020c">
+  <link rel="stylesheet" href="{% static 'board/refinement.css' %}">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#0f4c81">
+  <meta name="theme-color" content="#173542">
   <link rel="icon" type="image/png" sizes="192x192" href="{% static 'board/icons/icon-192.png' %}">
   <link rel="apple-touch-icon" href="{% static 'board/icons/apple-touch-icon.png' %}">
   <script src="{% static 'board/register-sw.js' %}" defer></script>
@@ -31,6 +31,7 @@
   <link rel="alternate" type="application/atom+xml" title="DiplomacyJobs – novi oglasi" href="{% block feed_href %}/feed/{% endblock %}">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">{% translate "Preskoči na sadržaj" %}</a>
   {% include "board/_icons.html" %}
   {% url 'jobs' as jobs_url %}{% url 'sources' as sources_url %}{% url 'for_you' as for_you_url %}
   <header class="site-header">
@@ -45,7 +46,7 @@
       {% if language_links %}<span class="language-switch">{% for link in language_links %}{% if link.current %}<span class="current-language" aria-current="true">{{ link.code|upper }}</span>{% else %}<a href="{{ link.url }}" hreflang="{{ link.code }}" lang="{{ link.code }}" title="{{ link.name }}">{{ link.code|upper }}</a>{% endif %}{% endfor %}</span>{% endif %}
     </div>
   </header>
-  <main class="wrap">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
-  <footer class="wrap footer">{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %} · <a href="{% url 'report' %}?page={{ request.get_full_path|urlencode }}">{% translate "Prijavi problem" %}</a></footer>
+  <main class="wrap" id="main-content" tabindex="-1">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
+  <footer class="wrap footer"><div class="footer-about"><strong>DiplomacyJobs</strong><p>{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %}</p></div><nav aria-label="{% translate 'Korisni linkovi' %}"><a href="{{ sources_url }}">{% translate "Izvori i pokrivenost" %}</a><a href="{% url 'report' %}?page={{ request.get_full_path|urlencode }}">{% translate "Prijavi problem" %}</a></nav></footer>
 </body>
 </html>

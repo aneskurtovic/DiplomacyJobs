@@ -523,7 +523,7 @@ def offline(request):
 
 
 PWA_ICONS = (("board/icons/icon-192.png", "192x192", "any"), ("board/icons/icon-512.png", "512x512", "any"), ("board/icons/icon-maskable-512.png", "512x512", "maskable"))
-PRECACHE_STATIC = ("board/tokens.css", "board/site.css", "board/fonts/public-sans-latin-wght-normal.woff2", "board/icons/icon-192.png", "board/share.js")
+PRECACHE_STATIC = ("board/tokens.css", "board/site.css", "board/refinement.css", "board/fonts/public-sans-latin-wght-normal.woff2", "board/icons/icon-192.png", "board/share.js")
 
 
 def manifest(request):
@@ -536,8 +536,8 @@ def manifest(request):
         "start_url": "/",
         "scope": "/",
         "display": "standalone",
-        "background_color": "#ffffff",
-        "theme_color": "#0f4c81",
+        "background_color": "#f5f8f8",
+        "theme_color": "#173542",
         "icons": [{"src": static(path), "sizes": sizes, "type": "image/png", "purpose": purpose} for path, sizes, purpose in PWA_ICONS],
     }
     response = JsonResponse(data, content_type="application/manifest+json", json_dumps_params={"ensure_ascii": False})

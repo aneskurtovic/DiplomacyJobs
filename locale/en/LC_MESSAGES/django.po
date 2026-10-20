@@ -1621,3 +1621,43 @@ msgstr "If you did not request a reset, ignore this message."
 
 #~ msgid "Detalji i uslovi"
 #~ msgstr "Details and requirements"
+
+msgid "Preskoči na sadržaj"
+msgstr "Skip to content"
+
+msgid "Korisni linkovi"
+msgstr "Useful links"
+
+msgid "Pretraživanje oglasa…"
+msgstr "Searching jobs…"
+
+msgid "Pretraga nije uspjela. Pokušajte ponovo."
+msgstr "Search failed. Please try again."
+
+msgid "Dodajte obrazovanje, iskustvo i jezike"
+msgstr "Add education, experience and languages"
+
+msgid "Opcionalno"
+msgstr "Optional"
+
+msgid "Šta tražite?"
+msgstr "What are you looking for?"
+
+msgid "Počnite s onim što vam je važno. Sva polja su opcionalna."
+msgstr "Start with what matters to you. All fields are optional."
+
+msgid "Pogledajte detalje"
+msgstr "View details"
+
+msgid "Sadržaj oglasa"
+msgstr "On this page"
+
+msgid ""
+"Prijavljujete se kod poslodavca. Pripremite dokumente i provjerite upute u "
+"službenom oglasu."
+msgstr ""
+"You apply directly to the employer. Prepare your documents and check the "
+"instructions in the official advert."
+
+msgid "Prilike u Bosni i Hercegovini"
+msgstr "Opportunities in Bosnia and Herzegovina"

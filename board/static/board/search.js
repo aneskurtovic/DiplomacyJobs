@@ -1,5 +1,18 @@
 // The job search form, kept out of inline htmx attributes so the Content-Security-Policy can forbid eval.
 (() => {
+  // Search feedback remains visible if the connection or server fails.
+  const feedback = () => document.getElementById("search-feedback");
+  const isSearch = (event) => event.detail.elt && event.detail.elt.id === "job-search";
+  document.addEventListener("htmx:beforeRequest", (event) => {
+    if (!isSearch(event) || !feedback()) return;
+    feedback().textContent = feedback().dataset.loading;
+    feedback().classList.remove("is-error");
+  });
+  document.addEventListener("htmx:afterRequest", (event) => {
+    if (!isSearch(event) || !feedback()) return;
+    feedback().textContent = event.detail.successful ? "" : feedback().dataset.error;
+    feedback().classList.toggle("is-error", !event.detail.successful);
+  });
   // A changed select searches at once; the text field has its own delayed trigger on the form.
   document.addEventListener("change", (event) => {
     if (event.target.tagName === "SELECT" && event.target.closest("#job-search")) htmx.trigger("#job-search", "filter-change");

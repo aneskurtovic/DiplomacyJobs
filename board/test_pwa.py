@@ -36,6 +36,7 @@ class InstallableSiteTests(TestCase):
         self.assertEqual(response["Cache-Control"], "no-cache")
         body = response.content.decode()
         self.assertIn("/offline/", body)
+        self.assertIn("/static/board/refinement.css", body)
         self.assertIn("dj-pages-v1", body)
 
     def test_offline_pages_are_not_indexed(self):

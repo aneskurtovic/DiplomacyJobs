@@ -3,20 +3,20 @@
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 {% block content %}
 <section class="candidate-intro">
-  <p class="eyebrow">{% translate "PRONAĐITE OGLASE" %}</p>
   <h1>{% translate "Oglasi za vas" %}</h1>
   <p>{% translate "Unesite nekoliko želja. Oglase rangiramo prema objavljenim podacima, a nepoznate uslove jasno označavamo. Sve oglase uvijek možete vidjeti u pretrazi." %}</p>
   <p><a href="{% url 'jobs' %}">{% translate "Pogledajte sve oglase" %} →</a></p>
   {% if candidate_signup_open and not request.user.is_authenticated %}<p><a href="{% url 'candidate_signup' %}">{% translate "Sačuvajte postavke uz besplatan račun" %} →</a></p>{% endif %}
 </section>
-<form class="candidate-form" method="post" action="{% url 'for_you' %}">
+<form class="candidate-form discovery-form" method="post" action="{% url 'for_you' %}#candidate-results-heading">
   {% csrf_token %}
-  {% include 'board/_candidate_fields.html' %}
+  <div class="form-intro"><h2>{% translate "Šta tražite?" %}</h2><p>{% translate "Počnite s onim što vam je važno. Sva polja su opcionalna." %}</p></div>
+  {% include 'board/_candidate_fields.html' with progressive=True %}
   <button class="candidate-submit" type="submit">{% translate "Prikaži odgovarajuće oglase" %}</button>
 </form>
 {% if preview_started %}
 <section class="candidate-results" aria-labelledby="candidate-results-heading">
-  <h2 id="candidate-results-heading">{% translate "Vaši rezultati" %} <span>({{ matches|length }})</span></h2>
+  <h2 id="candidate-results-heading" tabindex="-1">{% translate "Vaši rezultati" %} <span>({{ matches|length }})</span></h2>
   {% if matches %}
     {% for match in matches %}
     <article class="candidate-match">
@@ -26,12 +26,12 @@
       {% if match.reasons %}<p class="candidate-reason"><strong>{% translate "Zašto je prikazan:" %}</strong> {{ match.reasons.0 }}</p>{% endif %}
       {% if match.unknowns %}<p class="candidate-unknown">{% translate "Poslodavac nije naveo sve uslove — provjerite službeni oglas." %}</p>{% endif %}
       {% if match.cautions %}<p class="candidate-caution">{{ match.cautions.0 }}</p>{% endif %}
-      <details><summary>{% translate "Detalji podudaranja" %}</summary>
+      {% if match.reasons or match.unknowns or match.cautions %}<details><summary>{% translate "Detalji podudaranja" %}</summary>
         {% if match.reasons %}<ul>{% for reason in match.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>{% endif %}
         {% if match.unknowns %}<ul>{% for unknown in match.unknowns %}<li>{{ unknown }}</li>{% endfor %}</ul>{% endif %}
         {% if match.cautions %}<ul>{% for caution in match.cautions %}<li>{{ caution }}</li>{% endfor %}</ul>{% endif %}
-      </details>
-      <div class="candidate-actions"><a class="candidate-apply" href="{% url 'official_application' match.job.pk %}?from=for_you" target="_blank" rel="noopener noreferrer">{% translate "Službeni oglas / prijava" %} ↗</a>
+      </details>{% endif %}
+      <div class="candidate-actions"><a class="button-secondary" href="{{ match.job.get_absolute_url }}">{% translate "Pogledajte detalje" %}</a><a class="candidate-apply" href="{% url 'official_application' match.job.pk %}?from=for_you" target="_blank" rel="noopener noreferrer">{% translate "Službeni oglas / prijava" %} ↗<span class="visually-hidden"> {% translate "(otvara se u novom prozoru)" %}</span></a>
         <form method="post" action="{% url 'not_relevant' match.job.pk %}">{% csrf_token %}<button type="submit">{% translate "Nije relevantno" %}</button></form></div>
     </article>
     {% endfor %}
