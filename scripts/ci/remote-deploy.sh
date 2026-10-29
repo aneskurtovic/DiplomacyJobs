@@ -16,6 +16,12 @@ git cat-file -e "$sha^{commit}"
 git merge-base --is-ancestor "$sha" origin/main || { echo "Commit is not on origin/main" >&2; exit 1; }
 
 compose=(docker compose -f compose.prod.yaml)
+# Build beside the live app only when there is room for layers and a dump.
+available_kb=$(df -Pk "$app_dir" | awk 'NR==2 {print $4}')
+if (( available_kb < 6 * 1024 * 1024 )); then
+    echo "Deployment refused: less than 6 GiB disk headroom; inspect platform capacity" >&2
+    exit 1
+fi
 git checkout --detach "$sha"
 "$app_dir/scripts/ci/backup-db.sh"
 "${compose[@]}" config --quiet

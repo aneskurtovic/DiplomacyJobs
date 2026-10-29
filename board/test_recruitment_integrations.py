@@ -25,6 +25,10 @@ def spanish_block(stamp, role, label, href):
 
 class RecruitmentIntegrationTests(TestCase):
     def setUp(self):
+        # Fixture deadlines are in October 2026; wall-clock time must not expire them.
+        clock = patch("board.ingest.timezone.localdate", return_value=date(2026, 10, 3))
+        clock.start()
+        self.addCleanup(clock.stop)
         self.org = Organization.objects.create(name="Test mission", city="Sarajevo")
 
     def source(self, adapter, url, config=None):

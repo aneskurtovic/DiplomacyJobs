@@ -15,6 +15,17 @@ INTERRUPTED = "Interrupted: the scheduler restarted during this run"
 logger = logging.getLogger(__name__)
 
 
+def failure_category(error):
+    message = error.lower()
+    if "http 202" in message or "403" in message or "429" in message:
+        return "upstream_block"
+    if "redirect host" in message:
+        return "redirect"
+    if any(word in message for word in ("timeout", "timed out", "connection", "502", "503", "504")):
+        return "upstream_transient"
+    return "parse_or_validation"
+
+
 def lock_path():
     return Path("/tmp/diplomacyjobs-scrape.lock") if os.name != "nt" else Path(os.environ.get("TEMP", ".")) / "diplomacyjobs-scrape.lock"
 
@@ -63,20 +74,37 @@ class Command(BaseCommand):
                 return
             if options["scheduled"]:
                 sources = due_sources(sources, timezone.now())
+            counts = {"succeeded": 0, "failed": 0, "skipped": 0}
+            started = time.monotonic()
             try:
                 for source in sources:
+                    source_started = time.monotonic()
                     # One source's unexpected error must not skip the rest or the expiry pass.
                     try:
                         result = ingest_source(source.pk)
                     except Exception as exc:
+                        counts["failed"] += 1
                         logger.exception("Source %s: unexpected scrape error", source.pk)
                         self.stderr.write(f"{source.pk}: unexpected error: {exc}")
                         continue
                     if result is None:
+                        counts["skipped"] += 1
                         self.stdout.write(f"{source.pk}: skipped, another run is in progress")
                     else:
+                        counts["succeeded" if result.success else "failed"] += 1
+                        if not result.success:
+                            # Keep response bodies and URLs out of operational logs;
+                            # full error evidence remains in the source's run history.
+                            logger.warning(
+                                "scrape_source_failed source_id=%s adapter=%s category=%s duration_seconds=%.3f",
+                                source.pk, source.adapter, failure_category(result.error), time.monotonic() - source_started,
+                            )
                         self.stdout.write(f"{source.pk}: {'ok' if result.success else result.error}")
             finally:
+                logger.info(
+                    "scrape_summary succeeded=%s failed=%s skipped=%s duration_seconds=%.3f",
+                    counts["succeeded"], counts["failed"], counts["skipped"], time.monotonic() - started,
+                )
                 expire_jobs()
                 closed = reconcile_aggregator_duplicates()
                 if closed:

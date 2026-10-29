@@ -154,14 +154,25 @@ def parse_published(text):
 
 
 # Some servers drop idle keep-alive connections without notice (gov.br); one retry opens a fresh connection.
-RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError)
+RETRYABLE = (httpx.RemoteProtocolError, httpx.ConnectError, httpx.ReadError, httpx.TimeoutException)
 
 
 def request(client, method, url, **options):
-    try:
-        return getattr(client, method)(url, **options)
-    except RETRYABLE:
-        return getattr(client, method)(url, **options)
+    # Only idempotent reads retry here. POST adapters own their request budget,
+    # notably the once-daily UNDP procurement search.
+    attempts = 2 if method.lower() in ("get", "head") else 1
+    for attempt in range(attempts):
+        try:
+            response = getattr(client, method)(url, **options)
+        except (*RETRYABLE, curl_requests.RequestsError) as exc:
+            transient = not isinstance(exc, curl_requests.RequestsError) or exc.code in (6, 7, 18, 28, 52, 56)
+            if not transient or attempt + 1 == attempts:
+                raise
+        else:
+            if response.status_code not in (502, 503, 504) or attempt + 1 == attempts:
+                return response
+            response.close()
+        time.sleep(1)
 
 
 def fetch(client, url, keep=()):
@@ -177,7 +188,7 @@ def fetch(client, url, keep=()):
     final_host = urlsplit(str(response.url)).hostname or ""
     requested_host = urlsplit(url).hostname or ""
     if not trusted_host(final_host, requested_host):
-        raise ValueError("Unexpected redirect host")
+        raise ValueError(f"Unexpected redirect host: {requested_host!r} -> {final_host!r}")
     if "pdf" in content_type or urlsplit(url).path.lower().endswith(".pdf"):
         return "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(response.content)).pages), None
     if "html" not in content_type:
@@ -206,7 +217,7 @@ def fetch_json(client, url, payload=None, headers=None):
     if len(response.content) > 5_000_000:
         raise ValueError("Document larger than 5 MB")
     if urlsplit(str(response.url)).hostname != urlsplit(url).hostname:
-        raise ValueError("Unexpected redirect host")
+        raise ValueError(f"Unexpected redirect host: {urlsplit(url).hostname!r} -> {urlsplit(str(response.url)).hostname!r}")
     return response.json()
 
 

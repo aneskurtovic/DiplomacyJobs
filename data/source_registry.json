@@ -1831,6 +1831,7 @@
       {
         "url": "https://reliefweb.int/jobs/rss.xml?advanced-search=%28C40%29",
         "adapter": "reliefweb",
+        "adapter_config": {"min_scrape_interval_hours": 24},
         "status": "verified",
         "enabled": true,
         "notes": "Filter zemlje C40 (BiH). Regionalni oglasi s više zemalja traže BiH kao mjesto boravka/rada u tekstu. Provjereno uživo 2026-10-03: 1 oglas (International Detention Coalition, Balkans). 2026-10-08: HTML lista s Hetznera vraća HTTP 202 izazov; izvor čita RSS feed iste pretrage (cijeli oglas, rok, organizacija, link za prijavu), bez otvaranja stranica oglasa. Feed nema ukupan broj; 20 stavki se tretira kao moguće skraćen. Službeni API traži odobren appname."

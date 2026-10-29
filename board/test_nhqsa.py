@@ -28,6 +28,19 @@ class NhqsaTests(SimpleTestCase):
     def test_header_only_table_means_no_vacancies(self):
         self.assertEqual(nhqsa_links(None, self.source, page(), {}), [])
 
+    def test_empty_editor_row_means_no_vacancies(self):
+        row = '<tr>' + '<td><br/> &nbsp;</td>' * 5 + '</tr>'
+        self.assertEqual(nhqsa_links(None, self.source, page(row), {}), [])
+
+    def test_partial_or_link_only_row_is_not_an_empty_state(self):
+        for cells in (
+            '<td>Driver</td>' + '<td><br/></td>' * 4,
+            '<td><a href="/resources/vacancy.pdf"></a></td>' + '<td></td>' * 4,
+            '<td></td>' * 4,
+        ):
+            with self.subTest(cells=cells), self.assertRaisesMessage(ValueError, 'row changed shape'):
+                nhqsa_links(None, self.source, page(f'<tr>{cells}</tr>'), {})
+
     def test_reshaped_page_fails(self):
         with self.assertRaisesMessage(ValueError, "table missing"):
             nhqsa_links(None, self.source, BeautifulSoup("<main><p>Vacancies</p></main>", "html.parser"), {})

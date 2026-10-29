@@ -128,3 +128,21 @@ Production request errors, scheduler exceptions, and unexpected source errors in
 The database has no public port. [The backup script](scripts/ci/backup-db.sh) writes a checked custom-format dump; [host cron](deploy/diplomacyjobs-backup.cron) runs it daily with 30-day retention. [The restore check](scripts/ci/restore-check.sh) creates and removes a scratch database, then compares source and job counts. Monitor `/health/` (liveness; the scheduler container waits on it), `/health/scrape/` (503 and the affected source URLs when an enabled source has not succeeded for 48 hours), Compose logs, and the source coverage page, which shows such sources as unavailable. The scrape health endpoint can remain 503 when an upstream source blocks requests from the Hetzner network; each affected source remains visible as unavailable.
 
 The app should not be publicly described as comprehensive; `/sources/` shows exactly which employers are covered.
+
+### Operational safeguards (2026-10-29)
+
+Scrape logs include `scrape_source_failed` warnings with source ID, adapter,
+failure category and elapsed seconds, plus a `scrape_summary` per run. Full
+failure evidence remains in the source run history. `/health/scrape/` also
+returns 503 after three consecutive failures, even before the 48-hour stale
+threshold. Disabled sources are excluded and a successful scrape clears the
+failure counter.
+
+GET/HEAD requests retry once after one second for transport timeouts and
+502/503/504 responses. Challenges and rate limits do not retry; POST adapters
+retain their own request budgets. ReliefWeb's registry interval is 24 hours
+while upstream access is blocked. Apply the registry after deployment.
+
+The deploy script refuses a build with less than 6 GiB free disk space. Host
+capacity monitoring, bounded journal retention and conservative cache cleanup
+are owned by the separate `infra` repository.

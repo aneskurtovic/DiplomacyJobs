@@ -563,4 +563,11 @@ def scrape_health(request):
     """For external monitoring. /health/ stays a liveness check because the scheduler container waits on it."""
     stale = Source.objects.filter(enabled=True).exclude(adapter="none").filter(Q(last_success_at__isnull=True) | Q(last_success_at__lt=timezone.now() - STALE_AFTER))
     names = list(stale.values_list("url", flat=True)[:20])
-    return HttpResponse("ok" if not names else "stale:\n" + "\n".join(names), content_type="text/plain", status=200 if not names else 503)
+    failing = Source.objects.filter(enabled=True, consecutive_failures__gte=3).exclude(adapter="none").exclude(pk__in=stale.values("pk"))
+    failures = list(failing.values_list("url", flat=True)[:20])
+    sections = []
+    if names:
+        sections.append("stale:\n" + "\n".join(names))
+    if failures:
+        sections.append("consecutive failures (3+):\n" + "\n".join(failures))
+    return HttpResponse("\n".join(sections) or "ok", content_type="text/plain", status=503 if sections else 200)

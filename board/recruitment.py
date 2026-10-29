@@ -576,6 +576,10 @@ def nhqsa_links(client, source, soup, evidence):
         cells = row.find_all("td")
         if not cells:
             continue
+        # The editor leaves a full row of <br> cells after removing the last
+        # vacancy. Never treat partial rows or non-text advert links as empty.
+        if len(cells) == len(NHQSA_COLUMNS) and all(not text(cell) for cell in cells) and not row.find(["a", "img", "iframe", "object"]):
+            continue
         link = cells[-1].find("a", href=re.compile(r"\.pdf$", re.I)) if len(cells) == len(NHQSA_COLUMNS) else None
         deadline = core.parse_date(text(cells[3])) if link else None
         if not link or not text(cells[0]) or not deadline:
