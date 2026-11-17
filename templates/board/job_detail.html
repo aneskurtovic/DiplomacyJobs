@@ -9,7 +9,6 @@
   <meta name="twitter:card" content="summary_large_image">
   {% endif %}{% endblock %}
 {% block head_extra %}{{ posting }}{% endblock %}
-{% block robots %}{% if not current %}<meta name="robots" content="noindex">{% endif %}{% endblock %}
 {% block content %}
 <nav class="crumbs" aria-label="{% translate 'Putanja' %}"><a href="{% url 'jobs' %}"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-back"></use></svg>{% translate "Svi oglasi" %}</a></nav>
 <article class="job-page">

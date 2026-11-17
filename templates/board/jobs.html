@@ -1,5 +1,4 @@
 {% extends 'board/base.html' %}{% load board_extras i18n static %}
-{% block robots %}{% if filtered %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
 {% block canonical %}{{ public_base }}{{ request.path }}{% if not filtered and page.number > 1 %}?page={{ page.number }}{% endif %}{% endblock %}
 {% block feed_href %}/feed/{% if feed_query %}?{{ feed_query }}{% endif %}{% endblock %}
 {% block content %}{% url 'sources' as sources_url %}

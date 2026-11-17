@@ -2,6 +2,12 @@
 
 Scope and launch gates are in [PLAN.md](PLAN.md). Current counts, verification results and the ordered next steps are in [HANDOFF.md](HANDOFF.md); this file does not repeat them.
 
+## Public indexing acceptance (2026-11-17)
+
+- [x] Fix recursive report-link discovery; make current and historical public jobs and all organizations indexable; include them in both sitemap languages. Local regression and full-suite checks passed; see [audit](docs/google-indexing-2026-11-17.md).
+- [ ] Deploy and verify representative pages with GSC Test live URL, including Cloudflare access, canonical URLs, archive HTTP 200 and absence of noindex. Resubmit sitemap and validate the corrected exclusions.
+- [ ] Obtain separate GSC exports for the two 5xx URLs and the 76 discovered/crawled-but-not-indexed URLs; the supplied export covers only noindex exclusions.
+
 ## P0 — Source access and content coverage
 
 - [ ] Romania remains unavailable: sarajevo.mae.ro and www.mae.ro require a JavaScript browser check; cariera.mae.ro is a login-only platform. No challenge solving.

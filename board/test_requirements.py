@@ -161,22 +161,22 @@ class JobPageTests(TestCase):
         self.assertRedirects(self.client.get(f"/jobs/{self.job.pk}/"), self.job.get_absolute_url(), status_code=301)
         self.assertRedirects(self.client.get(f"/jobs/{self.job.pk}/old-title/"), self.job.get_absolute_url(), status_code=301)
 
-    def test_review_jobs_are_private_and_closed_jobs_are_gone(self):
+    def test_review_jobs_are_private_and_previously_published_jobs_remain_readable(self):
         self.job.status = "review"
         self.job.save()
         self.assertEqual(self.client.get(self.job.get_absolute_url()).status_code, 404)
         self.job.status, self.job.closed_reason = "closed", "deadline"
         self.job.save()
         gone = self.client.get(self.job.get_absolute_url())
-        self.assertEqual(gone.status_code, 410)
-        self.assertNotContains(gone, "Project Coordinator", status_code=410)
+        self.assertContains(gone, "Project Coordinator")
+        self.assertContains(gone, "više nije među aktuelnim")
 
-    def test_expired_published_job_is_marked_and_not_indexed(self):
+    def test_expired_published_job_is_marked_and_indexable(self):
         self.job.deadline = timezone.localdate() - timedelta(days=1)
         self.job.save()
         response = self.client.get(self.job.get_absolute_url())
         self.assertContains(response, "više nije među aktuelnim")
-        self.assertContains(response, '<meta name="robots" content="noindex">', html=False)
+        self.assertNotContains(response, '<meta name="robots" content="noindex">', html=False)
 
     def test_requirement_filters(self):
         def titles(**params):

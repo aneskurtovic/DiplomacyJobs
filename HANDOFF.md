@@ -1,6 +1,13 @@
 # DiplomacyJobs continuation handoff
 
-Updated: 2026-10-20 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
+Updated: 2026-11-17 (Europe/Sarajevo). This file records current counts and verification results; [PLAN.md](PLAN.md) holds scope and launch gates, [BACKLOG.md](BACKLOG.md) the work list. Dated sections below preserve their original observations.
+
+## Public indexing changes (2026-11-17; local, not deployed)
+
+- The owner's GSC noindex export contains 1,000 examples: 992 report URL variants, seven organization pages and one sorted listing. Footer and language links generated recursively nested report URLs; regression tests reproduced this before the fix.
+- Public current and historical jobs are now indexable and included in both language sitemaps. Previously public closed jobs return readable 200 pages; manual rejections, duplicates and never-public records remain hidden. All organization pages are indexable, including those without jobs. Employer history links to archived detail pages. Public lists and report pages no longer emit noindex; filtered copies retain canonical consolidation.
+- Full local SQLite suite: 333 tests passed, one PostgreSQL-only skip, using Python 3.11. After adding a sitemap-wide eligibility check, the final focused suite passed 59 tests. CI/production target Python 3.12. No deployment or GSC validation performed.
+- Production robots/sitemap requests from this environment returned Cloudflare 403/error 1010; Googlebot accessibility remains unverified. Next: deploy, use GSC live URL tests, resubmit the sitemap, and obtain the separate 5xx and discovered/crawled-not-indexed exports. Evidence and exact acceptance steps: [indexing audit](docs/google-indexing-2026-11-17.md).
 
 ## Source coverage work in the local checkout (2026-10-20; not yet deployed)
 

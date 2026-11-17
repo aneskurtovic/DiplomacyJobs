@@ -14,7 +14,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.conf import settings
 from django.templatetags.static import static
-from django.urls import reverse, translate_url
+from django.urls import Resolver404, resolve, reverse, translate_url
 from django.utils import timezone, translation
 from django.utils.cache import patch_vary_headers
 from django.utils.html import escape
@@ -34,6 +34,12 @@ def visible_jobs():
     cutoff = timezone.now() - timedelta(days=30)
     query = Job.objects.filter(status="published", source__enabled=True).filter(Q(deadline__gte=today) | Q(deadline__isnull=True)).filter(Q(deadline__isnull=False) | Q(first_seen_at__gte=cutoff) | Q(last_reviewed_at__gte=cutoff))
     return query.filter(pk__in=unique_visible_ids(query))
+
+
+def public_jobs():
+    """Readable jobs, including published history; editorial rejections remain hidden."""
+    archive = Q(status="closed", published_at__isnull=False) & ~Q(closed_reason__in=("manual", "duplicate"))
+    return Job.objects.filter(Q(status="published") | archive)
 
 
 def filter_jobs(query, params):
@@ -199,11 +205,11 @@ def fields_in(query):
 
 
 def job_detail(request, pk, slug=None):
-    """One job. Only published jobs have a public page; a closed one answers 410 without showing unreviewed details."""
+    """Current and previously public jobs retain readable, indexable detail pages."""
     job = get_object_or_404(Job.objects.select_related("source__organization"), pk=pk)
-    if job.status == "closed":
+    if job.status == "closed" and not public_jobs().filter(pk=job.pk).exists():
         return render(request, "board/job_gone.html", {"job": job}, status=410)
-    if job.status != "published":
+    if job.status not in ("published", "closed"):
         raise Http404(gettext("Nema tog oglasa"))
     if slug != job.slug:
         return redirect(job.get_absolute_url(), permanent=True)
@@ -281,11 +287,17 @@ def client_hash(request):
 
 
 def report(request, pk=None):
-    """Report a problem with a published job (pk) or with the site."""
-    job = get_object_or_404(Job.objects.select_related("source__organization"), pk=pk, status="published") if pk is not None else None
+    """Report a problem with a public job (pk) or with the site."""
+    job = get_object_or_404(public_jobs().select_related("source__organization"), pk=pk) if pk is not None else None
     back = job.get_absolute_url() if job else reverse("jobs")
     page = (request.POST.get("page") or request.GET.get("page") or "")[:500]
     page = page if page.startswith("/") and not page.startswith("//") else ""
+    if page:
+        try:
+            if resolve(urlsplit(page).path).url_name in ("report", "job_report"):
+                page = ""
+        except (Resolver404, ValueError):
+            page = ""
     sent_back = back if job or not page else page
     # Sent from the page by htmx, the form is answered in place instead of by a redirect.
     in_place = request.method == "POST" and request.headers.get("HX-Request")
@@ -389,11 +401,8 @@ def past_jobs(organization, known, visible):
 
 
 def public_organizations():
-    """Organizations whose page lists at least one current or past job; only those pages are indexed and in the sitemap."""
-    known = registry()
-    visible = visible_jobs()
-    jobs = [*visible.select_related("source__organization").defer("raw_text"), *past_job_query(visible)]
-    return sorted({related.owner(job, known) for job in jobs}, key=lambda item: item.pk)
+    """Every registry organization has a public recruitment and coverage page."""
+    return Organization.objects.order_by("pk")
 
 
 def source_counts(published, today):
@@ -485,7 +494,7 @@ def languages(request):
     if match is None or match.url_name not in LANGUAGE_PAGES:
         return {"language_links": []}
     current = translation.get_language()
-    path = request.get_full_path()
+    path = request.path if match.url_name in ("report", "job_report") else request.get_full_path()
     return {"language_links": [{"code": code, "name": name, "url": translate_url(path, code), "current": code == current} for code, name in settings.LANGUAGES]}
 
 
@@ -505,11 +514,11 @@ def robots(request):
 
 def sitemap(request):
     paths = []
-    jobs = list(visible_jobs().only("pk", "title").order_by("pk"))
+    jobs = list(public_jobs().only("pk", "title").order_by("pk"))
     organizations = public_organizations()
     for code, _name in settings.LANGUAGES:
         with translation.override(code):
-            paths += [reverse("jobs"), reverse("sources"), *(job.get_absolute_url() for job in jobs), *(organization.get_absolute_url() for organization in organizations)]
+            paths += [reverse("jobs"), reverse("sources"), reverse("report"), reverse("candidate_privacy"), *(job.get_absolute_url() for job in jobs), *(organization.get_absolute_url() for organization in organizations)]
     urls = "".join(f"<url><loc>{escape(absolute(request, path))}</loc><changefreq>daily</changefreq></url>" for path in paths)
     return HttpResponse(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>', content_type="application/xml")
 

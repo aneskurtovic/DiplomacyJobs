@@ -111,12 +111,12 @@ class OrganizationPageTests(TestCase):
         job(self.aggregator, "Health Specialist", 2, status="closed", closed_reason="deadline", deadline=own.deadline, published_at=timezone.now(), canonical_url=own.canonical_url, field_evidence={"employer_name": "UNICEF - United Nations Children’s Fund"})
         self.assertEqual(list(self.client.get(self.unicef.organization.get_absolute_url()).context["past_page"]), [own])
 
-    def test_page_without_jobs_is_not_indexed_and_past_section_is_hidden(self):
+    def test_page_without_jobs_is_indexable_and_past_section_is_hidden(self):
         response = self.client.get(self.empty.organization.get_absolute_url())
-        self.assertContains(response, '<meta name="robots" content="noindex">')
+        self.assertNotContains(response, '<meta name="robots" content="noindex">')
         self.assertNotContains(response, "Raniji oglasi")
         sitemap = self.client.get("/sitemap.xml").content.decode()
-        self.assertNotIn(self.empty.organization.get_absolute_url(), sitemap)
+        self.assertIn(self.empty.organization.get_absolute_url(), sitemap)
 
     def test_sitemap_short_url_slug_and_links(self):
         own = job(self.unicef, "Child Protection Officer", 1)

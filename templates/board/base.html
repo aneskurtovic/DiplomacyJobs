@@ -47,6 +47,6 @@
     </div>
   </header>
   <main class="wrap" id="main-content" tabindex="-1">{% if messages %}<div class="messages" role="status">{% for message in messages %}<p class="message {{ message.tags }}">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
-  <footer class="wrap footer"><div class="footer-about"><strong>DiplomacyJobs</strong><p>{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %}</p></div><nav aria-label="{% translate 'Korisni linkovi' %}"><a href="{{ sources_url }}">{% translate "Izvori i pokrivenost" %}</a><a href="{% url 'report' %}?page={{ request.get_full_path|urlencode }}">{% translate "Prijavi problem" %}</a></nav></footer>
+  <footer class="wrap footer"><div class="footer-about"><strong>DiplomacyJobs</strong><p>{% translate "Oglasi vode na službene izvore. Uslove i rok prijave uvijek provjerite kod organizacije." %}</p></div><nav aria-label="{% translate 'Korisni linkovi' %}"><a href="{{ sources_url }}">{% translate "Izvori i pokrivenost" %}</a><a href="{% url 'report' %}{% if request.resolver_match.url_name != 'report' and request.resolver_match.url_name != 'job_report' %}?page={{ request.get_full_path|urlencode }}{% endif %}">{% translate "Prijavi problem" %}</a></nav></footer>
 </body>
 </html>

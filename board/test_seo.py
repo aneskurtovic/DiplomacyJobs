@@ -2,11 +2,25 @@
 import json
 import re
 from datetime import timedelta
+from html.parser import HTMLParser
+from urllib.parse import urlsplit, parse_qs
+from xml.etree import ElementTree
 
 from django.test import TestCase, override_settings
 from django.utils import timezone, translation
 
 from .test_related import STATIC, job, source
+
+
+class Links(HTMLParser):
+    def __init__(self, content):
+        super().__init__()
+        self.urls = []
+        self.feed(content)
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("a", "link"):
+            self.urls.extend(value for key, value in attrs if key == "href")
 
 
 def posting(response):
@@ -39,15 +53,64 @@ class SeoTests(TestCase):
         expired = job(self.undp, "Driver", 2, deadline=timezone.localdate() - timedelta(days=1))
         response = self.client.get(expired.get_absolute_url())
         self.assertIsNone(posting(response))
-        self.assertContains(response, '<meta name="robots" content="noindex">')
+        self.assertNotContains(response, 'name="robots" content="noindex')
 
-    def test_filtered_list_is_not_indexed(self):
+    def test_filtered_list_is_indexable(self):
         job(self.undp, "Driver", 3)
         self.assertNotContains(self.client.get("/"), "noindex")
         response = self.client.get("/?city=Sarajevo")
-        self.assertContains(response, '<meta name="robots" content="noindex, follow">')
+        self.assertNotContains(response, 'name="robots" content="noindex')
         self.assertContains(response, '<link rel="canonical" href="https://example.org/">')
-        self.assertContains(self.client.get("/?sort=deadline"), "noindex, follow")
+        self.assertNotContains(self.client.get("/?sort=deadline"), "noindex, follow")
+
+    def test_public_archive_is_readable_and_in_both_language_sitemaps(self):
+        archived = job(self.undp, "Archived officer", 90, status="closed", closed_reason="archive", published_at=timezone.now(), deadline=timezone.localdate() - timedelta(days=10))
+        sitemap = self.client.get("/sitemap.xml")
+        for prefix in ("", "/en"):
+            url = prefix + archived.get_absolute_url()
+            response = self.client.get(url)
+            self.assertContains(response, archived.title)
+            self.assertNotContains(response, "noindex")
+            self.assertIsNone(posting(response))
+            self.assertContains(sitemap, "https://example.org" + url)
+        self.assertContains(self.client.get(self.undp.organization.get_absolute_url()), f'href="{archived.get_absolute_url()}"')
+
+    def test_hidden_closed_jobs_stay_out_of_the_archive(self):
+        for number, reason in enumerate(("manual", "duplicate", "deadline")):
+            hidden = job(self.undp, "Hidden record", 100 + number, status="closed", closed_reason=reason)
+            self.assertIsNone(hidden.published_at)
+            self.assertEqual(self.client.get(hidden.get_absolute_url()).status_code, 410)
+            self.assertNotContains(self.client.get("/sitemap.xml"), "https://example.org" + hidden.get_absolute_url())
+        for number, reason in enumerate(("manual", "duplicate")):
+            rejected = job(self.undp, "Rejected public record", 110 + number, status="closed", closed_reason=reason, published_at=timezone.now())
+            self.assertEqual(self.client.get(rejected.get_absolute_url()).status_code, 410)
+            self.assertNotContains(self.client.get("/sitemap.xml"), "https://example.org" + rejected.get_absolute_url())
+
+    def test_report_links_do_not_recursively_embed_report_pages(self):
+        for prefix in ("", "/en"):
+            url = prefix + "/report/?page=/report/?page%3D/en/jobs/17/example/"
+            response = self.client.get(url)
+            for link in Links(response.content.decode()).urls:
+                parsed = urlsplit(link)
+                if parsed.path.endswith("/report/"):
+                    self.assertNotIn("page", parse_qs(parsed.query), link)
+            self.assertEqual(response.context["page"], "")
+            self.assertContains(response, 'name="page" value=""')
+
+    def test_every_organization_is_indexable_even_without_jobs(self):
+        response = self.client.get(self.undp.organization.get_absolute_url())
+        self.assertNotContains(response, "noindex")
+        self.assertContains(self.client.get("/sitemap.xml"), "https://example.org" + self.undp.organization.get_absolute_url())
+
+    def test_every_sitemap_url_is_readable_and_indexable(self):
+        job(self.undp, "Current officer", 120)
+        job(self.undp, "Former officer", 121, status="closed", closed_reason="deadline", published_at=timezone.now())
+        tree = ElementTree.fromstring(self.client.get("/sitemap.xml").content)
+        for loc in tree.findall("{*}url/{*}loc"):
+            with self.subTest(url=loc.text):
+                response = self.client.get(urlsplit(loc.text).path)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotContains(response, "noindex")
 
     def test_later_pages_are_their_own_canonical(self):
         for number in range(21):
