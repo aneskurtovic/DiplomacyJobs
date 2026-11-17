@@ -256,7 +256,9 @@ def public_script(client, url):
 def canadian_arrays(script):
     arrays = []
     # Parse only string literals containing JSON; never execute scraped JavaScript.
-    for match in re.finditer(r"JSON\.parse\(('(?:\\.|[^'\\])*')\)", script):
+    for match in re.finditer(r'''JSON\.parse\(((?:'(?:\\.|[^'\\])*')|(?:"(?:\\.|[^"\\])*"))\)''', script):
+        # Build strings can use JavaScript hex escapes (\x3c for '<'), which
+        # aren't JSON escapes. Literal parsing supports these without execution.
         value = json.loads(ast.literal_eval(match[1]))
         if isinstance(value, list):
             arrays.append(value)

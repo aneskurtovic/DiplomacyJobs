@@ -390,33 +390,36 @@
     "kind": "embassy",
     "country": "GREECE",
     "city": "Sarajevo",
-    "website": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/",
+    "website": "https://www.mfa.gr/bosnia-herzegovina/en/",
     "evidence_url": "https://mvp.gov.ba/en/org_cmd57sdlc000nn43u2rk8pgsd_639234963454151503",
     "verified_at": "2026-10-02",
     "notes": "Adresa iz MFA direktorija. MFA web-adresa, ako postoji, zahtijeva zasebnu provjeru aktuelnosti.",
     "sources": [
       {
-        "url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
+        "url": "https://www.mfa.gr/bosnia-herzegovina/en/category/news/embassy-news/",
         "adapter": "generic",
         "status": "verified",
         "enabled": true,
         "adapter_config": {
           "impersonate": true,
           "allow_empty": true,
-          "path_contains": "/bosnia-herzegovina-en/news/",
-          "content_selector": "#sitecontent .inside",
-          "published_selector": ".item_createdate",
-          "page_item_selector": "li.sectiontableentry1, li.sectiontableentry2",
+          "path_contains": "/bosnia-herzegovina/en/",
+          "link_selector": ".module-post-news a[href]",
+          "listing_selector": "main .module-post-news",
+          "content_selector": "main article",
+          "published_selector": "article p.text-sm",
+          "page_item_selector": ".module-post-news .swiper-slide",
+          "next_page_selector": "a.next.page-numbers",
           "stop_at_older_page": true,
           "history": {}
         },
-        "notes": "Vijesti ambasade (Elxis CMS), 15 po stranici, sortirane po datumu; čitaju se stranice dok ima vijesti iz 2026. Oglasi imaju naslove kao 'OGLAS ZA SLOBODNO RADNO MJESTO', 'VACANCY ANNOUNCEMENT' (2024), 'Call for Applications - Administrative Staff'. Stranica odbija ne-preglednički TLS otisak (HTTP 403), pa koristi Chrome TLS impersonaciju. Provjereno 2026-10-03: nema oglasa u 2026."
+        "notes": "Vijesti ambasade na novom WordPress portalu; prethodni Elxis URL vraća 404. Provjereno 2026-11-17 sa Hetznera: lista vijesti, datumi i putanja /page/2/. Čitaju se stranice do prethodne godine; promjena strukture ili neispravna paginacija ne smije izgledati kao prazna lista oglasa."
       }
     ],
     "recruitment_status": "integration",
-    "recruitment_checked_at": "2026-10-03",
-    "recruitment_evidence_url": "https://www.mfa.gr/missionsabroad/en/bosnia-herzegovina-en/news/",
-    "recruitment_notes": "Lista vijesti dostupna uz Chrome TLS impersonaciju (2026-10-03); izvor dodan. Posljednji oglas za Sarajevo: novembar 2024."
+    "recruitment_checked_at": "2026-11-17",
+    "recruitment_evidence_url": "https://www.mfa.gr/bosnia-herzegovina/en/category/news/embassy-news/",
+    "recruitment_notes": "Novi portal provjeren sa Hetznera 2026-11-17; stari URL je 404. Lista vijesti za 2026. ne sadrži prepoznatljiv oglas za posao."
   },
   {
     "name": "Embassy of the Islamic Republic of Iran",

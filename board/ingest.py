@@ -1014,7 +1014,7 @@ def avature_date(value):
 
 
 # Listings whose card is the evidence: UN cards link to agency portals (several block bots), RCC links a ZIP, Oracle and Workday are JSON APIs, PeopleSoft and sitemap adapters read the advert themselves.
-FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu"}
+FEED_ADAPTERS = {"sfrss", "turkey", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu", "workday"}
 CARD_EVIDENCE = {"unct", "rcc", "oracle", "workday", "uncareers", "csod", "taleo", "bamboohr", "taleoftl", "sfrss", "turkey", "spain", "brazil", "slovenia", "canadales", "peoplesoft", "sitemap", "wordpress", "undpnotices", "kemlu"}
 AGGREGATOR_ADAPTERS = ("reliefweb", "impactpool")
 PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vacancy"}
@@ -1023,6 +1023,9 @@ PAGINATED = {"eeas": ".node--type-vacancy", "unct": "article.node--type-job-vaca
 def discover_links(client, source, soup, evidence=None):
     """Listing leads as (url, title). Adapters may add per-URL listing evidence (card text, closing dates) to `evidence`."""
     evidence = {} if evidence is None else evidence
+    config = source.adapter_config or {}
+    if source.adapter == "generic" and config.get("listing_selector") and not soup.select_one(config["listing_selector"]):
+        raise ValueError("Source listing element missing")
     if source.adapter in AGGREGATOR_ADAPTERS:
         from .aggregators import listing_links as aggregator_links
         return aggregator_links(client, source, soup, evidence)
@@ -1083,6 +1086,8 @@ def discover_links(client, source, soup, evidence=None):
     config = source.adapter_config or {}
     # A generic list opts in with the selector of one list item and the number its second page carries (?page=2 when page 1 has no parameter).
     item_selector = PAGINATED.get(source.adapter) or (config.get("page_item_selector") if source.adapter == "generic" else None)
+    if source.adapter == "generic" and config.get("next_page_selector") and (not item_selector or not soup.select(item_selector)):
+        raise ValueError("Paginated source listing element missing")
     if item_selector and soup.select(item_selector):
         second = int(config.get("second_page", 1))
 
@@ -1091,6 +1096,27 @@ def discover_links(client, source, soup, evidence=None):
             return config.get("stop_at_older_page") and not any(re.search(rf"\b(?:{TARGET_YEAR}|{TARGET_YEAR + 1})\b", item.get_text(" ")) for item in page_soup.select(item_selector))
         if older_page(soup):
             return list(dict.fromkeys(links))
+        if source.adapter == "generic" and config.get("next_page_selector"):
+            current_url, seen = source.url, {canonicalize(source.url)}
+            for _ in range(MAX_LISTING_PAGES):
+                next_link = soup.select_one(config["next_page_selector"])
+                if next_link is None:
+                    return list(dict.fromkeys(links))
+                next_url = urljoin(current_url, next_link.get("href", ""))
+                base, target = urlsplit(source.url), urlsplit(next_url)
+                if (target.scheme != base.scheme or target.netloc != base.netloc
+                        or not target.path.startswith(base.path.rstrip("/") + "/")
+                        or canonicalize(next_url) in seen):
+                    raise ValueError("Invalid or repeated listing pagination URL")
+                seen.add(canonicalize(next_url))
+                _, soup = fetch(client, next_url)
+                if soup is None or not soup.select(item_selector):
+                    raise ValueError("Paginated source listing element missing")
+                links += listing_links(source, soup)
+                if older_page(soup):
+                    return list(dict.fromkeys(links))
+                current_url = next_url
+            raise ValueError(f"{source.adapter} listing exceeds {MAX_LISTING_PAGES} pages; check pagination")
         for page in range(second, second + MAX_LISTING_PAGES):
             parts = urlsplit(source.url)
             query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True) if key != "page"] + [("page", str(page))]

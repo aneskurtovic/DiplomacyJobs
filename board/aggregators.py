@@ -105,6 +105,7 @@ def impactpool_application(client, url):
         target = safe_url(urljoin(url, response.headers.get("location", "")))
         if target and urlsplit(target).hostname not in {"www.impactpool.org", "impactpool.org"}:
             return target
+        return ""  # An internal redirect provides no verified employer URL.
     response.raise_for_status()
     return ""  # Login walls or a form are not an original employer URL.
 

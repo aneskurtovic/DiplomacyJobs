@@ -38,6 +38,10 @@ def due_sources(sources, now):
         # Existing production rows may not have the registry's new interval yet.
         default_hours = 24 if source.adapter == "undpnotices" else 1
         hours = max(1, int((source.adapter_config or {}).get("min_scrape_interval_hours", default_hours)))
+        # A persistent block/layout failure needs less traffic, not an hourly
+        # retry storm. A successful ingest resets consecutive_failures to zero.
+        if source.consecutive_failures:
+            hours = max(hours, min(24, 2 ** min(source.consecutive_failures, 5)))
         if source.previous_attempt is None or source.previous_attempt <= now - timedelta(hours=hours):
             yield source
 

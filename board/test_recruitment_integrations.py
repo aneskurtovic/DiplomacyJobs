@@ -150,11 +150,14 @@ class RecruitmentIntegrationTests(TestCase):
     def test_canadian_javascript_is_parsed_as_data_without_execution(self):
         self.assertEqual(canadian_arrays("e.exports=JSON.parse('[{\"title\":\"Driver\"}]');alert('ignored')"), [[{"title": "Driver"}]])
 
-    def canada_scan(self, jobs, missions):
+    def canada_scan(self, jobs, missions, double_quotes=False):
         source = self.source("canadales", "https://staffing-les.international.gc.ca/en/")
         name, digest = "a" * 40, "b" * 20
         runtime = f'x.u=function(e){{return({{366:"{name}"}}[e]||e)+"-"+{{366:"{digest}"}}[e]+".js"}}'
-        bundle = ";".join("e.exports=JSON.parse(" + repr(json.dumps(value)) + ")" for value in [jobs, missions])
+        def literal(value):
+            # Current Gatsby output uses double quotes and JS hex escapes in HTML.
+            return json.dumps(json.dumps(value)).replace("<", r"\x3c").replace(">", r"\x3e") if double_quotes else repr(json.dumps(value))
+        bundle = ";".join("e.exports=JSON.parse(" + literal(value) + ")" for value in [jobs, missions])
         def handle(req):
             if "runtime" in req.url.path:
                 return httpx.Response(200, text=runtime, headers={"content-type": "application/javascript"})
@@ -181,6 +184,13 @@ class RecruitmentIntegrationTests(TestCase):
         self.assertTrue(candidate.eligible)
         self.assertEqual(candidate.deadline, date(2026, 10, 20))
         self.assertIn("Work authorization", candidate.text)
+
+    def test_canadian_double_quoted_build_keeps_full_job_data(self):
+        job = self.canada_job()
+        job["description"] = ['<p>Driver’s duties include "transport" and C:\\routes.</p>']
+        _, links, evidence = self.canada_scan([job], [{"SYMBOL": "SARAJ", "country": "Bosnia and Herzegovina", "city": "Sarajevo"}], double_quotes=True)
+        self.assertEqual(len(links), 1)
+        self.assertIn('Driver’s duties include "transport" and C:\\routes.', evidence[links[0][0]])
 
     def test_canadian_unmatched_local_employer_is_failure(self):
         with self.assertRaisesMessage(ValueError, "does not belong"):

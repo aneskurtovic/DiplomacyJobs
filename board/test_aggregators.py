@@ -163,6 +163,15 @@ class AggregatorAdapterTests(TestCase):
             self.assertFalse(candidate.year_proven)
             self.assertIsNone(candidate.source_published_at)
 
+    def test_impactpool_internal_apply_redirect_keeps_unverified_job_for_review(self):
+        url = "https://www.impactpool.org/jobs/1246759"
+        source = SimpleNamespace(adapter="impactpool", url="https://www.impactpool.org/search", adapter_config={})
+        routes = {url: (200, IMPACTPOOL_JOB, {}), url + "/apply": (303, "", {"location": url})}
+        with self.http(routes) as client, patch("board.aggregators.timezone.localdate", return_value=date(2026, 10, 3)):
+            candidate = make_candidate(client, source, url, fetch(client, url)[1])
+        self.assertEqual(candidate.application_url, "")
+        self.assertFalse(candidate.year_proven)
+
 
 RELIEFWEB_FEED = """<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>ReliefWeb - Bosnia and Herzegovina Jobs</title>
 <item><title>Europe Programme Officer - Balkans</title><link>https://reliefweb.int/job/4230833/europe-programme-officer-balkans</link>
